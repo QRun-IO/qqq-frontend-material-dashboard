@@ -7,7 +7,7 @@
       "@emotion/react": "11.7.1",
       "@emotion/styled": "11.6.0",
       "@qrunio/qqq-frontend-core": "1.0.128",
-      "@mui/icons-material": "5.4.1",
+      "@mui/icons-material": "^5.15.0",
       "@mui/material": "5.11.1",
       "@mui/styles": "5.11.1",
       "@mui/system": "5.11.1",
@@ -60,14 +60,22 @@
       "yup": "0.32.11"
    },
    "scripts": {
-      "build": "react-scripts build",
-      "clean": "rm -rf node_modules package-lock.json lib",
-      "eject": "react-scripts eject",
-      "clean-and-install": "rm -rf node_modules/ && rm -rf package-lock.json && rm -rf lib/ && npm install --legacy-peer-deps && npm dedupe --force",
-      "npm-install": "npm install --legacy-peer-deps",
-      "prepublishOnly": "tsc -p ./ --outDir lib/",
       "start": "BROWSER=none react-scripts --max-http-header-size=65535 start",
-      "test": "react-scripts test"
+      "dev": "npm start",
+      "build": "react-scripts build",
+      "prebuild": "npm run type-check",
+      "test": "react-scripts test",
+      "test:ci": "react-scripts test --coverage --watchAll=false",
+      "test:coverage": "react-scripts test --coverage",
+      "lint": "eslint src --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
+      "lint:fix": "eslint src --ext .ts,.tsx --fix",
+      "type-check": "tsc --noEmit",
+      "clean": "rm -rf node_modules/ && rm -rf lib/ && rm -rf build/",
+      "clean:deps": "rm -rf node_modules/ && rm -rf package-lock.json",
+      "install:legacy": "npm install --legacy-peer-deps && npm dedupe --force",
+      "prepare": "npm run type-check",
+      "prepublishOnly": "npm run build && tsc -p ./ --outDir lib/",
+      "eject": "react-scripts eject"
    },
    "eslintConfig": {
       "extends": [

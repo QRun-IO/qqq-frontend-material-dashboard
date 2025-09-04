@@ -107,9 +107,11 @@ src/
 
 - **Node.js**: LTS version (18.x or higher)
 - **npm**: 8.x or higher
+- **Java**: 17 or higher (for full builds)
+- **Maven**: 3.8+ (for full builds)
 - **QQQ Server**: Running instance of the QQQ framework
 
-### Installation
+### Quick Start
 
 1. **Clone the repository**
    ```bash
@@ -119,31 +121,79 @@ src/
 
 2. **Install dependencies**
    ```bash
-   npm install --legacy-peer-deps
+   npm run install:legacy
    ```
 
-3. **Configure QQQ server connection**
-   ```bash
-   # Set environment variables to point to your QQQ server
-   cp .env.example .env
-   # Edit .env with your QQQ server details
-   ```
-
-4. **Start development server**
+3. **Start development server**
    ```bash
    npm start
    ```
 
-5. **Open your browser**
+4. **Open your browser**
    Navigate to `http://localhost:3000`
+
+### Development Options
+
+#### Frontend-Only Development
+```bash
+npm start          # Start React dev server
+npm test           # Run frontend tests
+npm run build      # Build frontend
+npm run lint       # Check code quality
+```
+
+#### Full-Stack Development
+```bash
+mvn clean package  # Build everything (frontend + backend)
+mvn test           # Run all tests
+```
 
 ### Available Scripts
 
-- **`npm start`**: Start development server
-- **`npm run build`**: Build for production
-- **`npm test`**: Run test suite
-- **`npm run clean`**: Clean build artifacts
-- **`npm run clean-and-install`**: Clean and reinstall dependencies
+| Script | Purpose | When to Use |
+|--------|---------|-------------|
+| `npm start` | Start React dev server | Frontend development |
+| `npm run build` | Build React for production | Before deployment |
+| `npm test` | Run Jest tests | Testing |
+| `npm run lint` | Check code quality | Code review |
+| `npm run type-check` | Validate TypeScript | Type safety |
+| `npm run clean` | Clean build artifacts | Troubleshooting |
+| `npm run install:legacy` | Install with legacy peer deps | Initial setup |
+
+### CI/CD Pipeline
+
+For CI/CD environments, use Maven as the single build tool:
+
+```bash
+mvn clean package -Pci
+```
+
+This automatically:
+- Downloads Node.js and npm
+- Installs dependencies with `--legacy-peer-deps` (handles peer dependency conflicts)
+- Builds React frontend
+- Compiles Java code
+- Packages everything into a JAR
+
+#### Using QQQ GitHub Actions Library
+
+When using the QQQ GitHub Actions library, configure it to handle peer dependency conflicts:
+
+```yaml
+jobs:
+  test:
+    uses: Kingsrook/github-actions-library/.github/workflows/reusable-gitflow-test@main
+    with:
+      project-type: 'hybrid'
+      npm-use-legacy-peer-deps: 'true'  # Handle peer dependency conflicts
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+## 📖 Detailed Documentation
+
+For comprehensive development information, see:
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Complete development guide with local development, CI/CD, troubleshooting, and best practices
 
 ## 🔧 Configuration
 
