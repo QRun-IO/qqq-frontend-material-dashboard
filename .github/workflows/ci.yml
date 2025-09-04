@@ -19,7 +19,7 @@ jobs:
     with:
       project-type: 'maven'
       java-version: '17'
-      maven-args: '-B -q'
+      maven-args: '-B -q -P ci'
       maven-working-directory: '.'
     secrets:
       GPG_PRIVATE_KEY_B64: ${{ secrets.GPG_PRIVATE_KEY_B64 }}
@@ -38,9 +38,9 @@ jobs:
         startsWith(github.ref_name, 'release/') ||
         startsWith(github.ref_name, 'hotfix/')
       )
-    uses: Kingsrook/github-actions-library/.github/workflows/reusable-gitflow-test.yml@release/0.1.0
+    uses: Kingsrook/github-actions-library/.github/workflows/reusable-gitflow-test@develop
     with:
       project-type: 'maven'
       java-version: '17'
-      maven-args: '-B -q'
+      maven-args: '-B -q -P ci'
       maven-working-directory: '.'
