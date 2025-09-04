@@ -19,8 +19,9 @@ jobs:
     with:
       project-type: 'maven'
       java-version: '17'
-      maven-args: '-B -q -P ci package'
+      maven-args: '-B -q -P ci test'
       maven-working-directory: '.'
+      enable-browser-tests: 'true'
     secrets:
       GPG_PRIVATE_KEY_B64: ${{ secrets.GPG_PRIVATE_KEY_B64 }}
       GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
@@ -42,5 +43,6 @@ jobs:
     with:
       project-type: 'maven'
       java-version: '17'
-      maven-args: '-B -q -P ci package'
+      maven-args: '-B -q -P ci test'
       maven-working-directory: '.'
+      enable-browser-tests: 'true'

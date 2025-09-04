@@ -188,6 +188,19 @@
                      <npmVersion>9.6.7</npmVersion>
                      <workingDirectory>.</workingDirectory>
                   </configuration>
+                  <executions>
+                     <!-- Run React frontend tests in CI -->
+                     <execution>
+                        <id>npm-test-ci</id>
+                        <phase>test</phase>
+                        <goals>
+                           <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                           <arguments>run test:ci</arguments>
+                        </configuration>
+                     </execution>
+                  </executions>
                </plugin>
             </plugins>
          </build>
@@ -375,6 +388,17 @@
                   </goals>
                   <configuration>
                      <arguments>run build</arguments>
+                  </configuration>
+               </execution>
+               <!-- Run React frontend tests -->
+               <execution>
+                  <id>npm-test</id>
+                  <phase>test</phase>
+                  <goals>
+                     <goal>npm</goal>
+                  </goals>
+                  <configuration>
+                     <arguments>run test:ci</arguments>
                   </configuration>
                </execution>
             </executions>
