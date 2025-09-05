@@ -219,10 +219,9 @@
                      <testFailureIgnore>true</testFailureIgnore>
                      <failIfNoTests>false</failIfNoTests>
                      <useSystemClassLoader>false</useSystemClassLoader>
-                     <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+                     <argLine>-Xmx1024m</argLine>
                      <redirectTestOutputToFile>true</redirectTestOutputToFile>
                      <!-- Force XML report generation even on errors -->
-                     <maven.test.failure.ignore>true</maven.test.failure.ignore>
                   </configuration>
                </plugin>
             </plugins>
@@ -319,12 +318,11 @@
                <failIfNoTests>false</failIfNoTests>
                <!-- Generate XML reports for CI even on errors -->
                <useSystemClassLoader>false</useSystemClassLoader>
-               <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+               <argLine>-Xmx1024m</argLine>
                <!-- Force XML report generation -->
                <useFile>true</useFile>
                <redirectTestOutputToFile>true</redirectTestOutputToFile>
                <!-- Don't fail build on test errors, just report them -->
-               <maven.test.failure.ignore>true</maven.test.failure.ignore>
             </configuration>
          </plugin>
          <plugin>
