@@ -48,6 +48,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class QBaseSeleniumTest
 {
    protected static ChromeOptions chromeOptions;
+   protected static String userDataDir;
 
    protected WebDriver        driver;
    protected QSeleniumJavalin qSeleniumJavalin;
@@ -65,6 +66,24 @@ public class QBaseSeleniumTest
       chromeOptions.setAcceptInsecureCerts(true);
       chromeOptions.addArguments("--ignore-certificate-errors");
       chromeOptions.addArguments("--remote-allow-origins=*");
+      
+      // CI-specific Chrome options to prevent conflicts
+      chromeOptions.addArguments("--no-sandbox");
+      chromeOptions.addArguments("--disable-dev-shm-usage");
+      chromeOptions.addArguments("--disable-gpu");
+      chromeOptions.addArguments("--disable-extensions");
+      chromeOptions.addArguments("--disable-background-timer-throttling");
+      chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
+      chromeOptions.addArguments("--disable-renderer-backgrounding");
+      chromeOptions.addArguments("--disable-features=TranslateUI");
+      chromeOptions.addArguments("--disable-ipc-flooding-protection");
+      chromeOptions.addArguments("--disable-web-security");
+      chromeOptions.addArguments("--disable-features=VizDisplayCompositor");
+      chromeOptions.addArguments("--timeout=30000");
+      
+      // Use unique user data directory for each test run
+      userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
+      chromeOptions.addArguments("--user-data-dir=" + userDataDir);
 
       String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
       if("true".equals(headless))
@@ -73,6 +92,10 @@ public class QBaseSeleniumTest
       }
 
       WebDriverManager.chromiumdriver().setup();
+      
+      // Debug: Print Chrome options (using asMap() instead of getArguments())
+      System.out.println("Chrome Options: " + chromeOptions.asMap());
+      System.out.println("User Data Dir: " + userDataDir);
    }
 
 
@@ -214,6 +237,78 @@ public class QBaseSeleniumTest
       if(qSeleniumJavalin != null)
       {
          qSeleniumJavalin.stop();
+      }
+      
+      // Clean up Chrome user data directory
+      if(userDataDir != null)
+      {
+         try
+         {
+            File userDataDirFile = new File(userDataDir);
+            if(userDataDirFile.exists())
+            {
+               // Delete the directory and all its contents
+               deleteDirectory(userDataDirFile);
+            }
+         }
+         catch(Exception e)
+         {
+            System.err.println("Failed to clean up Chrome user data directory: " + userDataDir + " - " + e.getMessage());
+         }
+      }
+   }
+
+
+
+   /*******************************************************************************
+    ** Cleanup after all tests in the class
+    *******************************************************************************/
+   @AfterAll
+   static void afterAll()
+   {
+      // Final cleanup of Chrome user data directory
+      if(userDataDir != null)
+      {
+         try
+         {
+            File userDataDirFile = new File(userDataDir);
+            if(userDataDirFile.exists())
+            {
+               deleteDirectory(userDataDirFile);
+            }
+         }
+         catch(Exception e)
+         {
+            System.err.println("Failed to clean up Chrome user data directory in afterAll: " + userDataDir + " - " + e.getMessage());
+         }
+      }
+   }
+
+
+
+   /*******************************************************************************
+    ** Helper method to recursively delete a directory and all its contents
+    *******************************************************************************/
+   private static void deleteDirectory(File directory)
+   {
+      if(directory.exists())
+      {
+         File[] files = directory.listFiles();
+         if(files != null)
+         {
+            for(File file : files)
+            {
+               if(file.isDirectory())
+               {
+                  deleteDirectory(file);
+               }
+               else
+               {
+                  file.delete();
+               }
+            }
+         }
+         directory.delete();
       }
    }
 
