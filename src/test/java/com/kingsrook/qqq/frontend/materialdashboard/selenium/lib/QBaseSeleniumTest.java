@@ -95,20 +95,20 @@ public class QBaseSeleniumTest
       chromeOptions.addArguments("--safebrowsing-disable-auto-update");
       chromeOptions.addArguments("--disable-client-side-phishing-detection");
       chromeOptions.addArguments("--disable-component-extensions-with-background-pages");
-      chromeOptions.addArguments("--disable-default-apps");
       chromeOptions.addArguments("--disable-hang-monitor");
       chromeOptions.addArguments("--disable-prompt-on-repost");
       chromeOptions.addArguments("--disable-domain-reliability");
       chromeOptions.addArguments("--disable-features=AudioServiceOutOfProcess");
       chromeOptions.addArguments("--disable-features=MediaRouter");
-      chromeOptions.addArguments("--disable-features=TranslateUI");
-      chromeOptions.addArguments("--disable-ipc-flooding-protection");
-      chromeOptions.addArguments("--disable-renderer-backgrounding");
-      chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
-      chromeOptions.addArguments("--disable-background-timer-throttling");
       chromeOptions.addArguments("--force-color-profile=srgb");
       chromeOptions.addArguments("--memory-pressure-off");
       chromeOptions.addArguments("--max_old_space_size=4096");
+      
+      // Critical options for GitHub Actions headless mode
+      chromeOptions.addArguments("--window-size=1700,1300");
+      chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
+      chromeOptions.addArguments("--run-all-compositor-stages-before-draw");
+      chromeOptions.addArguments("--disable-software-rasterizer");
       
       // Use unique user data directory for each test run
       userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
@@ -160,7 +160,21 @@ public class QBaseSeleniumTest
          driver.manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(30));
          driver.manage().timeouts().scriptTimeout(java.time.Duration.ofSeconds(30));
          
-         driver.manage().window().setSize(new Dimension(1700, 1300));
+         // Only set window size if not in headless mode (window size is set via Chrome options in headless)
+         String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
+         String ci = System.getenv("CI");
+         String githubActions = System.getenv("GITHUB_ACTIONS");
+         
+         if(!"true".equals(headless) && !"true".equals(ci) && !"true".equals(githubActions))
+         {
+            try {
+               driver.manage().window().setSize(new Dimension(1700, 1300));
+            } catch (Exception e) {
+               System.err.println("Warning: Could not set window size: " + e.getMessage());
+               // Continue without setting window size
+            }
+         }
+         
          qSeleniumLib = new QSeleniumLib(driver);
          
          System.out.println("Chrome driver initialized successfully");
