@@ -82,21 +82,59 @@ public class QBaseSeleniumTest
       chromeOptions.addArguments("--disable-features=VizDisplayCompositor");
       chromeOptions.addArguments("--timeout=30000");
       
+      // Additional options for GitHub Actions stability
+      chromeOptions.addArguments("--disable-setuid-sandbox");
+      chromeOptions.addArguments("--disable-background-networking");
+      chromeOptions.addArguments("--disable-default-apps");
+      chromeOptions.addArguments("--disable-sync");
+      chromeOptions.addArguments("--disable-translate");
+      chromeOptions.addArguments("--hide-scrollbars");
+      chromeOptions.addArguments("--metrics-recording-only");
+      chromeOptions.addArguments("--mute-audio");
+      chromeOptions.addArguments("--no-first-run");
+      chromeOptions.addArguments("--safebrowsing-disable-auto-update");
+      chromeOptions.addArguments("--disable-client-side-phishing-detection");
+      chromeOptions.addArguments("--disable-component-extensions-with-background-pages");
+      chromeOptions.addArguments("--disable-default-apps");
+      chromeOptions.addArguments("--disable-hang-monitor");
+      chromeOptions.addArguments("--disable-prompt-on-repost");
+      chromeOptions.addArguments("--disable-domain-reliability");
+      chromeOptions.addArguments("--disable-features=AudioServiceOutOfProcess");
+      chromeOptions.addArguments("--disable-features=MediaRouter");
+      chromeOptions.addArguments("--disable-features=TranslateUI");
+      chromeOptions.addArguments("--disable-ipc-flooding-protection");
+      chromeOptions.addArguments("--disable-renderer-backgrounding");
+      chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
+      chromeOptions.addArguments("--disable-background-timer-throttling");
+      chromeOptions.addArguments("--force-color-profile=srgb");
+      chromeOptions.addArguments("--memory-pressure-off");
+      chromeOptions.addArguments("--max_old_space_size=4096");
+      
       // Use unique user data directory for each test run
       userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
       chromeOptions.addArguments("--user-data-dir=" + userDataDir);
 
+      // Enable headless mode in CI environments or when explicitly requested
       String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
-      if("true".equals(headless))
+      String ci = System.getenv("CI");
+      String githubActions = System.getenv("GITHUB_ACTIONS");
+      
+      if("true".equals(headless) || "true".equals(ci) || "true".equals(githubActions))
       {
          chromeOptions.addArguments("--headless=new");
+         System.out.println("Running in headless mode (CI environment detected)");
       }
 
-      WebDriverManager.chromiumdriver().setup();
+      // Configure WebDriverManager for CI environments
+      WebDriverManager.chromiumdriver()
+         .clearDriverCache()
+         .setup();
       
       // Debug: Print Chrome options (using asMap() instead of getArguments())
       System.out.println("Chrome Options: " + chromeOptions.asMap());
       System.out.println("User Data Dir: " + userDataDir);
+      System.out.println("CI Environment: " + ci);
+      System.out.println("GitHub Actions: " + githubActions);
    }
 
 
@@ -114,10 +152,23 @@ public class QBaseSeleniumTest
       chromePrefs.put("download.default_directory", getDownloadsDirectory());
       chromeOptions.setExperimentalOption("prefs", chromePrefs);
 
-      driver = new ChromeDriver(chromeOptions);
-
-      driver.manage().window().setSize(new Dimension(1700, 1300));
-      qSeleniumLib = new QSeleniumLib(driver);
+      try {
+         driver = new ChromeDriver(chromeOptions);
+         
+         // Set timeouts for better stability in CI
+         driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(10));
+         driver.manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(30));
+         driver.manage().timeouts().scriptTimeout(java.time.Duration.ofSeconds(30));
+         
+         driver.manage().window().setSize(new Dimension(1700, 1300));
+         qSeleniumLib = new QSeleniumLib(driver);
+         
+         System.out.println("Chrome driver initialized successfully");
+      } catch (Exception e) {
+         System.err.println("Failed to initialize Chrome driver: " + e.getMessage());
+         e.printStackTrace();
+         throw e;
+      }
 
       SeleniumTestWatcher.setCurrentSeleniumLib(qSeleniumLib);
 
