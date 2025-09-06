@@ -65,54 +65,60 @@ public class QBaseSeleniumTest
    {
       chromeOptions = new ChromeOptions();
       chromeOptions.setAcceptInsecureCerts(true);
-      chromeOptions.addArguments("--ignore-certificate-errors");
-      chromeOptions.addArguments("--remote-allow-origins=*");
-      
-      // CI-specific Chrome options to prevent conflicts
       chromeOptions.addArguments("--no-sandbox");
       chromeOptions.addArguments("--disable-dev-shm-usage");
-      chromeOptions.addArguments("--disable-gpu");
-      chromeOptions.addArguments("--disable-extensions");
-      chromeOptions.addArguments("--disable-background-timer-throttling");
-      chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
-      chromeOptions.addArguments("--disable-renderer-backgrounding");
-      chromeOptions.addArguments("--disable-features=TranslateUI");
-      chromeOptions.addArguments("--disable-ipc-flooding-protection");
-      chromeOptions.addArguments("--disable-web-security");
-      chromeOptions.addArguments("--disable-features=VizDisplayCompositor");
-      chromeOptions.addArguments("--timeout=30000");
-      
-      // Additional options for GitHub Actions stability
-      chromeOptions.addArguments("--disable-setuid-sandbox");
-      chromeOptions.addArguments("--disable-background-networking");
-      chromeOptions.addArguments("--disable-default-apps");
-      chromeOptions.addArguments("--disable-sync");
-      chromeOptions.addArguments("--disable-translate");
-      chromeOptions.addArguments("--hide-scrollbars");
-      chromeOptions.addArguments("--metrics-recording-only");
-      chromeOptions.addArguments("--mute-audio");
-      chromeOptions.addArguments("--no-first-run");
-      chromeOptions.addArguments("--safebrowsing-disable-auto-update");
-      chromeOptions.addArguments("--disable-client-side-phishing-detection");
-      chromeOptions.addArguments("--disable-component-extensions-with-background-pages");
-      chromeOptions.addArguments("--disable-hang-monitor");
-      chromeOptions.addArguments("--disable-prompt-on-repost");
-      chromeOptions.addArguments("--disable-domain-reliability");
-      chromeOptions.addArguments("--disable-features=AudioServiceOutOfProcess");
-      chromeOptions.addArguments("--disable-features=MediaRouter");
-      chromeOptions.addArguments("--force-color-profile=srgb");
-      chromeOptions.addArguments("--memory-pressure-off");
-      chromeOptions.addArguments("--max_old_space_size=4096");
-      
-      // Critical options for GitHub Actions headless mode
+      chromeOptions.addArguments("--headless=new");
       chromeOptions.addArguments("--window-size=1700,1300");
-      chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
-      chromeOptions.addArguments("--run-all-compositor-stages-before-draw");
-      chromeOptions.addArguments("--disable-software-rasterizer");
-      
-      // Use unique user data directory for each test run
-      userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
-      chromeOptions.addArguments("--user-data-dir=" + userDataDir);
+
+
+//      chromeOptions.addArguments("--ignore-certificate-errors");
+//      chromeOptions.addArguments("--remote-allow-origins=*");
+//
+//      // CI-specific Chrome options to prevent conflicts
+//      chromeOptions.addArguments("--no-sandbox");
+//      chromeOptions.addArguments("--disable-dev-shm-usage");
+//      chromeOptions.addArguments("--disable-gpu");
+//      chromeOptions.addArguments("--disable-extensions");
+//      chromeOptions.addArguments("--disable-background-timer-throttling");
+//      chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
+//      chromeOptions.addArguments("--disable-renderer-backgrounding");
+//      chromeOptions.addArguments("--disable-features=TranslateUI");
+//      chromeOptions.addArguments("--disable-ipc-flooding-protection");
+//      chromeOptions.addArguments("--disable-web-security");
+//      chromeOptions.addArguments("--disable-features=VizDisplayCompositor");
+//      chromeOptions.addArguments("--timeout=30000");
+//
+//      // Additional options for GitHub Actions stability
+//      chromeOptions.addArguments("--disable-setuid-sandbox");
+//      chromeOptions.addArguments("--disable-background-networking");
+//      chromeOptions.addArguments("--disable-default-apps");
+//      chromeOptions.addArguments("--disable-sync");
+//      chromeOptions.addArguments("--disable-translate");
+//      chromeOptions.addArguments("--hide-scrollbars");
+//      chromeOptions.addArguments("--metrics-recording-only");
+//      chromeOptions.addArguments("--mute-audio");
+//      chromeOptions.addArguments("--no-first-run");
+//      chromeOptions.addArguments("--safebrowsing-disable-auto-update");
+//      chromeOptions.addArguments("--disable-client-side-phishing-detection");
+//      chromeOptions.addArguments("--disable-component-extensions-with-background-pages");
+//      chromeOptions.addArguments("--disable-hang-monitor");
+//      chromeOptions.addArguments("--disable-prompt-on-repost");
+//      chromeOptions.addArguments("--disable-domain-reliability");
+//      chromeOptions.addArguments("--disable-features=AudioServiceOutOfProcess");
+//      chromeOptions.addArguments("--disable-features=MediaRouter");
+//      chromeOptions.addArguments("--force-color-profile=srgb");
+//      chromeOptions.addArguments("--memory-pressure-off");
+//      chromeOptions.addArguments("--max_old_space_size=4096");
+//
+//      // Critical options for GitHub Actions headless mode
+//      chromeOptions.addArguments("--window-size=1700,1300");
+//      chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
+//      chromeOptions.addArguments("--run-all-compositor-stages-before-draw");
+//      chromeOptions.addArguments("--disable-software-rasterizer");
+//
+//      // Use unique user data directory for each test run
+//      userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
+//      chromeOptions.addArguments("--user-data-dir=" + userDataDir);
 
       // Enable headless mode in CI environments or when explicitly requested
       String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
@@ -191,6 +197,7 @@ public class QBaseSeleniumTest
          qSeleniumJavalin = new QSeleniumJavalin();
          addJavalinRoutes(qSeleniumJavalin);
          qSeleniumJavalin.start();
+         System.out.println("Starting internal Javalin server");
       }
    }
 
