@@ -60,7 +60,7 @@
       "yup": "0.32.11"
    },
    "scripts": {
-      "start": "BROWSER=none react-scripts --max-http-header-size=65535 start",
+      "start": "BROWSER=none PORT=3001 react-scripts --max-http-header-size=65535 start",
       "dev": "npm start",
       "build": "react-scripts build",
       "prebuild": "npm run type-check",
