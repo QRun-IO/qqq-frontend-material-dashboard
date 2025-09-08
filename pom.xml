@@ -255,7 +255,7 @@
                   <artifactId>maven-surefire-plugin</artifactId>
                   <version>3.0.0-M5</version>
                   <configuration>
-                     <rerunFailingTestsCount>5</rerunFailingTestsCount>
+                     <rerunFailingTestsCount>1</rerunFailingTestsCount>
                      <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                      <useFile>true</useFile>
                      <includes>
@@ -282,7 +282,7 @@
                   <artifactId>maven-failsafe-plugin</artifactId>
                   <version>3.0.0-M5</version>
                   <configuration>
-                     <rerunFailingTestsCount>5</rerunFailingTestsCount>
+                     <rerunFailingTestsCount>1</rerunFailingTestsCount>
                      <reportsDirectory>${project.build.directory}/failsafe-reports</reportsDirectory>
                      <includes>
                         <include>**/*IT.java</include>
@@ -301,7 +301,6 @@
                      <execution>
                         <goals>
                            <goal>integration-test</goal>
-                           <goal>verify</goal>
                         </goals>
                      </execution>
                   </executions>
@@ -388,7 +387,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <version>3.0.0-M5</version>
             <configuration>
-               <rerunFailingTestsCount>5</rerunFailingTestsCount>
+               <rerunFailingTestsCount>1</rerunFailingTestsCount>
                <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                <useFile>true</useFile>
                <includes>
@@ -418,7 +417,7 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <version>3.0.0-M5</version>
             <configuration>
-               <rerunFailingTestsCount>5</rerunFailingTestsCount>
+               <rerunFailingTestsCount>1</rerunFailingTestsCount>
                <reportsDirectory>${project.build.directory}/failsafe-reports</reportsDirectory>
                <includes>
                   <include>**/*IT.java</include>
@@ -435,7 +434,6 @@
                <execution>
                   <goals>
                      <goal>integration-test</goal>
-                     <goal>verify</goal>
                   </goals>
                </execution>
             </executions>

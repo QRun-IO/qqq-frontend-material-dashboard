@@ -87,11 +87,13 @@ public class BulkEditIT extends QBaseSeleniumTest
       qSeleniumLib.waitForSelectorContaining("button", "action").click();
       qSeleniumLib.waitForSelectorContaining("li", "bulk edit").click();
 
-      tryWait(1000);
+      tryWait(2000);
 
       /////////////////
       // edit screen //
       /////////////////
+      // Wait for the bulk edit form to be fully loaded
+      qSeleniumLib.waitForSelectorContaining("div", "Flip the switches next to the fields");
       qSeleniumLib.waitForSelector("#bulkEditSwitch-firstName").click();
       qSeleniumLib.waitForSelector("input[name=firstName]").click();
       qSeleniumLib.waitForSelector("input[name=firstName]").sendKeys("John");

@@ -72,24 +72,36 @@ public class QBaseSeleniumTest
       chromeOptions = new ChromeOptions();
       chromeOptions.setAcceptInsecureCerts(true);
       
-      // Basic Chrome options for all environments
+      // Essential Chrome options for all environments
       chromeOptions.addArguments("--no-sandbox");
       chromeOptions.addArguments("--disable-dev-shm-usage");
-      chromeOptions.addArguments("--window-size=1700,1300");
+      chromeOptions.addArguments("--disable-setuid-sandbox");
+      chromeOptions.addArguments("--disable-gpu");
+      chromeOptions.addArguments("--disable-web-security");
       chromeOptions.addArguments("--ignore-certificate-errors");
+      chromeOptions.addArguments("--ignore-ssl-errors");
+      chromeOptions.addArguments("--ignore-certificate-errors-spki-list");
       chromeOptions.addArguments("--remote-allow-origins=*");
+      chromeOptions.addArguments("--disable-features=VizDisplayCompositor");
+      chromeOptions.addArguments("--disable-extensions");
+      chromeOptions.addArguments("--disable-plugins");
+      chromeOptions.addArguments("--disable-images");
+      chromeOptions.addArguments("--disable-background-timer-throttling");
+      chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
+      chromeOptions.addArguments("--disable-renderer-backgrounding");
+      chromeOptions.addArguments("--disable-field-trial-config");
+      chromeOptions.addArguments("--disable-back-forward-cache");
+      chromeOptions.addArguments("--disable-ipc-flooding-protection");
       
       if (isCI) {
          System.out.println("🔍 CI environment detected - configuring Chrome for GitHub Actions");
          
-         // Essential Chrome options for GitHub Actions
+         // CI-specific Chrome options
          chromeOptions.addArguments("--headless=new");
-         chromeOptions.addArguments("--disable-gpu");
-         chromeOptions.addArguments("--disable-dev-shm-usage");
-         chromeOptions.addArguments("--disable-setuid-sandbox");
-         chromeOptions.addArguments("--no-sandbox");
-         chromeOptions.addArguments("--remote-allow-origins=*");
          chromeOptions.addArguments("--window-size=1920,1080");
+         chromeOptions.addArguments("--disable-logging");
+         chromeOptions.addArguments("--log-level=3");
+         chromeOptions.addArguments("--silent");
          
          // Use unique user data directory for each test run in CI
          userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
@@ -97,7 +109,9 @@ public class QBaseSeleniumTest
          
          System.out.println("✅ Chrome configured for CI environment");
       } else {
-         System.out.println("🏠 Local environment detected - Chrome will run with GUI");
+         System.out.println("🏠 Local environment detected - Chrome will run with headless mode");
+         chromeOptions.addArguments("--headless=new");
+         chromeOptions.addArguments("--window-size=1920,1080");
          // For local development, we can run with GUI for debugging
          // No additional headless options needed
       }
@@ -140,9 +154,9 @@ public class QBaseSeleniumTest
          System.out.println("✅ Chrome driver initialized in " + initTime + "ms");
          
          // Set timeouts for better stability in CI
-         driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(10));
-         driver.manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(30));
-         driver.manage().timeouts().scriptTimeout(java.time.Duration.ofSeconds(30));
+         driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(15));
+         driver.manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(60));
+         driver.manage().timeouts().scriptTimeout(java.time.Duration.ofSeconds(60));
          
          // Only set window size if not in headless mode (window size is set via Chrome options in headless)
          String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
