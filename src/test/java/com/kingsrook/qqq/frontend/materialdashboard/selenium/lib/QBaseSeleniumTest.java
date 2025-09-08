@@ -82,39 +82,14 @@ public class QBaseSeleniumTest
       if (isCI) {
          System.out.println("🔍 CI environment detected - configuring Chrome for GitHub Actions");
          
-         // CI-specific Chrome options for GitHub Actions
+         // Essential Chrome options for GitHub Actions
          chromeOptions.addArguments("--headless=new");
          chromeOptions.addArguments("--disable-gpu");
-         chromeOptions.addArguments("--disable-extensions");
-         chromeOptions.addArguments("--disable-background-timer-throttling");
-         chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
-         chromeOptions.addArguments("--disable-renderer-backgrounding");
-         chromeOptions.addArguments("--disable-features=TranslateUI");
-         chromeOptions.addArguments("--disable-ipc-flooding-protection");
-         chromeOptions.addArguments("--disable-web-security");
-         chromeOptions.addArguments("--disable-features=VizDisplayCompositor");
+         chromeOptions.addArguments("--disable-dev-shm-usage");
          chromeOptions.addArguments("--disable-setuid-sandbox");
-         chromeOptions.addArguments("--disable-background-networking");
-         chromeOptions.addArguments("--disable-default-apps");
-         chromeOptions.addArguments("--disable-sync");
-         chromeOptions.addArguments("--disable-translate");
-         chromeOptions.addArguments("--hide-scrollbars");
-         chromeOptions.addArguments("--metrics-recording-only");
-         chromeOptions.addArguments("--mute-audio");
-         chromeOptions.addArguments("--no-first-run");
-         chromeOptions.addArguments("--safebrowsing-disable-auto-update");
-         chromeOptions.addArguments("--disable-client-side-phishing-detection");
-         chromeOptions.addArguments("--disable-component-extensions-with-background-pages");
-         chromeOptions.addArguments("--disable-hang-monitor");
-         chromeOptions.addArguments("--disable-prompt-on-repost");
-         chromeOptions.addArguments("--disable-domain-reliability");
-         chromeOptions.addArguments("--disable-features=AudioServiceOutOfProcess");
-         chromeOptions.addArguments("--disable-features=MediaRouter");
-         chromeOptions.addArguments("--force-color-profile=srgb");
-         chromeOptions.addArguments("--memory-pressure-off");
-         chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
-         chromeOptions.addArguments("--run-all-compositor-stages-before-draw");
-         chromeOptions.addArguments("--disable-software-rasterizer");
+         chromeOptions.addArguments("--no-sandbox");
+         chromeOptions.addArguments("--remote-allow-origins=*");
+         chromeOptions.addArguments("--window-size=1920,1080");
          
          // Use unique user data directory for each test run in CI
          userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
@@ -156,7 +131,13 @@ public class QBaseSeleniumTest
       chromeOptions.setExperimentalOption("prefs", chromePrefs);
 
       try {
+         System.out.println("🚀 Initializing Chrome driver...");
+         long startTime = System.currentTimeMillis();
+         
          driver = new ChromeDriver(chromeOptions);
+         
+         long initTime = System.currentTimeMillis() - startTime;
+         System.out.println("✅ Chrome driver initialized in " + initTime + "ms");
          
          // Set timeouts for better stability in CI
          driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(10));
