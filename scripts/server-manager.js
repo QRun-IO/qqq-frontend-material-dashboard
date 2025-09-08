@@ -45,6 +45,15 @@ function waitForServer(maxAttempts = 30, interval = 1000) {
     return new Promise((resolve, reject) => {
         let attempts = 0;
         
+        // Detect CI environment for different behavior
+        const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true' || process.env.QQQ_SELENIUM_HEADLESS === 'true';
+        
+        if (isCI) {
+            console.log('🔍 CI environment detected - using extended server wait parameters');
+            maxAttempts = Math.max(maxAttempts, 60); // Minimum 60 attempts in CI
+            interval = Math.max(interval, 2000);     // Minimum 2 second intervals in CI
+        }
+        
         const checkServer = () => {
             attempts++;
             
@@ -54,12 +63,18 @@ function waitForServer(maxAttempts = 30, interval = 1000) {
             
             exec(curlCommand, (error, stdout, stderr) => {
                 if (stdout && stdout.trim() !== '000') {
-                    console.log(`✅ React server is ready on port ${PORT} (HTTP ${stdout.trim()})`);
+                    console.log(`✅ React server is ready on port ${PORT} (HTTP ${stdout.trim()}) after ${attempts} attempts`);
                     resolve();
                 } else if (attempts >= maxAttempts) {
-                    reject(new Error(`Server failed to start after ${maxAttempts} attempts`));
+                    reject(new Error(`Server failed to start after ${maxAttempts} attempts (${maxAttempts * interval / 1000} seconds)`));
                 } else {
-                    console.log(`⏳ Waiting for React server on port ${PORT}... (attempt ${attempts}/${maxAttempts})`);
+                    // Log every 5th attempt, or every attempt in CI
+                    if (attempts % 5 === 0 || isCI) {
+                        console.log(`⏳ Waiting for React server on port ${PORT}... (attempt ${attempts}/${maxAttempts})`);
+                        if (isCI && attempts > 10) {
+                            console.log(`   Error details: ${error ? error.message : 'Connection refused'}`);
+                        }
+                    }
                     setTimeout(checkServer, interval);
                 }
             });

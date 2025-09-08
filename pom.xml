@@ -215,6 +215,8 @@
                               <REACT_APP_PROXY_LOCALHOST_PORT>8001</REACT_APP_PROXY_LOCALHOST_PORT>
                               <CI>true</CI>
                               <QQQ_SELENIUM_HEADLESS>true</QQQ_SELENIUM_HEADLESS>
+                              <GENERATE_SOURCEMAP>false</GENERATE_SOURCEMAP>
+                              <FAST_REFRESH>false</FAST_REFRESH>
                            </environmentVariables>
                         </configuration>
                      </execution>
@@ -277,6 +279,9 @@
                      <redirectTestOutputToFile>true</redirectTestOutputToFile>
                      <!-- CI-specific: Always generate reports, but fail on test errors -->
                      <testFailureIgnore>false</testFailureIgnore>
+                     <!-- Add delay between server start and integration tests -->
+                     <forkCount>1</forkCount>
+                     <reuseForks>false</reuseForks>
                   </configuration>
                   <executions>
                      <execution>
@@ -410,6 +415,9 @@
                <useSystemClassLoader>false</useSystemClassLoader>
                <argLine>-Xmx1024m</argLine>
                <redirectTestOutputToFile>true</redirectTestOutputToFile>
+               <!-- Ensure proper test isolation -->
+               <forkCount>1</forkCount>
+               <reuseForks>false</reuseForks>
             </configuration>
             <executions>
                <execution>
@@ -547,6 +555,8 @@
                         <PORT>3001</PORT>
                         <HTTPS>true</HTTPS>
                         <REACT_APP_PROXY_LOCALHOST_PORT>8001</REACT_APP_PROXY_LOCALHOST_PORT>
+                        <GENERATE_SOURCEMAP>false</GENERATE_SOURCEMAP>
+                        <FAST_REFRESH>false</FAST_REFRESH>
                      </environmentVariables>
                   </configuration>
                </execution>

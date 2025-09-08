@@ -36,8 +36,8 @@ import javax.net.ssl.SSLSession;
 public class ServerHealthChecker
 {
    private static final String DEFAULT_BASE_URL = "https://localhost:3001";
-   private static final int DEFAULT_TIMEOUT_SECONDS = 30;
-   private static final int DEFAULT_RETRY_INTERVAL_MS = 1000;
+   private static final int DEFAULT_TIMEOUT_SECONDS = 60; // Increased for CI
+   private static final int DEFAULT_RETRY_INTERVAL_MS = 2000; // Increased for CI
 
    /**
     * Check if the React server is ready and responding
@@ -51,16 +51,28 @@ public class ServerHealthChecker
          baseUrl = DEFAULT_BASE_URL;
       }
       
+      // Check if we're in CI environment for different timeout behavior
+      boolean isCI = "true".equals(System.getenv("CI")) || 
+                     "true".equals(System.getenv("GITHUB_ACTIONS")) ||
+                     "true".equals(System.getenv("QQQ_SELENIUM_HEADLESS"));
+      
+      if (isCI) {
+         System.out.println("🔍 CI environment detected - using extended timeout and retry intervals");
+         timeoutSeconds = Math.max(timeoutSeconds, 90); // Ensure minimum 90 seconds in CI
+      }
+      
       Instant startTime = Instant.now();
       Duration timeout = Duration.ofSeconds(timeoutSeconds);
+      int attemptCount = 0;
       
       while (Duration.between(startTime, Instant.now()).compareTo(timeout) < 0) {
+         attemptCount++;
          try {
             URL url = new URL(baseUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setConnectTimeout(2000);
-            connection.setReadTimeout(2000);
+            connection.setConnectTimeout(isCI ? 5000 : 2000); // Longer timeout in CI
+            connection.setReadTimeout(isCI ? 5000 : 2000);   // Longer timeout in CI
             connection.setInstanceFollowRedirects(false);
             
             // Accept self-signed certificates for localhost HTTPS
@@ -79,24 +91,29 @@ public class ServerHealthChecker
             
             // Accept any response code that indicates the server is running
             if (responseCode >= 200 && responseCode < 500) {
-               System.out.println("✅ React server is ready at " + baseUrl + " (HTTP " + responseCode + ")");
+               System.out.println("✅ React server is ready at " + baseUrl + " (HTTP " + responseCode + ") after " + attemptCount + " attempts");
                return true;
             }
             
          } catch (IOException e) {
             // Server not ready yet, continue waiting
-            System.out.println("⏳ Waiting for React server at " + baseUrl + "...");
+            if (attemptCount % 5 == 0 || isCI) { // Log every 5th attempt, or every attempt in CI
+               System.out.println("⏳ Waiting for React server at " + baseUrl + "... (attempt " + attemptCount + ")");
+               if (isCI && attemptCount > 10) {
+                  System.out.println("   Error details: " + e.getMessage());
+               }
+            }
          }
          
          try {
-            Thread.sleep(DEFAULT_RETRY_INTERVAL_MS);
+            Thread.sleep(isCI ? DEFAULT_RETRY_INTERVAL_MS : 1000);
          } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return false;
          }
       }
       
-      System.err.println("❌ React server failed to start within " + timeoutSeconds + " seconds");
+      System.err.println("❌ React server failed to start within " + timeoutSeconds + " seconds after " + attemptCount + " attempts");
       return false;
    }
 
