@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /*******************************************************************************
  ** Test for the record query screen
  *******************************************************************************/
-public class QueryScreenTest extends QBaseSeleniumTest
+public class QueryScreenIT extends QBaseSeleniumTest
 {
 
    /*******************************************************************************

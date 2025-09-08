@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /*******************************************************************************
  ** Test for Saved Report screen (table has some special behaviors)
  *******************************************************************************/
-public class SavedReportTest extends QBaseSeleniumTest
+public class SavedReportIT extends QBaseSeleniumTest
 {
 
    /*******************************************************************************

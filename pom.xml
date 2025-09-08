@@ -220,6 +220,22 @@
                            </environmentVariables>
                         </configuration>
                      </execution>
+                     <!-- Wait for server to be ready -->
+                     <execution>
+                        <id>wait-for-server-ci</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                           <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                           <arguments>run wait-for-server</arguments>
+                           <environmentVariables>
+                              <PORT>3001</PORT>
+                              <HTTPS>true</HTTPS>
+                              <CI>true</CI>
+                           </environmentVariables>
+                        </configuration>
+                     </execution>
                      <!-- Stop NPM server after integration tests in CI -->
                      <execution>
                         <id>npm-stop-server-ci</id>
@@ -271,8 +287,6 @@
                      <includes>
                         <include>**/*IT.java</include>
                         <include>**/*IntegrationTest.java</include>
-                        <include>**/*Test.java</include>
-                        <include>**/*Tests.java</include>
                      </includes>
                      <useSystemClassLoader>false</useSystemClassLoader>
                      <argLine>-Xmx1024m</argLine>
@@ -409,8 +423,6 @@
                <includes>
                   <include>**/*IT.java</include>
                   <include>**/*IntegrationTest.java</include>
-                  <include>**/*Test.java</include>
-                  <include>**/*Tests.java</include>
                </includes>
                <useSystemClassLoader>false</useSystemClassLoader>
                <argLine>-Xmx1024m</argLine>
@@ -557,6 +569,21 @@
                         <REACT_APP_PROXY_LOCALHOST_PORT>8001</REACT_APP_PROXY_LOCALHOST_PORT>
                         <GENERATE_SOURCEMAP>false</GENERATE_SOURCEMAP>
                         <FAST_REFRESH>false</FAST_REFRESH>
+                     </environmentVariables>
+                  </configuration>
+               </execution>
+               <!-- Wait for server to be ready -->
+               <execution>
+                  <id>wait-for-server</id>
+                  <phase>pre-integration-test</phase>
+                  <goals>
+                     <goal>npm</goal>
+                  </goals>
+                  <configuration>
+                     <arguments>run wait-for-server</arguments>
+                     <environmentVariables>
+                        <PORT>3001</PORT>
+                        <HTTPS>true</HTTPS>
                      </environmentVariables>
                   </configuration>
                </execution>

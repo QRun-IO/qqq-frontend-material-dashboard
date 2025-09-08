@@ -77,7 +77,8 @@
       "prepublishOnly": "npm run build && tsc -p ./ --outDir lib/",
       "eject": "react-scripts eject",
       "stop-server": "node scripts/server-manager.js stop",
-      "start-server": "node scripts/server-manager.js start"
+      "start-server": "node scripts/server-manager.js start",
+      "wait-for-server": "node scripts/server-manager.js wait"
    },
    "eslintConfig": {
       "extends": [

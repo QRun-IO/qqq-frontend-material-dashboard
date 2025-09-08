@@ -63,72 +63,68 @@ public class QBaseSeleniumTest
    @BeforeAll
    static void beforeAll()
    {
-      chromeOptions = new ChromeOptions();
-      chromeOptions.setAcceptInsecureCerts(true);
-      chromeOptions.addArguments("--no-sandbox");
-      chromeOptions.addArguments("--disable-dev-shm-usage");
-      chromeOptions.addArguments("--headless=new");
-      chromeOptions.addArguments("--window-size=1700,1300");
-
-
-//      chromeOptions.addArguments("--ignore-certificate-errors");
-//      chromeOptions.addArguments("--remote-allow-origins=*");
-//
-//      // CI-specific Chrome options to prevent conflicts
-//      chromeOptions.addArguments("--no-sandbox");
-//      chromeOptions.addArguments("--disable-dev-shm-usage");
-//      chromeOptions.addArguments("--disable-gpu");
-//      chromeOptions.addArguments("--disable-extensions");
-//      chromeOptions.addArguments("--disable-background-timer-throttling");
-//      chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
-//      chromeOptions.addArguments("--disable-renderer-backgrounding");
-//      chromeOptions.addArguments("--disable-features=TranslateUI");
-//      chromeOptions.addArguments("--disable-ipc-flooding-protection");
-//      chromeOptions.addArguments("--disable-web-security");
-//      chromeOptions.addArguments("--disable-features=VizDisplayCompositor");
-//      chromeOptions.addArguments("--timeout=30000");
-//
-//      // Additional options for GitHub Actions stability
-//      chromeOptions.addArguments("--disable-setuid-sandbox");
-//      chromeOptions.addArguments("--disable-background-networking");
-//      chromeOptions.addArguments("--disable-default-apps");
-//      chromeOptions.addArguments("--disable-sync");
-//      chromeOptions.addArguments("--disable-translate");
-//      chromeOptions.addArguments("--hide-scrollbars");
-//      chromeOptions.addArguments("--metrics-recording-only");
-//      chromeOptions.addArguments("--mute-audio");
-//      chromeOptions.addArguments("--no-first-run");
-//      chromeOptions.addArguments("--safebrowsing-disable-auto-update");
-//      chromeOptions.addArguments("--disable-client-side-phishing-detection");
-//      chromeOptions.addArguments("--disable-component-extensions-with-background-pages");
-//      chromeOptions.addArguments("--disable-hang-monitor");
-//      chromeOptions.addArguments("--disable-prompt-on-repost");
-//      chromeOptions.addArguments("--disable-domain-reliability");
-//      chromeOptions.addArguments("--disable-features=AudioServiceOutOfProcess");
-//      chromeOptions.addArguments("--disable-features=MediaRouter");
-//      chromeOptions.addArguments("--force-color-profile=srgb");
-//      chromeOptions.addArguments("--memory-pressure-off");
-//      chromeOptions.addArguments("--max_old_space_size=4096");
-//
-//      // Critical options for GitHub Actions headless mode
-//      chromeOptions.addArguments("--window-size=1700,1300");
-//      chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
-//      chromeOptions.addArguments("--run-all-compositor-stages-before-draw");
-//      chromeOptions.addArguments("--disable-software-rasterizer");
-//
-//      // Use unique user data directory for each test run
-//      userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
-//      chromeOptions.addArguments("--user-data-dir=" + userDataDir);
-
-      // Enable headless mode in CI environments or when explicitly requested
+      // Detect CI environment
       String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
       String ci = System.getenv("CI");
       String githubActions = System.getenv("GITHUB_ACTIONS");
+      boolean isCI = "true".equals(headless) || "true".equals(ci) || "true".equals(githubActions);
       
-      if("true".equals(headless) || "true".equals(ci) || "true".equals(githubActions))
-      {
+      chromeOptions = new ChromeOptions();
+      chromeOptions.setAcceptInsecureCerts(true);
+      
+      // Basic Chrome options for all environments
+      chromeOptions.addArguments("--no-sandbox");
+      chromeOptions.addArguments("--disable-dev-shm-usage");
+      chromeOptions.addArguments("--window-size=1700,1300");
+      chromeOptions.addArguments("--ignore-certificate-errors");
+      chromeOptions.addArguments("--remote-allow-origins=*");
+      
+      if (isCI) {
+         System.out.println("🔍 CI environment detected - configuring Chrome for GitHub Actions");
+         
+         // CI-specific Chrome options for GitHub Actions
          chromeOptions.addArguments("--headless=new");
-         System.out.println("Running in headless mode (CI environment detected)");
+         chromeOptions.addArguments("--disable-gpu");
+         chromeOptions.addArguments("--disable-extensions");
+         chromeOptions.addArguments("--disable-background-timer-throttling");
+         chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
+         chromeOptions.addArguments("--disable-renderer-backgrounding");
+         chromeOptions.addArguments("--disable-features=TranslateUI");
+         chromeOptions.addArguments("--disable-ipc-flooding-protection");
+         chromeOptions.addArguments("--disable-web-security");
+         chromeOptions.addArguments("--disable-features=VizDisplayCompositor");
+         chromeOptions.addArguments("--disable-setuid-sandbox");
+         chromeOptions.addArguments("--disable-background-networking");
+         chromeOptions.addArguments("--disable-default-apps");
+         chromeOptions.addArguments("--disable-sync");
+         chromeOptions.addArguments("--disable-translate");
+         chromeOptions.addArguments("--hide-scrollbars");
+         chromeOptions.addArguments("--metrics-recording-only");
+         chromeOptions.addArguments("--mute-audio");
+         chromeOptions.addArguments("--no-first-run");
+         chromeOptions.addArguments("--safebrowsing-disable-auto-update");
+         chromeOptions.addArguments("--disable-client-side-phishing-detection");
+         chromeOptions.addArguments("--disable-component-extensions-with-background-pages");
+         chromeOptions.addArguments("--disable-hang-monitor");
+         chromeOptions.addArguments("--disable-prompt-on-repost");
+         chromeOptions.addArguments("--disable-domain-reliability");
+         chromeOptions.addArguments("--disable-features=AudioServiceOutOfProcess");
+         chromeOptions.addArguments("--disable-features=MediaRouter");
+         chromeOptions.addArguments("--force-color-profile=srgb");
+         chromeOptions.addArguments("--memory-pressure-off");
+         chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
+         chromeOptions.addArguments("--run-all-compositor-stages-before-draw");
+         chromeOptions.addArguments("--disable-software-rasterizer");
+         
+         // Use unique user data directory for each test run in CI
+         userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
+         chromeOptions.addArguments("--user-data-dir=" + userDataDir);
+         
+         System.out.println("✅ Chrome configured for CI environment");
+      } else {
+         System.out.println("🏠 Local environment detected - Chrome will run with GUI");
+         // For local development, we can run with GUI for debugging
+         // No additional headless options needed
       }
 
       // Configure WebDriverManager for CI environments
@@ -136,11 +132,12 @@ public class QBaseSeleniumTest
          .clearDriverCache()
          .setup();
       
-      // Debug: Print Chrome options (using asMap() instead of getArguments())
+      // Debug: Print Chrome options
       System.out.println("Chrome Options: " + chromeOptions.asMap());
       System.out.println("User Data Dir: " + userDataDir);
       System.out.println("CI Environment: " + ci);
       System.out.println("GitHub Actions: " + githubActions);
+      System.out.println("Headless Mode: " + isCI);
    }
 
 
@@ -203,7 +200,40 @@ public class QBaseSeleniumTest
       {
          // Check if React server is ready (managed by Maven)
          System.out.println("Checking React server readiness...");
-         ServerHealthChecker.waitForServerReady();
+         
+         // Add debugging information
+         String ci = System.getenv("CI");
+         String githubActions = System.getenv("GITHUB_ACTIONS");
+         String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
+         
+         System.out.println("Environment variables:");
+         System.out.println("  CI: " + ci);
+         System.out.println("  GITHUB_ACTIONS: " + githubActions);
+         System.out.println("  QQQ_SELENIUM_HEADLESS: " + headless);
+         System.out.println("  PORT: " + System.getenv("PORT"));
+         System.out.println("  HTTPS: " + System.getenv("HTTPS"));
+         
+         try {
+            ServerHealthChecker.waitForServerReady();
+            System.out.println("✅ React server is ready and health check passed");
+         } catch (RuntimeException e) {
+            System.err.println("❌ React server health check failed: " + e.getMessage());
+            
+            // Try to get more debugging information
+            try {
+               java.net.URL url = new java.net.URL("https://localhost:3001");
+               java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+               connection.setConnectTimeout(5000);
+               connection.setReadTimeout(5000);
+               int responseCode = connection.getResponseCode();
+               System.err.println("Direct connection test - HTTP " + responseCode);
+               connection.disconnect();
+            } catch (Exception ex) {
+               System.err.println("Direct connection test failed: " + ex.getMessage());
+            }
+            
+            throw e;
+         }
       }
    }
 

@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 /*******************************************************************************
  ** Test for the record query screen when a filter is given in the URL
  *******************************************************************************/
-public class QueryScreenFilterInUrlAdvancedModeTest extends QBaseSeleniumTest
+public class QueryScreenFilterInUrlAdvancedModeIT extends QBaseSeleniumTest
 {
 
    /*******************************************************************************

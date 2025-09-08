@@ -87,20 +87,39 @@ function waitForServer(maxAttempts = 30, interval = 1000) {
 function startServer() {
     console.log('🚀 Starting React development server...');
     
+    // Detect CI environment for different behavior
+    const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true' || process.env.QQQ_SELENIUM_HEADLESS === 'true';
+    
+    if (isCI) {
+        console.log('🔍 CI environment detected - using enhanced startup process');
+    }
+    
     const child = spawn('npm', ['start'], {
         stdio: 'pipe',
         env: {
             ...process.env,
             BROWSER: 'none',
             PORT: PORT,
-            HTTPS: 'true'
+            HTTPS: 'true',
+            GENERATE_SOURCEMAP: 'false',
+            FAST_REFRESH: 'false'
         }
     });
     
+    let serverReady = false;
+    let webpackCompiled = false;
+    
     child.stdout.on('data', (data) => {
         const output = data.toString();
+        console.log('📝 Server output:', output.trim());
+        
         if (output.includes('webpack compiled') || output.includes('Local:')) {
+            webpackCompiled = true;
             console.log('📦 Webpack compilation completed');
+        }
+        
+        if (output.includes('Local:') && output.includes('https://localhost:' + PORT)) {
+            console.log('🌐 Server is available at https://localhost:' + PORT);
         }
     });
     
@@ -108,6 +127,8 @@ function startServer() {
         const output = data.toString();
         if (output.includes('Error') || output.includes('error')) {
             console.error('❌ Server error:', output);
+        } else {
+            console.log('📝 Server stderr:', output.trim());
         }
     });
     
@@ -116,17 +137,38 @@ function startServer() {
         process.exit(1);
     });
     
+    child.on('exit', (code) => {
+        console.log(`🛑 Server process exited with code ${code}`);
+        if (!serverReady) {
+            console.error('❌ Server exited before becoming ready');
+            process.exit(1);
+        }
+    });
+    
     writePidFile(child.pid);
+    console.log(`📋 Server PID: ${child.pid}`);
     
     // Wait for server to be ready
     waitForServer()
         .then(() => {
-            console.log('✅ React server started successfully');
-            // Keep the process alive
-            process.stdin.resume();
+            serverReady = true;
+            console.log('✅ React server started successfully and is ready');
+            console.log(`🌐 Server URL: https://localhost:${PORT}`);
+            
+            // In CI, we want to keep the process alive but also signal readiness
+            if (isCI) {
+                console.log('🔄 Keeping server alive for integration tests...');
+                // Keep the process alive
+                process.stdin.resume();
+            } else {
+                // For local development, keep alive
+                process.stdin.resume();
+            }
         })
         .catch((error) => {
             console.error('❌ Server startup failed:', error.message);
+            console.error('🔍 Server process status:', child.killed ? 'killed' : 'running');
+            console.error('🔍 Webpack compiled:', webpackCompiled);
             process.exit(1);
         });
 }
@@ -149,6 +191,28 @@ function stopServer() {
     deletePidFile();
 }
 
+function waitForServerOnly() {
+    console.log('⏳ Waiting for React server to be ready...');
+    
+    const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true' || process.env.QQQ_SELENIUM_HEADLESS === 'true';
+    const maxAttempts = isCI ? 60 : 30;
+    const interval = isCI ? 2000 : 1000;
+    
+    if (isCI) {
+        console.log('🔍 CI environment detected - using extended wait parameters');
+    }
+    
+    waitForServer(maxAttempts, interval)
+        .then(() => {
+            console.log('✅ React server is ready for integration tests');
+            process.exit(0);
+        })
+        .catch((error) => {
+            console.error('❌ Server wait failed:', error.message);
+            process.exit(1);
+        });
+}
+
 // Handle command line arguments
 const command = process.argv[2];
 
@@ -159,8 +223,11 @@ switch (command) {
     case 'stop':
         stopServer();
         break;
+    case 'wait':
+        waitForServerOnly();
+        break;
     default:
-        console.log('Usage: node server-manager.js [start|stop]');
+        console.log('Usage: node server-manager.js [start|stop|wait]');
         process.exit(1);
 }
 

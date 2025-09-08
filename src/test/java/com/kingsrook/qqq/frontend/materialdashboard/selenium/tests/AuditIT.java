@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /*******************************************************************************
  ** Test for the audit screen (e.g., modal)
  *******************************************************************************/
-public class AuditTest extends QBaseSeleniumTest
+public class AuditIT extends QBaseSeleniumTest
 {
 
    /*******************************************************************************

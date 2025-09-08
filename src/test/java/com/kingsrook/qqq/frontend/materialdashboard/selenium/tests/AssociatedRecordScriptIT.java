@@ -25,12 +25,13 @@ package com.kingsrook.qqq.frontend.materialdashboard.selenium.tests;
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.QBaseSeleniumTest;
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.javalin.QSeleniumJavalin;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /*******************************************************************************
- ** Test for the scripts table
+ ** Test for Associated Record Scripts functionality.
  *******************************************************************************/
-public class ScriptTableTest extends QBaseSeleniumTest
+public class AssociatedRecordScriptIT extends QBaseSeleniumTest
 {
 
    /*******************************************************************************
@@ -40,15 +41,8 @@ public class ScriptTableTest extends QBaseSeleniumTest
    protected void addJavalinRoutes(QSeleniumJavalin qSeleniumJavalin)
    {
       super.addJavalinRoutes(qSeleniumJavalin);
-      qSeleniumJavalin
-         .withRouteToFile("/data/script/1", "data/script/1.json")
-         .withRouteToFile("/data/scriptType/1", "data/scriptType/1.json")
-         .withRouteToFile("/data/scriptRevision/query", "data/scriptRevision/query.json")
-         .withRouteToFile("/data/scriptLog/query", "data/scriptLog/query.json")
-         .withRouteToFile("/data/scriptRevision/100", "data/scriptRevision/100.json")
-         .withRouteToFile("/metaData/table/script", "metaData/table/script.json")
-         .withRouteToFile("/widget/scriptViewer", "widget/scriptViewer.json")
-      ;
+      qSeleniumJavalin.withRouteToFile("/data/person/1", "data/person/1701.json");
+      qSeleniumJavalin.withRouteToFile("/data/person/1/developer", "data/person/developer.json");
    }
 
 
@@ -57,13 +51,15 @@ public class ScriptTableTest extends QBaseSeleniumTest
     **
     *******************************************************************************/
    @Test
-   void test()
+   void testNavigatingBackAndForth()
    {
-      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/developer/script/1", "Hello, Script");
+      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/person/1", "John Doe");
+      qSeleniumLib.waitForSelectorContaining("BUTTON", "actions").click();
+      
+      qSeleniumLib.waitForSelectorContaining("LI", "Developer Mode").click();
+      assertTrue(qSeleniumLib.driver.getCurrentUrl().endsWith("/1/dev"));
 
-      qSeleniumLib.waitForSelectorContaining("DIV.ace_line", "var hello;");
-      qSeleniumLib.waitForSelectorContaining("DIV", "2nd commit");
-      qSeleniumLib.waitForSelectorContaining("DIV", "Initial checkin");
+      // qSeleniumLib.waitForever();
    }
 
 }

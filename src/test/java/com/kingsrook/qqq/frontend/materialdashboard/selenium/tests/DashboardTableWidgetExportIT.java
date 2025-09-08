@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /*******************************************************************************
  ** Tests for dashboard table widget with export button
  *******************************************************************************/
-public class DashboardTableWidgetExportTest extends QBaseSeleniumTest
+public class DashboardTableWidgetExportIT extends QBaseSeleniumTest
 {
 
    /*******************************************************************************

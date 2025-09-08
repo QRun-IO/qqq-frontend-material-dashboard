@@ -23,15 +23,17 @@ package com.kingsrook.qqq.frontend.materialdashboard.selenium.tests;
 
 
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.QBaseSeleniumTest;
-import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.QQQMaterialDashboardSelectors;
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.javalin.QSeleniumJavalin;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /*******************************************************************************
- ** Tests for app pages and high-level navigation in material dashboard
+ ** Test that goes to a record, clicks a link for another record, then
+ ** hits 'e' on keyboard to edit the second record - and confirms that we're
+ ** on the edit url for the second record, not the first (a former bug).
  *******************************************************************************/
-public class AppPageNavTest extends QBaseSeleniumTest
+public class ClickLinkOnRecordThenEditShortcutIT extends QBaseSeleniumTest
 {
 
    /*******************************************************************************
@@ -41,14 +43,8 @@ public class AppPageNavTest extends QBaseSeleniumTest
    protected void addJavalinRoutes(QSeleniumJavalin qSeleniumJavalin)
    {
       super.addJavalinRoutes(qSeleniumJavalin);
-      qSeleniumJavalin
-         .withRouteToString("/widget/PersonsByCreateDateBarChart", "{}")
-         .withRouteToString("/widget/QuickSightChartRenderer", """
-            {"url": "http://www.google.com"}""")
-         .withRouteToFile("/data/person/count", "data/person/count.json")
-         .withRouteToFile("/data/city/count", "data/city/count.json")
-         .withRouteToFile("/qqq/v1/table/person/count", "qqq/v1/table/person/count.json")
-         .withRouteToFile("/qqq/v1/table/city/count", "qqq/v1/table/city/count.json");
+      qSeleniumJavalin.withRouteToFile("/data/script/1", "data/script/1.json");
+      qSeleniumJavalin.withRouteToFile("/data/scriptRevision/100", "data/scriptRevision/100.json");
    }
 
 
@@ -57,24 +53,13 @@ public class AppPageNavTest extends QBaseSeleniumTest
     **
     *******************************************************************************/
    @Test
-   void testHomeToAppPageViaLeftNav()
+   void testClickLinkOnRecordThenEditShortcutTest()
    {
-      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Greetings App");
-      qSeleniumLib.waitForSelectorContaining(QQQMaterialDashboardSelectors.SIDEBAR_ITEM, "People App").click();
-      qSeleniumLib.waitForSelectorContaining(QQQMaterialDashboardSelectors.SIDEBAR_ITEM, "Greetings App").click();
-   }
+      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/developer/script/1", "Hello, Script");
+      qSeleniumLib.waitForSelectorContaining("A", "100").click();
 
-
-
-   /*******************************************************************************
-    **
-    *******************************************************************************/
-   @Test
-   void testAppPageToTablePage()
-   {
-      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp", "Greetings App");
-      qSeleniumLib.tryMultiple(3, () -> qSeleniumLib.waitForSelectorContaining("a", "Person").click());
-      qSeleniumLib.waitForSelectorContaining(QQQMaterialDashboardSelectors.BREADCRUMB_HEADER, "Person");
+      qSeleniumLib.waitForSelectorContaining("BUTTON", "actions").sendKeys("e");
+      assertTrue(qSeleniumLib.driver.getCurrentUrl().endsWith("/scriptRevision/100/edit"));
    }
 
 }

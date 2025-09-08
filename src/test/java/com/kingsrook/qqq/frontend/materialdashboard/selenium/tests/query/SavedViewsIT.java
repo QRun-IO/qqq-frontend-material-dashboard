@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /*******************************************************************************
  ** Test for Saved View functionality on the Query screen.
  *******************************************************************************/
-public class SavedViewsTest extends QBaseSeleniumTest
+public class SavedViewsIT extends QBaseSeleniumTest
 {
 
    /*******************************************************************************

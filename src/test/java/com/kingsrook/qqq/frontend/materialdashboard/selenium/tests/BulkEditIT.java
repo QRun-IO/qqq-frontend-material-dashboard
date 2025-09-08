@@ -31,9 +31,9 @@ import org.junit.jupiter.api.Test;
 /*******************************************************************************
  ** Test for the scripts table
  *******************************************************************************/
-public class BulkEditTest extends QBaseSeleniumTest
+public class BulkEditIT extends QBaseSeleniumTest
 {
-   private static final QLogger LOG = QLogger.getLogger(BulkEditTest.class);
+   private static final QLogger LOG = QLogger.getLogger(BulkEditIT.class);
 
 
 
