@@ -175,6 +175,58 @@ This automatically:
 - Compiles Java code
 - Packages everything into a JAR
 
+### Maven-NPM Server Integration
+
+The project includes integrated Maven-NPM server lifecycle management for Java Selenium tests:
+
+#### How It Works
+
+1. **pre-integration-test phase**: Automatically starts React development server
+2. **integration-test phase**: Runs Java Selenium tests against the running server
+3. **post-integration-test phase**: Automatically stops the React development server
+
+#### Usage
+
+```bash
+# Run all tests with integrated server
+mvn clean verify
+
+# Run with CI profile (optimized for automated environments)
+mvn clean verify -Pci
+
+# Run only integration tests
+mvn clean integration-test
+```
+
+#### Benefits
+
+- **Simplified CI/CD**: No manual server management required
+- **Consistent Environment**: Same behavior locally and in CI
+- **Automatic Cleanup**: Server processes are properly terminated
+- **Health Validation**: Server readiness is verified before tests
+- **Error Handling**: Proper error reporting and cleanup on failures
+- **Test Enforcement**: Test failures block deployment and publishing
+- **Always Generate Reports**: Test results and screenshots saved even on failures
+
+#### Manual Server Management
+
+```bash
+# Start server manually
+npm run start-server
+
+# Stop server manually
+npm run stop-server
+```
+
+#### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | React server port | `3001` |
+| `HTTPS` | Enable HTTPS | `true` |
+| `CI` | CI environment flag | `false` |
+| `QQQ_SELENIUM_HEADLESS` | Headless browser mode | `false` |
+
 #### Using QQQ GitHub Actions Library
 
 When using the QQQ GitHub Actions library, configure it to handle peer dependency conflicts:

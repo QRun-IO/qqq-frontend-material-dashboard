@@ -199,6 +199,12 @@ public class QBaseSeleniumTest
          qSeleniumJavalin.start();
          System.out.println("Starting internal Javalin server");
       }
+      else
+      {
+         // Check if React server is ready (managed by Maven)
+         System.out.println("Checking React server readiness...");
+         ServerHealthChecker.waitForServerReady();
+      }
    }
 
 
@@ -260,6 +266,17 @@ public class QBaseSeleniumTest
     *******************************************************************************/
    protected boolean useInternalJavalin()
    {
+      // Check if we're running in Maven integration test phase
+      // In that case, the React server is already started by Maven
+      String mavenPhase = System.getProperty("maven.test.skip");
+      String integrationTest = System.getProperty("maven.failsafe.skip");
+      
+      // If we're in integration test phase and React server is managed by Maven, 
+      // we don't need to start our own Javalin server
+      if ("true".equals(mavenPhase) || "true".equals(integrationTest)) {
+         return false;
+      }
+      
       return (true);
    }
 

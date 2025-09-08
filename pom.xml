@@ -200,6 +200,35 @@
                            <arguments>run test:ci</arguments>
                         </configuration>
                      </execution>
+                     <!-- Start NPM server for integration tests in CI -->
+                     <execution>
+                        <id>npm-start-server-ci</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                           <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                           <arguments>run start-server</arguments>
+                           <environmentVariables>
+                              <PORT>3001</PORT>
+                              <HTTPS>true</HTTPS>
+                              <REACT_APP_PROXY_LOCALHOST_PORT>8001</REACT_APP_PROXY_LOCALHOST_PORT>
+                              <CI>true</CI>
+                              <QQQ_SELENIUM_HEADLESS>true</QQQ_SELENIUM_HEADLESS>
+                           </environmentVariables>
+                        </configuration>
+                     </execution>
+                     <!-- Stop NPM server after integration tests in CI -->
+                     <execution>
+                        <id>npm-stop-server-ci</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                           <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                           <arguments>run stop-server</arguments>
+                        </configuration>
+                     </execution>
                   </executions>
                </plugin>
                <!-- Override Surefire plugin for CI to ensure reports are always generated -->
@@ -215,14 +244,48 @@
                         <include>**/*Test.java</include>
                         <include>**/*Tests.java</include>
                      </includes>
-                     <!-- CI-specific: Always generate reports, even on errors -->
-                     <testFailureIgnore>true</testFailureIgnore>
+                     <!-- Exclude integration tests from unit test phase -->
+                     <excludes>
+                        <exclude>**/*IT.java</exclude>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                     </excludes>
+                     <!-- CI-specific: Always generate reports, but fail on test errors -->
+                     <testFailureIgnore>false</testFailureIgnore>
                      <failIfNoTests>false</failIfNoTests>
                      <useSystemClassLoader>false</useSystemClassLoader>
                      <argLine>-Xmx1024m</argLine>
                      <redirectTestOutputToFile>true</redirectTestOutputToFile>
                      <!-- Force XML report generation even on errors -->
                   </configuration>
+               </plugin>
+               <!-- Override Failsafe plugin for CI -->
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-failsafe-plugin</artifactId>
+                  <version>3.0.0-M5</version>
+                  <configuration>
+                     <rerunFailingTestsCount>5</rerunFailingTestsCount>
+                     <reportsDirectory>${project.build.directory}/failsafe-reports</reportsDirectory>
+                     <includes>
+                        <include>**/*IT.java</include>
+                        <include>**/*IntegrationTest.java</include>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                     </includes>
+                     <useSystemClassLoader>false</useSystemClassLoader>
+                     <argLine>-Xmx1024m</argLine>
+                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                     <!-- CI-specific: Always generate reports, but fail on test errors -->
+                     <testFailureIgnore>false</testFailureIgnore>
+                  </configuration>
+                  <executions>
+                     <execution>
+                        <goals>
+                           <goal>integration-test</goal>
+                           <goal>verify</goal>
+                        </goals>
+                     </execution>
+                  </executions>
                </plugin>
             </plugins>
          </build>
@@ -313,6 +376,11 @@
                   <include>**/*Test.java</include>
                   <include>**/*Tests.java</include>
                </includes>
+               <!-- Exclude integration tests from unit test phase -->
+               <excludes>
+                  <exclude>**/*IT.java</exclude>
+                  <exclude>**/*IntegrationTest.java</exclude>
+               </excludes>
                <!-- Ensure reports are generated even when tests fail -->
                <testFailureIgnore>false</testFailureIgnore>
                <failIfNoTests>false</failIfNoTests>
@@ -324,6 +392,33 @@
                <redirectTestOutputToFile>true</redirectTestOutputToFile>
                <!-- Don't fail build on test errors, just report them -->
             </configuration>
+         </plugin>
+         <!-- Maven Failsafe Plugin for Integration Tests -->
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>3.0.0-M5</version>
+            <configuration>
+               <rerunFailingTestsCount>5</rerunFailingTestsCount>
+               <reportsDirectory>${project.build.directory}/failsafe-reports</reportsDirectory>
+               <includes>
+                  <include>**/*IT.java</include>
+                  <include>**/*IntegrationTest.java</include>
+                  <include>**/*Test.java</include>
+                  <include>**/*Tests.java</include>
+               </includes>
+               <useSystemClassLoader>false</useSystemClassLoader>
+               <argLine>-Xmx1024m</argLine>
+               <redirectTestOutputToFile>true</redirectTestOutputToFile>
+            </configuration>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>integration-test</goal>
+                     <goal>verify</goal>
+                  </goals>
+               </execution>
+            </executions>
          </plugin>
          <plugin>
             <groupId>com.amashchenko.maven.plugin</groupId>
@@ -437,6 +532,33 @@
                   </goals>
                   <configuration>
                      <arguments>run test:ci</arguments>
+                  </configuration>
+               </execution>
+               <!-- Start NPM development server for integration tests -->
+               <execution>
+                  <id>npm-start-server</id>
+                  <phase>pre-integration-test</phase>
+                  <goals>
+                     <goal>npm</goal>
+                  </goals>
+                  <configuration>
+                     <arguments>run start-server</arguments>
+                     <environmentVariables>
+                        <PORT>3001</PORT>
+                        <HTTPS>true</HTTPS>
+                        <REACT_APP_PROXY_LOCALHOST_PORT>8001</REACT_APP_PROXY_LOCALHOST_PORT>
+                     </environmentVariables>
+                  </configuration>
+               </execution>
+               <!-- Stop NPM development server after integration tests -->
+               <execution>
+                  <id>npm-stop-server</id>
+                  <phase>post-integration-test</phase>
+                  <goals>
+                     <goal>npm</goal>
+                  </goals>
+                  <configuration>
+                     <arguments>run stop-server</arguments>
                   </configuration>
                </execution>
             </executions>

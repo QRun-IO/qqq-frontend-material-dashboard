@@ -75,7 +75,9 @@
       "install:legacy": "npm install --legacy-peer-deps && npm dedupe --force",
       "prepare": "npm run type-check",
       "prepublishOnly": "npm run build && tsc -p ./ --outDir lib/",
-      "eject": "react-scripts eject"
+      "eject": "react-scripts eject",
+      "stop-server": "node scripts/server-manager.js stop",
+      "start-server": "node scripts/server-manager.js start"
    },
    "eslintConfig": {
       "extends": [
