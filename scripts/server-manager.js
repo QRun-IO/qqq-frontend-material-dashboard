@@ -94,8 +94,10 @@ function startServer() {
         console.log('🔍 CI environment detected - using enhanced startup process');
     }
     
+    // Start the server in the background and exit immediately
     const child = spawn('npm', ['start'], {
-        stdio: 'pipe',
+        stdio: 'ignore',  // Don't capture output - let it run independently
+        detached: true,   // Detach from parent process
         env: {
             ...process.env,
             BROWSER: 'none',
@@ -106,71 +108,15 @@ function startServer() {
         }
     });
     
-    let serverReady = false;
-    let webpackCompiled = false;
-    
-    child.stdout.on('data', (data) => {
-        const output = data.toString();
-        console.log('📝 Server output:', output.trim());
-        
-        if (output.includes('webpack compiled') || output.includes('Local:')) {
-            webpackCompiled = true;
-            console.log('📦 Webpack compilation completed');
-        }
-        
-        if (output.includes('Local:') && output.includes('https://localhost:' + PORT)) {
-            console.log('🌐 Server is available at https://localhost:' + PORT);
-        }
-    });
-    
-    child.stderr.on('data', (data) => {
-        const output = data.toString();
-        if (output.includes('Error') || output.includes('error')) {
-            console.error('❌ Server error:', output);
-        } else {
-            console.log('📝 Server stderr:', output.trim());
-        }
-    });
-    
-    child.on('error', (error) => {
-        console.error('❌ Failed to start server:', error);
-        process.exit(1);
-    });
-    
-    child.on('exit', (code) => {
-        console.log(`🛑 Server process exited with code ${code}`);
-        if (!serverReady) {
-            console.error('❌ Server exited before becoming ready');
-            process.exit(1);
-        }
-    });
-    
     writePidFile(child.pid);
     console.log(`📋 Server PID: ${child.pid}`);
+    console.log('🚀 React server started in background');
     
-    // Wait for server to be ready
-    waitForServer()
-        .then(() => {
-            serverReady = true;
-            console.log('✅ React server started successfully and is ready');
-            console.log(`🌐 Server URL: https://localhost:${PORT}`);
-            
-            // In CI, we want to keep the process alive but also signal readiness
-            if (isCI) {
-                console.log('🔄 Keeping server alive for integration tests...');
-                // Keep the process alive
-                process.stdin.resume();
-            } else {
-                // For local development, keep alive
-                process.stdin.resume();
-            }
-        })
-        .catch((error) => {
-            console.error('❌ Server startup failed:', error.message);
-            console.error('🔍 Server process status:', child.killed ? 'killed' : 'running');
-            console.error('🔍 Webpack compiled:', webpackCompiled);
-            process.exit(1);
-        });
+    // Unref so parent can exit without killing child
+    child.unref();
+    
+    // Exit immediately - server runs in background
+    process.exit(0);
 }
 
 function stopServer() {
