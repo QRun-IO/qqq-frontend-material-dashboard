@@ -19,10 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {InputAdornment, InputLabel} from "@mui/material";
 import Box from "@mui/material/Box";
 import Switch from "@mui/material/Switch";
+import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {ErrorMessage, Field, useFormikContext} from "formik";
 import colors from "qqq/assets/theme/base/colors";
 import BooleanFieldSwitch from "qqq/components/forms/BooleanFieldSwitch";
@@ -45,6 +45,7 @@ interface Props
    isEditable?: boolean;
    placeholder?: string;
    backgroundColor?: string;
+   processUUID?: string;
 
    onChangeCallback?: (newValue: any) => void;
 
@@ -56,7 +57,7 @@ interface Props
 }
 
 function QDynamicFormField({
-   label, name, displayFormat, value, bulkEditMode, bulkEditSwitchChangeHandler, type, isEditable, placeholder, backgroundColor, formFieldObject, onChangeCallback, ...rest
+   label, name, displayFormat, value, bulkEditMode, bulkEditSwitchChangeHandler, type, isEditable, placeholder, backgroundColor, formFieldObject, onChangeCallback, processUUID, ...rest
 }: Props): JSX.Element
 {
    const [switchChecked, setSwitchChecked] = useState(false);
@@ -187,6 +188,7 @@ function QDynamicFormField({
          onChange={dynamicSelectOnChange}
          // otherValues={otherValuesMap}
          useCase="form"
+         processUUID={processUUID}
       />);
    }
    else if (type === "checkbox")

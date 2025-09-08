@@ -19,14 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {Checkbox, Chip, CircularProgress, FilterOptionsState, Icon} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
+import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {ErrorMessage, useFormikContext} from "formik";
 import colors from "qqq/assets/theme/base/colors";
 import MDTypography from "qqq/components/legacy/MDTypography";
@@ -52,6 +52,7 @@ interface Props
    variant: "standard" | "outlined";
    initiallyOpen: boolean;
    useCase: "form" | "filter";
+   processUUID?: string | null;
 }
 
 DynamicSelect.defaultProps = {
@@ -96,7 +97,7 @@ export const getAutocompleteOutlinedStyle = (isDisabled: boolean) =>
 
 const qController = Client.getInstance();
 
-function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, inForm, initialValue, initialValues, onChange, isEditable, isMultiple, bulkEditMode, bulkEditSwitchChangeHandler, otherValues, variant, initiallyOpen, useCase}: Props)
+function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, inForm, initialValue, initialValues, onChange, isEditable, isMultiple, bulkEditMode, bulkEditSwitchChangeHandler, otherValues, variant, initiallyOpen, useCase, processUUID}: Props)
 {
    const {fieldName, initialDisplayValue, possibleValueSourceName, possibleValues, processName, tableName} = fieldPossibleValueProps;
 
@@ -196,7 +197,8 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
                searchTerm: searchTerm ?? "",
                values: otherValues,
                useCase,
-               possibleValueSourceFilter: fieldPossibleValueProps.possibleValueSourceFilter
+               possibleValueSourceFilter: fieldPossibleValueProps.possibleValueSourceFilter,
+               processUUID
             });
       }
    };
@@ -420,6 +422,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
             fullWidth
             onOpen={() =>
             {
+               reloadIfOtherValuesAreChanged();
                setOpen(true);
                // console.log("setting open...");
                if (options.length == 0)

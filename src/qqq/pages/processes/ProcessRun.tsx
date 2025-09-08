@@ -19,6 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {Alert, Button, CircularProgress, Icon, TablePagination} from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Grid from "@mui/material/Grid";
+import Step from "@mui/material/Step";
+import StepLabel from "@mui/material/StepLabel";
+import Stepper from "@mui/material/Stepper";
+import {Theme} from "@mui/material/styles";
+import Typography from "@mui/material/Typography";
+import {DataGridPro, GridColDef} from "@mui/x-data-grid-pro";
 import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
 import {QComponentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QComponentType";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
@@ -36,16 +46,6 @@ import {QJobStarted} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobSta
 import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
-import {Alert, Button, CircularProgress, Icon, TablePagination} from "@mui/material";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import Grid from "@mui/material/Grid";
-import Step from "@mui/material/Step";
-import StepLabel from "@mui/material/StepLabel";
-import Stepper from "@mui/material/Stepper";
-import {Theme} from "@mui/material/styles";
-import Typography from "@mui/material/Typography";
-import {DataGridPro, GridColDef} from "@mui/x-data-grid-pro";
 import FormData from "form-data";
 import {Form, Formik} from "formik";
 import parse from "html-react-parser";
@@ -828,6 +828,28 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                                           <Alert color="error">There are no editable fields on this table.</Alert>
                                        </Grid>
                                     }
+                                    {
+                                       processValues.nonDistinctPVSFields &&
+                                       <Grid item xs={12}>
+                                          <Alert color="warning">
+                                             {
+                                                Object.entries(processValues.nonDistinctPVSFields as Record<string, string[]>)
+                                                   .map(([nonDistinctField, dependentFields]) => (
+                                                      <Box pb={1} key={nonDistinctField}>
+                                                         You may not edit the value of {
+                                                            dependentFields.length > 1
+                                                               ? <>
+                                                                  <b>{dependentFields.slice(0, -1).join(", ")}</b>, or <b>{dependentFields.slice(-1)}</b>
+                                                               </>
+                                                               : <b>{dependentFields[0]}</b>
+                                                         }, because
+                                                         the records you are editing do not all have the same value for <b>{nonDistinctField}</b> (unless you edit the value of {nonDistinctField}).
+                                                      </Box>
+                                                   ))
+                                             }
+                                          </Alert>
+                                       </Grid>
+                                    }
                                     <Grid item xs={12} lg={3}>
                                        {
                                           localTableSections.length > 0 && <QRecordSidebar tableSections={localTableSections} stickyTop="20px" />
@@ -871,7 +893,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                                                             {section.label}
                                                          </MDTypography>
                                                          <Box px={2}>
-                                                            <QDynamicForm formData={sectionFormData} bulkEditMode bulkEditSwitchChangeHandler={bulkEditSwitchChanged} helpRoles={helpRoles} helpContentKeyPrefix={`table:${tableMetaData?.name};`} />
+                                                            <QDynamicForm processUUID={processUUID} formData={sectionFormData} bulkEditMode bulkEditSwitchChangeHandler={bulkEditSwitchChanged} helpRoles={helpRoles} helpContentKeyPrefix={`table:${tableMetaData?.name};`} />
                                                          </Box>
                                                       </Card>
                                                    </Box>
@@ -885,7 +907,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                                        }
                                     </Grid>
                                  </Grid>
-                                 : <QDynamicForm formData={formData} bulkEditMode bulkEditSwitchChangeHandler={bulkEditSwitchChanged} helpRoles={helpRoles} helpContentKeyPrefix={`table:${tableMetaData?.name};`} />
+                                 : <QDynamicForm processUUID={processUUID} formData={formData} bulkEditMode bulkEditSwitchChangeHandler={bulkEditSwitchChanged} helpRoles={helpRoles} helpContentKeyPrefix={`table:${tableMetaData?.name};`} />
                            )
                         }
                         {

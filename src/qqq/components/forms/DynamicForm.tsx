@@ -19,11 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
 import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import {FormikErrors, FormikTouched, FormikValues, useFormikContext} from "formik";
 import QDynamicFormField from "qqq/components/forms/DynamicFormField";
 import DynamicFormUtils, {DynamicFormFieldDefinition} from "qqq/components/forms/DynamicFormUtils";
@@ -92,12 +92,17 @@ interface Props
    // handler in one might impact another.  for simple use-case (single form on page), omit this.              //
    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
    setFormFields?: (formFields: { [key: string]: DynamicFormFieldDefinition }) => void;
+
+   ////////////////////////////////////////////////////////////////////////
+   // unique identifier for the process (if being used within a process) //
+   ////////////////////////////////////////////////////////////////////////
+   processUUID?: string;
 }
 
 /***************************************************************************
  * Standard form component used in QFMD.
  ***************************************************************************/
-function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, bulkEditSwitchChangeHandler, record, helpRoles, helpContentKeyPrefix, setFormFields}: Props): JSX.Element
+function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, bulkEditSwitchChangeHandler, record, helpRoles, helpContentKeyPrefix, setFormFields, processUUID}: Props): JSX.Element
 {
    const {formFields: origFormFields, errors, touched} = formData;
    const {setFieldValue, values} = useFormikContext<Record<string, any>>();
@@ -118,7 +123,7 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
     ***************************************************************************/
    const bulkEditSwitchChanged = (name: string, value: boolean) =>
    {
-      if(bulkEditSwitchChangeHandler)
+      if (bulkEditSwitchChangeHandler)
       {
          bulkEditSwitchChangeHandler(name, value);
       }
@@ -397,7 +402,7 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
                         }
 
                         return (
-                           <Grid item className={visibilityClassName}  lg={itemLG} xs={itemXS} sm={itemSM} flexDirection="column" key={fieldName + "-" + formAdjustmentCounter}>
+                           <Grid item className={visibilityClassName} lg={itemLG} xs={itemXS} sm={itemSM} flexDirection="column" key={fieldName + "-" + formAdjustmentCounter}>
                               {labelElement}
                               <FileInputField field={field} record={record} errorMessage={errors[fieldName]} />
                            </Grid>
@@ -428,6 +433,7 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
                                  otherValues={otherValuesMap}
                                  useCase="form"
                                  onChange={(newValue: any) => handleFieldChange(fieldName, newValue)}
+                                 processUUID={processUUID}
                               />
                               {formattedHelpContent}
                            </Grid>
