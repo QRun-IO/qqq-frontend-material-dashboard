@@ -19,7 +19,7 @@ jobs:
     with:
       project-type: 'maven'
       java-version: '17'
-      maven-args: '-P ci test'
+      maven-args: '-P ci'
       maven-working-directory: '.'
       enable-browser-tests: true
     secrets:

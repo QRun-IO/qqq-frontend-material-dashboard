@@ -592,6 +592,20 @@
       </plugins>
    </build>
 
+   <reporting>
+      <!-- Generate HTML reports from Surefire output -->
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-report-plugin</artifactId>
+            <version>3.5.3</version>
+            <configuration>
+               <!-- Always produce HTML report even on failures or no tests -->
+               <alwaysGenerateSurefireReport>true</alwaysGenerateSurefireReport>
+            </configuration>
+         </plugin>
+      </plugins>
+   </reporting>
 
 
 </project>
