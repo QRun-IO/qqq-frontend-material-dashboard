@@ -30,7 +30,6 @@
 
    <properties>
       <revision>0.26.0-SNAPSHOT</revision>
-
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
       <maven.compiler.source>17</maven.compiler.source>
