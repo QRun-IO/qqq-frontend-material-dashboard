@@ -29,7 +29,7 @@ const {createProxyMiddleware} = require("http-proxy-middleware");
 
 module.exports = function (app)
 {
-   let port = 8001;
+   let port = 8000;
    if(process.env.REACT_APP_PROXY_LOCALHOST_PORT)
    {
       port = process.env.REACT_APP_PROXY_LOCALHOST_PORT;

@@ -29,7 +29,6 @@ import java.util.List;
 import com.kingsrook.qqq.backend.core.utils.CollectionUtils;
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.javalin.QSeleniumJavalin;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +48,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class QBaseSeleniumTest
 {
    protected static ChromeOptions chromeOptions;
-   protected static String userDataDir;
 
    protected WebDriver        driver;
    protected QSeleniumJavalin qSeleniumJavalin;
@@ -63,70 +61,18 @@ public class QBaseSeleniumTest
    @BeforeAll
    static void beforeAll()
    {
-      // Detect CI environment
-      String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
-      String ci = System.getenv("CI");
-      String githubActions = System.getenv("GITHUB_ACTIONS");
-      boolean isCI = "true".equals(headless) || "true".equals(ci) || "true".equals(githubActions);
-      
       chromeOptions = new ChromeOptions();
       chromeOptions.setAcceptInsecureCerts(true);
-      
-      // Essential Chrome options for all environments
-      chromeOptions.addArguments("--no-sandbox");
-      chromeOptions.addArguments("--disable-dev-shm-usage");
-      chromeOptions.addArguments("--disable-setuid-sandbox");
-      chromeOptions.addArguments("--disable-gpu");
-      chromeOptions.addArguments("--disable-web-security");
       chromeOptions.addArguments("--ignore-certificate-errors");
-      chromeOptions.addArguments("--ignore-ssl-errors");
-      chromeOptions.addArguments("--ignore-certificate-errors-spki-list");
       chromeOptions.addArguments("--remote-allow-origins=*");
-      chromeOptions.addArguments("--disable-features=VizDisplayCompositor");
-      chromeOptions.addArguments("--disable-extensions");
-      chromeOptions.addArguments("--disable-plugins");
-      chromeOptions.addArguments("--disable-images");
-      chromeOptions.addArguments("--disable-background-timer-throttling");
-      chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
-      chromeOptions.addArguments("--disable-renderer-backgrounding");
-      chromeOptions.addArguments("--disable-field-trial-config");
-      chromeOptions.addArguments("--disable-back-forward-cache");
-      chromeOptions.addArguments("--disable-ipc-flooding-protection");
-      
-      if (isCI) {
-         System.out.println("🔍 CI environment detected - configuring Chrome for GitHub Actions");
-         
-         // CI-specific Chrome options
+
+      String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
+      if("true".equals(headless))
+      {
          chromeOptions.addArguments("--headless=new");
-         chromeOptions.addArguments("--window-size=1920,1080");
-         chromeOptions.addArguments("--disable-logging");
-         chromeOptions.addArguments("--log-level=3");
-         chromeOptions.addArguments("--silent");
-         
-         // Use unique user data directory for each test run in CI
-         userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
-         chromeOptions.addArguments("--user-data-dir=" + userDataDir);
-         
-         System.out.println("✅ Chrome configured for CI environment");
-      } else {
-         System.out.println("🏠 Local environment detected - Chrome will run with headless mode");
-         chromeOptions.addArguments("--headless=new");
-         chromeOptions.addArguments("--window-size=1920,1080");
-         // For local development, we can run with GUI for debugging
-         // No additional headless options needed
       }
 
-      // Configure WebDriverManager for CI environments
-      WebDriverManager.chromiumdriver()
-         .clearDriverCache()
-         .setup();
-      
-      // Debug: Print Chrome options
-      System.out.println("Chrome Options: " + chromeOptions.asMap());
-      System.out.println("User Data Dir: " + userDataDir);
-      System.out.println("CI Environment: " + ci);
-      System.out.println("GitHub Actions: " + githubActions);
-      System.out.println("Headless Mode: " + isCI);
+      WebDriverManager.chromiumdriver().setup();
    }
 
 
@@ -144,43 +90,10 @@ public class QBaseSeleniumTest
       chromePrefs.put("download.default_directory", getDownloadsDirectory());
       chromeOptions.setExperimentalOption("prefs", chromePrefs);
 
-      try {
-         System.out.println("🚀 Initializing Chrome driver...");
-         long startTime = System.currentTimeMillis();
-         
-         driver = new ChromeDriver(chromeOptions);
-         
-         long initTime = System.currentTimeMillis() - startTime;
-         System.out.println("✅ Chrome driver initialized in " + initTime + "ms");
-         
-         // Set timeouts for better stability in CI
-         driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(15));
-         driver.manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(60));
-         driver.manage().timeouts().scriptTimeout(java.time.Duration.ofSeconds(60));
-         
-         // Only set window size if not in headless mode (window size is set via Chrome options in headless)
-         String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
-         String ci = System.getenv("CI");
-         String githubActions = System.getenv("GITHUB_ACTIONS");
-         
-         if(!"true".equals(headless) && !"true".equals(ci) && !"true".equals(githubActions))
-         {
-            try {
-               driver.manage().window().setSize(new Dimension(1700, 1300));
-            } catch (Exception e) {
-               System.err.println("Warning: Could not set window size: " + e.getMessage());
-               // Continue without setting window size
-            }
-         }
-         
-         qSeleniumLib = new QSeleniumLib(driver);
-         
-         System.out.println("Chrome driver initialized successfully");
-      } catch (Exception e) {
-         System.err.println("Failed to initialize Chrome driver: " + e.getMessage());
-         e.printStackTrace();
-         throw e;
-      }
+      driver = new ChromeDriver(chromeOptions);
+
+      driver.manage().window().setSize(new Dimension(1700, 1300));
+      qSeleniumLib = new QSeleniumLib(driver);
 
       SeleniumTestWatcher.setCurrentSeleniumLib(qSeleniumLib);
 
@@ -189,46 +102,6 @@ public class QBaseSeleniumTest
          qSeleniumJavalin = new QSeleniumJavalin();
          addJavalinRoutes(qSeleniumJavalin);
          qSeleniumJavalin.start();
-         System.out.println("Starting internal Javalin server");
-      }
-      else
-      {
-         // Check if React server is ready (managed by Maven)
-         System.out.println("Checking React server readiness...");
-         
-         // Add debugging information
-         String ci = System.getenv("CI");
-         String githubActions = System.getenv("GITHUB_ACTIONS");
-         String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
-         
-         System.out.println("Environment variables:");
-         System.out.println("  CI: " + ci);
-         System.out.println("  GITHUB_ACTIONS: " + githubActions);
-         System.out.println("  QQQ_SELENIUM_HEADLESS: " + headless);
-         System.out.println("  PORT: " + System.getenv("PORT"));
-         System.out.println("  HTTPS: " + System.getenv("HTTPS"));
-         
-         try {
-            ServerHealthChecker.waitForServerReady();
-            System.out.println("✅ React server is ready and health check passed");
-         } catch (RuntimeException e) {
-            System.err.println("❌ React server health check failed: " + e.getMessage());
-            
-            // Try to get more debugging information
-            try {
-               java.net.URL url = new java.net.URL("https://localhost:3001");
-               java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
-               connection.setConnectTimeout(5000);
-               connection.setReadTimeout(5000);
-               int responseCode = connection.getResponseCode();
-               System.err.println("Direct connection test - HTTP " + responseCode);
-               connection.disconnect();
-            } catch (Exception ex) {
-               System.err.println("Direct connection test failed: " + ex.getMessage());
-            }
-            
-            throw e;
-         }
       }
    }
 
@@ -291,17 +164,6 @@ public class QBaseSeleniumTest
     *******************************************************************************/
    protected boolean useInternalJavalin()
    {
-      // Check if we're running in Maven integration test phase
-      // In that case, the React server is already started by Maven
-      String mavenPhase = System.getProperty("maven.test.skip");
-      String integrationTest = System.getProperty("maven.failsafe.skip");
-      
-      // If we're in integration test phase and React server is managed by Maven, 
-      // we don't need to start our own Javalin server
-      if ("true".equals(mavenPhase) || "true".equals(integrationTest)) {
-         return false;
-      }
-      
       return (true);
    }
 
@@ -352,78 +214,6 @@ public class QBaseSeleniumTest
       if(qSeleniumJavalin != null)
       {
          qSeleniumJavalin.stop();
-      }
-      
-      // Clean up Chrome user data directory
-      if(userDataDir != null)
-      {
-         try
-         {
-            File userDataDirFile = new File(userDataDir);
-            if(userDataDirFile.exists())
-            {
-               // Delete the directory and all its contents
-               deleteDirectory(userDataDirFile);
-            }
-         }
-         catch(Exception e)
-         {
-            System.err.println("Failed to clean up Chrome user data directory: " + userDataDir + " - " + e.getMessage());
-         }
-      }
-   }
-
-
-
-   /*******************************************************************************
-    ** Cleanup after all tests in the class
-    *******************************************************************************/
-   @AfterAll
-   static void afterAll()
-   {
-      // Final cleanup of Chrome user data directory
-      if(userDataDir != null)
-      {
-         try
-         {
-            File userDataDirFile = new File(userDataDir);
-            if(userDataDirFile.exists())
-            {
-               deleteDirectory(userDataDirFile);
-            }
-         }
-         catch(Exception e)
-         {
-            System.err.println("Failed to clean up Chrome user data directory in afterAll: " + userDataDir + " - " + e.getMessage());
-         }
-      }
-   }
-
-
-
-   /*******************************************************************************
-    ** Helper method to recursively delete a directory and all its contents
-    *******************************************************************************/
-   private static void deleteDirectory(File directory)
-   {
-      if(directory.exists())
-      {
-         File[] files = directory.listFiles();
-         if(files != null)
-         {
-            for(File file : files)
-            {
-               if(file.isDirectory())
-               {
-                  deleteDirectory(file);
-               }
-               else
-               {
-                  file.delete();
-               }
-            }
-         }
-         directory.delete();
       }
    }
 
