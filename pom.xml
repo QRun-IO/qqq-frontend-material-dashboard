@@ -28,8 +28,35 @@
    <version>${revision}</version>
    <packaging>jar</packaging>
 
+   <name>QQQ Frontend Material Dashboard</name>
+   <description>Low-code Application Framework for Engineers - Frontend Material Dashboard Component</description>
+   <url>https://github.com/Kingsrook/qqq-frontend-material-dashboard</url>
+
+   <licenses>
+      <license>
+         <name>GNU Affero General Public License v3.0</name>
+         <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+         <distribution>repo</distribution>
+      </license>
+   </licenses>
+
+   <scm>
+      <connection>scm:git:git://github.com/Kingsrook/qqq-frontend-material-dashboard.git</connection>
+      <developerConnection>scm:git:ssh://github.com:Kingsrook/qqq-frontend-material-dashboard.git</developerConnection>
+      <url>https://github.com/Kingsrook/qqq-frontend-material-dashboard</url>
+   </scm>
+
+   <developers>
+      <developer>
+         <name>Kingsrook Development Team</name>
+         <email>contact@kingsrook.com</email>
+         <organization>Kingsrook, LLC</organization>
+         <organizationUrl>https://kingsrook.com</organizationUrl>
+      </developer>
+   </developers>
+
    <properties>
-      <revision>0.26.0-RC.1</revision>
+      <revision>0.26.0-RC.7</revision>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
       <maven.compiler.source>17</maven.compiler.source>
@@ -43,6 +70,7 @@
          <dependency>
             <groupId>com.kingsrook.qqq</groupId>
             <artifactId>qqq-backend-core</artifactId>
+            <version>[0.26.0-SNAPSHOT,0.28.0-SNAPSHOT)</version>
             <!--
             When qqq-backend-core was added as a dependency here, it brought with it some transitive
             dependencies which conflicted with selenium.  Excluding these from qqq-backend-core fixes us.
