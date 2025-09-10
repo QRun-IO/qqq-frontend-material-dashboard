@@ -9,6 +9,7 @@ yalc.lock
 
 # dependencies
 /node_modules
+/node/node_modules
 /.pnp
 .pnp.js
 

@@ -29,7 +29,7 @@
    <packaging>jar</packaging>
 
    <name>QQQ Frontend Material Dashboard</name>
-   <description>Material Dashboard frontend for QQQ application - Low-code Application Framework for Engineers</description>
+   <description>Low-code Application Framework for Engineers - Frontend Material Dashboard Component</description>
    <url>https://github.com/Kingsrook/qqq-frontend-material-dashboard</url>
 
    <licenses>
@@ -39,6 +39,21 @@
          <distribution>repo</distribution>
       </license>
    </licenses>
+
+   <scm>
+      <connection>scm:git:git://github.com/Kingsrook/qqq-frontend-material-dashboard.git</connection>
+      <developerConnection>scm:git:ssh://github.com:Kingsrook/qqq-frontend-material-dashboard.git</developerConnection>
+      <url>https://github.com/Kingsrook/qqq-frontend-material-dashboard</url>
+   </scm>
+
+   <developers>
+      <developer>
+         <name>Kingsrook Development Team</name>
+         <email>contact@kingsrook.com</email>
+         <organization>Kingsrook, LLC</organization>
+         <organizationUrl>https://kingsrook.com</organizationUrl>
+      </developer>
+   </developers>
 
    <properties>
       <revision>0.26.0-SNAPSHOT</revision>
@@ -50,23 +65,6 @@
       <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
       <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
    </properties>
-
-   <scm>
-      <connection>scm:git:git://github.com/Kingsrook/qqq-frontend-material-dashboard.git</connection>
-      <developerConnection>scm:git:ssh://github.com/Kingsrook/qqq-frontend-material-dashboard.git</developerConnection>
-      <url>https://github.com/Kingsrook/qqq-frontend-material-dashboard</url>
-      <tag>HEAD</tag>
-   </scm>
-
-   <developers>
-      <developer>
-         <id>kingsrook</id>
-         <name>Kingsrook Team</name>
-         <email>contact@kingsrook.com</email>
-         <organization>Kingsrook, LLC</organization>
-         <organizationUrl>https://kingsrook.com</organizationUrl>
-      </developer>
-   </developers>
 
    <dependencyManagement>
       <dependencies>
