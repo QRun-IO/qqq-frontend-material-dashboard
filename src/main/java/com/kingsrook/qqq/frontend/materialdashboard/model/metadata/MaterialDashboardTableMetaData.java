@@ -346,4 +346,45 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
       return (this);
    }
 
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   @Override
+   protected QSupplementalTableMetaData finishClone(QSupplementalTableMetaData abstractClone)
+   {
+      MaterialDashboardTableMetaData clone = (MaterialDashboardTableMetaData) abstractClone;
+
+      if(gotoFieldNames != null)
+      {
+         clone.gotoFieldNames = new ArrayList<>();
+         for(List<String> gotoFieldNameSubList : gotoFieldNames)
+         {
+            clone.gotoFieldNames.add(new ArrayList<>(gotoFieldNameSubList));
+         }
+      }
+
+      if(defaultQuickFilterFieldNames != null)
+      {
+         clone.defaultQuickFilterFieldNames = new ArrayList<>(defaultQuickFilterFieldNames);
+      }
+
+      if(fieldRules != null)
+      {
+         clone.fieldRules = new ArrayList<>();
+         for(FieldRule fieldRule : fieldRules)
+         {
+            clone.fieldRules.add(fieldRule.clone());
+         }
+      }
+
+      if(onLoadFormAdjuster != null)
+      {
+         clone.onLoadFormAdjuster = onLoadFormAdjuster.clone();
+      }
+
+      return abstractClone;
+   }
+
 }
