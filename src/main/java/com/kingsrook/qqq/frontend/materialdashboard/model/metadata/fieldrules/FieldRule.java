@@ -31,7 +31,7 @@ import java.io.Serializable;
  ** e.g., one field being changed causing different things to be needed in another
  ** field.
  *******************************************************************************/
-public class FieldRule implements Serializable
+public class FieldRule implements Serializable, Cloneable
 {
    private FieldRuleTrigger trigger;
    private String           sourceField;
@@ -195,4 +195,22 @@ public class FieldRule implements Serializable
       return (this);
    }
 
+
+
+   /***************************************************************************
+    * 
+    ***************************************************************************/
+   @Override
+   public FieldRule clone()
+   {
+      try
+      {
+         FieldRule clone = (FieldRule) super.clone();
+         return clone;
+      }
+      catch(CloneNotSupportedException e)
+      {
+         throw new AssertionError();
+      }
+   }
 }
