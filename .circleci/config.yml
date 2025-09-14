@@ -7,9 +7,8 @@ workflows:
 
   test_only:
     jobs:
-      - qqq-orb/test_only:
+      - qqq-orb/mvn_frontend_test_only:
           context: [ qqq-maven-registry-credentials, build-qqq-sample-app ]
-          include_integrated_frontend_build: true
           filters:
             branches:
               ignore: /(develop|main|release/.*|hotfix/.*|integration.*)/
@@ -18,9 +17,9 @@ workflows:
 
   publish_snapshot:
     jobs:
-      - qqq-orb/publish_snapshot:
-          include_integrated_frontend_build: true
+      - qqq-orb/mvn_frontend_publish:
           context: [ qqq-maven-registry-credentials, build-qqq-sample-app ]
+          branch_type: snapshot
           filters:
             branches:
               only:
@@ -28,9 +27,9 @@ workflows:
 
   publish_release_candidate:
     jobs:
-      - qqq-orb/publish_release_candidate:
-          include_integrated_frontend_build: true
+      - qqq-orb/mvn_frontend_publish:
           context: [ qqq-maven-registry-credentials, build-qqq-sample-app ]
+          branch_type: release_candidate
           filters:
             branches:
               only:
@@ -38,9 +37,9 @@ workflows:
 
   publish_release:
     jobs:
-      - qqq-orb/publish_release:
-          include_integrated_frontend_build: true
+      - qqq-orb/mvn_frontend_publish:
           context: [ qqq-maven-registry-credentials, build-qqq-sample-app ]
+          branch_type: release
           filters:
             branches:
               only: [ main ]
@@ -49,9 +48,9 @@ workflows:
 
   publish_hotfix_release:
     jobs:
-      - qqq-orb/publish_hotfix_release:
-          include_integrated_frontend_build: true
+      - qqq-orb/mvn_frontend_publish:
           context: [ qqq-maven-registry-credentials, build-qqq-sample-app ]
+          branch_type: hotfix
           filters:
             branches:
               only:
