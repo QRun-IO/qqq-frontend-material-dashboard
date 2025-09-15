@@ -45,7 +45,7 @@ import * as Yup from "yup";
 //////////////////////////////
 // Context value type alias //
 //////////////////////////////
-type QCtx = React.ContextType<typeof QContext>;
+type QContextType = React.ContextType<typeof QContext>;
 
 
 // todo - deploy this interface somehow out of this file
@@ -80,16 +80,16 @@ QFMDBridgeForm.defaultProps = {};
 ///////////////////////////////////////////////////////////////////////////////
 const useBridgeHelpHelpActive = (): boolean =>
 {
-   const {helpHelpActive: ctxHelpHelpActive} = useContext(QContext) as QCtx;
+   const {helpHelpActive: ctxHelpHelpActive} = useContext(QContext) as QContextType;
    const fromUrl = (typeof window !== "undefined") && new URLSearchParams(window.location.search).has("helpHelp");
    return Boolean(ctxHelpHelpActive || fromUrl);
 };
 
 function QFMDBridgeForm({fields, record, handleChange, handleSubmit, helpRoles, helpContentKeyPrefix}: QFMDBridgeFormProps): JSX.Element
 {
-   const parentContext = useContext(QContext) as QCtx;
+   const parentContext = useContext(QContext) as QContextType;
    const helpHelpActive = useBridgeHelpHelpActive();
-   const mergedContext: QCtx = {...parentContext, helpHelpActive};
+   const mergedContext: QContextType = {...parentContext, helpHelpActive};
 
    const initialValues: any = {};
    for (let field of fields)
@@ -226,7 +226,7 @@ QFMDBridgeWidget.defaultProps = {};
 
 function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, actionCallback}: QFMDBridgeWidgetProps): JSX.Element
 {
-   const qContext = useContext(QContext) as QCtx;
+   const qContext = useContext(QContext) as QContextType;
    const helpHelpActive = useBridgeHelpHelpActive();
 
    const [ready, setReady] = useState(false);
@@ -265,7 +265,7 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
    // internally in some widgets, useNavigate happens... so we must re-introduce the browser-router context //
    // plus the contexts too, as indicated.                                                                  //
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-   const providerValue: QCtx = {
+   const providerValue: QContextType = {
       ...qContext,
       helpHelpActive,
       setTableMetaData: (tableMetaData: QTableMetaData) => setTableMetaData(tableMetaData),
