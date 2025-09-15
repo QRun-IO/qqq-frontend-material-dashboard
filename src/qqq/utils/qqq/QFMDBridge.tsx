@@ -19,16 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
-import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
-import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {Alert} from "@mui/material";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
 import Modal from "@mui/material/Modal";
 import {ThemeProvider} from "@mui/material/styles";
+import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
+import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
+import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {Formik} from "formik";
 import QContext from "QContext";
 import QDynamicForm from "qqq/components/forms/DynamicForm";
@@ -42,6 +42,11 @@ import React, {ReactElement, ReactNode, useContext, useEffect, useState} from "r
 import {BrowserRouter} from "react-router-dom";
 import * as Yup from "yup";
 
+//////////////////////////////
+// Context value type alias //
+//////////////////////////////
+type QCtx = React.ContextType<typeof QContext>;
+
 
 // todo - deploy this interface somehow out of this file
 export interface QFMDBridge
@@ -49,7 +54,7 @@ export interface QFMDBridge
    qController?: QController;
    makeAlert: (text: string, color: string) => JSX.Element;
    makeButton: (label: string, onClick: () => void, extra?: { [key: string]: any }) => JSX.Element;
-   makeForm: (fields: QFieldMetaData[], record: QRecord, handleChange: (fieldName: string, newValue: any) => void, handleSubmit: (values: any) => void) => JSX.Element;
+   makeForm: (fields: QFieldMetaData[], record: QRecord, handleChange: (fieldName: string, newValue: any) => void, handleSubmit: (values: any) => void, helpRoles?: string[], helpContentKeyPrefix?: string) => JSX.Element;
    makeModal: (children: ReactElement, onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void) => JSX.Element;
    makeWidget: (widgetName: string, tableName?: string, entityPrimaryKey?: string, record?: QRecord, actionCallback?: (data: any, eventValues?: { [name: string]: any }) => boolean) => JSX.Element;
 }
@@ -63,13 +68,29 @@ interface QFMDBridgeFormProps
    fields: QFieldMetaData[],
    record: QRecord,
    handleChange: (fieldName: string, newValue: any) => void,
-   handleSubmit: (values: any) => void
+   handleSubmit: (values: any) => void,
+   helpRoles?: string[],
+   helpContentKeyPrefix?: string,
 }
 
 QFMDBridgeForm.defaultProps = {};
 
-function QFMDBridgeForm({fields, record, handleChange, handleSubmit}: QFMDBridgeFormProps): JSX.Element
+///////////////////////////////////////////////////////////////////////////////
+// Bridge helpers: merge helpHelp from URL with value from the ambient context //
+///////////////////////////////////////////////////////////////////////////////
+const useBridgeHelpHelpActive = (): boolean =>
 {
+   const {helpHelpActive: ctxHelpHelpActive} = useContext(QContext) as QCtx;
+   const fromUrl = (typeof window !== "undefined") && new URLSearchParams(window.location.search).has("helpHelp");
+   return Boolean(ctxHelpHelpActive || fromUrl);
+};
+
+function QFMDBridgeForm({fields, record, handleChange, handleSubmit, helpRoles, helpContentKeyPrefix}: QFMDBridgeFormProps): JSX.Element
+{
+   const parentContext = useContext(QContext) as QCtx;
+   const helpHelpActive = useBridgeHelpHelpActive();
+   const mergedContext: QCtx = {...parentContext, helpHelpActive};
+
    const initialValues: any = {};
    for (let field of fields)
    {
@@ -143,46 +164,49 @@ function QFMDBridgeForm({fields, record, handleChange, handleSubmit}: QFMDBridge
    // re-introduce these two context providers, in case the child calls this      //
    // method under a different root... maybe this should be optional per a param? //
    /////////////////////////////////////////////////////////////////////////////////
-   return (<MaterialUIControllerProvider>
-      <ThemeProvider theme={theme}>
-         <Formik initialValues={initialValues} validationSchema={Yup.object().shape(formValidations)} onSubmit={handleSubmit}>
-            {({values, errors, touched}) =>
-            {
-               const formData: any = {};
-               formData.values = values;
-               formData.touched = touched;
-               formData.errors = errors;
-               formData.formFields = dynamicFormFields;
-
-               try
-               {
-                  let anyDiffs = false;
-                  for (let fieldName in values)
+   return (
+      <QContext.Provider value={mergedContext}>
+         <MaterialUIControllerProvider>
+            <ThemeProvider theme={theme}>
+               <Formik initialValues={initialValues} validationSchema={Yup.object().shape(formValidations)} onSubmit={handleSubmit}>
+                  {({values, errors, touched}) =>
                   {
-                     const value = values[fieldName];
-                     if (lastValues[fieldName] != value)
+                     const formData: any = {};
+                     formData.values = values;
+                     formData.touched = touched;
+                     formData.errors = errors;
+                     formData.formFields = dynamicFormFields;
+
+                     try
                      {
-                        handleChange(fieldName, value);
-                        lastValues[fieldName] = value;
-                        anyDiffs = true;
+                        let anyDiffs = false;
+                        for (let fieldName in values)
+                        {
+                           const value = values[fieldName];
+                           if (lastValues[fieldName] != value)
+                           {
+                              handleChange(fieldName, value);
+                              lastValues[fieldName] = value;
+                              anyDiffs = true;
+                           }
+                        }
+
+                        if (anyDiffs)
+                        {
+                           setLastValues(lastValues);
+                        }
                      }
-                  }
+                     catch (e)
+                     {
+                        console.error(e);
+                     }
 
-                  if (anyDiffs)
-                  {
-                     setLastValues(lastValues);
-                  }
-               }
-               catch (e)
-               {
-                  console.error(e);
-               }
-
-               return (<QDynamicForm formData={formData} record={record} />);
-            }}
-         </Formik>
-      </ThemeProvider>
-   </MaterialUIControllerProvider>);
+                     return (<QDynamicForm formData={formData} record={record} helpRoles={helpRoles} helpContentKeyPrefix={helpContentKeyPrefix} />);
+                  }}
+               </Formik>
+            </ThemeProvider>
+         </MaterialUIControllerProvider>
+      </QContext.Provider>);
 }
 
 
@@ -202,7 +226,8 @@ QFMDBridgeWidget.defaultProps = {};
 
 function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, actionCallback}: QFMDBridgeWidgetProps): JSX.Element
 {
-   const qContext = useContext(QContext);
+   const qContext = useContext(QContext) as QCtx;
+   const helpHelpActive = useBridgeHelpHelpActive();
 
    const [ready, setReady] = useState(false);
 
@@ -240,13 +265,15 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
    // internally in some widgets, useNavigate happens... so we must re-introduce the browser-router context //
    // plus the contexts too, as indicated.                                                                  //
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+   const providerValue: QCtx = {
+      ...qContext,
+      helpHelpActive,
+      setTableMetaData: (tableMetaData: QTableMetaData) => setTableMetaData(tableMetaData),
+   };
    return (<BrowserRouter>
       <MaterialUIControllerProvider>
          <ThemeProvider theme={theme}>
-            <QContext.Provider value={{
-               ...qContext,
-               setTableMetaData: (tableMetaData: QTableMetaData) => setTableMetaData(tableMetaData),
-            }}>
+            <QContext.Provider value={providerValue}>
                <div className={`bridgedWidget ${widgetMetaData.type}`}>
                   <DashboardWidgets tableName={tableName} widgetMetaDataList={[widgetMetaData]} initialWidgetDataList={[widgetData]} record={record} entityPrimaryKey={entityPrimaryKey} omitWrappingGridContainer={true} actionCallback={actionCallback} />
                </div>
@@ -383,9 +410,9 @@ export const qfmdBridge =
          return (<QFMDBridgeWidget widgetName={widgetName} tableName={tableName} record={record} entityPrimaryKey={entityPrimaryKey} actionCallback={actionCallback} />);
       },
 
-      makeForm: (fields: QFieldMetaData[], record: QRecord, handleChange: (fieldName: string, newValue: any) => void, handleSubmit: (values: any) => void): JSX.Element =>
+      makeForm: (fields: QFieldMetaData[], record: QRecord, handleChange: (fieldName: string, newValue: any) => void, handleSubmit: (values: any) => void, helpRoles?: string[], helpContentKeyPrefix?: string): JSX.Element =>
       {
-         return (<QFMDBridgeForm fields={fields} record={record} handleChange={handleChange} handleSubmit={handleSubmit} />);
+         return (<QFMDBridgeForm fields={fields} record={record} handleChange={handleChange} handleSubmit={handleSubmit} helpRoles={helpRoles} helpContentKeyPrefix={helpContentKeyPrefix} />);
       }
    };
 
