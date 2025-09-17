@@ -21,6 +21,8 @@
 
 import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QJobComplete} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobComplete";
+import {QJobError} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobError";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCriteriaOperator";
 import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterCriteria";
@@ -34,6 +36,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import FormData from "form-data";
 import QContext from "QContext";
 import Client from "qqq/utils/qqq/Client";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
@@ -192,26 +195,72 @@ function AuditBody({tableMetaData, recordId, record}: Props): JSX.Element
    {
       (async () =>
       {
-         /////////////////////////////////
-         // setup filter to load audits //
-         /////////////////////////////////
-         const filter = new QQueryFilter([
-            new QFilterCriteria("auditTable.name", QCriteriaOperator.EQUALS, [tableMetaData.name]),
-            new QFilterCriteria("recordId", QCriteriaOperator.EQUALS, [recordId]),
-         ], [
-            new QFilterOrderBy("timestamp", sortDirection),
-            new QFilterOrderBy("id", sortDirection),
-            new QFilterOrderBy("auditDetail.id", true)
-         ], null, "AND", 0, limit);
-
          ///////////////////////////////
          // fetch audits in try-catch //
          ///////////////////////////////
          let audits = [] as QRecord[];
          try
          {
-            audits = await qController.query("audit", filter, [new QueryJoin("auditDetail", true, "LEFT")]);
-            setAudits(audits);
+            const qInstance = await qController.loadMetaData();
+
+            //////////////////////////////////////////////////////////////////////////////////
+            // Originally audits were loaded by a direct query from this screen.            //
+            // but with the addition of table-personalization, and possibly future fetching //
+            // of child records, instead call the GetAuditsForRecord process, if it exists. //
+            //////////////////////////////////////////////////////////////////////////////////
+            const getAuditsProcessName = "GetAuditsForRecord";
+            if(qInstance.processes.has(getAuditsProcessName))
+            {
+               const formData = new FormData();
+               formData.append("tableName", tableMetaData.name);
+               formData.append("recordId", recordId);
+               formData.append("isSortAscending", sortDirection);
+               formData.append("limit", limit);
+               // todo if/when added: formData.append("includeChildren", includeChildren);
+               const processResult = await qController.processRun(getAuditsProcessName, formData);
+
+               if (processResult instanceof QJobError)
+               {
+                  const jobError = processResult as QJobError
+                  throw(jobError.userFacingError ?? jobError.error)
+               }
+
+               const jobComplete = processResult as QJobComplete
+               jobComplete.values["audits"]?.forEach((audit: any) => audits.push(new QRecord(audit)));
+               setAudits(audits);
+
+               setTotal(null);
+               if (jobComplete.values["distinctCount"])
+               {
+                  setTotal(jobComplete.values["distinctCount"]);
+               }
+            }
+            else
+            {
+               /////////////////////////////////
+               // setup filter to load audits //
+               /////////////////////////////////
+               const filter = new QQueryFilter([
+                  new QFilterCriteria("auditTable.name", QCriteriaOperator.EQUALS, [tableMetaData.name]),
+                  new QFilterCriteria("recordId", QCriteriaOperator.EQUALS, [recordId]),
+               ], [
+                  new QFilterOrderBy("timestamp", sortDirection),
+                  new QFilterOrderBy("id", sortDirection),
+                  new QFilterOrderBy("auditDetail.id", true)
+               ], null, "AND", 0, limit);
+
+               audits = await qController.query("audit", filter, [new QueryJoin("auditDetail", true, "LEFT")]);
+               setAudits(audits);
+
+               //////////////////////////////////////////////////////////
+               // if we fetched the limit, count the total for showing //
+               //////////////////////////////////////////////////////////
+               if (audits.length == limit)
+               {
+                  const [count, distinctCount] = await qController.count("audit", filter, null, true); // todo validate distinct working here!
+                  setTotal(distinctCount);
+               }
+            }
          }
          catch (e)
          {
@@ -225,13 +274,6 @@ function AuditBody({tableMetaData, recordId, record}: Props): JSX.Element
             }
 
             setStatusString("Error loading audits");
-         }
-
-         // if we fetched the limit
-         if (audits.length == limit)
-         {
-            const [count, distinctCount] = await qController.count("audit", filter, null, true); // todo validate distinct working here!
-            setTotal(distinctCount);
          }
 
          //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -329,21 +371,21 @@ function AuditBody({tableMetaData, recordId, record}: Props): JSX.Element
          {
             if (total)
             {
-               setStatusString(`Showing first ${limit?.toLocaleString()} of ${total?.toLocaleString()} audits for this record`);
+               setStatusString(`Showing first ${limit?.toLocaleString()} of ${total?.toLocaleString()} audit details for this record`);
             }
             else
             {
                if (audits.length == 1)
                {
-                  setStatusString("Showing the only audit for this record");
+                  setStatusString("Showing the only audit detail for this record");
                }
                else if (audits.length == 2)
                {
-                  setStatusString("Showing the only 2 audits for this record");
+                  setStatusString("Showing the only 2 audit details for this record");
                }
                else
                {
-                  setStatusString(`Showing all ${audits.length?.toLocaleString()} audits for this record`);
+                  setStatusString(`Showing all ${audits.length?.toLocaleString()} audit details for this record`);
                }
             }
          }
