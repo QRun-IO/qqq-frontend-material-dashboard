@@ -412,6 +412,14 @@ contact@kingsrook.com | https://github.com/Kingsrook/
 
 **Note**: This is a component of the QQQ framework. For the complete license and more information, see the main QQQ repository: https://github.com/Kingsrook/qqq
 
+## 🏢 About Kingsrook
+
+QQQ is built by **[Kingsrook](https://qrun.io)** - making engineers more productive through intelligent automation and developer tools.
+
+- **Website**: [https://qrun.io](https://qrun.io)
+- **Contact**: [contact@kingsrook.com](mailto:contact@kingsrook.com)
+- **GitHub**: [https://github.com/Kingsrook](https://github.com/Kingsrook)
+
 ## 🆘 Support & Community
 
 ### ⚠️ Important: Use Main QQQ Repository
