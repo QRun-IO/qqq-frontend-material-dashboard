@@ -1,100 +1,58 @@
 # Changelog
 
-All notable changes to the QQQ Frontend Material Dashboard will be documented in this file.
+All notable changes to QBit User Role Permissions will be documented in this file.
 
-**Note**: This repository contains only the **frontend dashboard application** for the QQQ framework. For complete framework changes, see the [main QQQ changelog](https://github.com/Kingsrook/qqq/blob/main/CHANGELOG.md).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Added
-- Initial frontend component setup
-- Material-UI dashboard components
-- React-based user interface
-- TypeScript support
+- Comprehensive README documentation following QQQ sub repo standards
+- Standard GitHub files (LICENSE, CHANGELOG, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT)
+- Proper project structure and documentation
 
 ### Changed
-- N/A
+- Updated README to follow QQQ framework standards
+- Improved project documentation and structure
+- Enhanced GitHub repository setup
 
-### Deprecated
-- N/A
-
-### Removed
-- N/A
-
-### Fixed
-- N/A
-
-### Security
-- N/A
-
-## [0.26.0-SNAPSHOT] - Current Development
+## [0.30.0-SNAPSHOT] - 2024-01-XX
 
 ### Added
-- React 18 support
-- Material-UI v5 components
-- TypeScript 4.9.4
-- Modern build tooling
-- Component library structure
+- Initial QBit implementation for user role permissions
+- Database schema for users, roles, and permissions
+- Java classes for User, Role, Permission, UserRole, and RolePermission
+- Integration with QQQ Backend Core framework
+- H2 database support for testing
+- JUnit 5 test framework integration
+- AssertJ assertions for testing
+- Checkstyle configuration for code quality
 
 ### Changed
-- Updated to latest React patterns
-- Modernized component architecture
-- Enhanced TypeScript integration
-
-## Version History
-
-| Version | Release Date | QQQ Framework Version | Notes |
-|---------|--------------|----------------------|-------|
-| 0.26.0-SNAPSHOT | Development | 1.0.128+ | Current development version |
-| 0.25.x | Previous | 1.0.x | Previous stable versions |
-
-## What This Changelog Covers
-
-This changelog tracks changes specific to the **frontend dashboard application**, including:
-
-- **UI Components**: New or updated React components
-- **Styling Changes**: Material-UI theme updates
-- **Frontend Features**: Client-side functionality additions
-- **Build Updates**: Development tooling changes
-- **Dependency Updates**: Frontend package updates
-
-## What This Changelog Does NOT Cover
-
-This changelog does NOT track:
-
-- **QQQ Server Changes**: Backend functionality updates
-- **Core Framework**: Business logic or process engine changes
-- **API Changes**: Backend API modifications
-- **Database Updates**: Schema or data structure changes
-- **Infrastructure**: Server or deployment changes
-
-## Getting Complete Information
-
-For comprehensive information about all QQQ framework changes:
-
-- **Main Changelog**: [https://github.com/Kingsrook/qqq/blob/main/CHANGELOG.md](https://github.com/Kingsrook/qqq/blob/main/CHANGELOG.md)
-- **Release Notes**: [https://github.com/Kingsrook/qqq/releases](https://github.com/Kingsrook/qqq/releases)
-- **Framework Updates**: [https://github.com/Kingsrook/qqq](https://github.com/Kingsrook/qqq)
-
-## Contributing to Changelog
-
-When contributing to this frontend component:
-
-1. **Add entries** for frontend-specific changes
-2. **Reference QQQ versions** when applicable
-3. **Keep entries focused** on UI/UX changes
-4. **Update version numbers** according to semantic versioning
-
-## Versioning Strategy
-
-This frontend component follows semantic versioning:
-
-- **MAJOR**: Breaking changes to component APIs
-- **MINOR**: New features and enhancements
-- **PATCH**: Bug fixes and minor updates
-
-**Note**: Version numbers may not always align with the main QQQ framework due to different release cycles.
+- Initial public release of QBit User Role Permissions
+- Established QBit development standards
+- Created modular architecture for permission management
 
 ---
 
-**For complete QQQ framework information, visit: https://github.com/Kingsrook/qqq**
+## 📚 For Detailed Information
+
+**📖 [Complete Documentation Wiki](https://github.com/Kingsrook/qqq/wiki)** - Start here for comprehensive guides
+- **[🏠 Home](https://github.com/Kingsrook/qqq/wiki/Home)** - Project overview and quick start
+- **[🚀 Release Flow](https://github.com/Kingsrook/qqq/wiki/Release-Flow)** - Detailed release process
+- **[🏷️ Changelog & Tagging](https://github.com/Kingsrook/qqq/wiki/Changelog-and-Tagging)** - Commit conventions and release notes
+- **[🔧 Developer Onboarding](https://github.com/Kingsrook/qqq/wiki/Developer-Onboarding)** - Setup and contribution guide
+
+## 🔄 Version Compatibility
+
+QBit User Role Permissions follows semantic versioning:
+- **MAJOR** versions may contain breaking changes
+- **MINOR** versions add new functionality (backward compatible)
+- **PATCH** versions contain bug fixes (backward compatible)
+
+For detailed compatibility information, see [QQQ Compatibility Matrix](https://github.com/Kingsrook/qqq/wiki/Compatibility-Matrix).
+
+---
+
+**Thank you for using QBit User Role Permissions!** 🚀
