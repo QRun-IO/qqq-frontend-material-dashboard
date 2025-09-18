@@ -47,6 +47,7 @@ import DynamicFormWidget from "qqq/components/widgets/misc/DynamicFormWidget";
 import FilterAndColumnsSetupWidget from "qqq/components/widgets/misc/FilterAndColumnsSetupWidget";
 import PivotTableSetupWidget from "qqq/components/widgets/misc/PivotTableSetupWidget";
 import RecordGridWidget, {ChildRecordListData} from "qqq/components/widgets/misc/RecordGridWidget";
+import RowBuilderWidget from "qqq/components/widgets/misc/RowBuilderWidget";
 import {FieldRule, FieldRuleAction, FieldRuleTrigger} from "qqq/models/fields/FieldRules";
 import HtmlUtils from "qqq/utils/HtmlUtils";
 import Client from "qqq/utils/qqq/Client";
@@ -103,6 +104,8 @@ function EntityForm(props: Props): JSX.Element
 
    const [formTitle, setFormTitle] = useState("");
    const [validations, setValidations] = useState({} as Yup.BaseSchema);
+   const [baseFormValidations, setBaseFormValidations] = useState({} as Record<string, Yup.BaseSchema>);
+   const [subFormValidations, setSubFormValidations] = useState({} as Record<string, Record<string, Yup.BaseSchema>>);
    const [initialValues, setInitialValues] = useState({} as { [key: string]: any });
    const [formFieldsBySection, setFormFieldsBySection] = useState(null as Map<string, DynamicFormFieldDefinition[]>);
    const [allFormFields, setAllFormFields] = useState(null as { [key: string]: DynamicFormFieldDefinition });
@@ -122,6 +125,7 @@ function EntityForm(props: Props): JSX.Element
    const [sectionVisibility, setSectionVisibility] = useState({} as { [key: string]: boolean });
    const [renderedWidgetSections, setRenderedWidgetSections] = useState({} as { [name: string]: JSX.Element });
    const [childListWidgetData, setChildListWidgetData] = useState({} as { [name: string]: ChildRecordListData });
+   const [associationsFromWidgets, setAssociationsFromWidgets] = useState({} as Record<string, QRecord[]>);
    const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
    const [showEditChildForm, setShowEditChildForm] = useState(null as any);
@@ -538,7 +542,52 @@ function EntityForm(props: Props): JSX.Element
          />;
       }
 
+      if (widgetMetaData.type == "rowBuilder")
+      {
+         return <RowBuilderWidget
+            widgetMetaData={widgetMetaData}
+            widgetData={widgetData}
+            screen="recordEdit"
+            parentFormValues={formValues}
+            addSubValidations={addSubValidations}
+            onSaveCallback={(values) =>
+            {
+               const associationName = widgetMetaData.defaultValues.get("associationName");
+               if (associationName)
+               {
+                  associationsFromWidgets[associationName] = values[associationName];
+                  setAssociationsFromWidgets({...associationsFromWidgets});
+               }
+               else
+               {
+                  setFormFieldValuesFromWidget(values);
+               }
+            }}
+         />;
+      }
+
       return (<Box>Unsupported widget type: {widgetMetaData.type}</Box>);
+   }
+
+
+   /***************************************************************************
+    * let a subcomponent (e.g., widget) add to the yup validation scheme.
+    ***************************************************************************/
+   function addSubValidations(name: string, validationScheme: Record<string, Yup.BaseSchema>)
+   {
+      subFormValidations[name] = validationScheme;
+      setSubFormValidations({...subFormValidations});
+
+      const allValidations = {...baseFormValidations};
+      for (let subName in subFormValidations)
+      {
+         for (let key in subFormValidations[subName])
+         {
+            allValidations[key] = subFormValidations[subName][key];
+         }
+      }
+
+      setValidations(Yup.object().shape(allValidations));
    }
 
 
@@ -662,7 +711,7 @@ function EntityForm(props: Props): JSX.Element
       //////////////////////////////////////////////////
       // set display values for PVS's if we have them //
       //////////////////////////////////////////////////
-      const updatedFieldDisplayValues: {[fieldName: string]: string} = response?.updatedFieldDisplayValues ?? {};
+      const updatedFieldDisplayValues: { [fieldName: string]: string } = response?.updatedFieldDisplayValues ?? {};
       for (let fieldNameToUpdate in updatedFieldDisplayValues)
       {
          defaultDisplayValues?.set(fieldNameToUpdate, updatedFieldDisplayValues[fieldNameToUpdate]);
@@ -809,6 +858,14 @@ function EntityForm(props: Props): JSX.Element
                   }
 
                   if (widget.type == "filterAndColumnsSetup" || widget.type == "pivotTableSetup" || widget.type == "dynamicForm")
+                  {
+                     return (true);
+                  }
+
+                  //////////////////////////////////////////////////////////////////////////////////////////////////////
+                  // rather than continue to add checks for specific types, just look for this value in the meta data //
+                  //////////////////////////////////////////////////////////////////////////////////////////////////////
+                  if (widget.defaultValues?.get("includeOnRecordEditScreen"))
                   {
                      return (true);
                   }
@@ -983,6 +1040,7 @@ function EntityForm(props: Props): JSX.Element
             setNonT1Sections(nonT1Sections);
             setFormFieldsBySection(dynamicFormFieldsBySection);
             setAllFormFields(newAllFormFields);
+            setBaseFormValidations(formValidations);
             setValidations(Yup.object().shape(formValidations));
             setRenderedWidgetSections(newRenderedWidgetSections);
             setChildListWidgetData(newChildListWidgetData);
@@ -1134,6 +1192,21 @@ function EntityForm(props: Props): JSX.Element
                }
             }
          }
+
+         if (associationsFromWidgets)
+         {
+            for (let name in associationsFromWidgets)
+            {
+               let records = associationsFromWidgets[name];
+               if (typeof records === "string")
+               {
+                  records = JSON.parse(records);
+               }
+               associationsToPost[name] = records;
+               haveAssociationsToPost = true;
+            }
+         }
+
          if (haveAssociationsToPost)
          {
             valuesToPost["associations"] = JSON.stringify(associationsToPost);
