@@ -399,7 +399,7 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
                         formattedHelpContent = <Box color="#757575" fontSize="0.875rem" mt="-0.25rem">{formattedHelpContent}</Box>;
                      }
 
-                     const labelElement = <DynamicFormFieldLabel name={field.name} label={field.label} />;
+                     const labelElement = <DynamicFormFieldLabel name={fieldName} label={field.label} />;
 
                      let itemLG = (field?.fieldMetaData?.gridColumns && field?.fieldMetaData?.gridColumns > 0) ? field.fieldMetaData.gridColumns : 6;
                      let itemXS = 12;
@@ -465,7 +465,7 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
                         <Grid item className={visibilityClassName} lg={itemLG} xs={itemXS} sm={itemSM} key={fieldName + "-" + formAdjustmentCounter}>
                            {labelElement}
                            <QDynamicFormField
-                              id={field.name}
+                              id={fieldName}
                               type={field.type}
                               label=""
                               isEditable={field.isEditable}
