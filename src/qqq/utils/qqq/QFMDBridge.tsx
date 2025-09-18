@@ -219,15 +219,15 @@ interface QFMDBridgeWidgetProps
    tableName?: string,
    record?: QRecord,
    entityPrimaryKey?: string,
-   actionCallback?: (data: any, eventValues?: { [p: string]: any }) => boolean
+   actionCallback?: (data: any, eventValues?: { [p: string]: any }) => boolean,
+   qContext?: QContext,
 }
 
 QFMDBridgeWidget.defaultProps = {};
 
-function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, actionCallback}: QFMDBridgeWidgetProps): JSX.Element
+function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, actionCallback, qContext: qContextProp}: QFMDBridgeWidgetProps): JSX.Element
 {
    const qContext = useContext(QContext) as QContextType;
-   const helpHelpActive = useBridgeHelpHelpActive();
 
    const [ready, setReady] = useState(false);
 
@@ -265,15 +265,13 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
    // internally in some widgets, useNavigate happens... so we must re-introduce the browser-router context //
    // plus the contexts too, as indicated.                                                                  //
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-   const providerValue: QContextType = {
-      ...qContext,
-      helpHelpActive,
-      setTableMetaData: (tableMetaData: QTableMetaData) => setTableMetaData(tableMetaData),
-   };
    return (<BrowserRouter>
       <MaterialUIControllerProvider>
          <ThemeProvider theme={theme}>
-            <QContext.Provider value={providerValue}>
+            <QContext.Provider value={{
+               ...(qContextProp ?? qContext),
+               setTableMetaData: (tableMetaData: QTableMetaData) => setTableMetaData(tableMetaData),
+            }}>
                <div className={`bridgedWidget ${widgetMetaData.type}`}>
                   <DashboardWidgets tableName={tableName} widgetMetaDataList={[widgetMetaData]} initialWidgetDataList={[widgetData]} record={record} entityPrimaryKey={entityPrimaryKey} omitWrappingGridContainer={true} actionCallback={actionCallback} />
                </div>
@@ -289,30 +287,49 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
  ***************************************************************************/
 interface QFMDBridgeModalProps
 {
-   children: ReactNode;
-   onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void;
+   children: ReactNode,
+   onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void,
+   qContext?: QContextType,
+   modalIdentifier?: string,
 }
 
 QFMDBridgeModal.defaultProps = {};
 
-function QFMDBridgeModal({children, onClose}: QFMDBridgeModalProps): JSX.Element
+function QFMDBridgeModal({children, onClose, qContext: qContextProp, modalIdentifier: modalIdentifierProp}: QFMDBridgeModalProps): JSX.Element
 {
    const [isOpen, setIsOpen] = useState(true);
+   const [modalIdentifier, setModalIdentifier] = useState(modalIdentifierProp ?? ("anonymousModal:" + (new Date().getTime())));
 
-   function closeModalProcess(event: {}, reason: "backdropClick" | "escapeKeyDown")
+   useEffect(() =>
+   {
+      qContextProp?.pushModalOnStack?.(modalIdentifier);
+   }, []);
+
+
+   function doSetIsOpen(isOpen: boolean): void
+   {
+      if(!isOpen)
+      {
+         qContextProp?.popModalOffStack?.(modalIdentifier);
+      }
+
+      setIsOpen(isOpen);
+   }
+
+   function closeModal(event: {}, reason: "backdropClick" | "escapeKeyDown")
    {
       if (onClose)
       {
-         onClose(setIsOpen, event, reason);
+         onClose(doSetIsOpen, event, reason);
       }
       else
       {
-         setIsOpen(false);
+         doSetIsOpen(false);
       }
    }
 
    return (
-      <Modal open={isOpen} onClose={(event, reason) => closeModalProcess(event, reason)}>
+      <Modal open={isOpen} onClose={(event, reason) => closeModal(event, reason)}>
          <Box className="bridgeModal" height="calc(100vh)">
             {children}
          </Box>
@@ -400,14 +417,14 @@ export const qfmdBridge =
          return (<QFMDBridgeAlert color={color} mayManuallyClose={mayManuallyClose}>{text}</QFMDBridgeAlert>);
       },
 
-      makeModal: (children: ReactElement, onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void): JSX.Element =>
+      makeModal: (children: ReactElement, onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void, qContext?: QContextType, modalIdentifier?: string): JSX.Element =>
       {
-         return (<QFMDBridgeModal onClose={onClose}>{children}</QFMDBridgeModal>);
+         return (<QFMDBridgeModal onClose={onClose} qContext={qContext} modalIdentifier={modalIdentifier}>{children}</QFMDBridgeModal>);
       },
 
-      makeWidget: (widgetName: string, tableName?: string, entityPrimaryKey?: string, record?: QRecord, actionCallback?: (data: any, eventValues?: { [name: string]: any }) => boolean): JSX.Element =>
+      makeWidget: (widgetName: string, tableName?: string, entityPrimaryKey?: string, record?: QRecord, actionCallback?: (data: any, eventValues?: { [name: string]: any }) => boolean, qContext?: QContextType): JSX.Element =>
       {
-         return (<QFMDBridgeWidget widgetName={widgetName} tableName={tableName} record={record} entityPrimaryKey={entityPrimaryKey} actionCallback={actionCallback} />);
+         return (<QFMDBridgeWidget widgetName={widgetName} tableName={tableName} record={record} entityPrimaryKey={entityPrimaryKey} actionCallback={actionCallback} qContext={qContext} />);
       },
 
       makeForm: (fields: QFieldMetaData[], record: QRecord, handleChange: (fieldName: string, newValue: any) => void, handleSubmit: (values: any) => void, helpRoles?: string[], helpContentKeyPrefix?: string): JSX.Element =>

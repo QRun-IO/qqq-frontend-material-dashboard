@@ -636,6 +636,7 @@ export default function App({authenticationMetaData}: Props)
    const [tableMetaData, setTableMetaData] = useState(null);
    const [tableProcesses, setTableProcesses] = useState(null);
    const [dotMenuOpen, setDotMenuOpen] = useState(false);
+   const [modalStack, setModalStack] = useState([] as string[]);
    const [keyboardHelpOpen, setKeyboardHelpOpen] = useState(false);
    const [helpHelpActive] = useState(queryParams.has("helpHelp"));
    const [userId, setUserId] = useState(loggedInUser?.email);
@@ -683,6 +684,45 @@ export default function App({authenticationMetaData}: Props)
       </Box>);
    }
 
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   function pushModalOnStack(modalIdentifier: string): void
+   {
+      if(modalStack.length > 0 && modalStack[modalStack.length] == modalIdentifier)
+      {
+         console.warn(`Pushing a new modal on the QContext modalStack that is a duplicate of the current top-of-stack [${modalIdentifier}]`)
+      }
+      modalStack.push(modalIdentifier);
+      setModalStack([...modalStack]);
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   function popModalOffStack(modalIdentifier: string): void
+   {
+      if(modalStack.length > 0 && modalStack[modalStack.length - 1] != modalIdentifier)
+      {
+         console.warn(`Request to pop a modal [${modalIdentifier}] off the QContext modalStack that is not currently on top [${modalStack[modalStack.length - 1]}]`)
+         return;
+      }
+      modalStack.pop();
+      setModalStack([...modalStack]);
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   function clearModalStack(): void
+   {
+      setModalStack([]);
+   }
+
+
    return (
 
       appRoutes && (
@@ -693,6 +733,7 @@ export default function App({authenticationMetaData}: Props)
             tableMetaData: tableMetaData,
             tableProcesses: tableProcesses,
             dotMenuOpen: dotMenuOpen,
+            modalStack: modalStack,
             keyboardHelpOpen: keyboardHelpOpen,
             helpHelpActive: helpHelpActive,
             userId: userId,
@@ -703,6 +744,9 @@ export default function App({authenticationMetaData}: Props)
             setTableProcesses: (tableProcesses: QProcessMetaData[]) => setTableProcesses(tableProcesses),
             setDotMenuOpen: (dotMenuOpent: boolean) => setDotMenuOpen(dotMenuOpent),
             setKeyboardHelpOpen: (keyboardHelpOpen: boolean) => setKeyboardHelpOpen(keyboardHelpOpen),
+            pushModalOnStack: pushModalOnStack,
+            popModalOffStack: popModalOffStack,
+            clearModalStack: clearModalStack,
             recordAnalytics: recordAnalytics,
             pathToLabelMap: pathToLabelMap,
             branding: branding

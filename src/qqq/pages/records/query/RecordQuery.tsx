@@ -465,7 +465,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    /////////////////////////////
    // page context references //
    /////////////////////////////
-   const {accentColor, accentColorLight, setPageHeader, recordAnalytics, dotMenuOpen, keyboardHelpOpen} = useContext(QContext);
+   const {accentColor, accentColorLight, setPageHeader, recordAnalytics, dotMenuOpen, keyboardHelpOpen, modalStack} = useContext(QContext);
 
    //////////////////////////////////////////////////////////////////
    // we use our own header - so clear out the context page header //
@@ -692,7 +692,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          const type = (e.target as any).type;
          const validType = (type !== "text" && type !== "textarea" && type !== "input" && type !== "search");
 
-         if (validType && !isModal && !dotMenuOpen && !keyboardHelpOpen && !activeModalProcess)
+         if (validType && !isModal && !dotMenuOpen && !keyboardHelpOpen && !activeModalProcess && (!modalStack || modalStack.length == 0))
          {
             if (!e.metaKey && !e.ctrlKey && e.key === "n" && table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission)
             {
@@ -730,7 +730,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
       {
          document.removeEventListener("keydown", down);
       };
-   }, [isModal, dotMenuOpen, keyboardHelpOpen, metaData, activeModalProcess]);
+   }, [isModal, dotMenuOpen, keyboardHelpOpen, metaData, activeModalProcess, modalStack]);
 
 
    /*******************************************************************************
