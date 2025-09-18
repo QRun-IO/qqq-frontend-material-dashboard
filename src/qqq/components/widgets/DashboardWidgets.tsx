@@ -60,6 +60,7 @@ import ProcessRun from "qqq/pages/processes/ProcessRun";
 import Client from "qqq/utils/qqq/Client";
 import React, {useContext, useEffect, useReducer, useState} from "react";
 import TableWidget from "./tables/TableWidget";
+import RowBuilderWidget from "./misc/RowBuilderWidget";
 
 
 const qController = Client.getInstance();
@@ -839,6 +840,18 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                   <PivotTableSetupWidget isEditable={false} widgetMetaData={widgetMetaData} recordValues={convertQRecordValuesFromMapToObject(record)} onSaveCallback={() =>
                   {
                   }} />
+               )
+            }
+            {
+               widgetMetaData.type === "rowBuilder" && (
+                  (widgetData && widgetData[i]) ?
+                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={(values: Record<string, any>) =>
+                     {
+                        if(actionCallback)
+                        {
+                           actionCallback(values)
+                        }
+                     }} /> : <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
                )
             }
             {
