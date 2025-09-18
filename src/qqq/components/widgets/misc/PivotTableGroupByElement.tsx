@@ -20,15 +20,16 @@
  */
 
 
-import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Icon from "@mui/material/Icon";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import type {Identifier, XYCoord} from "dnd-core";
 import colors from "qqq/assets/theme/base/colors";
 import FieldAutoComplete from "qqq/components/misc/FieldAutoComplete";
-import {DragItemTypes, fieldAutoCompleteTextFieldSX, getSelectedFieldForAutoComplete, xIconButtonSX} from "qqq/components/widgets/misc/PivotTableSetupWidget";
+import {DragItemTypes, fieldAutoCompleteTextFieldSX, getSelectedFieldForAutoComplete} from "qqq/components/widgets/misc/PivotTableSetupWidget";
+import {xIconButtonSX} from "qqq/components/widgets/misc/RowBuilderWidget";
 import {PivotTableDefinition, PivotTableGroupBy} from "qqq/models/misc/PivotTableDefinitionModels";
 import React, {FC, useRef} from "react";
 import {useDrag, useDrop} from "react-dnd";
