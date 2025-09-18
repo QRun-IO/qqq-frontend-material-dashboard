@@ -213,6 +213,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
       {
          // console.log("First render, so not searching...");
          setFirstRender(false);
+         return;
 
          /*
          if(!initiallyOpen)

@@ -874,6 +874,12 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                                                 {
                                                    // @ts-ignore
                                                    sectionFormFields[fieldName] = formFields[fieldName];
+
+                                                   if (formFields[fieldName].possibleValueProps)
+                                                   {
+                                                      formFields[fieldName].possibleValueProps.tableName = null;
+                                                      formFields[fieldName].possibleValueProps.processName = processName;
+                                                   }
                                                 }
                                              }
 
