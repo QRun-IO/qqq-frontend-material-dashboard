@@ -101,6 +101,7 @@ DashboardWidgets.defaultProps = {
 function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values, screen}: Props): JSX.Element
 {
    const [widgetData, setWidgetData] = useState(initialWidgetDataList == null ? [] as any[] : initialWidgetDataList);
+   const [errorsLoading, setErrorsLoading] = useState([] as any[]);
    const [widgetCounter, setWidgetCounter] = useState(0);
    const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
@@ -161,6 +162,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                {
                   widgetData[i]["errorLoading"] = false;
                }
+               errorsLoading[i] = null;
             }
             catch (e)
             {
@@ -169,7 +171,10 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                {
                   widgetData[i]["errorLoading"] = true;
                }
+               errorsLoading[i] = e;
             }
+
+            setErrorsLoading([...errorsLoading]);
 
             forceUpdate();
          })();
@@ -194,6 +199,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetData[index]["errorLoading"] = false;
             }
+            errorsLoading[index] = null;
          }
          catch (e)
          {
@@ -202,7 +208,10 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetData[index]["errorLoading"] = true;
             }
+            errorsLoading[index] = e;
          }
+
+         setErrorsLoading([...errorsLoading]);
 
          forceUpdate();
       })();
@@ -439,6 +448,34 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
       setWidgetData(widgetData);
 
       setShowEditChildForm(null);
+   }
+
+
+   /***************************************************************************
+    * helper component for when a widget is NotLoaded (whether that's because
+    * it's still loading, or because it had an error loading).
+    ***************************************************************************/
+   const NotLoaded = ({widgetMetaData, widgetIndex, skeleton}: {widgetMetaData: QWidgetMetaData, widgetIndex: number, skeleton?: JSX.Element}) : JSX.Element =>
+   {
+      if(errorsLoading[widgetIndex])
+      {
+         let message = "Error Loading";
+         let e = errorsLoading[widgetIndex];
+         if(e.hasOwnProperty("message"))
+         {
+            message = "Error: " + e.message;
+         }
+
+         return (<Widget widgetMetaData={widgetMetaData}>
+            <Alert severity="error">{message}</Alert>
+         </Widget>);
+      }
+
+      return (<Widget widgetMetaData={widgetMetaData}>
+         {
+            skeleton ? skeleton : <Skeleton></Skeleton>
+         }
+      </Widget>);
    }
 
 
@@ -715,18 +752,18 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             }
             {
                widgetMetaData.type === "childRecordList" && (
-                  widgetData && widgetData[i] &&
-                  <RecordGridWidget
-                     disableRowClick={widgetData[i]?.disableRowClick}
-                     allowRecordEdit={widgetData[i]?.allowRecordEdit}
-                     allowRecordDelete={widgetData[i]?.allowRecordDelete}
-                     deleteRecordCallback={(rowIndex) => deleteChildRecord(widgetMetaData.name, i, rowIndex)}
-                     editRecordCallback={(rowIndex) => openEditChildRecord(widgetMetaData.name, widgetData[i], rowIndex)}
-                     addNewRecordCallback={widgetData[i]?.isInProcess ? () => openAddChildRecord(widgetMetaData.name, widgetData[i]) : null}
-                     widgetMetaData={widgetMetaData}
-                     data={widgetData[i]}
-                     parentRecord={record}
-                  />
+                  (widgetData && widgetData[i]) ?
+                     <RecordGridWidget
+                        disableRowClick={widgetData[i]?.disableRowClick}
+                        allowRecordEdit={widgetData[i]?.allowRecordEdit}
+                        allowRecordDelete={widgetData[i]?.allowRecordDelete}
+                        deleteRecordCallback={(rowIndex) => deleteChildRecord(widgetMetaData.name, i, rowIndex)}
+                        editRecordCallback={(rowIndex) => openEditChildRecord(widgetMetaData.name, widgetData[i], rowIndex)}
+                        addNewRecordCallback={widgetData[i]?.isInProcess ? () => openAddChildRecord(widgetMetaData.name, widgetData[i]) : null}
+                        widgetMetaData={widgetMetaData}
+                        data={widgetData[i]}
+                        parentRecord={record}
+                     /> : <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
                )
 
             }
