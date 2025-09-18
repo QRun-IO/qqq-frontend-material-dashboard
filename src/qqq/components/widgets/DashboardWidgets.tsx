@@ -64,6 +64,8 @@ import TableWidget from "./tables/TableWidget";
 
 const qController = Client.getInstance();
 
+export type WidgetScreenType = "dashboard" | "recordView" | "recordEdit" | "processRun" | string;
+
 interface Props
 {
    widgetMetaDataList: QWidgetMetaData[];
@@ -78,6 +80,7 @@ interface Props
    actionCallback?: (data: any, eventValues?: { [name: string]: any }) => boolean;
    initialWidgetDataList: any[];
    values?: { [key: string]: any };
+   screen: WidgetScreenType;
 }
 
 DashboardWidgets.defaultProps = {
@@ -91,10 +94,11 @@ DashboardWidgets.defaultProps = {
    wrapWidgetsInTabPanels: false,
    actionCallback: null,
    initialWidgetDataList: null,
-   values: {}
+   values: {},
+   screen: "dashboard",
 };
 
-function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values}: Props): JSX.Element
+function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values, screen}: Props): JSX.Element
 {
    const [widgetData, setWidgetData] = useState(initialWidgetDataList == null ? [] as any[] : initialWidgetDataList);
    const [widgetCounter, setWidgetCounter] = useState(0);
@@ -473,6 +477,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      data={widgetData[i]}
                      reloadWidgetCallback={(data) => reloadWidget(i, data)}
                      storeDropdownSelections={widgetMetaData.storeDropdownSelections}
+                     screen={screen}
                   />
                )
             }

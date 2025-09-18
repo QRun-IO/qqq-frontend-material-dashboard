@@ -23,7 +23,7 @@ import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance"
 import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
 import {Box} from "@mui/material";
 import React, {useEffect, useState} from "react";
-import DashboardWidgets from "qqq/components/widgets/DashboardWidgets";
+import DashboardWidgets, {WidgetScreenType} from "qqq/components/widgets/DashboardWidgets";
 import Widget from "qqq/components/widgets/Widget";
 import Client from "qqq/utils/qqq/Client";
 
@@ -54,20 +54,21 @@ export interface ParentWidgetData
 ////////////////////////////////////
 interface Props
 {
-   urlParams?: string;
-   widgetMetaData?: QWidgetMetaData;
-   widgetIndex: number;
-   data: ParentWidgetData;
-   reloadWidgetCallback?: (params: string) => void;
-   entityPrimaryKey?: string;
-   tableName?: string;
-   storeDropdownSelections?: boolean;
+   urlParams?: string,
+   widgetMetaData?: QWidgetMetaData,
+   widgetIndex: number,
+   data: ParentWidgetData,
+   reloadWidgetCallback?: (params: string) => void,
+   entityPrimaryKey?: string,
+   tableName?: string,
+   storeDropdownSelections?: boolean,
+   screen?: WidgetScreenType;
 }
 
 
 const qController = Client.getInstance();
 
-function ParentWidget({urlParams, widgetMetaData, widgetIndex, data, reloadWidgetCallback, entityPrimaryKey, tableName, storeDropdownSelections}: Props,): JSX.Element
+function ParentWidget({urlParams, widgetMetaData, widgetIndex, data, reloadWidgetCallback, entityPrimaryKey, tableName, storeDropdownSelections, screen}: Props,): JSX.Element
 {
    const [childUrlParams, setChildUrlParams] = useState((urlParams) ? urlParams : "");
    const [qInstance, setQInstance] = useState(null as QInstance);
@@ -128,7 +129,7 @@ function ParentWidget({urlParams, widgetMetaData, widgetIndex, data, reloadWidge
             omitPadding={omitPadding}
          >
             <Box sx={{height: "100%", width: "100%"}} px={px}>
-               <DashboardWidgets widgetMetaDataList={widgets} entityPrimaryKey={entityPrimaryKey} tableName={tableName} childUrlParams={childUrlParams} areChildren={true} parentWidgetMetaData={widgetMetaData} wrapWidgetsInTabPanels={data.layoutType?.toLowerCase() == "tabs"} />
+               <DashboardWidgets widgetMetaDataList={widgets} entityPrimaryKey={entityPrimaryKey} tableName={tableName} childUrlParams={childUrlParams} areChildren={true} parentWidgetMetaData={widgetMetaData} wrapWidgetsInTabPanels={data.layoutType?.toLowerCase() == "tabs"} screen={screen} />
             </Box>
          </Widget>
       ) : null
