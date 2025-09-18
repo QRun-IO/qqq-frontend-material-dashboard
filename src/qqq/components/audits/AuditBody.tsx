@@ -377,15 +377,15 @@ function AuditBody({tableMetaData, recordId, record}: Props): JSX.Element
             {
                if (audits.length == 1)
                {
-                  setStatusString("Showing the only audit detail for this record");
+                  setStatusString("Showing the only audit for this record");
                }
                else if (audits.length == 2)
                {
-                  setStatusString("Showing the only 2 audit details for this record");
+                  setStatusString("Showing the only 2 audits for this record");
                }
                else
                {
-                  setStatusString(`Showing all ${audits.length?.toLocaleString()} audit details for this record`);
+                  setStatusString(`Showing all ${audits.length?.toLocaleString()} audits for this record`);
                }
             }
          }
