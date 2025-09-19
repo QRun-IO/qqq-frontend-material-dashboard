@@ -60,9 +60,12 @@ import ProcessRun from "qqq/pages/processes/ProcessRun";
 import Client from "qqq/utils/qqq/Client";
 import React, {useContext, useEffect, useReducer, useState} from "react";
 import TableWidget from "./tables/TableWidget";
+import RowBuilderWidget from "./misc/RowBuilderWidget";
 
 
 const qController = Client.getInstance();
+
+export type WidgetScreenType = "dashboard" | "recordView" | "recordEdit" | "processRun" | string;
 
 interface Props
 {
@@ -78,6 +81,7 @@ interface Props
    actionCallback?: (data: any, eventValues?: { [name: string]: any }) => boolean;
    initialWidgetDataList: any[];
    values?: { [key: string]: any };
+   screen: WidgetScreenType;
 }
 
 DashboardWidgets.defaultProps = {
@@ -91,12 +95,14 @@ DashboardWidgets.defaultProps = {
    wrapWidgetsInTabPanels: false,
    actionCallback: null,
    initialWidgetDataList: null,
-   values: {}
+   values: {},
+   screen: "dashboard",
 };
 
-function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values}: Props): JSX.Element
+function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values, screen}: Props): JSX.Element
 {
    const [widgetData, setWidgetData] = useState(initialWidgetDataList == null ? [] as any[] : initialWidgetDataList);
+   const [errorsLoading, setErrorsLoading] = useState([] as any[]);
    const [widgetCounter, setWidgetCounter] = useState(0);
    const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
@@ -157,6 +163,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                {
                   widgetData[i]["errorLoading"] = false;
                }
+               errorsLoading[i] = null;
             }
             catch (e)
             {
@@ -165,7 +172,10 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                {
                   widgetData[i]["errorLoading"] = true;
                }
+               errorsLoading[i] = e;
             }
+
+            setErrorsLoading([...errorsLoading]);
 
             forceUpdate();
          })();
@@ -190,6 +200,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetData[index]["errorLoading"] = false;
             }
+            errorsLoading[index] = null;
          }
          catch (e)
          {
@@ -198,7 +209,10 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetData[index]["errorLoading"] = true;
             }
+            errorsLoading[index] = e;
          }
+
+         setErrorsLoading([...errorsLoading]);
 
          forceUpdate();
       })();
@@ -438,6 +452,34 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
    }
 
 
+   /***************************************************************************
+    * helper component for when a widget is NotLoaded (whether that's because
+    * it's still loading, or because it had an error loading).
+    ***************************************************************************/
+   const NotLoaded = ({widgetMetaData, widgetIndex, skeleton}: {widgetMetaData: QWidgetMetaData, widgetIndex: number, skeleton?: JSX.Element}) : JSX.Element =>
+   {
+      if(errorsLoading[widgetIndex])
+      {
+         let message = "Error Loading";
+         let e = errorsLoading[widgetIndex];
+         if(e.hasOwnProperty("message"))
+         {
+            message = "Error: " + e.message;
+         }
+
+         return (<Widget widgetMetaData={widgetMetaData}>
+            <Alert severity="error">{message}</Alert>
+         </Widget>);
+      }
+
+      return (<Widget widgetMetaData={widgetMetaData}>
+         {
+            skeleton ? skeleton : <Skeleton></Skeleton>
+         }
+      </Widget>);
+   }
+
+
    const renderWidget = (widgetMetaData: QWidgetMetaData, i: number): JSX.Element =>
    {
       const labelAdditionalComponentsRight: LabelComponent[] = [];
@@ -473,6 +515,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      data={widgetData[i]}
                      reloadWidgetCallback={(data) => reloadWidget(i, data)}
                      storeDropdownSelections={widgetMetaData.storeDropdownSelections}
+                     screen={screen}
                   />
                )
             }
@@ -710,18 +753,18 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             }
             {
                widgetMetaData.type === "childRecordList" && (
-                  widgetData && widgetData[i] &&
-                  <RecordGridWidget
-                     disableRowClick={widgetData[i]?.disableRowClick}
-                     allowRecordEdit={widgetData[i]?.allowRecordEdit}
-                     allowRecordDelete={widgetData[i]?.allowRecordDelete}
-                     deleteRecordCallback={(rowIndex) => deleteChildRecord(widgetMetaData.name, i, rowIndex)}
-                     editRecordCallback={(rowIndex) => openEditChildRecord(widgetMetaData.name, widgetData[i], rowIndex)}
-                     addNewRecordCallback={widgetData[i]?.isInProcess ? () => openAddChildRecord(widgetMetaData.name, widgetData[i]) : null}
-                     widgetMetaData={widgetMetaData}
-                     data={widgetData[i]}
-                     parentRecord={record}
-                  />
+                  (widgetData && widgetData[i]) ?
+                     <RecordGridWidget
+                        disableRowClick={widgetData[i]?.disableRowClick}
+                        allowRecordEdit={widgetData[i]?.allowRecordEdit}
+                        allowRecordDelete={widgetData[i]?.allowRecordDelete}
+                        deleteRecordCallback={(rowIndex) => deleteChildRecord(widgetMetaData.name, i, rowIndex)}
+                        editRecordCallback={(rowIndex) => openEditChildRecord(widgetMetaData.name, widgetData[i], rowIndex)}
+                        addNewRecordCallback={widgetData[i]?.isInProcess ? () => openAddChildRecord(widgetMetaData.name, widgetData[i]) : null}
+                        widgetMetaData={widgetMetaData}
+                        data={widgetData[i]}
+                        parentRecord={record}
+                     /> : <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
                )
 
             }
@@ -797,6 +840,18 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                   <PivotTableSetupWidget isEditable={false} widgetMetaData={widgetMetaData} recordValues={convertQRecordValuesFromMapToObject(record)} onSaveCallback={() =>
                   {
                   }} />
+               )
+            }
+            {
+               widgetMetaData.type === "rowBuilder" && (
+                  (widgetData && widgetData[i]) ?
+                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={(values: Record<string, any>) =>
+                     {
+                        if(actionCallback)
+                        {
+                           actionCallback(values)
+                        }
+                     }} /> : <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
                )
             }
             {

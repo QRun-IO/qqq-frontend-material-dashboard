@@ -39,7 +39,7 @@ import colors from "qqq/assets/theme/base/colors";
 import {QCancelButton, QSaveButton} from "qqq/components/buttons/DefaultButtons";
 import FieldAutoComplete from "qqq/components/misc/FieldAutoComplete";
 import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
-import {buttonSX, unborderedButtonSX} from "qqq/components/widgets/misc/FilterAndColumnsSetupWidget";
+import {buttonSX, unborderedButtonSX, xIconButtonSX} from "qqq/components/widgets/misc/RowBuilderWidget";
 import {PivotTableGroupByElement} from "qqq/components/widgets/misc/PivotTableGroupByElement";
 import {PivotTableValueElement} from "qqq/components/widgets/misc/PivotTableValueElement";
 import Widget, {HeaderToggleComponent} from "qqq/components/widgets/Widget";
@@ -56,23 +56,6 @@ export const DragItemTypes =
       ROW: "row",
       COLUMN: "column",
       VALUE: "value"
-   };
-
-export const xIconButtonSX =
-   {
-      border: `1px solid ${colors.grayLines.main} !important`,
-      borderRadius: "0.75rem",
-      textTransform: "none",
-      fontSize: "1rem",
-      fontWeight: "400",
-      width: "40px",
-      minWidth: "40px",
-      paddingLeft: 0,
-      paddingRight: 0,
-      color: colors.error.main,
-      "&:hover": {color: colors.error.main},
-      "&:focus": {color: colors.error.main},
-      "&:focus:not(:hover)": {color: colors.error.main},
    };
 
 export const fieldAutoCompleteTextFieldSX =

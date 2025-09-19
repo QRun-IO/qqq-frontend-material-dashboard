@@ -36,6 +36,16 @@ import React, {useEffect, useState} from "react";
 
 const qController = Client.getInstance();
 
+////////////////////////////////////////////////////////////////////////////
+// definition of the 'formData' param to this, the QDynamicForm component //
+////////////////////////////////////////////////////////////////////////////
+export interface DynamicFormDataDefinition
+{
+   formFields: Record<string, DynamicFormFieldDefinition>;
+   errors: Record<string, string> | FormikErrors<FormikValues>;
+   touched: Record<string, boolean> | FormikTouched<FormikValues>;
+}
+
 interface Props
 {
    ////////////////////////////////////////////////////////
@@ -48,12 +58,7 @@ interface Props
    // by default, all fields given here will be rendered - but - if fieldNamesToInclude   //
    // is given, then only that subset of fields are rendered.                             //
    /////////////////////////////////////////////////////////////////////////////////////////
-   formData:
-      {
-         formFields: Record<string, DynamicFormFieldDefinition>;
-         errors: Record<string, string> | FormikErrors<FormikValues>;
-         touched: Record<string, boolean> | FormikTouched<FormikValues>;
-      };
+   formData: DynamicFormDataDefinition;
 
    ////////////////////////////////////////////////////
    // optional array of which field names to include //
@@ -97,12 +102,17 @@ interface Props
    // unique identifier for the process (if being used within a process) //
    ////////////////////////////////////////////////////////////////////////
    processUUID?: string;
+
+   /////////////////////////////////////////////////////////////////////////////////
+   // optional callback for if a field value changes, to let the component see it //
+   /////////////////////////////////////////////////////////////////////////////////
+   valueChangedCallback?: (fieldName: string, newValue: any) => void;
 }
 
 /***************************************************************************
  * Standard form component used in QFMD.
  ***************************************************************************/
-function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, bulkEditSwitchChangeHandler, record, helpRoles, helpContentKeyPrefix, setFormFields, processUUID}: Props): JSX.Element
+function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, bulkEditSwitchChangeHandler, record, helpRoles, helpContentKeyPrefix, setFormFields, processUUID, valueChangedCallback}: Props): JSX.Element
 {
    const {formFields: origFormFields, errors, touched} = formData;
    const {setFieldValue, values} = useFormikContext<Record<string, any>>();
@@ -198,6 +208,14 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
       if (field.possibleValueProps)
       {
          field.possibleValueProps.initialDisplayValue = possibleValueLabel;
+      }
+
+      //////////////////////////////
+      // call callback if defined //
+      //////////////////////////////
+      if(valueChangedCallback)
+      {
+         valueChangedCallback(fieldName, newValue);
       }
 
       ///////////////////////////////////////////
@@ -381,7 +399,7 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
                         formattedHelpContent = <Box color="#757575" fontSize="0.875rem" mt="-0.25rem">{formattedHelpContent}</Box>;
                      }
 
-                     const labelElement = <DynamicFormFieldLabel name={field.name} label={field.label} />;
+                     const labelElement = <DynamicFormFieldLabel name={fieldName} label={field.label} />;
 
                      let itemLG = (field?.fieldMetaData?.gridColumns && field?.fieldMetaData?.gridColumns > 0) ? field.fieldMetaData.gridColumns : 6;
                      let itemXS = 12;
@@ -447,7 +465,7 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
                         <Grid item className={visibilityClassName} lg={itemLG} xs={itemXS} sm={itemSM} key={fieldName + "-" + formAdjustmentCounter}>
                            {labelElement}
                            <QDynamicFormField
-                              id={field.name}
+                              id={fieldName}
                               type={field.type}
                               label=""
                               isEditable={field.isEditable}

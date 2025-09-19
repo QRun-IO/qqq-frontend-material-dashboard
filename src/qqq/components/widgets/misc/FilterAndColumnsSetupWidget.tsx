@@ -45,6 +45,7 @@ import Client from "qqq/utils/qqq/Client";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
+import {buttonSX, unborderedButtonSX} from "qqq/components/widgets/misc/RowBuilderWidget";
 
 interface FilterAndColumnsSetupWidgetProps
 {
@@ -59,26 +60,6 @@ interface FilterAndColumnsSetupWidgetProps
 FilterAndColumnsSetupWidget.defaultProps = {
    onSaveCallback: null
 };
-
-export const buttonSX =
-   {
-      border: `1px solid ${colors.grayLines.main} !important`,
-      borderRadius: "0.75rem",
-      textTransform: "none",
-      fontSize: "1rem",
-      fontWeight: "400",
-      paddingLeft: "1rem",
-      paddingRight: "1rem",
-      opacity: "1",
-      color: colors.dark.main,
-      "&:hover": {color: colors.dark.main},
-      "&:focus": {color: colors.dark.main},
-      "&:focus:not(:hover)": {color: colors.dark.main},
-   };
-
-export const unborderedButtonSX = Object.assign({}, buttonSX);
-unborderedButtonSX.border = "none !important";
-unborderedButtonSX.opacity = "0.7";
 
 
 const qController = Client.getInstance();

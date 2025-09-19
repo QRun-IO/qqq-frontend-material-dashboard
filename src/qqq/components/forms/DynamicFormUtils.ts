@@ -168,7 +168,20 @@ class DynamicFormUtils
 
 
    /*******************************************************************************
-    **
+    * wrapper around addPossibleValueProps to do it for a single field.
+    *******************************************************************************/
+   public static addPossibleValuePropsToSingleField(dynamicFormField: DynamicFormFieldDefinition, qField: QFieldMetaData, tableName: string, processName: string, displayValues: Map<string, string>)
+   {
+      const dynamicFormFields: Record<string, DynamicFormFieldDefinition> = {};
+      dynamicFormFields[dynamicFormField.name] = dynamicFormField;
+      const qFields = [qField];
+      DynamicFormUtils.addPossibleValueProps(dynamicFormFields, qFields, tableName, processName, displayValues);
+   }
+
+
+   /*******************************************************************************
+    * update several DynamicFormFieldDefinition's with properties that make them
+    * behave like possible value objects, based on attributes in QFieldMetaData.
     *******************************************************************************/
    public static addPossibleValueProps(dynamicFormFields: Record<string, DynamicFormFieldDefinition>, qFields: QFieldMetaData[], tableName: string, processName: string, displayValues: Map<string, string>)
    {

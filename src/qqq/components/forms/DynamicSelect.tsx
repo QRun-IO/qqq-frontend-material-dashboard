@@ -535,7 +535,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
    else
    {
       return (
-         <Box>
+         <Box className="DynamicSelectAutoCompleteWrapper">
             {autocomplete}
          </Box>
       );

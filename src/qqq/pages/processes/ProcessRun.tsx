@@ -373,6 +373,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
       }
 
       const queryStringParts: string[] = [];
+      queryStringParts.push(`processUUID=${encodeURIComponent(processUUID)}`);
       for (let name in processValues)
       {
          queryStringParts.push(`${name}=${encodeURIComponent(processValues[name])}`);
@@ -394,6 +395,10 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
          {
             initialWidgetDataList = [childRecordData];
          }
+      }
+      else if(widgetMetaData.type == "rowBuilder")
+      {
+         actionCallback = valueProducingWidgetCallback;
       }
 
       const renderedWidget = (<Box m={-2}>
@@ -458,6 +463,21 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
    {
       console.log(`in childRecordListWidgetActionCallBack: ${JSON.stringify(data)}`);
       setChildRecordData(data as ChildRecordListData);
+      return (true);
+   }
+
+
+   /***************************************************************************
+    ** callback used by widgets that can add to process values
+    ***************************************************************************/
+   function valueProducingWidgetCallback(data: any): boolean
+   {
+      for(let fieldName in data ?? {})
+      {
+         processValues[fieldName] = data[fieldName];
+         formikSetFieldValueFunction(fieldName, data[fieldName]);
+      }
+
       return (true);
    }
 
