@@ -414,7 +414,8 @@ export const qfmdBridge =
 
       makeAlert: (text: string, color: string, mayManuallyClose?: boolean): JSX.Element =>
       {
-         return (<QFMDBridgeAlert color={color} mayManuallyClose={mayManuallyClose}>{text}</QFMDBridgeAlert>);
+         const content = (<div>{text.split("\n").map((line, index) => (<div key={index}>{line}</div>))}</div>);
+         return (<QFMDBridgeAlert color={color} mayManuallyClose={mayManuallyClose}>{content}</QFMDBridgeAlert>);
       },
 
       makeModal: (children: ReactElement, onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void, qContext?: QContextType, modalIdentifier?: string): JSX.Element =>
