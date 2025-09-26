@@ -29,6 +29,7 @@ import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
+import colors from "qqq/assets/theme/base/colors";
 import React, {useState} from "react";
 import {ProcessSummaryLine} from "qqq/models/processes/ProcessSummaryLine";
 import Client from "qqq/utils/qqq/Client";
@@ -83,13 +84,19 @@ function ProcessSummaryResults({
       </List>
    );
 
+   let headerColor = colors.success.main;
+   if(processValues.status == "ERROR")
+   {
+      headerColor = colors.error.main;
+   }
+
    return (
       <Box m={{xs: 0, md: 3}} mt={"3rem!important"}>
          <Grid container>
             <Grid item xs={0} lg={2} />
             <Grid item xs={12} lg={8}>
                <Box border="1px solid rgb(70%, 70%, 70%)" borderRadius="10px" p={2} mt={2}>
-                  <Box mx={2} mt={-5} p={1} sx={{width: "fit-content", borderRadius: ".25em", backgroundColor: "rgb(76, 175, 80)"}} width="initial" color="#FFFFFF">
+                  <Box mx={2} mt={-5} p={1} sx={{width: "fit-content", borderRadius: ".25em", backgroundColor: headerColor}} width="initial" color="#FFFFFF">
                      <Box display="flex" alignItems="center" color="white">
                         {process.iconName && <Icon fontSize="medium" sx={{mr: 1}}>{process.iconName}</Icon>}
                         Process Summary
