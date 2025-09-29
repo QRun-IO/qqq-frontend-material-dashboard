@@ -103,15 +103,15 @@ function AuditBody({tableMetaData, recordId, record}: Props): JSX.Element
       if (fieldName && (oldValue !== null || newValue !== null))
       {
          const fieldLabel = tableMetaData?.fields?.get(fieldName)?.label ?? fieldName;
-         if (oldValue !== undefined && newValue !== undefined)
+         if (oldValue !== undefined && oldValue !== null && newValue !== undefined && newValue !== null)
          {
             return (<>{fieldLabel}: Changed from {(oldValue)} to <b>{(newValue)}</b></>);
          }
-         else if (newValue !== undefined)
+         else if (newValue !== undefined && newValue !== null)
          {
             return (<>{fieldLabel}: Set to <b>{(newValue)}</b></>);
          }
-         else if (oldValue !== undefined)
+         else if (oldValue !== undefined && oldValue !== null)
          {
             return (<>{fieldLabel}: Removed value {(oldValue)}</>);
          }
