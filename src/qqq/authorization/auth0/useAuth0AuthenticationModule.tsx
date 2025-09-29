@@ -154,8 +154,10 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
     ***************************************************************************/
    const logout = () =>
    {
+      localStorage.removeItem("accessToken");
       useAuth0Logout({returnTo: window.location.origin});
    };
+
 
    /***************************************************************************
     **
