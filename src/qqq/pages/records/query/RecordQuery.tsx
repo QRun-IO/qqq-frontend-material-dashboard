@@ -19,6 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {Alert, Box, Collapse, Menu, Typography} from "@mui/material";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import Divider from "@mui/material/Divider";
+import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import LinearProgress from "@mui/material/LinearProgress";
+import MenuItem from "@mui/material/MenuItem";
+import Modal from "@mui/material/Modal";
+import Tooltip from "@mui/material/Tooltip";
+import {ColumnHeaderFilterIconButtonProps, DataGridPro, GridCallbackDetails, GridColDef, GridColumnHeaderParams, GridColumnMenuContainer, GridColumnMenuProps, GridColumnOrderChangeParams, GridColumnPinningMenuItems, GridColumnResizeParams, GridColumnVisibilityModel, GridDensity, GridEventListener, GridPinnedColumns, gridPreferencePanelStateSelector, GridPreferencePanelsValue, GridRowId, GridRowParams, GridRowsProp, GridSelectionModel, GridSortItem, GridSortModel, GridState, GridToolbarContainer, GridToolbarDensitySelector, HideGridColMenuItem, MuiEvent, SortGridMenuItems, useGridApiContext, useGridApiEventHandler, useGridApiRef, useGridSelector} from "@mui/x-data-grid-pro";
+import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
 import {ApiVersion} from "@qrunio/qqq-frontend-core/lib/controllers/QControllerV1";
 import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
@@ -35,18 +47,6 @@ import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCrit
 import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterCriteria";
 import {QFilterOrderBy} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterOrderBy";
 import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
-import {Alert, Box, Collapse, Menu, Typography} from "@mui/material";
-import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
-import Divider from "@mui/material/Divider";
-import Icon from "@mui/material/Icon";
-import IconButton from "@mui/material/IconButton";
-import LinearProgress from "@mui/material/LinearProgress";
-import MenuItem from "@mui/material/MenuItem";
-import Modal from "@mui/material/Modal";
-import Tooltip from "@mui/material/Tooltip";
-import {ColumnHeaderFilterIconButtonProps, DataGridPro, GridCallbackDetails, GridColDef, GridColumnHeaderParams, GridColumnMenuContainer, GridColumnMenuProps, GridColumnOrderChangeParams, GridColumnPinningMenuItems, GridColumnResizeParams, GridColumnVisibilityModel, GridDensity, GridEventListener, GridPinnedColumns, gridPreferencePanelStateSelector, GridPreferencePanelsValue, GridRowId, GridRowParams, GridRowsProp, GridSelectionModel, GridSortItem, GridSortModel, GridState, GridToolbarContainer, GridToolbarDensitySelector, HideGridColMenuItem, MuiEvent, SortGridMenuItems, useGridApiContext, useGridApiEventHandler, useGridApiRef, useGridSelector} from "@mui/x-data-grid-pro";
-import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import FormData from "form-data";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
@@ -145,9 +145,9 @@ const RecordQuery = forwardRef((props: Props, ref) =>
       ////////////////////////////////////////////////////////////////////////////////////
       // if the URL looks like we're using a saved view, try to navigate away from that //
       ////////////////////////////////////////////////////////////////////////////////////
-      if(location.href.indexOf("/savedView/") > -1)
+      if (location.href.indexOf("/savedView/") > -1)
       {
-         location.href = location.href.replace(/\/savedView\/.*/, "")
+         location.href = location.href.replace(/\/savedView\/.*/, "");
       }
       else
       {
@@ -161,13 +161,13 @@ const RecordQuery = forwardRef((props: Props, ref) =>
    const errorElement = <Box>
       <h3>Error</h3>
       <Alert severity="error">
-         An error occurred loading this page.  You may try to <a href="#" onClick={fixIt}>click here to fix it</a>.
+         An error occurred loading this page. You may try to <a href="#" onClick={fixIt}>click here to fix it</a>.
       </Alert>
-   </Box>
+   </Box>;
 
    const body = <ErrorBoundary errorElement={errorElement}>
       <RecordQueryInner {...props} ref={ref} />
-   </ErrorBoundary>
+   </ErrorBoundary>;
 
    if (props.isModal)
    {
@@ -553,6 +553,12 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
     *******************************************************************************/
    function openExportMenu(event: any)
    {
+      if (!tableMetaData.capabilities.has(Capability.TABLE_EXPORT))
+      {
+         setAlertContent("Exports are not allowed for this table.");
+         return;
+      }
+
       setExportMenuAnchorElement(event.currentTarget);
    }
 
@@ -962,11 +968,11 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
     ***************************************************************************/
    const pushWarningAlert = (newMessage: string) =>
    {
-      if(warningAlertList.indexOf(newMessage) == -1)
+      if (warningAlertList.indexOf(newMessage) == -1)
       {
          setWarningAlertList([...warningAlertList, newMessage]);
       }
-   }
+   };
 
 
    /***************************************************************************
@@ -976,7 +982,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    {
       warningAlertList.splice(index, 1);
       setWarningAlertList([...warningAlertList]);
-   }
+   };
 
 
    /*******************************************************************************
@@ -1008,7 +1014,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
             const value = queryFilter.criteria[i].values[j];
             if (value?.type == "FilterVariableExpression")
             {
-               pushWarningAlert("Cannot perform query because of a missing value for a variable.")
+               pushWarningAlert("Cannot perform query because of a missing value for a variable.");
                setLoading(false);
                setRows([]);
                return;
@@ -1822,7 +1828,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
       // clear warnings if changing views - they should never persist between views, right? //
       // also - this is the callback for the 'reset all changes' link, which should do it.  //
       ////////////////////////////////////////////////////////////////////////////////////////
-      setWarningAlertList([])
+      setWarningAlertList([]);
 
       if (selectedSavedViewId != null)
       {
@@ -1950,7 +1956,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          {
             console.log(`Deleting an old column from this view ${fieldName}`);
 
-            if(visibilityToggleStates[fieldName])
+            if (visibilityToggleStates[fieldName])
             {
                /////////////////////////////////////////////////////////////////////////////////////////////
                // all available columns in the table (and its joins) are in the view queryColumns object, //
@@ -2025,7 +2031,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
          if (field?.type == QFieldType.BOOLEAN && operator)
          {
-            if([QCriteriaOperator.EQUALS, QCriteriaOperator.IS_BLANK, QCriteriaOperator.IS_NOT_BLANK].indexOf(operator) == -1)
+            if ([QCriteriaOperator.EQUALS, QCriteriaOperator.IS_BLANK, QCriteriaOperator.IS_NOT_BLANK].indexOf(operator) == -1)
             {
                console.log(`Deleting a criteria field w/ operator not supported for frontend: ${fieldName}`);
                view.queryFilter.criteria.splice(i, 1);
@@ -2111,7 +2117,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
             let value = ValueUtils.getUnadornedValueForDisplay(qFieldMetaData, record.values.get(column.field), record.displayValues.get(column.field));
 
             const isBlank = (value === null || value === undefined);
-            if(isBlank)
+            if (isBlank)
             {
                value = "";
             }
@@ -2146,7 +2152,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
       const materialDashboardInstanceMetaData = metaData.supplementalInstanceMetaData?.get("materialDashboard");
       const limit = materialDashboardInstanceMetaData?.queryScreenCopyFullQueryColumnValuesLimit ?? 100000;
 
-      if(totalRecords > limit)
+      if (totalRecords > limit)
       {
          setErrorAlert(`The current query contains too many rows to be copied (limit: ${ValueUtils.safeToLocaleString(limit)}).`);
          setTimeout(() => setErrorAlert(null), 5000);
@@ -2180,7 +2186,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
             (async () =>
             {
                const numberOfValues = response.split("\n").length - 1;
-               if(numberOfValues == 0)
+               if (numberOfValues == 0)
                {
                   setInfoAlert(null);
                   setWarningAlert(`There are no ${qFieldMetaData.label} values to copy`);
@@ -2195,12 +2201,12 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                   setSuccessAlert(`Copied ${ValueUtils.safeToLocaleString(numberOfValues)} ${qFieldMetaData.label} value${totalRecords == 1 ? "" : "s"}.`);
                   setTimeout(() => setSuccessAlert(null), 5000);
                }
-               catch(e)
+               catch (e)
                {
                   setInfoAlert(null);
                   let message = `${e}`;
 
-                  if(!document.hasFocus())
+                  if (!document.hasFocus())
                   {
                      message = "Keep this window active until the copy is complete.  Details: " + message;
                   }
@@ -2804,7 +2810,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
             }
             catch (e)
             {
-               console.error(e)
+               console.error(e);
                setAlertContent("Error parsing filter from URL");
             }
          }
