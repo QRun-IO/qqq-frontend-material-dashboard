@@ -553,7 +553,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
     *******************************************************************************/
    function openExportMenu(event: any)
    {
-      if (!tableMetaData.capabilities.has(Capability.TABLE_EXPORT))
+      if (!metaData.tables?.get(tableMetaData.name)?.capabilities?.has(Capability.TABLE_EXPORT))
       {
          setAlertContent("Exports are not allowed for this table.");
          return;
