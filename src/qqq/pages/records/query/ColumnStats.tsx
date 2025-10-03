@@ -19,6 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {Alert} from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import Icon from "@mui/material/Icon";
+import LinearProgress from "@mui/material/LinearProgress";
+import Typography from "@mui/material/Typography";
+import {DataGridPro, GridSortModel} from "@mui/x-data-grid-pro";
 import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
@@ -28,19 +36,12 @@ import {QJobComplete} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobCo
 import {QJobError} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobError";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
-import Icon from "@mui/material/Icon";
-import LinearProgress from "@mui/material/LinearProgress";
-import Typography from "@mui/material/Typography";
-import {DataGridPro, GridSortModel} from "@mui/x-data-grid-pro";
 import FormData from "form-data";
-import React, {useEffect, useState} from "react";
 import DataGridUtils from "qqq/utils/DataGridUtils";
 import HtmlUtils from "qqq/utils/HtmlUtils";
 import Client from "qqq/utils/qqq/Client";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
+import React, {useEffect, useState} from "react";
 
 interface Props
 {
@@ -50,14 +51,14 @@ interface Props
    filter: QQueryFilter;
 }
 
-ColumnStats.defaultProps = {
-};
+ColumnStats.defaultProps = {};
 
 const qController = Client.getInstance();
 
 function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Props): JSX.Element
 {
    const [statusString, setStatusString] = useState("Calculating statistics...");
+   const [errorString, setErrorString] = useState(null as string);
    const [loading, setLoading] = useState(true);
    const [valueCounts, setValueCounts] = useState(null as QRecord[]);
    const [statsRecord, setStatsRecord] = useState(null as QRecord);
@@ -69,7 +70,7 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
 
    useEffect(() =>
    {
-      if(!loading)
+      if (!loading)
       {
          return;
       }
@@ -83,17 +84,20 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
          formData.append("fieldName", fullFieldName);
          formData.append("filterJSON", JSON.stringify(filter));
          formData.append(QController.STEP_TIMEOUT_MILLIS_PARAM_NAME, 300 * 1000);
-         if(orderBy)
+         if (orderBy)
          {
             formData.append("orderBy", orderBy);
          }
          const processResult = await qController.processRun("columnStats", formData);
 
          setStatusString(null);
+         setErrorString(null);
          if (processResult instanceof QJobError)
          {
             const jobError = processResult as QJobError;
-            setStatusString("Error fetching column stats: " + jobError.error);
+            setStatusString(null);
+            setErrorString(jobError.error);
+            setRows([]);
             setLoading(false);
          }
          else
@@ -103,10 +107,10 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
             const result = processResult as QJobComplete;
 
             const statFieldObjects = result.values.statsFields;
-            if(statFieldObjects && statFieldObjects.length)
+            if (statFieldObjects && statFieldObjects.length)
             {
                const newStatsFields = [] as QFieldMetaData[];
-               for(let i = 0; i<statFieldObjects.length; i++)
+               for (let i = 0; i < statFieldObjects.length; i++)
                {
                   newStatsFields.push(new QFieldMetaData(statFieldObjects[i]));
                }
@@ -115,13 +119,13 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
 
             let qRecord = new QRecord(result.values.statsRecord);
             setStatsRecord(qRecord);
-            if(qRecord.values.has("countDistinct"))
+            if (qRecord.values.has("countDistinct"))
             {
                setCountDistinct(qRecord.values.get("countDistinct"));
             }
 
             const valueCounts = [] as QRecord[];
-            for(let i = 0; i < result.values.valueCounts?.length; i++)
+            for (let i = 0; i < result.values.valueCounts?.length; i++)
             {
                let valueRecord = new QRecord(result.values.valueCounts[i]);
 
@@ -147,16 +151,16 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
             const rows = DataGridUtils.makeRows(valueCounts, fakeTableMetaData);
             const columns = DataGridUtils.setupGridColumns(fakeTableMetaData, null, null, "bySection");
 
-            if(fieldMetaData.type == QFieldType.DATE_TIME)
+            if (fieldMetaData.type == QFieldType.DATE_TIME)
             {
-               columns[0].headerName = fieldMetaData.label + " (grouped by hour)"
+               columns[0].headerName = fieldMetaData.label + " (grouped by hour)";
             }
 
             columns.forEach((c) =>
             {
                c.filterable = false;
                c.hideable = false;
-            })
+            });
 
             setRows(rows);
             setColumns(columns);
@@ -180,6 +184,7 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
    {
       setLoading(true);
       setStatusString("Refreshing...");
+      setErrorString(null);
    };
 
    const doExport = () =>
@@ -216,14 +221,17 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
    return (
       <Box>
          <Box p={3} display="flex" flexDirection="row" justifyContent="space-between" alignItems="flex-start">
-            <Typography variant="h5" pb={3}>
-               Column Statistics for {fieldMetaData.label}
-               <Typography fontSize={14}>
-                  {statusString ?? <>&nbsp;</>}
+            <Box pb={3}>
+               <Typography variant="h5">
+                  Column Statistics for {fieldMetaData.label}
+                  <Typography fontSize={14}>
+                     {statusString ?? <>&nbsp;</>}
+                  </Typography>
                </Typography>
-            </Typography>
+               {errorString && <Box position="absolute" top="3.75rem" width="calc(100% - 5rem)" zIndex="10" mx="2rem"><Alert severity="error">{errorString}</Alert></Box>}
+            </Box>
             <Box>
-               <Button onClick={() => refresh()} startIcon={<Icon>refresh</Icon>}>
+               <Button onClick={() => refresh()} startIcon={<Icon>refresh</Icon>} disabled={loading}>
                   Refresh
                </Button>
                <Button onClick={() => doExport()} startIcon={<Icon>save_alt</Icon>} disabled={valueCounts == null || valueCounts.length == 0}>
@@ -243,6 +251,7 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
                      disableColumnPinning={true}
                      loading={loading}
                      rowBuffer={10}
+                     error={errorString}
                      getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd")}
                      sortingMode={"server"}
                      onSortModelChange={handleSortChange}
@@ -268,7 +277,7 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
                      statsFields && statsFields.map((field) =>
                         (
                            <Box key={field.name} pb={1}>
-                              <div className="fieldLabel">{field.label}: </div>
+                              <div className="fieldLabel">{field.label}:</div>
                               <div className="fieldValue">{ValueUtils.getValueForDisplay(field, statsRecord?.values.get(field.name), statsRecord?.displayValues.get(field.name))}</div>
                            </Box>
                         ))
