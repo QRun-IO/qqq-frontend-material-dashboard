@@ -83,12 +83,11 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
          formData.append("tableName", tableMetaData.name);
          formData.append("fieldName", fullFieldName);
          formData.append("filterJSON", JSON.stringify(filter));
-         formData.append(QController.STEP_TIMEOUT_MILLIS_PARAM_NAME, 300 * 1000);
          if (orderBy)
          {
             formData.append("orderBy", orderBy);
          }
-         const processResult = await qController.processRun("columnStats", formData);
+         const processResult = await qController.processRun("columnStats", formData, undefined, true);
 
          setStatusString(null);
          setErrorString(null);
@@ -228,7 +227,7 @@ function ColumnStats({tableMetaData, fieldMetaData, fieldTableName, filter}: Pro
                      {statusString ?? <>&nbsp;</>}
                   </Typography>
                </Typography>
-               {errorString && <Box position="absolute" top="3.75rem" width="calc(100% - 5rem)" zIndex="10" mx="2rem"><Alert severity="error">{errorString}</Alert></Box>}
+               {errorString && <Box position="absolute" top="3.75rem" width="calc(100% - 5rem)" zIndex="10" mx="1rem"><Alert severity="error">{errorString}</Alert></Box>}
             </Box>
             <Box>
                <Button onClick={() => refresh()} startIcon={<Icon>refresh</Icon>} disabled={loading}>

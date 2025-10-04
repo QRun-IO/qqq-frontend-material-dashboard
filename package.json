@@ -14,7 +14,7 @@
       "@mui/x-data-grid-pro": "5.17.23",
       "@mui/x-date-pickers": "7.1.1",
       "@mui/x-license-pro": "5.12.3",
-      "@qrunio/qqq-frontend-core": "1.2.5-SNAPSHOT",
+      "@qrunio/qqq-frontend-core": "1.2.6-SNAPSHOT",
       "@react-jvectormap/core": "1.0.1",
       "@react-jvectormap/unitedstates": "1.0.1",
       "@react-oauth/google": "0.2.8",
