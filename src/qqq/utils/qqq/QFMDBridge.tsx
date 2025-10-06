@@ -29,6 +29,7 @@ import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFiel
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
+import FormData from "form-data";
 import {Formik} from "formik";
 import QContext from "QContext";
 import QDynamicForm from "qqq/components/forms/DynamicForm";
@@ -243,14 +244,14 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
          const qController = Client.getInstance();
          const qInstance = await qController.loadMetaData();
 
-         const queryStringParts: string[] = [];
+         const formData: FormData = new FormData();
          for (let key of record?.values?.keys())
          {
-            queryStringParts.push(`${encodeURIComponent(key)}=${encodeURIComponent(record.values.get(key))}`);
+            formData.append(key, record.values.get(key));
          }
 
          setWidgetMetaData(qInstance.widgets.get(widgetName));
-         setWidgetData(await qController.widget(widgetName, queryStringParts.join("&")));
+         setWidgetData(await qController.widget(widgetName, formData));
 
          setReady(true);
       })();
@@ -308,7 +309,7 @@ function QFMDBridgeModal({children, onClose, qContext: qContextProp, modalIdenti
 
    function doSetIsOpen(isOpen: boolean): void
    {
-      if(!isOpen)
+      if (!isOpen)
       {
          qContextProp?.popModalOffStack?.(modalIdentifier);
       }
