@@ -28,14 +28,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.kingsrook.qqq.backend.core.utils.CollectionUtils;
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.QSeleniumLib;
 import io.javalin.Javalin;
+import io.javalin.apibuilder.ApiBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConnectionFactory;
-import static io.javalin.apibuilder.ApiBuilder.get;
-import static io.javalin.apibuilder.ApiBuilder.post;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
@@ -122,33 +122,28 @@ public class QSeleniumJavalin
     *******************************************************************************/
    public QSeleniumJavalin start()
    {
-      javalin = Javalin.create().start(8001);
-
-      if(routesToFiles != null)
+      javalin = Javalin.create(config ->
       {
-         javalin.routes(() ->
-         {
-            for(Map.Entry<String, String> routeToFile : routesToFiles.entrySet())
+         config.router.apiBuilder(
+            () ->
             {
-               LOG.debug("Setting up route for [" + routeToFile.getKey() + "] => [" + routeToFile.getValue() + "]");
-               get(routeToFile.getKey(), new RouteFromFileHandler(this, routeToFile.getKey(), routeToFile.getValue()));
-               post(routeToFile.getKey(), new RouteFromFileHandler(this, routeToFile.getKey(), routeToFile.getValue()));
-            }
-         });
-      }
+               for(Map.Entry<String, String> routeToFile : CollectionUtils.nonNullMap(routesToFiles).entrySet())
+               {
+                  LOG.debug("Setting up route for [" + routeToFile.getKey() + "] => [" + routeToFile.getValue() + "]");
+                  ApiBuilder.get(routeToFile.getKey(), new RouteFromFileHandler(this, routeToFile.getKey(), routeToFile.getValue()));
+                  ApiBuilder.post(routeToFile.getKey(), new RouteFromFileHandler(this, routeToFile.getKey(), routeToFile.getValue()));
+               }
 
-      if(routesToStrings != null)
-      {
-         javalin.routes(() ->
-         {
-            for(Map.Entry<String, String> routeToString : routesToStrings.entrySet())
-            {
-               LOG.debug("Setting up route for [" + routeToString.getKey() + "] => [" + routeToString.getValue() + "]");
-               get(routeToString.getKey(), new RouteFromStringHandler(this, routeToString.getKey(), routeToString.getValue()));
-               post(routeToString.getKey(), new RouteFromStringHandler(this, routeToString.getKey(), routeToString.getValue()));
+               for(Map.Entry<String, String> routeToString : CollectionUtils.nonNullMap(routesToStrings).entrySet())
+               {
+                  LOG.debug("Setting up route for [" + routeToString.getKey() + "] => [" + routeToString.getValue() + "]");
+                  ApiBuilder.get(routeToString.getKey(), new RouteFromStringHandler(this, routeToString.getKey(), routeToString.getValue()));
+                  ApiBuilder.post(routeToString.getKey(), new RouteFromStringHandler(this, routeToString.getKey(), routeToString.getValue()));
+               }
             }
-         });
-      }
+         );
+
+      }).start(8001);
 
       javalin.before(new CapturingHandler(this));
 
