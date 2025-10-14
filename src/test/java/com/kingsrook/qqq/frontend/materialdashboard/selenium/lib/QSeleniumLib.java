@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import com.kingsrook.qqq.backend.core.utils.SleepUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +53,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /*******************************************************************************
  ** Library working with Selenium!
+ *
+ * Note that this class is differentiated from {@link QFMDSeleniumLib}, in that
+ * this class should be more generic - e.g., for frontends other than QFMD (it
+ * might have a few methods that break that rule, like the breadcrumb one), whereas
+ * that class is all about QFMD selectors.
  *******************************************************************************/
 public class QSeleniumLib
 {
@@ -268,17 +274,36 @@ public class QSeleniumLib
    /*******************************************************************************
     **
     *******************************************************************************/
-   public List<WebElement> waitForSelectorAll(String cssSelector, int minCount)
+   public List<WebElement> waitForSelectorAllSatisfyingPredicate(String cssSelector, Predicate<List<WebElement>> predicate)
    {
-      LOG.debug("Waiting for element matching selector [" + cssSelector + "]");
+      return waitForSelectorAllSatisfyingPredicate(cssSelector, predicate, null);
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   public List<WebElement> waitForSelectorAllSatisfyingPredicate(String cssSelector, Predicate<List<WebElement>> predicate, String predicateDescription)
+   {
+      if(predicateDescription == null)
+      {
+         predicateDescription = "";
+      }
+      else
+      {
+         predicateDescription = " " + predicateDescription;
+      }
+
+      LOG.debug("Waiting for element matching selector [" + cssSelector + "] and satisfying predicate" + predicateDescription);
       long start = System.currentTimeMillis();
 
       do
       {
          List<WebElement> elements = driver.findElements(By.cssSelector(cssSelector));
-         if(elements.size() >= minCount)
+         if(predicate.test(elements))
          {
-            LOG.debug("Found [" + elements.size() + "] element(s) matching selector [" + cssSelector + "]");
+            LOG.debug("Found [" + elements.size() + "] element(s) matching selector [" + cssSelector + "] and satisfying predicate" + predicateDescription);
             return (elements);
          }
 
@@ -286,8 +311,18 @@ public class QSeleniumLib
       }
       while(start + (1000 * WAIT_SECONDS) > System.currentTimeMillis());
 
-      fail("Failed to find element matching selector [" + cssSelector + "] after [" + WAIT_SECONDS + "] seconds.");
+      fail("Failed to find element matching selector [" + cssSelector + "] satisfying predicate" + predicateDescription + " after [" + WAIT_SECONDS + "] seconds.");
       return (null);
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   public List<WebElement> waitForSelectorAll(String cssSelector, int minCount)
+   {
+      return waitForSelectorAllSatisfyingPredicate(cssSelector, elements -> elements.size() >= minCount, "minCount of " + minCount);
    }
 
 
