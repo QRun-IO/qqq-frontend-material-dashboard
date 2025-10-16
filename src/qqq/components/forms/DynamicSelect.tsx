@@ -176,7 +176,15 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
     *******************************************************************************/
    const filterInlinePossibleValues = (searchTerm: string, possibleValues: QPossibleValue[]): QPossibleValue[] =>
    {
-      return possibleValues.filter(pv => pv.label?.toLowerCase().startsWith(searchTerm));
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // sometimes search term is null - which we'd like to treat the same as empty (e.g., return all results) //
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+      if(searchTerm == null || searchTerm == undefined)
+      {
+         searchTerm = "";
+      }
+
+      return possibleValues.filter(pv => pv.label?.toLowerCase().startsWith(searchTerm.toLowerCase()));
    };
 
 
