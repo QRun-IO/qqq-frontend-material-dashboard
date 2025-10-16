@@ -39,6 +39,7 @@ import SmallLineChart from "qqq/components/widgets/charts/linechart/SmallLineCha
 import PieChart from "qqq/components/widgets/charts/piechart/PieChart";
 import StackedBarChart from "qqq/components/widgets/charts/StackedBarChart";
 import CompositeWidget from "qqq/components/widgets/CompositeWidget";
+import CronUIWidget from "qqq/components/widgets/misc/CronUIWidget";
 import CustomComponentWidget from "qqq/components/widgets/misc/CustomComponentWidget";
 import DataBagViewer from "qqq/components/widgets/misc/DataBagViewer";
 import DividerWidget from "qqq/components/widgets/misc/Divider";
@@ -846,6 +847,18 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                widgetMetaData.type === "rowBuilder" && (
                   (widgetData && widgetData[i]) ?
                      <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={(values: Record<string, any>) =>
+                     {
+                        if(actionCallback)
+                        {
+                           actionCallback(values)
+                        }
+                     }} /> : <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
+               )
+            }
+            {
+               widgetMetaData.type === "cronUI" && (
+                  (widgetData && widgetData[i]) ?
+                     <CronUIWidget screen={screen} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={convertQRecordValuesFromMapToObject(record)} recordDisplayValueMap={record.displayValues} onSaveCallback={(values: { [name: string]: any }) =>
                      {
                         if(actionCallback)
                         {
