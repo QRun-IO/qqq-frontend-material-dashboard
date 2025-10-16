@@ -46,6 +46,7 @@ interface Props
    onChange?: any;
    isEditable?: boolean;
    isMultiple?: boolean;
+   limitTags?: number;
    bulkEditMode?: boolean;
    bulkEditSwitchChangeHandler?: any;
    otherValues?: Map<string, any>;
@@ -62,6 +63,7 @@ DynamicSelect.defaultProps = {
    onChange: null,
    isEditable: true,
    isMultiple: false,
+   limitTags: 5,
    bulkEditMode: false,
    otherValues: new Map<string, any>(),
    variant: "outlined",
@@ -97,7 +99,7 @@ export const getAutocompleteOutlinedStyle = (isDisabled: boolean) =>
 
 const qController = Client.getInstance();
 
-function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, inForm, initialValue, initialValues, onChange, isEditable, isMultiple, bulkEditMode, bulkEditSwitchChangeHandler, otherValues, variant, initiallyOpen, useCase, processUUID}: Props)
+function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, inForm, initialValue, initialValues, onChange, isEditable, isMultiple, limitTags, bulkEditMode, bulkEditSwitchChangeHandler, otherValues, variant, initiallyOpen, useCase, processUUID}: Props)
 {
    const {fieldName, initialDisplayValue, possibleValueSourceName, possibleValues, processName, tableName} = fieldPossibleValueProps;
 
@@ -306,9 +308,14 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
     ***************************************************************************/
    const handleChanged = (event: React.SyntheticEvent, value: any | any[], reason: string, details?: string) =>
    {
-      // console.log("handleChanged.  value is:");
-      // console.log(value);
-      setSearchTerm(null);
+      /////////////////////////////////////////////////////////////////
+      // for multiple mode, keep the searchTerm - but else, clear it //
+      /////////////////////////////////////////////////////////////////
+      if(!isMultiple)
+      {
+         setSearchTerm(null);
+      }
+
 
       if (onChange)
       {
@@ -455,6 +462,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
             }}
             options={options}
             loading={loading}
+            inputValue={isMultiple ? searchTerm : undefined}
             onInputChange={inputChanged}
             onBlur={handleBlur}
             defaultValue={defaultValue}
@@ -473,7 +481,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
             disabled={isDisabled}
             multiple={isMultiple}
             disableCloseOnSelect={isMultiple}
-            limitTags={5}
+            limitTags={limitTags}
             slotProps={{popper: {className: "DynamicSelectPopper"}}}
             renderInput={(params) => (
                <TextField
