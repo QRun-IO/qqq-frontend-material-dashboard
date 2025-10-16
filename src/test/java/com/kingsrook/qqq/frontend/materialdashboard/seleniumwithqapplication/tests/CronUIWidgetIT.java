@@ -82,7 +82,7 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
                      .withField(new QFieldMetaData("name", QFieldType.STRING))
                      .withField(new QFieldMetaData("cronExpression", QFieldType.STRING)
                         .withIsRequired(cronExpressionIsRequired)
-                        .withDefaultValue(hasDefaultCronExpression ? "0 0 0 * * ?" : null)
+                        .withDefaultValue(hasDefaultCronExpression ? "0 1 0 * * ?" : null)
                      )
                      .withField(new QFieldMetaData("timeZoneId", QFieldType.STRING)
                         .withIsRequired(timeZoneIsRequired)
@@ -138,7 +138,7 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
 
                   if(hasDefaultCronExpression)
                   {
-                     qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every day, at 12:00 am");
+                     qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every day, at 12:01 am");
                   }
 
                   qfmdSeleniumLib.clickSaveButton();
@@ -150,7 +150,7 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
                      qSeleniumLib.waitForSelector("#day").click();
                      qSeleniumLib.waitForSelectorContaining("label", "Every day").click();
                      qSeleniumLib.clickBackdrop();
-                     qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every day, every minute");
+                     qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every day, at 12:00 am");
 
                      qfmdSeleniumLib.clickSaveButton();
                   }
@@ -171,8 +171,8 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
 
                   if(cronExpressionIsRequired || hasDefaultCronExpression)
                   {
-                     qfmdSeleniumLib.waitForViewScreenFieldValue("Cron Expression", hasDefaultCronExpression ? "0 0 0" : "0 * *");
-                     qfmdSeleniumLib.waitForViewScreenFieldValue("Cron Expression Description", hasDefaultCronExpression ? "Every day, at 12:00 am" : "Every day, every minute");
+                     qfmdSeleniumLib.waitForViewScreenFieldValue("Cron Expression", hasDefaultCronExpression ? "0 1 0" : "0 0 0");
+                     qfmdSeleniumLib.waitForViewScreenFieldValue("Cron Description", hasDefaultCronExpression ? "Every day, at 12:01 am" : "Every day, at 12:00 am");
                   }
                }
             }
@@ -194,7 +194,9 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
       String tableName = TABLE_NAME + getNameSuffix(true, false, false, true);
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + tableName + "/create", "Creating New");
 
-      // days
+      //////////
+      // days //
+      //////////
       qSeleniumLib.waitForSelector("#day").click();
       qSeleniumLib.waitForSelectorContaining("label", "Selected weekdays").click();
 
@@ -208,7 +210,7 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.clickBackdrop();
 
       qSeleniumLib.waitForSelector("input#day[value=\"Tue, Thu\"]");
-      qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every week, on Tuesday and Thursday, every minute");
+      qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every week, on Tuesday and Thursday, at 12:00 am");
 
       ///////////
       // hours //
@@ -224,8 +226,8 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelectorContaining("label", "Selected hours").click();
       hours.sendKeys(Keys.ESCAPE);
       qSeleniumLib.clickBackdrop();
-      qSeleniumLib.waitForSelector("input#hour[value=\"1pm\"]");
-      qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every week, on Tuesday and Thursday, at 1pm, every minute");
+      qSeleniumLib.waitForSelector("input#hour[value=\"12am, 1pm\"]");
+      qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every week, on Tuesday and Thursday, at 12:00 am and 1:00 pm");
 
       /////////////
       // minutes //
@@ -250,8 +252,8 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
       minutes.sendKeys(Keys.ESCAPE);
       qSeleniumLib.clickBackdrop();
 
-      qSeleniumLib.waitForSelector("input#minute[value=\"15, 45\"]");
-      qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every week, on Tuesday and Thursday, at 1pm, at minutes 15 and 45");
+      qSeleniumLib.waitForSelector("input#minute[value=\"00, 15, 45\"]");
+      qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every week, on Tuesday and Thursday, at 12am and 1pm, at minutes 00, 15, and 45");
    }
 
 
@@ -274,7 +276,7 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Invalid cron expression");
 
       qfmdSeleniumLib.inputTextField("cronExpression", "?");
-      String description = "Every month, on the 5th through 20th every 5 days, at 12am to 11pm every 3 hours, at minutes 15 and 45, at second 05";
+      String description = "Every month, every 5 days between the 5th and 20th, every 3 hours between 12am and 11pm, at minutes 15 and 45, at second 05";
       qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", description);
 
       qSeleniumLib.waitForSelectorContaining(".MuiToggleButton-root[disabled]", "Basic");
@@ -282,7 +284,7 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
       qfmdSeleniumLib.clickSaveButton();
       qfmdSeleniumLib.waitForAlert("successfully created");
       qfmdSeleniumLib.waitForViewScreenFieldValue("Cron Expression", mostOfCronString + "?");
-      qfmdSeleniumLib.waitForViewScreenFieldValue("Cron Expression Description", description);
+      qfmdSeleniumLib.waitForViewScreenFieldValue("Cron Description", description);
    }
 
 
@@ -302,10 +304,10 @@ public class CronUIWidgetIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelector("#day").click();
       qSeleniumLib.waitForSelectorContaining("label", "Every day").click();
       qSeleniumLib.clickBackdrop();
-      qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every day, every minute");
+      qSeleniumLib.waitForSelectorContaining(".widget .MuiBox-root", "Every day, at 12:00 am");
 
       qSeleniumLib.waitForSelectorContaining("button", "clear").click();
-      qSeleniumLib.waitForSelectorContainingToNotExist(".widget .MuiBox-root", "Every day, every minute");
+      qSeleniumLib.waitForSelectorContainingToNotExist(".widget .MuiBox-root", "Every day, at 12:00 am");
 
       qSeleniumLib.waitForSelectorContaining(".MuiToggleButton-root", "Advanced").click();
       qfmdSeleniumLib.inputTextField("cronExpression", "1 2 3 4 5 ?");
