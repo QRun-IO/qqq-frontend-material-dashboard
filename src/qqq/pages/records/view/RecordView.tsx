@@ -620,7 +620,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                sectionFieldElements.set(section.name,
                   <Grid id={section.name} key={section.name} item lg={widgetMetaData.gridColumns ? widgetMetaData.gridColumns : 12} xs={12} sx={{display: "flex", alignItems: "stretch", flexGrow: 1, scrollMarginTop: "100px"}}>
                      <Box width="100%" flexGrow={1} alignItems="stretch">
-                        <DashboardWidgets key={section.name} tableName={tableMetaData.name} widgetMetaDataList={[widgetMetaData]} record={record} entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)} omitWrappingGridContainer={true} />
+                        <DashboardWidgets key={section.name} tableName={tableMetaData.name} widgetMetaDataList={[widgetMetaData]} record={record} entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)} omitWrappingGridContainer={true} screen="recordView"  />
                      </Box>
                   </Grid>
                );
