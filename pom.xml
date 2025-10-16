@@ -57,7 +57,7 @@
 
    <properties>
       <revision>0.27.0-SNAPSHOT</revision>
-      <qqq.version>0.27.9</qqq.version>
+      <qqq.version>0.31.0-cron-ui-3c1773a7-SNAPSHOT</qqq.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
       <maven.compiler.source>17</maven.compiler.source>
@@ -150,7 +150,7 @@
       <dependency>
          <groupId>io.javalin</groupId>
          <artifactId>javalin</artifactId>
-         <version>5.4.2</version>
+         <version>6.7.0</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -326,5 +326,12 @@
 
       </plugins>
    </build>
+
+   <repositories>
+      <repository>
+         <id>sonatype-snapshots</id>
+         <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+      </repository>
+   </repositories>
 
 </project>
