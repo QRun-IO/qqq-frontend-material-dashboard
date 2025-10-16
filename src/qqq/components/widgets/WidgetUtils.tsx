@@ -27,6 +27,7 @@ import Icon from "@mui/material/Icon";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
 import Typography from "@mui/material/Typography";
 import colors from "qqq/assets/theme/base/colors";
+import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
 import {WidgetData} from "qqq/components/widgets/Widget";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import React from "react";
@@ -38,6 +39,7 @@ import {Link} from "react-router-dom";
  *******************************************************************************/
 export class WidgetUtils
 {
+
    /*******************************************************************************
     **
     *******************************************************************************/
@@ -108,6 +110,21 @@ export class WidgetUtils
    {
       const fileName = (data?.label ?? widgetMetaData.label) + " " + ValueUtils.formatDateTimeForFileName(new Date()) + ".csv";
       return (fileName);
+   };
+
+
+   /***************************************************************************
+    * for a given widget (metaData), slot (within the widget), and list of
+    * helpRoles, plus based on if helpHelp is active, return:
+    * - formattedHelpContent (possibly indicating the key for helpHelp mode)
+    * - showHelp - boolean indicating whether to show anything or not.
+    ***************************************************************************/
+   public static getHelp = (widgetMetaData: QWidgetMetaData, slot: string, helpRoles: string[], helpHelpActive: boolean): {formattedHelpContent: JSX.Element, showHelp: boolean} =>
+   {
+      const helpContent = widgetMetaData?.helpContent?.get(slot);
+      const showHelp = helpHelpActive || hasHelpContent(helpContent, helpRoles);
+      const formattedHelpContent = <HelpContent helpContents={helpContent} roles={helpRoles} helpContentKey={`widget:${widgetMetaData.name};slot:${slot}`} />;
+      return {formattedHelpContent, showHelp};
    };
 
 }
