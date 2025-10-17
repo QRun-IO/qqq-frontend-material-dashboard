@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Box from "@mui/material/Box";
+import {GridSortModel} from "@mui/x-data-grid-pro";
 import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
@@ -31,8 +33,6 @@ import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilter
 import {QFilterOrderBy} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterOrderBy";
 import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
 import {ThisOrLastPeriodExpression} from "@qrunio/qqq-frontend-core/lib/model/query/ThisOrLastPeriodExpression";
-import Box from "@mui/material/Box";
-import {GridSortModel} from "@mui/x-data-grid-pro";
 import {validateCriteria} from "qqq/components/query/FilterCriteriaRow";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
@@ -108,7 +108,7 @@ class FilterUtils
          const criteria = queryFilter.criteria[i];
          let [field, fieldTable] = TableUtils.getFieldAndTable(tableMetaData, criteria.fieldName);
 
-         if(!field)
+         if (!field)
          {
             console.warn(`Field ${criteria.fieldName} not found in tableMetaData - unable to clean up values for it..`);
             return;
@@ -620,7 +620,7 @@ class FilterUtils
 
 
    /*******************************************************************************
-    ** after go-live of redesigin in march 2024, we had bugs where we could get a
+    ** after go-live of redesign in March 2024, we had bugs where we could get a
     ** filter with a criteria w/ a null field name (e.g., by having an incomplete
     ** criteria in the Advanced filter builder - and that would sometimes break
     ** the screen!  So, strip those away when storing or loading filters, via
@@ -632,7 +632,24 @@ class FilterUtils
       {
          for (let i = 0; i < filter.criteria.length; i++)
          {
+            let removeFilter = false;
             if (!filter.criteria[i].fieldName)
+            {
+               ///////////////////////////////////////////////////////
+               // no field name is obviously an incomplete criteria //
+               ///////////////////////////////////////////////////////
+               removeFilter = true;
+            }
+
+            if (filter.criteria[i]?.values?.length == 1 && filter.criteria[i]?.values[0] == "")
+            {
+               ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+               // quick filters add an empty-string value as a placeholder, but if that's all that's there, then it isn't a valid criteria, so remove it //
+               ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+               removeFilter = true;
+            }
+
+            if (removeFilter)
             {
                filter.criteria.splice(i, 1);
                i--;
