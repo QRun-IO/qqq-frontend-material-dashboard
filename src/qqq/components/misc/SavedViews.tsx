@@ -19,12 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
-import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QJobComplete} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobComplete";
-import {QJobError} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobError";
-import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {Alert, Button} from "@mui/material";
 import Box from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
@@ -39,6 +33,12 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import {TooltipProps} from "@mui/material/Tooltip/Tooltip";
+import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QJobComplete} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobComplete";
+import {QJobError} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobError";
+import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import FormData from "form-data";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
@@ -279,6 +279,7 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
             /////////////////////////////////////////////////////////////////////////////////////////////////
             const viewObject = JSON.parse(JSON.stringify(view));
             viewObject.queryFilter = JSON.parse(JSON.stringify(FilterUtils.convertFilterPossibleValuesToIds(viewObject.queryFilter)));
+            viewObject.queryFilter = FilterUtils.prepQueryFilterForBackend(tableMetaData, viewObject.queryFilter);
 
             ////////////////////////////////////////////////////////////////////////////
             // strip away incomplete filters too, just for cleaner saved view filters //
