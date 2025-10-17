@@ -23,6 +23,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
+import {QTableSection} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableSection";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {FormikErrors, FormikTouched, FormikValues, useFormikContext} from "formik";
 import QDynamicFormField from "qqq/components/forms/DynamicFormField";
@@ -98,6 +99,11 @@ interface Props
    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
    setFormFields?: (formFields: { [key: string]: DynamicFormFieldDefinition }) => void;
 
+   /////////////////////////////////////////////////////////////////////////////////////////////////////
+   // optional callback for changing the definitions of sections - similar in spirit to setFormFields //
+   /////////////////////////////////////////////////////////////////////////////////////////////////////
+   updateSections?: (sections: Record<string, QTableSection>) => void;
+
    ////////////////////////////////////////////////////////////////////////
    // unique identifier for the process (if being used within a process) //
    ////////////////////////////////////////////////////////////////////////
@@ -112,7 +118,7 @@ interface Props
 /***************************************************************************
  * Standard form component used in QFMD.
  ***************************************************************************/
-function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, bulkEditSwitchChangeHandler, record, helpRoles, helpContentKeyPrefix, setFormFields, processUUID, valueChangedCallback}: Props): JSX.Element
+function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, bulkEditSwitchChangeHandler, record, helpRoles, helpContentKeyPrefix, setFormFields, updateSections, processUUID, valueChangedCallback}: Props): JSX.Element
 {
    const {formFields: origFormFields, errors, touched} = formData;
    const {setFieldValue, values} = useFormikContext<Record<string, any>>();
@@ -213,15 +219,28 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
       //////////////////////////////
       // call callback if defined //
       //////////////////////////////
-      if(valueChangedCallback)
+      if (valueChangedCallback)
       {
          valueChangedCallback(fieldName, newValue);
       }
 
-      ///////////////////////////////////////////
-      // run onChange adjuster if there is one //
-      ///////////////////////////////////////////
-      considerRunningFormAdjuster("onChange", fieldName, actualNewValue);
+      ///////////////////////////////////////////////////////////////////////////////////
+      // for files, checkboxes, and possible values, consider form-adjuster on-change. //
+      // for texts (the "else"), do it via a blur handler                              //
+      ///////////////////////////////////////////////////////////////////////////////////
+      if (field.type == "file" || field.type == "checkbox" || field.possibleValueProps)
+      {
+         considerRunningFormAdjuster("onChange", fieldName, actualNewValue);
+      }
+   };
+
+
+   /***************************************************************************
+    * for text inputs, don't run form adjuster on-change - just do on blur.
+    ***************************************************************************/
+   const considerRunningFormAdjusterOnBlur = (fieldName: string, event: React.SyntheticEvent<HTMLInputElement, Event>): void =>
+   {
+      considerRunningFormAdjuster("onChange", fieldName, event.currentTarget.value);
    };
 
 
@@ -326,6 +345,15 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
 
          setFormAdjustmentCounter(formAdjustmentCounter + 2);
          setFormFields({...formFields});
+      }
+
+      /////////////////////////////////////
+      // update sections, if we got them //
+      /////////////////////////////////////
+      const updatedSections: Record<string, QTableSection> = response.updatedSectionMetaData;
+      if (updatedSections)
+      {
+         updateSections?.(updatedSections);
       }
 
       /////////////////////////
@@ -478,6 +506,7 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
                               success={`${values[fieldName]}` !== "" && !errors[fieldName] && touched[fieldName]}
                               formFieldObject={field}
                               onChangeCallback={(newValue) => handleFieldChange(fieldName, newValue)}
+                              additionalCallbacks={{onBlur: (event) => considerRunningFormAdjusterOnBlur(fieldName, event)}}
                            />
                            {formattedHelpContent}
                         </Grid>

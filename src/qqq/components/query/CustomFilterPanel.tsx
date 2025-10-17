@@ -51,6 +51,13 @@ declare module "@mui/x-data-grid"
 export class QFilterCriteriaWithId extends QFilterCriteria
 {
    id: number;
+
+   public static buildFromCriteria(criteria: QFilterCriteria, id: number)
+   {
+      const rs = new QFilterCriteria(criteria.fieldName, criteria.operator, criteria.values) as QFilterCriteriaWithId;
+      rs.id = id;
+      return (rs);
+   }
 }
 
 

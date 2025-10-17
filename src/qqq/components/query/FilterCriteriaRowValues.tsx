@@ -40,7 +40,7 @@ import FilterCriteriaPaster from "qqq/components/query/FilterCriteriaPaster";
 import {OperatorOption, ValueMode} from "qqq/components/query/FilterCriteriaRow";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
-import React, {SyntheticEvent, useReducer} from "react";
+import React, {SyntheticEvent, useReducer, useState} from "react";
 import {flushSync} from "react-dom";
 
 interface Props
@@ -263,6 +263,7 @@ export const makeTextField = (field: QFieldMetaData, criteria: QFilterCriteriaWi
 function FilterCriteriaRowValues({operatorOption, criteria, field, table, valueChangeHandler, initiallyOpenMultiValuePvs, queryScreenUsage, allowVariables}: Props): JSX.Element
 {
    const [, forceUpdate] = useReducer((x) => x + 1, 0);
+   const [pasterIteration, setPasterIteration] = useState(0);
 
    if (!operatorOption)
    {
@@ -291,6 +292,14 @@ function FilterCriteriaRowValues({operatorOption, criteria, field, table, valueC
       {
          criteria.values = criteria.values.splice(1);
       }
+
+      /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // as paster was worked on, at one point in time, we had trouble refreshing values in the DynamicSelect after paster ran,      //
+      // so a key was put on the DynamicSelect based on the number of values... but that's a bit wrong (and made changes for non-    //
+      // paster mode close it in multi-select mode).  so - instead, explicitly track any time paster completes, and add this counter //
+      // to the key, to keep that behavior of refreshing after paster, but not re-rendering for quite so many non-paster changes.    //
+      /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      setPasterIteration(pasterIteration + 1);
 
       valueChangeHandler(null, "all", criteria.values);
       forceUpdate();
@@ -403,7 +412,7 @@ function FilterCriteriaRowValues({operatorOption, criteria, field, table, valueC
                <DynamicSelect
                   fieldPossibleValueProps={{tableName: table.name, fieldName: field.name, initialDisplayValue: null}}
                   overrideId={field.name + "-multi-" + criteria.id}
-                  key={field.name + "-multi-" + criteria.id + "-" + criteria.values.length}
+                  key={field.name + "-multi-" + criteria.id + `-pasterIteration-${pasterIteration}`}
                   isMultiple
                   fieldLabel="Values"
                   initialValues={initialValues}

@@ -48,6 +48,12 @@ interface Props
    processUUID?: string;
 
    onChangeCallback?: (newValue: any) => void;
+   additionalCallbacks?:
+      {
+         onTextSelect?: (event: React.SyntheticEvent<HTMLInputElement>) => void;
+         onFocus?: (event: React.SyntheticEvent<HTMLInputElement>) => void;
+         onBlur?: (event: React.SyntheticEvent<HTMLInputElement>) => void;
+      }
 
    [key: string]: any;
 
@@ -57,7 +63,7 @@ interface Props
 }
 
 function QDynamicFormField({
-   label, name, displayFormat, value, bulkEditMode, bulkEditSwitchChangeHandler, type, isEditable, placeholder, backgroundColor, formFieldObject, onChangeCallback, processUUID, ...rest
+   label, name, displayFormat, value, bulkEditMode, bulkEditSwitchChangeHandler, type, isEditable, placeholder, backgroundColor, formFieldObject, onChangeCallback, additionalCallbacks, processUUID, ...rest
 }: Props): JSX.Element
 {
    const [switchChecked, setSwitchChecked] = useState(false);
@@ -248,6 +254,18 @@ function QDynamicFormField({
                   {
                      e.preventDefault();
                   }
+               }}
+               onSelect={(event: React.SyntheticEvent<HTMLInputElement>) =>
+               {
+                  additionalCallbacks?.onTextSelect?.(event);
+               }}
+               onFocus={(event: React.SyntheticEvent<HTMLInputElement>) =>
+               {
+                  additionalCallbacks?.onFocus?.(event);
+               }}
+               onBlur={(event: React.SyntheticEvent<HTMLInputElement>) =>
+               {
+                  additionalCallbacks?.onBlur?.(event);
                }}
             />
             <Box mt={0.75}>

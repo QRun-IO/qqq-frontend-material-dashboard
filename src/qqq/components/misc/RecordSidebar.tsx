@@ -78,11 +78,6 @@ function QRecordSidebar({tableSections, widgetMetaDataList, sectionVisibility, s
          });
       }
       sidebarEntries.push({iconName: section.iconName, name: section.name, label: section.label});
-
-      if(sectionVisibility[section.name] === undefined)
-      {
-         sectionVisibility[section.name] = true;
-      }
    });
 
 
@@ -90,9 +85,13 @@ function QRecordSidebar({tableSections, widgetMetaDataList, sectionVisibility, s
       <Card sx={{borderRadius: "0.75rem", position: "sticky", top: stickyTop, overflow: "hidden", maxHeight: "calc(100vh - 2rem)"}}>
          <Box component="ul" display="flex" flexDirection={{xs: "row", md: "column"}} flexWrap={{xs: "wrap", md: "nowrap"}} p={2} m={0} sx={{listStyle: "none", overflow: "auto", height: "100%"}}>
             {
+               /////////////////////////////////////////////////////////////////////////////////////////////////////////
+               // note on sectionVisibility below - assume that a missing entry means that it wasn't marked           //
+               // for hiding - so only hide sections that are marked as visible == false (assume undef means visible) //
+               /////////////////////////////////////////////////////////////////////////////////////////////////////////
                sidebarEntries ? sidebarEntries.map((entry: SidebarEntry, key: number) => (
 
-                  <Box key={`section-link-${entry.name}`} className={`sidebar-section ${sectionVisibility[entry.name] ? "is-visible" : "is-hidden"}`} onClick={() => document.getElementById(entry.name).scrollIntoView()} sx={{cursor: "pointer"}} width={{xs: "50%", md: "100%"}} >
+                  <Box key={`section-link-${entry.name}`} className={`sidebar-section ${sectionVisibility[entry.name] === false ? "is-hidden" : "is-visible"}`} onClick={() => document.getElementById(entry.name)?.scrollIntoView()} sx={{cursor: "pointer"}} width={{xs: "50%", md: "100%"}} >
                      <Box key={`section-${entry.name}`} component="li" pt={0.5} pb={0.5}>
                         <MDTypography
                            variant="button"

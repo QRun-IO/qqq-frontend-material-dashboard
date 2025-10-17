@@ -34,6 +34,7 @@ import Select, {SelectChangeEvent} from "@mui/material/Select/Select";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import FieldAutoComplete from "qqq/components/misc/FieldAutoComplete";
+import {QFilterCriteriaWithId} from "qqq/components/query/CustomFilterPanel";
 import FilterCriteriaRowValues from "qqq/components/query/FilterCriteriaRowValues";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
@@ -514,7 +515,7 @@ export function FilterCriteriaRow({id, index, tableMetaData, metaData, criteria,
          <Box display="inline-block" width={300} className="filterValuesColumn">
             <FilterCriteriaRowValues
                operatorOption={operatorSelectedValue}
-               criteria={{id: id, ...criteria}}
+               criteria={QFilterCriteriaWithId.buildFromCriteria(criteria, id)}
                field={field}
                table={fieldTable}
                valueChangeHandler={(event, valueIndex, newValue) => handleValueChange(event, valueIndex, newValue)}
