@@ -22,49 +22,40 @@
 package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata;
 
 
+import java.util.List;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
 import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducer;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QAppMetaData;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QAppSection;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.ExposedJoin;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 
 
 /*******************************************************************************
- ** Meta Data Producer for People App
+ ** Meta Data Producer for Person table
  *******************************************************************************/
-public class PeopleAppProducer extends MetaDataProducer<QAppMetaData>
+public class PetTableProducer extends MetaDataProducer<QTableMetaData>
 {
-   public static final String NAME = "peopleApp";
+   public static final String NAME = "pet";
 
-   public static final String GREETINGS_APP_NAME = "greetingsApp";
-
-
-   /***************************************************************************
-    *
-    ***************************************************************************/
-   public static void addTableToGreetingsApp(QInstance qInstance, String tableName)
-   {
-      qInstance.getApp(GREETINGS_APP_NAME).getSections().get(0).withTable(tableName);
-   }
 
 
    /*******************************************************************************
     **
     *******************************************************************************/
    @Override
-   public QAppMetaData produce(QInstance qInstance) throws QException
+   public QTableMetaData produce(QInstance qInstance) throws QException
    {
-      QAppMetaData greetingsApp = new QAppMetaData()
-         .withName(GREETINGS_APP_NAME)
-         .withSectionOfChildren(new QAppSection()
-            .withName("greetings")
-            .withTable(PersonTableProducer.NAME)
-            .withTable(PetTableProducer.NAME));
-      qInstance.addApp(greetingsApp);
-
-      return (new QAppMetaData()
-         .withName(NAME)
-         .withChild(greetingsApp)
+      return (new QTableMetaData().withName(NAME)
+         .withBackendName(MemoryBackendProducer.NAME)
+         .withField(new QFieldMetaData("id", QFieldType.INTEGER).withIsEditable(false))
+         .withField(new QFieldMetaData("name", QFieldType.STRING).withIsRequired(true))
+         .withField(new QFieldMetaData("speciesId", QFieldType.INTEGER).withPossibleValueSourceName(PetSpeciesPVSProducer.NAME).withIsRequired(true))
+         .withField(new QFieldMetaData("ownerPersonId", QFieldType.INTEGER).withPossibleValueSourceName(PersonPVSProducer.NAME))
+         .withExposedJoin(new ExposedJoin().withLabel("Owner").withJoinTable(PersonTableProducer.NAME).withJoinPath(List.of(PersonJoinPetMetaDataProducer.NAME)))
+         .withPrimaryKeyField("id")
+         .withRecordLabelFormatAndFields("%s", "name")
       );
    }
 

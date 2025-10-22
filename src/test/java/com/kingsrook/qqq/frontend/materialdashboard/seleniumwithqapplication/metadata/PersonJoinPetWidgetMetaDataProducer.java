@@ -22,50 +22,32 @@
 package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata;
 
 
+import com.kingsrook.qqq.backend.core.actions.dashboard.widgets.ChildRecordListRenderer;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
 import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducer;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QAppMetaData;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QAppSection;
+import com.kingsrook.qqq.backend.core.model.metadata.dashboard.QWidgetMetaData;
 
 
 /*******************************************************************************
- ** Meta Data Producer for People App
+ ** Meta Data Producer for PersonJoinPetWidget
  *******************************************************************************/
-public class PeopleAppProducer extends MetaDataProducer<QAppMetaData>
+public class PersonJoinPetWidgetMetaDataProducer extends MetaDataProducer<QWidgetMetaData>
 {
-   public static final String NAME = "peopleApp";
+   public static final String NAME = "PersonJoinPetWidget";
 
-   public static final String GREETINGS_APP_NAME = "greetingsApp";
-
-
-   /***************************************************************************
-    *
-    ***************************************************************************/
-   public static void addTableToGreetingsApp(QInstance qInstance, String tableName)
-   {
-      qInstance.getApp(GREETINGS_APP_NAME).getSections().get(0).withTable(tableName);
-   }
 
 
    /*******************************************************************************
     **
     *******************************************************************************/
    @Override
-   public QAppMetaData produce(QInstance qInstance) throws QException
+   public QWidgetMetaData produce(QInstance qInstance) throws QException
    {
-      QAppMetaData greetingsApp = new QAppMetaData()
-         .withName(GREETINGS_APP_NAME)
-         .withSectionOfChildren(new QAppSection()
-            .withName("greetings")
-            .withTable(PersonTableProducer.NAME)
-            .withTable(PetTableProducer.NAME));
-      qInstance.addApp(greetingsApp);
-
-      return (new QAppMetaData()
+      return (ChildRecordListRenderer.widgetMetaDataBuilder(qInstance.getJoin(PersonJoinPetMetaDataProducer.NAME))
          .withName(NAME)
-         .withChild(greetingsApp)
-      );
+         .withLabel("Pets")
+         .getWidgetMetaData());
    }
 
 }

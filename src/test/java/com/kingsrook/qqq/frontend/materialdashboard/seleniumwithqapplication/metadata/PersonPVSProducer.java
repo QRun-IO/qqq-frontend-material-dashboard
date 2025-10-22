@@ -25,47 +25,25 @@ package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.me
 import com.kingsrook.qqq.backend.core.exceptions.QException;
 import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducer;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QAppMetaData;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QAppSection;
+import com.kingsrook.qqq.backend.core.model.metadata.possiblevalues.QPossibleValueSource;
 
 
 /*******************************************************************************
- ** Meta Data Producer for People App
+ ** Meta Data Producer for Person PVS
  *******************************************************************************/
-public class PeopleAppProducer extends MetaDataProducer<QAppMetaData>
+public class PersonPVSProducer extends MetaDataProducer<QPossibleValueSource>
 {
-   public static final String NAME = "peopleApp";
+   public static final String NAME = "person";
 
-   public static final String GREETINGS_APP_NAME = "greetingsApp";
-
-
-   /***************************************************************************
-    *
-    ***************************************************************************/
-   public static void addTableToGreetingsApp(QInstance qInstance, String tableName)
-   {
-      qInstance.getApp(GREETINGS_APP_NAME).getSections().get(0).withTable(tableName);
-   }
 
 
    /*******************************************************************************
     **
     *******************************************************************************/
    @Override
-   public QAppMetaData produce(QInstance qInstance) throws QException
+   public QPossibleValueSource produce(QInstance qInstance) throws QException
    {
-      QAppMetaData greetingsApp = new QAppMetaData()
-         .withName(GREETINGS_APP_NAME)
-         .withSectionOfChildren(new QAppSection()
-            .withName("greetings")
-            .withTable(PersonTableProducer.NAME)
-            .withTable(PetTableProducer.NAME));
-      qInstance.addApp(greetingsApp);
-
-      return (new QAppMetaData()
-         .withName(NAME)
-         .withChild(greetingsApp)
-      );
+      return QPossibleValueSource.newForTable(PersonTableProducer.NAME);
    }
 
 }

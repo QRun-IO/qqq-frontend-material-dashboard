@@ -25,26 +25,63 @@ package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.me
 import com.kingsrook.qqq.backend.core.exceptions.QException;
 import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducer;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QAppMetaData;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QAppSection;
+import com.kingsrook.qqq.backend.core.model.metadata.possiblevalues.PossibleValueEnum;
+import com.kingsrook.qqq.backend.core.model.metadata.possiblevalues.QPossibleValueSource;
+import com.kingsrook.qqq.backend.core.utils.StringUtils;
 
 
 /*******************************************************************************
- ** Meta Data Producer for People App
+ ** Meta Data Producer for PetSpecies PVS
  *******************************************************************************/
-public class PeopleAppProducer extends MetaDataProducer<QAppMetaData>
+public class PetSpeciesPVSProducer extends MetaDataProducer<QPossibleValueSource>
 {
-   public static final String NAME = "peopleApp";
+   public static final String NAME = "petSpecies";
 
-   public static final String GREETINGS_APP_NAME = "greetingsApp";
 
 
    /***************************************************************************
     *
     ***************************************************************************/
-   public static void addTableToGreetingsApp(QInstance qInstance, String tableName)
+   public enum Value implements PossibleValueEnum<Integer>
    {
-      qInstance.getApp(GREETINGS_APP_NAME).getSections().get(0).withTable(tableName);
+      DOG(1),
+      CAT(2),
+      ELEPHANT(3);
+
+
+      private final Integer id;
+
+
+
+      /***************************************************************************
+       *
+       ***************************************************************************/
+      Value(Integer id)
+      {
+         this.id = id;
+      }
+
+
+
+      /***************************************************************************
+       *
+       ***************************************************************************/
+      @Override
+      public Integer getPossibleValueId()
+      {
+         return (id);
+      }
+
+
+
+      /***************************************************************************
+       *
+       ***************************************************************************/
+      @Override
+      public String getPossibleValueLabel()
+      {
+         return (StringUtils.allCapsToMixedCase(name()));
+      }
    }
 
 
@@ -52,20 +89,9 @@ public class PeopleAppProducer extends MetaDataProducer<QAppMetaData>
     **
     *******************************************************************************/
    @Override
-   public QAppMetaData produce(QInstance qInstance) throws QException
+   public QPossibleValueSource produce(QInstance qInstance) throws QException
    {
-      QAppMetaData greetingsApp = new QAppMetaData()
-         .withName(GREETINGS_APP_NAME)
-         .withSectionOfChildren(new QAppSection()
-            .withName("greetings")
-            .withTable(PersonTableProducer.NAME)
-            .withTable(PetTableProducer.NAME));
-      qInstance.addApp(greetingsApp);
-
-      return (new QAppMetaData()
-         .withName(NAME)
-         .withChild(greetingsApp)
-      );
+      return QPossibleValueSource.newForEnum(NAME, Value.values());
    }
 
 }
