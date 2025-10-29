@@ -48,6 +48,7 @@ import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ReportRun from "qqq/pages/processes/ReportRun";
 import EntityCreate from "qqq/pages/records/create/RecordCreate";
 import TableDeveloperView from "qqq/pages/records/developer/TableDeveloperView";
+import {resolveAssetUrl} from "qqq/utils/PathUtils";
 import EntityEdit from "qqq/pages/records/edit/RecordEdit";
 import RecordQuery from "qqq/pages/records/query/RecordQuery";
 import RecordDeveloperView from "qqq/pages/records/view/RecordDeveloperView";
@@ -475,11 +476,11 @@ export default function App({authenticationMetaData}: Props)
                const appleIcon = document.querySelector("link[rel~='apple-touch-icon']") as HTMLLinkElement;
                if (favicon)
                {
-                  favicon.href = metaData.branding.icon;
+                  favicon.href = resolveAssetUrl(metaData.branding.icon);
                }
                if (appleIcon)
                {
-                  appleIcon.href = metaData.branding.icon;
+                  appleIcon.href = resolveAssetUrl(metaData.branding.icon);
                }
                if (metaData.branding.accentColor)
                {
@@ -757,8 +758,8 @@ export default function App({authenticationMetaData}: Props)
                {banner()}
                <Sidenav
                   color={sidenavColor}
-                  icon={branding.icon}
-                  logo={branding.logo}
+                  icon={resolveAssetUrl(branding.icon)}
+                  logo={resolveAssetUrl(branding.logo)}
                   appName={branding.appName}
                   branding={branding}
                   routes={sideNavRoutes}

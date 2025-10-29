@@ -20,318 +20,321 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-   <groupId>com.kingsrook.qqq</groupId>
-   <artifactId>qqq-frontend-material-dashboard</artifactId>
-   <version>${revision}</version>
-   <packaging>jar</packaging>
+  <groupId>com.kingsrook.qqq</groupId>
+  <artifactId>qqq-frontend-material-dashboard</artifactId>
+  <version>${revision}</version>
+  <packaging>jar</packaging>
 
-   <name>QQQ Frontend Material Dashboard</name>
-   <description>Low-code Application Framework for Engineers - Frontend Material Dashboard Component</description>
-   <url>https://github.com/Kingsrook/qqq-frontend-material-dashboard</url>
+  <name>QQQ Frontend Material Dashboard</name>
+  <description>Low-code Application Framework for Engineers - Frontend Material Dashboard Component</description>
+  <url>https://github.com/Kingsrook/qqq-frontend-material-dashboard</url>
 
-   <licenses>
-      <license>
-         <name>GNU Affero General Public License v3.0</name>
-         <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
-         <distribution>repo</distribution>
-      </license>
-   </licenses>
+  <licenses>
+    <license>
+      <name>GNU Affero General Public License v3.0</name>
+      <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
-   <scm>
-      <connection>scm:git:git://github.com/Kingsrook/qqq-frontend-material-dashboard.git</connection>
-      <developerConnection>scm:git:ssh://github.com:Kingsrook/qqq-frontend-material-dashboard.git</developerConnection>
-      <url>https://github.com/Kingsrook/qqq-frontend-material-dashboard</url>
-   </scm>
+  <scm>
+    <connection>scm:git:git://github.com/Kingsrook/qqq-frontend-material-dashboard.git</connection>
+    <developerConnection>scm:git:ssh://github.com:Kingsrook/qqq-frontend-material-dashboard.git</developerConnection>
+    <url>https://github.com/Kingsrook/qqq-frontend-material-dashboard</url>
+  </scm>
 
-   <developers>
-      <developer>
-         <name>Kingsrook Development Team</name>
-         <email>contact@kingsrook.com</email>
-         <organization>Kingsrook, LLC</organization>
-         <organizationUrl>https://kingsrook.com</organizationUrl>
-      </developer>
-   </developers>
+  <developers>
+    <developer>
+      <name>Kingsrook Development Team</name>
+      <email>contact@kingsrook.com</email>
+      <organization>Kingsrook, LLC</organization>
+      <organizationUrl>https://kingsrook.com</organizationUrl>
+    </developer>
+  </developers>
 
-   <properties>
-      <revision>0.27.0-SNAPSHOT</revision>
-      <qqq.version>0.31.0-cron-ui-3c1773a7-SNAPSHOT</qqq.version>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-      <maven.compiler.source>17</maven.compiler.source>
-      <maven.compiler.target>17</maven.compiler.target>
-      <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-      <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
-   </properties>
+  <properties>
+    <revision>0.28.1-SNAPSHOT</revision>
+    <qqq.version>0.31.0-cron-ui-3c1773a7-SNAPSHOT</qqq.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+    <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
+  </properties>
 
-   <dependencyManagement>
-      <dependencies>
-         <dependency>
-            <groupId>com.kingsrook.qqq</groupId>
-            <artifactId>qqq-bom-pom</artifactId>
-            <version>${qqq.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-         </dependency>
-      </dependencies>
-   </dependencyManagement>
-
-   <dependencies>
+  <dependencyManagement>
+    <dependencies>
       <dependency>
-         <groupId>com.kingsrook.qqq</groupId>
-         <artifactId>qqq-backend-core</artifactId>
-         <optional>true</optional>
-         <scope>provided</scope>
-         <!--
+        <groupId>com.kingsrook.qqq</groupId>
+        <artifactId>qqq-bom-pom</artifactId>
+        <version>${qqq.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.kingsrook.qqq</groupId>
+      <artifactId>qqq-backend-core</artifactId>
+      <optional>true</optional>
+      <scope>provided</scope>
+      <!--
          When qqq-backend-core was added as a dependency here, it brought with it some transitive
          dependencies which conflicted with selenium.  Excluding these from qqq-backend-core fixes us.
          -->
-         <exclusions>
-            <exclusion>
-               <groupId>software.amazon.awssdk</groupId>
-               <artifactId>netty-nio-client</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>com.google.guava</groupId>
-               <artifactId>guava</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>com.kingsrook.qqq</groupId>
-         <artifactId>qqq-middleware-javalin</artifactId>
-         <optional>true</optional>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-simple</artifactId>
-         <version>2.0.3</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.seleniumhq.selenium</groupId>
-         <artifactId>selenium-java</artifactId>
-         <version>4.35.0</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>io.github.bonigarcia</groupId>
-         <artifactId>webdrivermanager</artifactId>
-         <version>5.6.2</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>commons-io</groupId>
-         <artifactId>commons-io</artifactId>
-         <version>2.11.0</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-engine</artifactId>
-         <version>5.8.1</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-params</artifactId>
-         <version>5.8.1</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.assertj</groupId>
-         <artifactId>assertj-core</artifactId>
-         <version>3.23.1</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>io.javalin</groupId>
-         <artifactId>javalin</artifactId>
-         <version>6.7.0</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.json</groupId>
-         <artifactId>json</artifactId>
-         <version>20231013</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-api</artifactId>
-         <version>2.17.1</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-core</artifactId>
-         <version>2.17.1</version>
-         <scope>test</scope>
-      </dependency>
-   </dependencies>
+      <exclusions>
+        <exclusion>
+          <groupId>software.amazon.awssdk</groupId>
+          <artifactId>netty-nio-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.kingsrook.qqq</groupId>
+      <artifactId>qqq-middleware-javalin</artifactId>
+      <optional>true</optional>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>2.0.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>4.35.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.bonigarcia</groupId>
+      <artifactId>webdrivermanager</artifactId>
+      <version>5.6.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.11.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>5.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.23.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.javalin</groupId>
+      <artifactId>javalin</artifactId>
+      <version>6.7.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20231013</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.17.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.17.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-   <profiles>
-      <profile>
-         <!-- Release profile for Maven Central: attach sources/javadocs and sign artifacts -->
-         <id>release</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-source-plugin</artifactId>
-                  <version>3.3.0</version>
-                  <executions>
-                     <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                           <goal>jar</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-javadoc-plugin</artifactId>
-                  <version>3.6.2</version>
-                  <configuration>
-                     <failOnError>false</failOnError>
-                     <doclint>none</doclint>
-                  </configuration>
-                  <executions>
-                     <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                           <goal>jar</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-gpg-plugin</artifactId>
-                  <version>3.2.4</version>
-                  <configuration>
-                     <keyname>${gpg.keyname}</keyname>
-                     <gpgArguments>
-                        <arg>--pinentry-mode</arg>
-                        <arg>loopback</arg>
-                     </gpgArguments>
-                  </configuration>
-                  <executions>
-                     <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                           <goal>sign</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-               <plugin>
-                  <groupId>org.sonatype.central</groupId>
-                  <artifactId>central-publishing-maven-plugin</artifactId>
-                  <version>0.8.0</version>
-                  <extensions>true</extensions>
-                  <configuration>
-                     <publishingServerId>central</publishingServerId>
-                     <autoPublish>true</autoPublish>
-                     <waitUntil>uploaded</waitUntil>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
-
-   <build>
-      <plugins>
-         <plugin>
+  <profiles>
+    <profile>
+      <!-- Release profile for Maven Central: attach sources/javadocs and sign artifacts -->
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.0.0-M5</version>
-            <configuration>
-               <rerunFailingTestsCount>5</rerunFailingTestsCount>
-               <!-- Until mvn verify is used in CI (e.g., to run Integration Tests separately from Unit Tests), run both here -->
-               <includes>
-                  <include>**/*Test.java</include>
-                  <include>**/*IT.java</include>
-               </includes>
-            </configuration>
-         </plugin>
-         <plugin>
-            <groupId>com.amashchenko.maven.plugin</groupId>
-            <artifactId>gitflow-maven-plugin</artifactId>
-            <version>1.18.0</version>
-            <configuration>
-               <gitFlowConfig>
-                  <productionBranch>main</productionBranch>
-                  <developmentBranch>develop</developmentBranch>
-                  <versionTagPrefix>v</versionTagPrefix>
-               </gitFlowConfig>
-               <skipFeatureVersion>true</skipFeatureVersion> <!-- Keep feature names out of versions -->
-               <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
-               <versionDigitToIncrement>1</versionDigitToIncrement> <!-- In general, we update the minor -->
-               <versionProperty>revision</versionProperty>
-               <skipUpdateVersion>true</skipUpdateVersion>
-               <skipTestProject>true</skipTestProject> <!-- we allow CI to do the tests -->
-            </configuration>
-         </plugin>
-
-         <!-- Publish this project's test code as a jar -->
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
+            <artifactId>maven-source-plugin</artifactId>
             <version>3.3.0</version>
             <executions>
-               <execution>
-                  <phase>package</phase>
-                  <goals>
-                     <goal>test-jar</goal>
-                  </goals>
-               </execution>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
             </executions>
-         </plugin>
-
-         <!-- GPG signing for Maven Central -->
-         <plugin>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.6.2</version>
+            <configuration>
+              <failOnError>false</failOnError>
+              <doclint>none</doclint>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.1.0</version>
+            <version>3.2.4</version>
+            <configuration>
+              <keyname>${gpg.keyname}</keyname>
+              <gpgArguments>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+              </gpgArguments>
+            </configuration>
             <executions>
-               <execution>
-                  <id>sign-artifacts</id>
-                  <phase>verify</phase>
-                  <goals>
-                     <goal>sign</goal>
-                  </goals>
-               </execution>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
             </executions>
-         </plugin>
-
-         <!-- Sonatype Central publishing (replaces deploy to distributionManagement) -->
-         <plugin>
+          </plugin>
+          <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
             <version>0.8.0</version>
             <extensions>true</extensions>
             <configuration>
-               <!-- Server credentials with this ID must be provided in settings.xml -->
-               <publishingServerId>central</publishingServerId>
-               <autoPublish>true</autoPublish>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+              <waitUntil>uploaded</waitUntil>
             </configuration>
-         </plugin>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
-      </plugins>
-   </build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M5</version>
+        <configuration>
+          <rerunFailingTestsCount>5</rerunFailingTestsCount>
+          <!-- Until mvn verify is used in CI (e.g., to run Integration Tests separately from Unit
+          Tests), run both here -->
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*IT.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.amashchenko.maven.plugin</groupId>
+        <artifactId>gitflow-maven-plugin</artifactId>
+        <version>1.18.0</version>
+        <configuration>
+          <gitFlowConfig>
+            <productionBranch>main</productionBranch>
+            <developmentBranch>develop</developmentBranch>
+            <versionTagPrefix>v</versionTagPrefix>
+          </gitFlowConfig>
+          <skipFeatureVersion>true</skipFeatureVersion> <!-- Keep feature names out of versions -->
+          <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
+          <versionDigitToIncrement>1</versionDigitToIncrement> <!-- In general, we update the minor -->
+          <versionProperty>revision</versionProperty>
+          <skipUpdateVersion>true</skipUpdateVersion>
+          <skipTestProject>true</skipTestProject> <!-- we allow CI to do the tests -->
+        </configuration>
+      </plugin>
 
-   <repositories>
-      <repository>
-         <id>sonatype-snapshots</id>
-         <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-      </repository>
-   </repositories>
+      <!-- Publish this project's test code as a jar -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- GPG signing for Maven Central -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Sonatype Central publishing (replaces deploy to distributionManagement) -->
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.8.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <!-- Server credentials with this ID must be provided in settings.xml -->
+          <publishingServerId>central</publishingServerId>
+          <autoPublish>true</autoPublish>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>sonatype-snapshots</id>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </repository>
+  </repositories>
 
 </project>
