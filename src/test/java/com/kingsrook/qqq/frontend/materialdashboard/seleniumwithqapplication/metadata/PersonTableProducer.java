@@ -27,7 +27,9 @@ import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducer;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
 import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
 
 
 /*******************************************************************************
@@ -50,6 +52,8 @@ public class PersonTableProducer extends MetaDataProducer<QTableMetaData>
          .withField(new QFieldMetaData("id", QFieldType.INTEGER))
          .withField(new QFieldMetaData("firstName", QFieldType.STRING))
          .withField(new QFieldMetaData("lastName", QFieldType.STRING))
+         .withSection(SectionFactory.defaultT1("id", "firstName", "lastName"))
+         .withSection(SectionFactory.customT2("pets", new QIcon("pets")).withWidgetName(PersonJoinPetWidgetMetaDataProducer.NAME))
          .withPrimaryKeyField("id")
          .withRecordLabelFormatAndFields("%s %s", "firstName", "lastName")
       );
