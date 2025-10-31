@@ -641,7 +641,7 @@ class FilterUtils
                removeFilter = true;
             }
 
-            if (filter.criteria[i]?.values?.length == 1 && filter.criteria[i]?.values[0] == "")
+            if (filter.criteria[i]?.values?.length == 1 && filter.criteria[i]?.values[0] === "")
             {
                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                // quick filters add an empty-string value as a placeholder, but if that's all that's there, then it isn't a valid criteria, so remove it //

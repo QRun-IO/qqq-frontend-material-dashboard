@@ -151,7 +151,7 @@ public class ChildRecordListWidgetIT extends QBaseSeleniumWithQApplicationTest
       ////////////////////////////
       qSeleniumLib.waitForSelectorContaining(".widget a", "View All").click();
       qfmdSeleniumLib.waitForPageHeaderToContain("Pet");
-      qSeleniumLib.waitForSelectorContaining(".MuiTablePagination-displayedRows", "Showing 1 to 2 of 2");
+      qfmdSeleniumLib.waitForQueryScreenPaginationToContain("Showing 1 to 2 of 2");
    }
 
 
