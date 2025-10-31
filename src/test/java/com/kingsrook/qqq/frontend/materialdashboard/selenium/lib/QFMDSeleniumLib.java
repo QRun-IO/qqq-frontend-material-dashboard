@@ -166,4 +166,14 @@ public class QFMDSeleniumLib
    {
       qSeleniumLib.waitForSelectorContaining("h3", textContains);
    }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForQueryScreenPaginationToContain(String textContains)
+   {
+      qSeleniumLib.waitForSelectorContaining(".MuiTablePagination-displayedRows", textContains);
+   }
 }
