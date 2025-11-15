@@ -85,11 +85,11 @@ export function detectBasePath(): string
 
    // Strategy 2: Fallback - try to extract from any script tag with /static/ in the path
    // This handles cases where currentScript might not be available
-   const scripts = document.querySelectorAll('script[src]');
+   const scripts = document.querySelectorAll("script[src]");
    for (let i = 0; i < scripts.length; i++)
    {
       const script = scripts[i] as HTMLScriptElement;
-      if (script.src && script.src.includes('/static/'))
+      if (script.src && script.src.includes("/static/"))
       {
          const match = script.src.match(/^https?:\/\/[^\/]+([\/\w-]*?)\/static\//);
          if (match && match[1])
