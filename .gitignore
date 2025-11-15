@@ -3,6 +3,7 @@
 src/main/resources/material-dashboard/
 
 **/.idea*
+.vscode
 *.iml
 .yalc*
 yalc.lock
