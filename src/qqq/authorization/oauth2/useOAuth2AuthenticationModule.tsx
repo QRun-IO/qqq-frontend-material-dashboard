@@ -123,60 +123,14 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
             else
             {
                /////////////////////////////////////////////////////////////////////////////////////////////////
-               // else no cookie, and not a token url, we need to get authentication from the provider         //
-               // First try silent sign-in (if user is already authenticated with Authentik),                 //
-               // otherwise redirect to login page                                                              //
+               // else no cookie, and not a token url, we need to redirect to the provider's login page       //
+               // capture the path the user was trying to access in local storage, to redirect back to later. //
                /////////////////////////////////////////////////////////////////////////////////////////////////
-               if (authOidc)
-               {
-                  // Check if user is already authenticated with Authentik
-                  if (authOidc.isAuthenticated && authOidc.user)
-                  {
-                     // User is authenticated with Authentik but doesn't have a session cookie
-                     // This can happen if the cookie was set with path: "/" and we're at /admin
-                     // Try to get a new session by using signinSilent to refresh the token
-                     console.log("User is authenticated with Authentik but no session cookie found. Attempting to establish session...");
-                     try
-                     {
-                        // Try silent sign-in to get a fresh token
-                        await authOidc.signinSilent();
-                        // After silent sign-in, the user should have a valid token
-                        // The token is stored internally by react-oidc-context
-                        // We need to extract it from the user's access_token or use the user info
-                        // For now, let's try to get user info which should trigger token refresh
-                        if (authOidc.user && authOidc.user.access_token)
-                        {
-                           const accessToken = authOidc.user.access_token;
-                           // Exchange the access token for a session
-                           const {uuid: newSessionUuid, values} = await qController.manageSession(accessToken, null, null);
-                           console.log(`Established new session UUID: ${newSessionUuid}`);
-                           
-                           setIsFullyAuthenticated(true);
-                           Client.setGotAuthenticationInAllControllers();
-                           setLoggedInUser(values?.user);
-                           console.log("Session established successfully.");
-                           return;
-                        }
-                     }
-                     catch (tokenError)
-                     {
-                        console.warn("Failed to establish session silently:", tokenError);
-                        // Fall through to redirect
-                     }
-                  }
-                  
-                  // Not authenticated or silent sign-in failed, redirect to login
-                  console.log("Redirecting to OAuth2 provider login...");
-                  localStorage.setItem(preSigninRedirectPathnameKey, window.location.pathname);
-                  setEarlyReturnForAuth(<div>Signing in...</div>);
-                  authOidc.signinRedirect();
-               }
-               else
-               {
-                  // authOidc is null (not in OAuth context), this shouldn't happen but handle it
-                  console.error("authOidc is null - cannot authenticate. This may indicate a configuration issue.");
-                  setEarlyReturnForAuth(<div>Authentication error: OAuth2 context not available.</div>);
-               }
+               console.log("Loading token from OAuth2 provider...");
+               console.log(authOidc);
+               localStorage.setItem(preSigninRedirectPathnameKey, window.location.pathname);
+               setEarlyReturnForAuth(<div>Signing in...</div>);
+               authOidc?.signinRedirect();
             }
          }
       }
