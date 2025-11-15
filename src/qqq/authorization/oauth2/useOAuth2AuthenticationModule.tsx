@@ -105,7 +105,10 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
             //////////////////////////////////////////////////////////////////////////
             // if we have a sessionUUID cookie, try to validate it with the backend //
             //////////////////////////////////////////////////////////////////////////
-            const sessionUuid = cookies[SESSION_UUID_COOKIE_NAME];
+            const sessionUuidCookie = cookies[SESSION_UUID_COOKIE_NAME];
+            // Ensure we have a string value, not an object (react-cookie can return objects in some cases)
+            // This can happen if the cookie was set with a different path or if there's a cookie parsing issue
+            const sessionUuid = typeof sessionUuidCookie === "string" ? sessionUuidCookie : null;
             if (sessionUuid)
             {
                console.log(`we have session UUID: ${sessionUuid} - validating it...`);
