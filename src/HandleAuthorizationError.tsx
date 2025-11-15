@@ -23,6 +23,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import React, {useEffect} from "react";
 import {useCookies} from "react-cookie";
 import {SESSION_UUID_COOKIE_NAME} from "App";
+import {detectBasePath} from "qqq/utils/PathUtils";
 
 interface Props
 {
@@ -39,7 +40,8 @@ function HandleAuthorizationError({errorMessage}: Props)
    useEffect(() =>
    {
       logout();
-      removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
+      const basePath = detectBasePath();
+      removeCookie(SESSION_UUID_COOKIE_NAME, {path: basePath});
    });
 
    return (

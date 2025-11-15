@@ -48,7 +48,7 @@ import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ReportRun from "qqq/pages/processes/ReportRun";
 import EntityCreate from "qqq/pages/records/create/RecordCreate";
 import TableDeveloperView from "qqq/pages/records/developer/TableDeveloperView";
-import {resolveAssetUrl} from "qqq/utils/PathUtils";
+import {detectBasePath, resolveAssetUrl} from "qqq/utils/PathUtils";
 import EntityEdit from "qqq/pages/records/edit/RecordEdit";
 import RecordQuery from "qqq/pages/records/query/RecordQuery";
 import RecordDeveloperView from "qqq/pages/records/view/RecordDeveloperView";
@@ -558,7 +558,8 @@ export default function App({authenticationMetaData}: Props)
                   console.log("Exception is a QException with status = 401.  Clearing some of localStorage & cookies");
                   qController.clearAuthenticationMetaDataLocalStorage();
                   localStorage.removeItem("accessToken");
-                  removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
+                  const basePath = detectBasePath();
+                  removeCookie(SESSION_UUID_COOKIE_NAME, {path: basePath});
 
                   doLogout();
                   return;
