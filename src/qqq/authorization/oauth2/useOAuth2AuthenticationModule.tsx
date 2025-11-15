@@ -22,6 +22,7 @@
 import {QAuthenticationMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAuthenticationMetaData";
 import {SESSION_UUID_COOKIE_NAME} from "App";
 import Client from "qqq/utils/qqq/Client";
+import {detectBasePath} from "qqq/utils/PathUtils";
 import {useCookies} from "react-cookie";
 import {AuthContextProps, AuthProvider, useAuth} from "react-oidc-context";
 import {useNavigate, useSearchParams} from "react-router-dom";
@@ -59,8 +60,10 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
    {
       try
       {
+         const basePath = detectBasePath();
          const preSigninRedirectPathnameKey = "oauth2.preSigninRedirect.pathname";
-         if (window.location.pathname == "/token")
+         const tokenPath = basePath === "/" ? "/token" : `${basePath}/token`;
+         if (window.location.pathname === tokenPath)
          {
             ///////////////////////////////////////////////////////////////////////////
             // if we're at a path of /token, get code & state params, look up values //
@@ -87,7 +90,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
 
                const preSigninRedirectPathname = localStorage.getItem(preSigninRedirectPathnameKey);
                localStorage.removeItem(preSigninRedirectPathname);
-               navigate(preSigninRedirectPathname ?? "/", {replace: true});
+               navigate(preSigninRedirectPathname ?? basePath, {replace: true});
             }
             else
             {
@@ -143,7 +146,8 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
    const logout = () =>
    {
       qController.clearAuthenticationMetaDataLocalStorage();
-      removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
+      const basePath = detectBasePath();
+      removeCookie(SESSION_UUID_COOKIE_NAME, {path: basePath});
       authOidc?.signoutRedirect();
    };
 
@@ -163,11 +167,13 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
          );
       }
 
+      const basePath = detectBasePath();
+      const tokenPath = basePath === "/" ? "/token" : `${basePath}/token`;
       const oidcConfig =
          {
             authority: authority,
             client_id: clientId,
-            redirect_uri: `${window.location.origin}/token`,
+            redirect_uri: `${window.location.origin}${tokenPath}`,
             response_type: "code",
             scope: "openid profile email offline_access",
          };

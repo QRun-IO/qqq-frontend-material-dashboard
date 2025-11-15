@@ -26,6 +26,7 @@ import jwt_decode from "jwt-decode";
 import ProtectedRoute from "qqq/authorization/auth0/ProtectedRoute";
 import {MaterialUIControllerProvider} from "qqq/context";
 import Client from "qqq/utils/qqq/Client";
+import {detectBasePath} from "qqq/utils/PathUtils";
 import {useCookies} from "react-cookie";
 import {useNavigate, useSearchParams} from "react-router-dom";
 
@@ -142,7 +143,8 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
          console.log(`Error loading token: ${JSON.stringify(e)}`);
          qController.clearAuthenticationMetaDataLocalStorage();
          localStorage.removeItem("accessToken");
-         removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
+         const basePath = detectBasePath();
+         removeCookie(SESSION_UUID_COOKIE_NAME, {path: basePath});
          useAuth0Logout();
          return;
       }
@@ -232,12 +234,14 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
          return <App authenticationMetaData={authenticationMetaData} />
       }
 
+      const basePath = detectBasePath();
+      const redirectUri = `${window.location.origin}${basePath}`;
       return (
          <Auth0ProviderWithRedirectCallback
             domain={domain}
             clientId={clientId}
             audience={audience}
-            redirectUri={`${window.location.origin}/`}>
+            redirectUri={redirectUri}>
             <MaterialUIControllerProvider>
                <ProtectedRoute component={WrappedApp} />
             </MaterialUIControllerProvider>

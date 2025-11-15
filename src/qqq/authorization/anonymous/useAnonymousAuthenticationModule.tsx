@@ -22,6 +22,7 @@
 import {QAuthenticationMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAuthenticationMetaData";
 import {SESSION_UUID_COOKIE_NAME} from "App";
 import Client from "qqq/utils/qqq/Client";
+import {detectBasePath} from "qqq/utils/PathUtils";
 import {useCookies} from "react-cookie";
 import {Md5} from "ts-md5/dist/md5";
 
@@ -49,7 +50,8 @@ export default function useAnonymousAuthenticationModule({setIsFullyAuthenticate
       console.log("Generating random token...");
       setIsFullyAuthenticated(true);
       Client.setGotAuthenticationInAllControllers();
-      setCookie(SESSION_UUID_COOKIE_NAME, Md5.hashStr(`${new Date()}`), {path: "/"});
+      const basePath = detectBasePath();
+      setCookie(SESSION_UUID_COOKIE_NAME, Md5.hashStr(`${new Date()}`), {path: basePath});
       console.log("Token generation complete.");
    };
 
@@ -60,7 +62,8 @@ export default function useAnonymousAuthenticationModule({setIsFullyAuthenticate
    const logout = () =>
    {
       qController.clearAuthenticationMetaDataLocalStorage();
-      removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
+      const basePath = detectBasePath();
+      removeCookie(SESSION_UUID_COOKIE_NAME, {path: basePath});
    };
 
 
