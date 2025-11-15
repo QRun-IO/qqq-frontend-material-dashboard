@@ -20,35 +20,57 @@
  */
 
 /**
+ * Normalizes a path to always be an absolute path starting with "/".
+ * Handles edge cases like "./", "", or paths without leading slash.
+ * 
+ * @param path The path to normalize
+ * @returns An absolute path starting with "/"
+ */
+function normalizeBasePath(path: string): string
+{
+   if (!path || path === "" || path === "./" || path === ".")
+   {
+      return "/";
+   }
+   
+   // Ensure it starts with "/"
+   if (!path.startsWith("/"))
+   {
+      return "/" + path.replace(/^\.\//, "").replace(/\/$/, "");
+   }
+   
+   // Ensure it doesn't end with "/" (except for root)
+   if (path !== "/" && path.endsWith("/"))
+   {
+      return path.slice(0, -1);
+   }
+   
+   return path;
+}
+
+/**
  * Detects the base path where the SPA is running.
  * Works for both root and sub-paths like /admin, /dashboard, etc.
  * 
+ * This function works correctly with `homepage: "."` in package.json because:
+ * - Even though HTML may reference assets relatively (./static/js/main.js),
+ * - The browser resolves these to absolute URLs when loading
+ * - document.currentScript.src will always contain the full absolute URL
+ * 
  * Detection strategy (in order of reliability):
- * 1. Extract from current script location (most reliable)
- * 2. Extract from known path patterns in current pathname
- * 3. Default to / (root)
+ * 1. Extract from current script location (most reliable - works even with relative paths in HTML)
+ * 2. Extract from all script tags as fallback
+ * 3. Extract from known path patterns in current pathname
+ * 4. Default to / (root)
  * 
  * @returns The detected base path (e.g., "/admin", "/", "/dashboard")
+ * Always returns an absolute path starting with "/"
  */
 export function detectBasePath(): string
 {
-   // Strategy 1: Check current URL path first (most reliable for dev and prod)
-   const currentPath = window.location.pathname;
-   const parts = currentPath.split("/").filter(p => p);
-   
-   // If first part is a known SPA path like "admin", "dashboard", etc., use it
-   if (parts.length > 0)
-   {
-      const firstPart = parts[0];
-      // You can add more known paths here as needed
-      if (["admin", "dashboard", "app", "manager", "console"].includes(firstPart))
-      {
-         return "/" + firstPart;
-      }
-   }
-
-   // Strategy 2: Try to extract from the current script's source
-   // When served from /admin/static/js/main.abc123.js, extract /admin
+   // Strategy 1: Try to extract from the current script's source (most reliable)
+   // Works even when homepage: "." uses relative paths because browser resolves them to absolute URLs
+   // Example: HTML has "./static/js/main.js" but browser resolves to "http://localhost:8000/admin/static/js/main.js"
    if (document.currentScript && document.currentScript instanceof HTMLScriptElement)
    {
       const src = document.currentScript.src;
@@ -57,12 +79,44 @@ export function detectBasePath(): string
       const match = src.match(/^https?:\/\/[^\/]+([\/\w-]*?)\/static\//);
       if (match && match[1])
       {
-         return match[1];
+         return normalizeBasePath(match[1]);
       }
    }
 
-   // Default to root
-   return "/";
+   // Strategy 2: Fallback - try to extract from any script tag with /static/ in the path
+   // This handles cases where currentScript might not be available
+   const scripts = document.querySelectorAll('script[src]');
+   for (let i = 0; i < scripts.length; i++)
+   {
+      const script = scripts[i] as HTMLScriptElement;
+      if (script.src && script.src.includes('/static/'))
+      {
+         const match = script.src.match(/^https?:\/\/[^\/]+([\/\w-]*?)\/static\//);
+         if (match && match[1])
+         {
+            return normalizeBasePath(match[1]);
+         }
+      }
+   }
+
+   // Strategy 3: Extract from current URL pathname
+   // Check if first part of pathname matches known SPA paths
+   const currentPath = window.location.pathname;
+   const parts = currentPath.split("/").filter(p => p);
+   
+   if (parts.length > 0)
+   {
+      const firstPart = parts[0];
+      // You can add more known paths here as needed
+      if (["admin", "dashboard", "app", "manager", "console"].includes(firstPart))
+      {
+         return normalizeBasePath("/" + firstPart);
+      }
+   }
+
+   // Strategy 4: Default to root
+   // This handles the case where SPA is served from root (/)
+   return normalizeBasePath("/");
 }
 
 /**
