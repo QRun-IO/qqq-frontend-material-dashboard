@@ -148,10 +148,24 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
     ***************************************************************************/
    const logout = () =>
    {
+      // Clean up local state first, before attempting Authentik logout
       qController.clearAuthenticationMetaDataLocalStorage();
       const basePath = detectBasePath();
       removeCookie(SESSION_UUID_COOKIE_NAME, {path: basePath});
-      authOidc?.signoutRedirect();
+      
+      // Attempt Authentik logout, but handle errors gracefully
+      // If Authentik has an error (like the RAC provider bug), we still want to redirect back to our app
+      try
+      {
+         const postLogoutRedirectUri = `${window.location.origin}${basePath}`;
+         authOidc?.signoutRedirect({post_logout_redirect_uri: postLogoutRedirectUri});
+      }
+      catch (e)
+      {
+         // If Authentik logout fails, redirect manually to our app
+         console.warn("Authentik logout error (this may be an Authentik backend issue):", e);
+         window.location.href = `${window.location.origin}${basePath}`;
+      }
    };
 
 
