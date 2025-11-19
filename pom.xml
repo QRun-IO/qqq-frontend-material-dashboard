@@ -58,8 +58,8 @@
   </developers>
 
   <properties>
-    <revision>0.28.1-SNAPSHOT</revision>
-    <qqq.version>0.31.0-cron-ui-3c1773a7-SNAPSHOT</qqq.version>
+    <revision>0.28.3-SNAPSHOT</revision>
+    <qqq.version>0.32.2-SNAPSHOT</qqq.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>17</maven.compiler.source>
