@@ -19,9 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
-import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Icon from "@mui/material/Icon";
@@ -29,6 +26,9 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
 import Typography from "@mui/material/Typography";
 import {DataGridPro, GridCallbackDetails, GridDensity, GridEventListener, GridRenderCellParams, GridRowParams, GridToolbarContainer, MuiEvent, useGridApiContext, useGridApiEventHandler} from "@mui/x-data-grid-pro";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
+import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import Widget, {AddNewRecordButton, LabelComponent, WidgetData} from "qqq/components/widgets/Widget";
 import DataGridUtils from "qqq/utils/DataGridUtils";
 import HtmlUtils from "qqq/utils/HtmlUtils";
@@ -41,7 +41,7 @@ export interface ChildRecordListData extends WidgetData
 {
    title?: string;
    queryOutput?: { records: { values: any, displayValues?: any } [] };
-   childTableMetaData?: QTableMetaData;
+   childTableMetaData?: QTableMetaData | object;
    tablePath?: string;
    viewAllLink?: string;
    totalRows?: number;
@@ -88,120 +88,173 @@ function RecordGridWidget({widgetMetaData, data, addNewRecordCallback, disableRo
    const [fileName, setFileName] = useState(null as string);
    const [gridMouseDownX, setGridMouseDownX] = useState(0);
    const [gridMouseDownY, setGridMouseDownY] = useState(0);
+   const [childTableMetaData, setChildTableMetaData] = useState(null as QTableMetaData);
    const navigate = useNavigate();
+
+
+   /***************************************************************************
+    * There's a table meta data object in the widget data - but - the type
+    * has evolved over time.  originally, it could have been a QTableMetaData
+    * else it could have been object we'd need to pass to the QTableMetaData
+    * constructor.
+    *
+    * Now, we're migrating to have a QFrontendTableMetaData available from the
+    * backend (to include full join table objects, as frontend expects) - which,
+    * actually will come here as an object off of the widget call.
+    *
+    * so, all of this method is to just deal with whatever data we have, and
+    * return the QTableMetaData object to use.
+    *
+    * (note, we do set this as a state var (childTableMetaData), but there was
+    * an issue w/ the initial render and buttons getting "baked", where that
+    * state var wasn't set yet (it's from a useEffect), so we extracted this
+    * into a function that can be called for that button-builder
+    ***************************************************************************/
+   function getTableMetaDataFromWidgetData(data: ChildRecordListData): QTableMetaData
+   {
+      return data.childFrontendTableMetaData ?
+         (data.childFrontendTableMetaData instanceof QTableMetaData ? data.childFrontendTableMetaData as QTableMetaData : new QTableMetaData(data.childFrontendTableMetaData)) :
+         (data.childTableMetaData instanceof QTableMetaData ? data.childTableMetaData as QTableMetaData : new QTableMetaData(data.childTableMetaData));
+   }
+
 
    useEffect(() =>
    {
-      if (data && data.childTableMetaData && data.queryOutput)
+      (async () =>
       {
-         const records: QRecord[] = [];
-         const queryOutputRecords = data.queryOutput.records;
-         if (queryOutputRecords)
+         ///////////////////////////////////////////////////////////////////////////////////////////////
+         // october 2025, we are migrating from childTableMetaData, which from the backend was not a  //
+         // QFrontendTableMetaData - to childFrontendTableMetaData, which is a QFrontendTableMetaData //
+         // and as such, contains join tables as actual tables, not just table names.                 //
+         ///////////////////////////////////////////////////////////////////////////////////////////////
+         if (data && (data.childTableMetaData || data.childFrontendTableMetaData) && data.queryOutput)
          {
-            for (let i = 0; i < queryOutputRecords.length; i++)
+            const records: QRecord[] = [];
+            const queryOutputRecords = data.queryOutput.records;
+            if (queryOutputRecords)
             {
-               if (queryOutputRecords[i] instanceof QRecord)
+               for (let i = 0; i < queryOutputRecords.length; i++)
                {
-                  records.push(queryOutputRecords[i] as QRecord);
-               }
-               else
-               {
-                  records.push(new QRecord(queryOutputRecords[i]));
-               }
-            }
-         }
-
-         const tableMetaData = data.childTableMetaData instanceof QTableMetaData ? data.childTableMetaData as QTableMetaData : new QTableMetaData(data.childTableMetaData);
-         const rows = DataGridUtils.makeRows(records, tableMetaData, undefined, true);
-
-         /////////////////////////////////////////////////////////////////////////////////
-         // note - tablePath may be null, if the user doesn't have access to the table. //
-         /////////////////////////////////////////////////////////////////////////////////
-         const childTablePath = data.tablePath ? data.tablePath + (data.tablePath.endsWith("/") ? "" : "/") : data.tablePath;
-         const columns = DataGridUtils.setupGridColumns(tableMetaData, childTablePath, null, "bySection");
-
-         if (data.omitFieldNames)
-         {
-            for (let i = 0; i < columns.length; i++)
-            {
-               const column = columns[i];
-               if (data.omitFieldNames.indexOf(column.field) > -1)
-               {
-                  columns.splice(i, 1);
-                  i--;
+                  if (queryOutputRecords[i] instanceof QRecord)
+                  {
+                     records.push(queryOutputRecords[i] as QRecord);
+                  }
+                  else
+                  {
+                     records.push(new QRecord(queryOutputRecords[i]));
+                  }
                }
             }
-         }
 
-         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         // capture all-columns to use for the export (before we might splice some away from the on-screen display) //
-         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         const allColumns = [...columns];
-         setAllColumns(JSON.parse(JSON.stringify(columns)));
+            const tableMetaData = getTableMetaDataFromWidgetData(data);
+            setChildTableMetaData(tableMetaData);
 
-         ////////////////////////////////////////////////////////////////
-         // do not not show the foreign-key column of the parent table //
-         ////////////////////////////////////////////////////////////////
-         if (data.defaultValuesForNewChildRecords)
-         {
-            for (let i = 0; i < columns.length; i++)
+            const rows = DataGridUtils.makeRows(records, tableMetaData, undefined, true);
+
+            /////////////////////////////////////////////////////////////////////////////////
+            // note - tablePath may be null, if the user doesn't have access to the table. //
+            /////////////////////////////////////////////////////////////////////////////////
+            const childTablePath = data.tablePath ? data.tablePath + (data.tablePath.endsWith("/") ? "" : "/") : data.tablePath;
+            const metaData = await qController.loadMetaData();
+            const includeExposedJoinTables: string[] = data.includeExposedJoinTables ?? []
+            const columns = DataGridUtils.setupGridColumns(tableMetaData, childTablePath, metaData, "bySection", includeExposedJoinTables);
+
+            if (data.omitFieldNames)
             {
-               if (data.defaultValuesForNewChildRecords[columns[i].field])
+               for (let i = 0; i < columns.length; i++)
                {
-                  columns.splice(i, 1);
-                  i--;
+                  const column = columns[i];
+                  if (data.omitFieldNames.indexOf(column.field) > -1)
+                  {
+                     columns.splice(i, 1);
+                     i--;
+                  }
                }
             }
-         }
 
-         ////////////////////////////////////
-         // add actions cell, if available //
-         ////////////////////////////////////
-         if (allowRecordEdit || allowRecordDelete)
-         {
-            columns.unshift({
-               field: "_actions",
-               type: "string",
-               headerName: "Actions",
-               sortable: false,
-               filterable: false,
-               width: allowRecordEdit && allowRecordDelete ? 80 : 50,
-               renderCell: ((params: GridRenderCellParams) =>
-               {
-                  return <Box>
-                     {allowRecordEdit && <IconButton onClick={() => editRecordCallback(params.row.__rowIndex)}><Icon>edit</Icon></IconButton>}
-                     {allowRecordDelete && <IconButton onClick={() => deleteRecordCallback(params.row.__rowIndex)}><Icon>delete</Icon></IconButton>}
-                  </Box>;
-               })
-            });
-         }
-
-         setRows(rows);
-         setRecords(records);
-         setColumns(columns);
-
-         let csv = "";
-         for (let i = 0; i < allColumns.length; i++)
-         {
-            csv += `${i > 0 ? "," : ""}"${ValueUtils.cleanForCsv(allColumns[i].headerName)}"`;
-         }
-         csv += "\n";
-
-         for (let i = 0; i < records.length; i++)
-         {
-            for (let j = 0; j < allColumns.length; j++)
+            if(data.onlyIncludeFieldNames)
             {
-               const value = records[i].displayValues.get(allColumns[j].field) ?? records[i].values.get(allColumns[j].field);
-               csv += `${j > 0 ? "," : ""}"${ValueUtils.cleanForCsv(value)}"`;
+               for (let i = 0; i < columns.length; i++)
+               {
+                  const column = columns[i];
+                  if (data.onlyIncludeFieldNames.indexOf(column.field) == -1)
+                  {
+                     columns.splice(i, 1);
+                     i--;
+                  }
+               }
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // capture all-columns to use for the export (before we might splice some away from the on-screen display) //
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            const allColumns = [...columns];
+            setAllColumns(JSON.parse(JSON.stringify(columns)));
+
+            ////////////////////////////////////////////////////////////////
+            // do not not show the foreign-key column of the parent table //
+            ////////////////////////////////////////////////////////////////
+            if (data.defaultValuesForNewChildRecords)
+            {
+               for (let i = 0; i < columns.length; i++)
+               {
+                  if (data.defaultValuesForNewChildRecords[columns[i].field])
+                  {
+                     columns.splice(i, 1);
+                     i--;
+                  }
+               }
+            }
+
+            ////////////////////////////////////
+            // add actions cell, if available //
+            ////////////////////////////////////
+            if (allowRecordEdit || allowRecordDelete)
+            {
+               columns.unshift({
+                  field: "_actions",
+                  type: "string",
+                  headerName: "Actions",
+                  sortable: false,
+                  filterable: false,
+                  width: allowRecordEdit && allowRecordDelete ? 80 : 50,
+                  renderCell: ((params: GridRenderCellParams) =>
+                  {
+                     return <Box>
+                        {allowRecordEdit && <IconButton onClick={() => editRecordCallback(params.row.__rowIndex)}><Icon>edit</Icon></IconButton>}
+                        {allowRecordDelete && <IconButton onClick={() => deleteRecordCallback(params.row.__rowIndex)}><Icon>delete</Icon></IconButton>}
+                     </Box>;
+                  })
+               });
+            }
+
+            setRows(rows);
+            setRecords(records);
+            setColumns(columns);
+
+            let csv = "";
+            for (let i = 0; i < allColumns.length; i++)
+            {
+               csv += `${i > 0 ? "," : ""}"${ValueUtils.cleanForCsv(allColumns[i].headerName)}"`;
             }
             csv += "\n";
+
+            for (let i = 0; i < records.length; i++)
+            {
+               for (let j = 0; j < allColumns.length; j++)
+               {
+                  const value = records[i].displayValues.get(allColumns[j].field) ?? records[i].values.get(allColumns[j].field);
+                  csv += `${j > 0 ? "," : ""}"${ValueUtils.cleanForCsv(value)}"`;
+               }
+               csv += "\n";
+            }
+
+            const fileName = (data?.label ?? widgetMetaData.label) + " " + ValueUtils.formatDateTimeForFileName(new Date()) + ".csv";
+
+            setCsv(csv);
+            setFileName(fileName);
          }
-
-         const fileName = (data?.label ?? widgetMetaData.label) + " " + ValueUtils.formatDateTimeForFileName(new Date()) + ".csv";
-
-         setCsv(csv);
-         setFileName(fileName);
-      }
+      })();
    }, [JSON.stringify(data?.queryOutput)]);
 
    ///////////////////
@@ -222,7 +275,7 @@ function RecordGridWidget({widgetMetaData, data, addNewRecordCallback, disableRo
    ///////////////////
    let isExportDisabled = true;
    let tooltipTitle = "Export";
-   if (data && data.childTableMetaData && data.queryOutput && data.queryOutput.records && data.queryOutput.records.length > 0)
+   if (data && childTableMetaData && data.queryOutput && data.queryOutput.records && data.queryOutput.records.length > 0)
    {
       isExportDisabled = false;
 
@@ -283,7 +336,7 @@ function RecordGridWidget({widgetMetaData, data, addNewRecordCallback, disableRo
          }
       }
 
-      labelAdditionalComponentsRight.push(new AddNewRecordButton(data.childTableMetaData, defaultValuesForNewChildRecords, "Add new", disabledFields, addNewRecordCallback));
+      labelAdditionalComponentsRight.push(new AddNewRecordButton(getTableMetaDataFromWidgetData(data), defaultValuesForNewChildRecords, "Add new", disabledFields, addNewRecordCallback));
    }
 
 
@@ -300,10 +353,10 @@ function RecordGridWidget({widgetMetaData, data, addNewRecordCallback, disableRo
       (async () =>
       {
          const qInstance = await qController.loadMetaData();
-         let tablePath = qInstance.getTablePathByName(data.childTableMetaData.name);
+         let tablePath = qInstance.getTablePathByName(childTableMetaData?.name);
          if (tablePath)
          {
-            tablePath = `${tablePath}/${params.row[data.childTableMetaData.primaryKeyField]}`;
+            tablePath = `${tablePath}/${params.row[childTableMetaData.primaryKeyField]}`;
             DataGridUtils.handleRowClick(tablePath, event, gridMouseDownX, gridMouseDownY, navigate, instance);
          }
       })();

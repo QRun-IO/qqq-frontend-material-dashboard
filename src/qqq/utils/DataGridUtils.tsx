@@ -141,7 +141,7 @@ export default class DataGridUtils
    /*******************************************************************************
     **
     *******************************************************************************/
-   public static setupGridColumns = (tableMetaData: QTableMetaData, linkBase: string = "", metaData?: QInstance, columnSort: "bySection" | "alphabetical" = "alphabetical"): GridColDef[] =>
+   public static setupGridColumns = (tableMetaData: QTableMetaData, linkBase: string = "", metaData?: QInstance, columnSort: "bySection" | "alphabetical" = "alphabetical", includeExposedJoinTables: string[] = undefined): GridColDef[] =>
    {
       const columns = [] as GridColDef[];
       this.addColumnsForTable(tableMetaData, linkBase, columns, columnSort, null, null);
@@ -154,7 +154,7 @@ export default class DataGridUtils
             {
                const join = tableMetaData.exposedJoins[i];
                let joinTableName = join.joinTable.name;
-               if (metaData.tables.has(joinTableName) && metaData.tables.get(joinTableName).readPermission)
+               if (metaData.tables.has(joinTableName) && metaData.tables.get(joinTableName).readPermission && (includeExposedJoinTables === undefined || includeExposedJoinTables.indexOf(joinTableName) > -1))
                {
                   let joinLinkBase = null;
                   joinLinkBase = metaData.getTablePath(join.joinTable);

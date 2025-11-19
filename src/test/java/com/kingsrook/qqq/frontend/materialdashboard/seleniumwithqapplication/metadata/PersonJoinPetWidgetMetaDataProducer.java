@@ -22,22 +22,19 @@
 package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata;
 
 
+import com.kingsrook.qqq.backend.core.actions.dashboard.widgets.ChildRecordListRenderer;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
 import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducer;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
-import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
-import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
-import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
-import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
+import com.kingsrook.qqq.backend.core.model.metadata.dashboard.QWidgetMetaData;
 
 
 /*******************************************************************************
- ** Meta Data Producer for Person table
+ ** Meta Data Producer for PersonJoinPetWidget
  *******************************************************************************/
-public class PersonTableProducer extends MetaDataProducer<QTableMetaData>
+public class PersonJoinPetWidgetMetaDataProducer extends MetaDataProducer<QWidgetMetaData>
 {
-   public static final String NAME = "person";
+   public static final String NAME = "PersonJoinPetWidget";
 
 
 
@@ -45,20 +42,12 @@ public class PersonTableProducer extends MetaDataProducer<QTableMetaData>
     **
     *******************************************************************************/
    @Override
-   public QTableMetaData produce(QInstance qInstance) throws QException
+   public QWidgetMetaData produce(QInstance qInstance) throws QException
    {
-      return (new QTableMetaData().withName(NAME)
-         .withBackendName(MemoryBackendProducer.NAME)
-         .withField(new QFieldMetaData("id", QFieldType.INTEGER))
-         .withField(new QFieldMetaData("firstName", QFieldType.STRING))
-         .withField(new QFieldMetaData("lastName", QFieldType.STRING))
-         .withField(new QFieldMetaData("isAlive", QFieldType.BOOLEAN))
-         .withSection(SectionFactory.defaultT1("id", "firstName", "lastName"))
-         .withSection(SectionFactory.defaultT2("isAlive"))
-         .withSection(SectionFactory.customT2("pets", new QIcon("pets")).withWidgetName(PersonJoinPetWidgetMetaDataProducer.NAME))
-         .withPrimaryKeyField("id")
-         .withRecordLabelFormatAndFields("%s %s", "firstName", "lastName")
-      );
+      return (ChildRecordListRenderer.widgetMetaDataBuilder(qInstance.getJoin(PersonJoinPetMetaDataProducer.NAME))
+         .withName(NAME)
+         .withLabel("Pets")
+         .getWidgetMetaData());
    }
 
 }

@@ -74,6 +74,8 @@ public class QBaseSeleniumWithQApplicationTest
    protected QSeleniumLib    qSeleniumLib;
    protected QFMDSeleniumLib qfmdSeleniumLib;
 
+   protected TestInfo testInfo;
+
 
 
    /*******************************************************************************
@@ -102,8 +104,9 @@ public class QBaseSeleniumWithQApplicationTest
     **
     *******************************************************************************/
    @BeforeEach
-   public void beforeEach() throws QException
+   public void beforeEach(TestInfo testInfo) throws QException
    {
+      this.testInfo = testInfo;
       manageDownloadsDirectory();
 
       HashMap<String, Object> chromePrefs = new HashMap<>();

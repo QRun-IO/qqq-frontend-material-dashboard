@@ -156,4 +156,24 @@ public class QFMDSeleniumLib
       /////////////////////////////////////////////
       qSeleniumLib.waitForSelector(".MuiDrawer-paperAnchorLeft .MuiDivider-root").click();
    }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForPageHeaderToContain(String textContains)
+   {
+      qSeleniumLib.waitForSelectorContaining("h3", textContains);
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForQueryScreenPaginationToContain(String textContains)
+   {
+      qSeleniumLib.waitForSelectorContaining(".MuiTablePagination-displayedRows", textContains);
+   }
 }

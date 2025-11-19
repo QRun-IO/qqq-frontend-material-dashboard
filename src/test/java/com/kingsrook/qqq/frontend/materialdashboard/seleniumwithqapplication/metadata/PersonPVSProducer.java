@@ -25,17 +25,13 @@ package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.me
 import com.kingsrook.qqq.backend.core.exceptions.QException;
 import com.kingsrook.qqq.backend.core.model.metadata.MetaDataProducer;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
-import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
-import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
-import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
-import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
-import com.kingsrook.qqq.backend.core.model.metadata.tables.SectionFactory;
+import com.kingsrook.qqq.backend.core.model.metadata.possiblevalues.QPossibleValueSource;
 
 
 /*******************************************************************************
- ** Meta Data Producer for Person table
+ ** Meta Data Producer for Person PVS
  *******************************************************************************/
-public class PersonTableProducer extends MetaDataProducer<QTableMetaData>
+public class PersonPVSProducer extends MetaDataProducer<QPossibleValueSource>
 {
    public static final String NAME = "person";
 
@@ -45,20 +41,9 @@ public class PersonTableProducer extends MetaDataProducer<QTableMetaData>
     **
     *******************************************************************************/
    @Override
-   public QTableMetaData produce(QInstance qInstance) throws QException
+   public QPossibleValueSource produce(QInstance qInstance) throws QException
    {
-      return (new QTableMetaData().withName(NAME)
-         .withBackendName(MemoryBackendProducer.NAME)
-         .withField(new QFieldMetaData("id", QFieldType.INTEGER))
-         .withField(new QFieldMetaData("firstName", QFieldType.STRING))
-         .withField(new QFieldMetaData("lastName", QFieldType.STRING))
-         .withField(new QFieldMetaData("isAlive", QFieldType.BOOLEAN))
-         .withSection(SectionFactory.defaultT1("id", "firstName", "lastName"))
-         .withSection(SectionFactory.defaultT2("isAlive"))
-         .withSection(SectionFactory.customT2("pets", new QIcon("pets")).withWidgetName(PersonJoinPetWidgetMetaDataProducer.NAME))
-         .withPrimaryKeyField("id")
-         .withRecordLabelFormatAndFields("%s %s", "firstName", "lastName")
-      );
+      return QPossibleValueSource.newForTable(PersonTableProducer.NAME);
    }
 
 }
