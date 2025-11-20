@@ -58,9 +58,7 @@
   </developers>
 
   <properties>
-    <revision>
-      0.28.4-SNAPSHOT
-    </revision>
+    <revision>0.28.4-SNAPSHOT</revision>
     <qqq.version>
       0.32.3-authentication-scopes-dc39cea4f-SNAPSHOT
     </qqq.version>
