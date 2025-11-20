@@ -34,7 +34,7 @@ import useAuth0AuthenticationModule from "qqq/authorization/auth0/useAuth0Authen
 import useOAuth2AuthenticationModule from "qqq/authorization/oauth2/useOAuth2AuthenticationModule";
 import {MaterialUIControllerProvider} from "qqq/context";
 import Client from "qqq/utils/qqq/Client";
-import {detectBasePath, logBasePathDetection} from "qqq/utils/PathUtils";
+import {detectBasePath} from "qqq/utils/PathUtils";
 
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +49,7 @@ if (document.location.search && document.location.search.indexOf("clearAuthentic
 {
    qController.clearAuthenticationMetaDataLocalStorage();
 }
+
 
 const authenticationMetaDataPromise: Promise<QAuthenticationMetaData> = qController.getAuthenticationMetaData();
 

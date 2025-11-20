@@ -59,7 +59,7 @@
 
   <properties>
     <revision>0.28.3-SNAPSHOT</revision>
-    <qqq.version>0.32.2-SNAPSHOT</qqq.version>
+    <qqq.version>0.32.0-authentication-scopes-e1ecb7930-SNAPSHOT</qqq.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>17</maven.compiler.source>

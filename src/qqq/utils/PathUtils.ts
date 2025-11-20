@@ -20,44 +20,63 @@
  */
 
 /**
- * Detects the base path where the SPA is running.
- * Works for both root and sub-paths like /admin, /dashboard, etc.
+ * Detects the base path where the SPA is running at RUNTIME.
+ * Works for any base path: /, /admin, /my-app, /client/portal, etc.
  * 
  * Detection strategy (in order of reliability):
- * 1. Extract from current script location (most reliable)
- * 2. Extract from known path patterns in current pathname
- * 3. Default to / (root)
+ * 1. Extract from script tag sources (looks for /static/js/ pattern from Create React App)
+ * 2. Extract from HTML <base> tag if present
+ * 3. Use first path segment if it doesn't look like an app route
+ * 4. Default to / (root)
  * 
- * @returns The detected base path (e.g., "/admin", "/", "/dashboard")
+ * @returns The detected base path (e.g., "/admin", "/", "/my-app")
  */
 export function detectBasePath(): string
 {
-   // Strategy 1: Check current URL path first (most reliable for dev and prod)
-   const currentPath = window.location.pathname;
-   const parts = currentPath.split("/").filter(p => p);
-   
-   // If first part is a known SPA path like "admin", "dashboard", etc., use it
-   if (parts.length > 0)
+   // Strategy 1: Try to extract from script tags (most reliable for CRA builds)
+   // CRA always puts scripts in /static/js/, so we can extract the base path from that
+   // Example: http://example.com/my-app/static/js/main.abc123.js -> /my-app
+   const scripts = document.getElementsByTagName("script");
+   for (let i = 0; i < scripts.length; i++)
    {
-      const firstPart = parts[0];
-      // You can add more known paths here as needed
-      if (["admin", "dashboard", "app", "manager", "console"].includes(firstPart))
+      const src = scripts[i].src;
+      if (src && src.includes("/static/js/"))
       {
-         return "/" + firstPart;
+         const match = src.match(/^https?:\/\/[^\/]+([\/\w-]*?)\/static\/js\//);
+         if (match && match[1])
+         {
+            return match[1] || "/";
+         }
       }
    }
 
-   // Strategy 2: Try to extract from the current script's source
-   // When served from /admin/static/js/main.abc123.js, extract /admin
-   if (document.currentScript && document.currentScript instanceof HTMLScriptElement)
+   // Strategy 2: Check for HTML <base> tag
+   // If the HTML has <base href="/my-app/">, use that
+   const baseTag = document.querySelector("base");
+   if (baseTag && baseTag.getAttribute("href"))
    {
-      const src = document.currentScript.src;
-      // Match: http://localhost:8000/admin/static/js/main.abc123.js
-      // Extract: /admin
-      const match = src.match(/^https?:\/\/[^\/]+([\/\w-]*?)\/static\//);
-      if (match && match[1])
+      const href = baseTag.getAttribute("href");
+      if (href && href !== "/")
       {
-         return match[1];
+         return href.endsWith("/") ? href.slice(0, -1) : href;
+      }
+   }
+
+   // Strategy 3: Use first path segment if it doesn't look like an app route
+   // Avoid treating routes like "/users/123" as base path
+   // Only use if it's a simple single segment without additional path parts
+   const currentPath = window.location.pathname;
+   const parts = currentPath.split("/").filter(p => p);
+   
+   // If URL is like /something (single segment), it MIGHT be the base path
+   // But be conservative - only use if it's common base path names or doesn't look like data
+   if (parts.length === 1)
+   {
+      const firstPart = parts[0];
+      // If it's not numeric and not obviously a route, assume it's base path
+      if (!/^\d+$/.test(firstPart) && firstPart.length > 1)
+      {
+         return "/" + firstPart;
       }
    }
 

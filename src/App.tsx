@@ -48,7 +48,7 @@ import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ReportRun from "qqq/pages/processes/ReportRun";
 import EntityCreate from "qqq/pages/records/create/RecordCreate";
 import TableDeveloperView from "qqq/pages/records/developer/TableDeveloperView";
-import {resolveAssetUrl} from "qqq/utils/PathUtils";
+import {resolveAssetUrl, detectBasePath} from "qqq/utils/PathUtils";
 import EntityEdit from "qqq/pages/records/edit/RecordEdit";
 import RecordQuery from "qqq/pages/records/query/RecordQuery";
 import RecordDeveloperView from "qqq/pages/records/view/RecordDeveloperView";
@@ -277,7 +277,9 @@ export default function App({authenticationMetaData}: Props)
                   /////////////////////////////////////////////////////////////////////////////////////////////////////
                   foundFirstApp = true;
                   setDefaultRoute(path);
-                  console.log("Set default route to: " + path);
+                  const basePath = detectBasePath();
+                  const fullPath = basePath !== "/" ? basePath + path : path;
+                  console.log(`Set default route to: ${path} (browser URL: ${fullPath})`);
                }
             }
             else if (app.type === QAppNodeType.TABLE)
