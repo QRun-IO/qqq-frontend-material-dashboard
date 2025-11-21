@@ -558,7 +558,7 @@ class FilterUtils
                {
                   return ("is after");
                }
-               return ("greater than or equals");
+               return ("greater than");
             case QCriteriaOperator.GREATER_THAN_OR_EQUALS:
                if (isDate)
                {
