@@ -882,7 +882,10 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    const setupGridColumnModels = (metaData: QInstance, tableMetaData: QTableMetaData, queryColumns: QQueryColumns) =>
    {
       let linkBase = metaData.getTablePath(tableMetaData);
-      linkBase += linkBase.endsWith("/") ? "" : "/";
+      if(linkBase)
+      {
+         linkBase += linkBase.endsWith("/") ? "" : "/";
+      }
       const columns = DataGridUtils.setupGridColumns(tableMetaData, linkBase, metaData, "alphabetical");
 
       ///////////////////////////////////////////////

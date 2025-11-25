@@ -52,6 +52,7 @@
 .sidebar-section.is-visible
 {
    max-height: 500px; /* larger than any field’s natural height */
+   min-height: 48px; /* keeps them from shrinking if screen is too short */
 }
 .form-section-wrapper.is-visible
 {
