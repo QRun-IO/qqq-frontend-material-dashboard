@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {CSSProperties} from "@mui/system/CSSProperties";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
 import {Box, InputLabel} from "@mui/material";
@@ -72,6 +73,8 @@ interface Props
    footerHTML?: string;
    storeDropdownSelections?: boolean;
    omitPadding: boolean;
+   omitLabel: boolean;
+   additionalCSS: CSSProperties;
 }
 
 Widget.defaultProps = {
@@ -85,6 +88,8 @@ Widget.defaultProps = {
    labelAdditionalElementsRight: [],
    labelBoxAdditionalSx: {},
    omitPadding: false,
+   omitLabel: false,
+   additionalCSS: {},
 };
 
 
@@ -172,6 +177,7 @@ interface HeaderLinkButtonComponentProps
    onClickCallback: () => void;
    disabled?: boolean;
    disabledTooltip?: string;
+   className?: string;
 }
 
 HeaderLinkButtonComponent.defaultProps = {
@@ -179,10 +185,10 @@ HeaderLinkButtonComponent.defaultProps = {
    disabledTooltip: null
 };
 
-export function HeaderLinkButtonComponent({label, onClickCallback, disabled, disabledTooltip}: HeaderLinkButtonComponentProps): JSX.Element
+export function HeaderLinkButtonComponent({label, onClickCallback, disabled, disabledTooltip, className}: HeaderLinkButtonComponentProps): JSX.Element
 {
    return (
-      <Tooltip title={disabledTooltip}>
+      <Tooltip title={disabledTooltip} className={className}>
          <span>
             <Button disabled={disabled} onClick={() => onClickCallback()} sx={{p: 0}} disableRipple>
                <Typography display="inline" textTransform="none" fontSize={"1.125rem"}>
@@ -769,7 +775,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                            )
                      }
                      {
-                        hasPermission && labelToUse && (labelElement)
+                        hasPermission && labelToUse && !props.omitLabel && (labelElement)
                      }
                      {
                         hasPermission && (
@@ -852,7 +858,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
       ? <Card sx={{marginTop: props.widgetMetaData?.icon ? 2 : 0, width: "100%", p: padding}} className="widget inCard">
          {widgetContent}
       </Card>
-      : <span style={{width: "100%", padding: padding, marginBottom: noCardMarginBottom}} className="widget noCard">{widgetContent}</span>;
+      : <span style={{width: "100%", padding: padding, marginBottom: noCardMarginBottom, ...props.additionalCSS}} className="widget noCard">{widgetContent}</span>;
 }
 
 export default Widget;
