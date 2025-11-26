@@ -507,6 +507,7 @@ function QDynamicForm({formData, formLabel, fieldNamesToInclude, bulkEditMode, b
                               formFieldObject={field}
                               onChangeCallback={(newValue) => handleFieldChange(fieldName, newValue)}
                               additionalCallbacks={{onBlur: (event) => considerRunningFormAdjusterOnBlur(fieldName, event)}}
+                              otherValues={values}
                            />
                            {formattedHelpContent}
                         </Grid>
