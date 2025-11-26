@@ -58,9 +58,9 @@
   </developers>
 
   <properties>
-    <revision>0.28.4-SNAPSHOT</revision>
+    <revision>0.28.0-SNAPSHOT</revision>
     <qqq.version>
-      0.32.3-authentication-scopes-12cee991e-SNAPSHOT
+      0.32.0-SNAPSHOT
     </qqq.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
