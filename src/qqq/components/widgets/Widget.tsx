@@ -35,6 +35,7 @@ import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
 import WidgetDropdownMenu, {DropdownOption} from "qqq/components/widgets/components/WidgetDropdownMenu";
 import {WidgetUtils} from "qqq/components/widgets/WidgetUtils";
 import HtmlUtils from "qqq/utils/HtmlUtils";
+import {resolveAssetUrl} from "qqq/utils/PathUtils";
 import React, {useContext, useEffect, useState} from "react";
 import {NavigateFunction, useNavigate} from "react-router-dom";
 
@@ -153,7 +154,10 @@ export class HeaderIcon extends LabelComponent
 
       if (this.iconPath)
       {
-         return (<Box sx={{textAlign: "center", ...styles}}><img src={this.iconPath} width="16" height="16" /></Box>);
+         return (<Box sx={{textAlign: "center", ...styles}}><img src={resolveAssetUrl(this.iconPath)} width="16" height="16" onError={(e: any) =>
+         {
+            e.target.style.display = "none";
+         }} /></Box>);
       }
       else
       {

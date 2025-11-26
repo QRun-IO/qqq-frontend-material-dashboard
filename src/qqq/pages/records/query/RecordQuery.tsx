@@ -467,31 +467,60 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    /////////////////////////////
    const {accentColor, accentColorLight, setPageHeader, recordAnalytics, dotMenuOpen, keyboardHelpOpen, modalStack} = useContext(QContext);
 
-   //////////////////////////////////////////////////////////////////
-   // we use our own header - so clear out the context page header //
-   //////////////////////////////////////////////////////////////////
-   if (!isModal)
-   {
-      setPageHeader(null);
-   }
-
    //////////////////////
    // ole' faithful... //
    //////////////////////
    const [, forceUpdate] = useReducer((x) => x + 1, 0);
+
+   //////////////////////////////////////////////////////////////////
+   // we use our own header - so clear out the context page header //
+   //////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      if (!isModal)
+      {
+         setPageHeader(null);
+      }
+   }, [isModal, setPageHeader]);
 
    ///////////////////////////////////////////////////////////////////////////////////////////
    // add a LoadingState object, in case the initial loads (of meta data and view) are slow //
    ///////////////////////////////////////////////////////////////////////////////////////////
    const [pageLoadingState, _] = useState(new LoadingState(forceUpdate));
 
-   if (isFirstRenderAfterChangingTables)
-   {
-      setIsFirstRenderAfterChangingTables(false);
+   /////////////////////////////////////////////////////////////////////////////////
+   // use this to make changes to the queryFilter more likely to re-run the query //
+   /////////////////////////////////////////////////////////////////////////////////
+   const [filterHash, setFilterHash] = useState("");
 
-      console.log("This is the first render after changing tables - so - setting state based on 'defaults' from localStorage");
-      setView(defaultView);
-   }
+   ///////////////////////////////////////////////////////////////////////////////////////////
+   // handle first render after changing tables - reset state based on defaults from localStorage //
+   ///////////////////////////////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      if (isFirstRenderAfterChangingTables)
+      {
+         setIsFirstRenderAfterChangingTables(false);
+         console.log("This is the first render after changing tables - so - setting state based on 'defaults' from localStorage");
+         setView(defaultView);
+      }
+   }, [isFirstRenderAfterChangingTables, defaultView]);
+
+   ////////////////////////////////////////////////////////////////////////
+   // trigger initial update-table call after page-state goes into ready //
+   ////////////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      if (pageState == "ready")
+      {
+         pageLoadingState.setNotLoading();
+
+         if (!tableVariantPromptOpen)
+         {
+            updateTable("pageState is now ready");
+         }
+      }
+   }, [pageState, tableVariantPromptOpen]);
 
    /*******************************************************************************
     ** utility function to get the names of any join tables which are active,
@@ -2652,11 +2681,6 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    }
 
 
-   /////////////////////////////////////////////////////////////////////////////////
-   // use this to make changes to the queryFilter more likely to re-run the query //
-   /////////////////////////////////////////////////////////////////////////////////
-   const [filterHash, setFilterHash] = useState("");
-
    if (pageState == "ready")
    {
       const filterForBackend = FilterUtils.prepQueryFilterForBackend(tableMetaData, queryFilter);
@@ -2917,22 +2941,6 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
 
       return (getLoadingScreen(isModal));
    }
-
-   ////////////////////////////////////////////////////////////////////////
-   // trigger initial update-table call after page-state goes into ready //
-   ////////////////////////////////////////////////////////////////////////
-   useEffect(() =>
-   {
-      if (pageState == "ready")
-      {
-         pageLoadingState.setNotLoading();
-
-         if (!tableVariantPromptOpen)
-         {
-            updateTable("pageState is now ready");
-         }
-      }
-   }, [pageState, tableVariantPromptOpen]);
 
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // any time these are out of sync, it means we've navigated to a different table, so we need to reload :allthethings: //

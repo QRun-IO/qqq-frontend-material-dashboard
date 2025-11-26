@@ -347,8 +347,14 @@ function Sidenav({color, icon, logo, appName, branding, routes, logout, ...rest}
                </MDTypography>
             </Box>
             <Box component={NavLink} to="/" display="flex" alignItems="center">
-               {!miniSidenav && logo && <Box component="img" src={logo} alt={appName} title={appName} width="100%" />}
-               {miniSidenav && icon && <Box component="img" src={icon} alt={appName} title={appName} width="160%" />}
+               {!miniSidenav && logo && <Box component="img" src={logo} alt={appName} title={appName} width="100%" onError={(e: any) =>
+               {
+                  e.target.style.display = "none";
+               }} />}
+               {miniSidenav && icon && <Box component="img" src={icon} alt={appName} title={appName} width="160%" onError={(e: any) =>
+               {
+                  e.target.style.display = "none";
+               }} />}
                {!miniSidenav && !logo && appName && <Box width={appName && "100%"} sx={(theme: any) => sidenavLogoLabel(theme, {miniSidenav})}>
                   <MDTypography component="h6" variant="button" fontWeight="medium" color={textColor}>
                      {appName}

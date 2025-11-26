@@ -34,6 +34,7 @@ import useAuth0AuthenticationModule from "qqq/authorization/auth0/useAuth0Authen
 import useOAuth2AuthenticationModule from "qqq/authorization/oauth2/useOAuth2AuthenticationModule";
 import {MaterialUIControllerProvider} from "qqq/context";
 import Client from "qqq/utils/qqq/Client";
+import {detectBasePath} from "qqq/utils/PathUtils";
 
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +49,7 @@ if (document.location.search && document.location.search.indexOf("clearAuthentic
 {
    qController.clearAuthenticationMetaDataLocalStorage();
 }
+
 
 const authenticationMetaDataPromise: Promise<QAuthenticationMetaData> = qController.getAuthenticationMetaData();
 
@@ -97,19 +99,19 @@ authenticationMetaDataPromise.then((authenticationMetaData) =>
 
    if (authenticationMetaData.type === "AUTH_0")
    {
-      root.render(<BrowserRouter>
+      root.render(<BrowserRouter basename={detectBasePath()}>
          <Auth0RouterBody />
       </BrowserRouter>);
    }
    else if (authenticationMetaData.type === "OAUTH2")
    {
-      root.render(<BrowserRouter>
+      root.render(<BrowserRouter basename={detectBasePath()}>
          <OAuth2RouterBody />
       </BrowserRouter>);
    }
    else if (authenticationMetaData.type === "FULLY_ANONYMOUS" || authenticationMetaData.type === "MOCK")
    {
-      root.render(<BrowserRouter>
+      root.render(<BrowserRouter basename={detectBasePath()}>
          <AnonymousRouterBody />
       </BrowserRouter>);
    }
