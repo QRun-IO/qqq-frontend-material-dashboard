@@ -1,12 +1,10 @@
 ---
-
 version: 2.1
 
 orbs:
   qqq-orb: kingsrook/qqq-orb@0.3.11
 
 workflows:
-
   test_only:
     jobs:
       - qqq-orb/mvn_frontend_test_only:
@@ -29,7 +27,7 @@ workflows:
 
   publish_feature:
     jobs:
-      - qqq-orb/mvn_publish:
+      - qqq-orb/mvn_frontend_publish:
           context: [qqq-maven-registry-credentials]
           branch_type: feature
           filters:
@@ -56,7 +54,7 @@ workflows:
           branch_type: release
           filters:
             branches:
-               ignore: /.*/
+              ignore: /.*/
             tags:
               only: [/v.*/]
 
