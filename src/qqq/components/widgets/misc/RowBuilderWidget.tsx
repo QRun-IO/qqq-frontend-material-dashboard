@@ -28,6 +28,7 @@ import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import Modal from "@mui/material/Modal";
 import Table from "@mui/material/Table";
+import Tooltip from "@mui/material/Tooltip/Tooltip";
 import Typography from "@mui/material/Typography";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
@@ -41,11 +42,11 @@ import QDynamicForm, {DynamicFormDataDefinition} from "qqq/components/forms/Dyna
 import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
 import {Group, Option} from "qqq/components/misc/QHierarchyAutoComplete";
 import {WidgetScreenType} from "qqq/components/widgets/DashboardWidgets";
-import {DragAndDropElementWrapper} from "qqq/components/widgets/misc/DragAndDropElementWrapper";
+import {DragAndDropElementWrapper, DragPreviewLayer} from "qqq/components/widgets/misc/DragAndDropElementWrapper";
 import Widget from "qqq/components/widgets/Widget";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import usePossibleValueLabels from "qqq/utils/usePossibleValueLabels";
-import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
+import React, {Ref, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {DndProvider} from "react-dnd";
 import {HTML5Backend} from "react-dnd-html5-backend";
 import * as Yup from "yup";
@@ -81,11 +82,11 @@ const ROW_INDEX_KEY = "_qRowIndex";
 
 
 /*******************************************************************************
- * Widget to build (or otherwise manage - add, delete, edit, and potentially
+ * Widget to build (or otherwise manage - add, delete, edit, and optionally
  * reorder) a list of rows (records).
  *
  * Note this is in a beta-state.  It should be usable for processes or standalone
- * widget use cases, but, has some known issues if bieng used on table view/edit
+ * widget use cases, but, has some known issues if being used on table view/edit
  * screens:
  * - edit screen doesn't show values unless you hit reload
  * - every key press is re-rendering
@@ -93,9 +94,6 @@ const ROW_INDEX_KEY = "_qRowIndex";
  * fields aren't set (e.g., until you select client, you can't add children)
  * - need to, idk, maybe remove all of the rows if changing any of the
  * withDefaultValuesForNewRowsFromParentRecord fields?
- *
- * Oh, and overall not-yet-finished issues are:
- * - didn't finish seqNo / sortability
  *******************************************************************************/
 export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widgetData, screen, addSubValidations, parentFormValues}: RowBuilderWidgetProps): JSX.Element
 {
@@ -140,7 +138,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    const fields = useMemo(() =>
    {
       const fields: QFieldMetaData[] = [];
-      for (const field of widgetMetaData.defaultValues.get("fields") || [])
+      for (const field of widgetMetaData.defaultValues.get("frontendFields") ?? widgetMetaData.defaultValues.get("fields") ?? [])
       {
          fields.push(new QFieldMetaData(field));
       }
@@ -193,16 +191,32 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    {
       if (!rowBuilderModel)
       {
+         qRowIndexValue = 0;
          let originalRowBuilderModel: RowBuilderModel = {records: []};
 
-         let i = 0;
+         let seqNo = 0;
          for (const record of widgetData?.records ?? [])
          {
             const qRecord = new QRecord(record);
-            qRecord.values.set(ROW_INDEX_KEY, qRowIndexValue++);
-            qRecord.values.set("seqNo", i);
+
+            if (qRecord.values.get(ROW_INDEX_KEY) == null)
+            {
+               qRecord.values.set(ROW_INDEX_KEY, qRowIndexValue++);
+            }
+            else
+            {
+               ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+               // let a row index value come from the backend (in case backend is saving them, and it expects them to remain stable) //
+               ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+               const thisRowIndexValue = Number(qRecord.values.get(ROW_INDEX_KEY));
+               qRowIndexValue = Math.max(thisRowIndexValue, qRowIndexValue) + 1;
+            }
+
+            if (mayReorderRows)
+            {
+               qRecord.values.set(orderByFieldName, seqNo++);
+            }
             originalRowBuilderModel.records.push(qRecord);
-            i++;
          }
 
          setRowBuilderModel(originalRowBuilderModel);
@@ -246,17 +260,16 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    {
       const newInitialValues: Record<string, any> = {};
 
-      let i = 0;
       for (const record of records ?? [])
       {
+         const rowIndex = record.values.get(ROW_INDEX_KEY);
          for (let fieldName of record.values.keys())
          {
-            const fullFieldName = makeFullName(fieldName, i);
+            const fullFieldName = makeFullName(fieldName, rowIndex);
             const value = record.values.get(fieldName);
             newInitialValues[fullFieldName] = value;
             formikContext?.setFieldValue(fullFieldName, value);
          }
-         i++;
       }
 
       for (const fieldName in widgetData?.hiddenValues ?? {})
@@ -314,8 +327,10 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       const thisRowIndexValue = qRowIndexValue++;
       newRecord.values.set(ROW_INDEX_KEY, thisRowIndexValue);
 
-      // todo use proper orderBy field name, and only mayReorderRows is set
-      // newRecord.values.set("seqNo", (forModal ? modalRowBuilderModel : rowBuilderModel).records.length);
+      if(mayReorderRows)
+      {
+         newRecord.values.set(orderByFieldName, (forModal ? modalRowBuilderModel : rowBuilderModel).records.length);
+      }
 
       /////////////////////////////////////////////////////////////////////////
       // copy default values from the parent form/record into the new record //
@@ -330,7 +345,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       }
 
       //////////////////////////////////////////
-      // set default avlues in the new record //
+      // set default values in the new record //
       //////////////////////////////////////////
       for (let fieldName in (defaultValuesForNewRecords ?? {}))
       {
@@ -391,11 +406,13 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       const records = (forModal ? modalRowBuilderModel : rowBuilderModel).records;
       records.splice(index, 1);
 
-      // todo use proper orderBy field name, and only mayReorderRows is set
-      // for (let i = 0; i < records.length; i++)
-      // {
-      //    records[i].values.set("seqNo", i);
-      // }
+      if(mayReorderRows)
+      {
+         for (let i = 0; i < records.length; i++)
+         {
+            records[i].values.set(orderByFieldName, i);
+         }
+      }
 
       ///////////////////////////////////
       // set the modal back into state //
@@ -419,7 +436,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    /*******************************************************************************
     ** drag & drop callback to move one of the rows
     *******************************************************************************/
-   const dragCallback = useCallback((forModal: boolean, dragIndex: number, hoverIndex: number) =>
+   const dndCallback = useCallback((forModal: boolean, dragIndex: number, hoverIndex: number, isDrop: boolean) =>
    {
       const records = (forModal ? modalRowBuilderModel : rowBuilderModel).records;
       const dragItem = records[dragIndex];
@@ -428,11 +445,21 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
 
       for (let i = 0; i < records.length; i++)
       {
-         records[i].values.set("seqNo", i);
+         records[i].values.set(orderByFieldName, i);
       }
 
-      const setter = forModal ? setModalRowBuilderModel : setRowBuilderModel;
-      setter({records: [...records]});
+      if (forModal)
+      {
+         setModalRowBuilderModel({records: [...records]});
+      }
+      else
+      {
+         setRowBuilderModel({records: [...records]});
+         if(isDrop)
+         {
+            runOnSaveCallback(rowBuilderModel.records);
+         }
+      }
 
    }, [modalRowBuilderModel, rowBuilderModel]);
 
@@ -605,6 +632,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
          {
             recordForCallback[field.name] = record.values.get(field.name);
          }
+         recordForCallback[ROW_INDEX_KEY] = record.values.get(ROW_INDEX_KEY);
       }
 
       const callbackArg: Record<string, string> = {};
@@ -616,18 +644,23 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    /***************************************************************************
     * render a row in the form
     ***************************************************************************/
-   function renderFormRow(forModal: boolean, rowForm: JSX.Element, index: number): JSX.Element
+   function FormRowWrapper(
+      {forModal, rowForm, index, dragRef}:
+      { forModal: boolean, rowForm: JSX.Element, index: number, dragRef?: Ref<HTMLSpanElement> }
+   ): JSX.Element
    {
       return (
          <Box key={index} borderBottom={`1px solid ${colors.grayLines.main}`} display="flex" alignItems="center" gap="1rem" pb="0.75rem" mb="0.5rem" pr="0.5rem">
             {
                mayReorderRows && <Box>
-                  <Icon sx={{cursor: "ns-resize"}}>drag_indicator</Icon>
+                  <Icon ref={dragRef} sx={{cursor: "ns-resize"}}>drag_indicator</Icon>
                </Box>
             }
             <Box width="100%">{rowForm}</Box>
             <Box alignSelf="flex-start" pt="2.5rem">
-               <Button sx={xIconButtonSX} onClick={() => removeRow(forModal, index)}><Icon>clear</Icon></Button>
+               <Tooltip title="Remove Row" enterDelay={500}>
+                  <Button sx={xIconButtonSX} onClick={() => removeRow(forModal, index)}><Icon>clear</Icon></Button>
+               </Tooltip>
             </Box>
          </Box>
       );
@@ -635,7 +668,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
 
 
    /*******************************************************************************
-    * component which is the form for editng rows
+    * component which is the form for editing rows
     *******************************************************************************/
    function RenderRowsForm({forModal}: { forModal: boolean }): JSX.Element
    {
@@ -702,20 +735,27 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
 
       //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // render - noting that we needed to add a slight mb on DynamicSelect's wrapper so that its error messages show //
+      // note - the hard-coded 300px on dragPreviewLayer is bad... was needed for workflow editor use-case...         //
       //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       return (<Box sx={{"& .DynamicSelectAutoCompleteWrapper": {mb: "0.75rem"}}}>
+         <DragPreviewLayer itemStyles={{width: "300px"}} />
          {
             rowForms.map((rowForm, i) =>
             {
                if (mayReorderRows)
                {
-                  return (<DragAndDropElementWrapper key={i} id={`${i}`} index={i} dragCallback={(dragIndex, hoverIndex) => dragCallback(forModal, dragIndex, hoverIndex)}>
-                     {renderFormRow(forModal, rowForm, i)}
+                  return (<DragAndDropElementWrapper
+                     key={i}
+                     id={`${i}`}
+                     index={i}
+                     dropCallback={(dragIndex, hoverIndex) => dndCallback(forModal, dragIndex, hoverIndex, true)}
+                  >
+                     <FormRowWrapper forModal={forModal} rowForm={rowForm} index={i} />
                   </DragAndDropElementWrapper>);
                }
                else
                {
-                  return renderFormRow(forModal, rowForm, i);
+                  return <FormRowWrapper key={i} forModal={forModal} rowForm={rowForm} index={i} />;
                }
             })
          }
@@ -802,10 +842,21 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
                            <Grid item xs={12}><RenderRowsView forModal={false} /></Grid>
                         </Grid>
                      }
+
                      {
-                        /* the inline form - which - we're assuming is wrapped in a parent component's Formik */
-                        (isEditable && !useModalEditor) && <Grid item xs={12}><RenderRowsForm forModal={false} /></Grid>
+                        /* the inline form - which may or may not require a Formik wrapper */
+                        (isEditable && !useModalEditor) &&
+                        (
+                           widgetMetaData.defaultValues?.get("requiresFormWrapper") ? (
+                              <Formik initialValues={initialValues} validationSchema={validations} onSubmit={handleSubmit}>
+                                 {({handleSubmit}) => (
+                                    <Grid item xs={12}><RenderRowsForm forModal={false} /></Grid>
+                                 )}
+                              </Formik>
+                           ) : <Grid item xs={12}><RenderRowsForm forModal={false} /></Grid>
+                        )
                      }
+
                      {
                         /* the modal form, which includes its own Formik */
                         (isEditable && useModalEditor && modalOpen) &&
