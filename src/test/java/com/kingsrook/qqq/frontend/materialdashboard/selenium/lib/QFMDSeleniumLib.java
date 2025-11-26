@@ -74,6 +74,15 @@ public class QFMDSeleniumLib
    }
 
 
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void clickOkButton()
+   {
+      qSeleniumLib.waitForSelectorContaining("button", "OK").click();
+   }
+
+
 
    /***************************************************************************
     *
@@ -175,5 +184,15 @@ public class QFMDSeleniumLib
    public void waitForQueryScreenPaginationToContain(String textContains)
    {
       qSeleniumLib.waitForSelectorContaining(".MuiTablePagination-displayedRows", textContains);
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForQueryScreenPaginationValues(Integer from, Integer to, Integer of)
+   {
+      qSeleniumLib.waitForSelectorContaining(".MuiTablePagination-displayedRows", "Showing " + from + " to " + to + " of " + of);
    }
 }
