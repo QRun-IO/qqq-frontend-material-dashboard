@@ -59,7 +59,7 @@ import Widget, {HeaderIcon, LabelComponent, WIDGET_DROPDOWN_SELECTION_LOCAL_STOR
 import WidgetBlock from "qqq/components/widgets/WidgetBlock";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
 import Client from "qqq/utils/qqq/Client";
-import React, {useContext, useEffect, useReducer, useState} from "react";
+import React, {useCallback, useContext, useEffect, useReducer, useState} from "react";
 import TableWidget from "./tables/TableWidget";
 import RowBuilderWidget from "./misc/RowBuilderWidget";
 
@@ -480,6 +480,15 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
       </Widget>);
    }
 
+   const rowBuilderOnSaveCallback = useCallback((values: Record<string, any>) =>
+   {
+      if(actionCallback)
+      {
+         actionCallback(values)
+      }
+   }, []);
+
+
 
    const renderWidget = (widgetMetaData: QWidgetMetaData, i: number): JSX.Element =>
    {
@@ -846,13 +855,8 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "rowBuilder" && (
                   (widgetData && widgetData[i]) ?
-                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={(values: Record<string, any>) =>
-                     {
-                        if(actionCallback)
-                        {
-                           actionCallback(values)
-                        }
-                     }} /> : <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
+                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={rowBuilderOnSaveCallback} /> :
+                     <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
                )
             }
             {

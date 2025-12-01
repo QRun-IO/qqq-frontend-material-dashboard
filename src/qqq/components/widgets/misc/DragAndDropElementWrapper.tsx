@@ -21,9 +21,12 @@
 
 
 import Box from "@mui/material/Box";
+import {CSSProperties} from "@mui/system/CSSProperties";
 import type {Identifier, XYCoord} from "dnd-core";
-import React, {FC, useRef} from "react";
-import {useDrag, useDrop} from "react-dnd";
+import React, {cloneElement, FC, useEffect, useRef} from "react";
+import {DropTargetMonitor, useDrag, useDragLayer, useDrop} from "react-dnd";
+import {getEmptyImage} from "react-dnd-html5-backend";
+
 
 export const DragItemTypes =
    {
@@ -37,9 +40,10 @@ export interface DragAndDropElementWrapperProps
 {
    id: string;
    index: number;
-   dragCallback: (dragIndex: number, hoverIndex: number) => void;
+   dragCallback?: (dragIndex: number, hoverIndex: number) => void;
+   dropCallback?: (dragIndex: number, dropIndex: number) => void;
    containerSX?: Record<string, any>;
-   children: React.ReactNode;
+   children: React.ReactElement;
 }
 
 
@@ -61,12 +65,14 @@ interface DragItem
  * generic element we can put around something to make it drag and droppable...
  * early work-in-progress - not clear if 100% ready for prime time usage.
  *******************************************************************************/
-export const DragAndDropElementWrapper: FC<DragAndDropElementWrapperProps> = ({id, index, dragCallback, containerSX, children}) =>
+export const DragAndDropElementWrapper: FC<DragAndDropElementWrapperProps> = ({id, index, dragCallback, dropCallback, containerSX, children}) =>
 {
    ////////////////////////////////////////////////////////////////////////////
    // credit: https://react-dnd.github.io/react-dnd/examples/sortable/simple //
    ////////////////////////////////////////////////////////////////////////////
-   const ref = useRef<HTMLDivElement>(null);
+   const rowRef = useRef<HTMLDivElement>(null);
+   const handleRef = useRef<HTMLDivElement>(null);
+
    const [{handlerId}, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>(
       {
          accept: DragItemTypes.ROW,
@@ -78,7 +84,12 @@ export const DragAndDropElementWrapper: FC<DragAndDropElementWrapperProps> = ({i
          },
          hover(item: DragItem, monitor)
          {
-            if (!ref.current)
+            if(!dragCallback)
+            {
+               // return;
+            }
+
+            if (!rowRef.current)
             {
                return;
             }
@@ -96,7 +107,7 @@ export const DragAndDropElementWrapper: FC<DragAndDropElementWrapperProps> = ({i
             ///////////////////////////////////
             // Determine rectangle on screen //
             ///////////////////////////////////
-            const hoverBoundingRect = ref.current?.getBoundingClientRect();
+            const hoverBoundingRect = rowRef.current?.getBoundingClientRect();
 
             /////////////////////////
             // Get vertical middle //
@@ -138,31 +149,107 @@ export const DragAndDropElementWrapper: FC<DragAndDropElementWrapperProps> = ({i
             /////////////////////////////////////////
             // Time to actually perform the action //
             /////////////////////////////////////////
-            dragCallback(dragIndex, hoverIndex);
-
-            ///////////////////////////////////////////////////////////////////////////////////////////
-            // Note: we're mutating the monitor item here! Generally it's better to avoid mutations, //
-            // but it's good here for the sake of performance to avoid expensive index searches.     //
-            ///////////////////////////////////////////////////////////////////////////////////////////
-            item.index = hoverIndex;
+            dragCallback?.(dragIndex, hoverIndex);
          },
+         drop(item: DragItem, monitor: DropTargetMonitor)
+         {
+            const dragIndex = item.index;
+            const dropIndex = index;
+
+            /////////////////////////////////////////
+            // Don't replace items with themselves //
+            /////////////////////////////////////////
+            if (dragIndex === dropIndex)
+            {
+               return;
+            }
+
+            dropCallback?.(dragIndex, dropIndex);
+         }
       });
 
-   const [{isDragging}, drag] = useDrag({
+   const [{isDragging}, drag, preview] = useDrag({
       type: DragItemTypes.ROW,
       item: () =>
       {
-         return {id, index};
+         return {id, index, renderPreview: () => <Box>{children}</Box>};
       },
       collect: (monitor: any) => ({
          isDragging: monitor.isDragging(),
       }),
    });
 
-   drag(drop(ref));
+   useEffect(() =>
+   {
+      preview(getEmptyImage(), {captureDraggingState: true});
+   }, [preview]);
 
-   return (<Box ref={ref} sx={{...(containerSX ?? {}), backgroundColor: "white", opacity: isDragging ? 0 : 1}} data-handler-id={handlerId}>
-      {children}
+   drop(rowRef);
+   drag(handleRef);
+
+   return (<Box ref={rowRef} sx={{...(containerSX ?? {}), backgroundColor: "white", opacity: isDragging ? 0 : 1}} data-handler-id={handlerId}>
+      {cloneElement(children, {dragRef: handleRef})}
    </Box>);
-
 };
+
+
+/***************************************************************************
+ *
+ ***************************************************************************/
+export function DragPreviewLayer(props: {itemStyles?: Record<string, any>})
+{
+   const {
+      itemType,
+      isDragging,
+      item,
+      initialOffset,
+      currentOffset,
+   } = useDragLayer((monitor) => ({
+      itemType: monitor.getItemType(),
+      isDragging: monitor.isDragging(),
+      item: monitor.getItem(),
+      initialOffset: monitor.getInitialSourceClientOffset(),
+      currentOffset: monitor.getSourceClientOffset(),
+   }));
+
+   if (!isDragging)
+   {
+      return null;
+   }
+
+   function getItemStyles(initialOffset: XYCoord, currentOffset: XYCoord)
+   {
+      if (!initialOffset || !currentOffset)
+      {
+         return {display: "none"};
+      }
+
+      const {x, y} = currentOffset;
+      const transform = `translate(${x}px, ${y}px)`;
+
+      return {
+         backgroundColor: "white",
+         transform,
+         WebkitTransform: transform,
+         ... (props?.itemStyles ?? {})
+      };
+   }
+
+   const layerStyles: CSSProperties = {
+      position: "fixed",
+      pointerEvents: "none",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      zIndex: 999999,   // preview above all
+   };
+
+   return (
+      <div style={layerStyles}>
+         <div style={getItemStyles(initialOffset, currentOffset)}>
+            {item.renderPreview()}
+         </div>
+      </div>
+   );
+}
