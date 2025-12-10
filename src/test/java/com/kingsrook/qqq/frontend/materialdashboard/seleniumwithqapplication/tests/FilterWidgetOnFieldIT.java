@@ -23,9 +23,12 @@ package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.te
 
 
 import java.util.List;
+import com.kingsrook.qqq.backend.core.actions.customizers.TableCustomizerInterface;
+import com.kingsrook.qqq.backend.core.actions.customizers.TableCustomizers;
 import com.kingsrook.qqq.backend.core.actions.dashboard.widgets.AbstractWidgetRenderer;
 import com.kingsrook.qqq.backend.core.actions.tables.InsertAction;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.QueryOrGetInputInterface;
 import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
 import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetInput;
 import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetOutput;
@@ -39,8 +42,10 @@ import com.kingsrook.qqq.backend.core.model.metadata.fields.AdornmentType;
 import com.kingsrook.qqq.backend.core.model.metadata.fields.FieldAdornment;
 import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.fields.QFieldType;
+import com.kingsrook.qqq.backend.core.model.metadata.fields.QVirtualFieldMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.layout.QIcon;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSectionAlternativeType;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
 import com.kingsrook.qqq.frontend.materialdashboard.junit.TestUtils;
@@ -85,8 +90,11 @@ public class FilterWidgetOnFieldIT extends QBaseSeleniumWithQApplicationTest
             .withFieldAdornment(new FieldAdornment(AdornmentType.WIDGET)
                .withValue(AdornmentType.WidgetValues.WIDGET_NAME, widget.getName())))
          .withSection(new QFieldSection("identity", new QIcon(), Tier.T1, List.of("id", "name")))
-         .withSection(new QFieldSection("filter", new QIcon(), Tier.T2, List.of("filterJSON")))
-         .withPrimaryKeyField("id");
+         .withSection(new QFieldSection("filter", new QIcon(), Tier.T2, List.of("filterJSON"))
+            .withAlternative(QFieldSectionAlternativeType.RECORD_VIEW, (s) -> s.setFieldNames(List.of("filterVirtual"))))
+         .withVirtualField(new QVirtualFieldMetaData("filterVirtual", QFieldType.STRING).withLabel("Person Filter"))
+         .withPrimaryKeyField("id")
+         .withCustomizer(TableCustomizers.POST_QUERY_RECORD, new QCodeReference(TableCustomizer.class));
 
       qInstance.addTable(table);
       PeopleAppProducer.addTableToGreetingsApp(qInstance, table.getName());
@@ -117,6 +125,25 @@ public class FilterWidgetOnFieldIT extends QBaseSeleniumWithQApplicationTest
       public RenderWidgetOutput render(RenderWidgetInput input) throws QException
       {
          return (new RenderWidgetOutput(new FilterAndColumnsSetupData(TestUtils.TABLE_NAME_PERSON, false, true, null)));
+      }
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public static class TableCustomizer implements TableCustomizerInterface
+   {
+      @Override
+      public List<QRecord> postQuery(QueryOrGetInputInterface queryInput, List<QRecord> records) throws QException
+      {
+         for(QRecord record : records)
+         {
+            record.setValue("filterVirtual", record.getValueString("filterJSON"));
+         }
+
+         return (records);
       }
    }
 
