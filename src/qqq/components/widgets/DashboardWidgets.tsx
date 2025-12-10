@@ -75,6 +75,7 @@ interface Props
    entityPrimaryKey?: string;
    record?: QRecord;
    omitWrappingGridContainer: boolean;
+   omitPaddingOnWidget: boolean;
    areChildren?: boolean;
    childUrlParams?: string;
    parentWidgetMetaData?: QWidgetMetaData;
@@ -90,6 +91,7 @@ DashboardWidgets.defaultProps = {
    tableName: null,
    entityPrimaryKey: null,
    omitWrappingGridContainer: false,
+   omitPaddingOnWidget: false,
    areChildren: false,
    childUrlParams: "",
    parentWidgetMetaData: null,
@@ -100,7 +102,7 @@ DashboardWidgets.defaultProps = {
    screen: "dashboard",
 };
 
-function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values, screen}: Props): JSX.Element
+function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, omitPaddingOnWidget, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values, screen}: Props): JSX.Element
 {
    const [widgetData, setWidgetData] = useState(initialWidgetDataList == null ? [] as any[] : initialWidgetDataList);
    const [errorsLoading, setErrorsLoading] = useState([] as any[]);
@@ -468,12 +470,12 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             message = "Error: " + e.message;
          }
 
-         return (<Widget widgetMetaData={widgetMetaData}>
+         return (<Widget widgetMetaData={widgetMetaData} omitPadding={omitPaddingOnWidget}>
             <Alert severity="error">{message}</Alert>
          </Widget>);
       }
 
-      return (<Widget widgetMetaData={widgetMetaData}>
+      return (<Widget widgetMetaData={widgetMetaData} omitPadding={omitPaddingOnWidget}>
          {
             skeleton ? skeleton : <Skeleton></Skeleton>
          }
@@ -596,6 +598,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      isChild={areChildren}
                      labelAdditionalComponentsRight={labelAdditionalComponentsRight}
                      labelAdditionalComponentsLeft={labelAdditionalComponentsLeft}
+                     omitPadding={omitPaddingOnWidget}
                   >
                      <StackedBarChart data={widgetData[i]?.chartData} chartSubheaderData={widgetData[i]?.chartSubheaderData} />
                   </Widget>
@@ -610,6 +613,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      showReloadControl={false}
                      labelAdditionalComponentsRight={labelAdditionalComponentsRight}
                      labelAdditionalComponentsLeft={labelAdditionalComponentsLeft}
+                     omitPadding={omitPaddingOnWidget}
                   >
                      <div className="widgetProcessMidDiv" style={{height: "100%"}}>
                         <ProcessRun process={widgetData[i]?.processMetaData} defaultProcessValues={widgetData[i]?.defaultValues} isWidget={true} forceReInit={widgetCounter} />
@@ -625,6 +629,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      reloadWidgetCallback={(data) => reloadWidget(i, data)}
                      labelAdditionalComponentsRight={labelAdditionalComponentsRight}
                      labelAdditionalComponentsLeft={labelAdditionalComponentsLeft}
+                     omitPadding={omitPaddingOnWidget}
                   >
                      <Box sx={{alignItems: "stretch", flexGrow: 1, display: "flex", marginTop: "0px", paddingTop: "0px"}}>
                         <Box padding="1rem" sx={{width: "100%"}}>
@@ -642,6 +647,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      widgetData={widgetData[i]}
                      labelAdditionalComponentsRight={labelAdditionalComponentsRight}
                      labelAdditionalComponentsLeft={labelAdditionalComponentsLeft}
+                     omitPadding={omitPaddingOnWidget}
                   >
                      <Box>
                         <MDTypography component="div" variant="button" color="text" fontWeight="light">
@@ -675,6 +681,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      reloadWidgetCallback={(data) => reloadWidget(i, data)}
                      labelAdditionalComponentsRight={labelAdditionalComponentsRight}
                      labelAdditionalComponentsLeft={labelAdditionalComponentsLeft}
+                     omitPadding={omitPaddingOnWidget}
                   >
                      <StatisticsCard
                         widgetMetaData={widgetMetaData}
@@ -718,6 +725,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      isChild={areChildren}
                      labelAdditionalComponentsRight={labelAdditionalComponentsRight}
                      labelAdditionalComponentsLeft={labelAdditionalComponentsLeft}
+                     omitPadding={omitPaddingOnWidget}
                   >
                      <div>
                         <PieChart
@@ -753,6 +761,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      isChild={areChildren}
                      labelAdditionalComponentsRight={labelAdditionalComponentsRight}
                      labelAdditionalComponentsLeft={labelAdditionalComponentsLeft}
+                     omitPadding={omitPaddingOnWidget}
                   >
                      <DefaultLineChart sx={{alignItems: "center"}}
                         data={widgetData[i]?.chartData}
@@ -797,6 +806,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      isChild={areChildren}
                      labelAdditionalComponentsRight={labelAdditionalComponentsRight}
                      labelAdditionalComponentsLeft={labelAdditionalComponentsLeft}
+                     omitPadding={omitPaddingOnWidget}
                   >
                      <CompositeWidget widgetMetaData={widgetMetaData} data={widgetData[i]} actionCallback={actionCallback} values={values} />
                   </Widget>
@@ -811,6 +821,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                      isChild={areChildren}
                      labelAdditionalComponentsRight={labelAdditionalComponentsRight}
                      labelAdditionalComponentsLeft={labelAdditionalComponentsLeft}
+                     omitPadding={omitPaddingOnWidget}
                   >
                      <WidgetBlock widgetMetaData={widgetMetaData} block={widgetData[i]} />
                   </Widget>
@@ -819,7 +830,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "dataBagViewer" && (
                   widgetData && widgetData[i] && widgetData[i].queryParams &&
-                  <Widget widgetMetaData={widgetMetaData}>
+                  <Widget widgetMetaData={widgetMetaData} omitPadding={omitPaddingOnWidget}>
                      <DataBagViewer dataBagId={widgetData[i].queryParams.id} />
                   </Widget>
                )
@@ -827,7 +838,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "scriptViewer" && (
                   widgetData && widgetData[i] && widgetData[i].queryParams &&
-                  <Widget widgetMetaData={widgetMetaData}>
+                  <Widget widgetMetaData={widgetMetaData} omitPadding={omitPaddingOnWidget}>
                      <ScriptViewer scriptId={widgetData[i].queryParams.id} />
                   </Widget>
                )
@@ -880,7 +891,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "customComponent" && (
                   widgetData && widgetData[i] &&
-                  <Widget widgetMetaData={widgetMetaData}>
+                  <Widget widgetMetaData={widgetMetaData} omitPadding={omitPaddingOnWidget}>
                      <CustomComponentWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} record={record} />
                   </Widget>
                )
