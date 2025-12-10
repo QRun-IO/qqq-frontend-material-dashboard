@@ -24,6 +24,7 @@ import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWid
 import {Alert, Skeleton} from "@mui/material";
 import ButtonBlock from "qqq/components/widgets/blocks/ButtonBlock";
 import AudioBlock from "qqq/components/widgets/blocks/AudioBlock";
+import IconBlock from "qqq/components/widgets/blocks/IconBlock";
 import InputFieldBlock from "qqq/components/widgets/blocks/InputFieldBlock";
 import React from "react";
 import BigNumberBlock from "qqq/components/widgets/blocks/BigNumberBlock";
@@ -97,6 +98,8 @@ export default function WidgetBlock({widgetMetaData, block, actionCallback, valu
          return (<AudioBlock widgetMetaData={widgetMetaData} data={block} />);
       case "IMAGE":
          return (<ImageBlock widgetMetaData={widgetMetaData} data={block} actionCallback={actionCallback} />);
+      case "ICON":
+         return (<IconBlock widgetMetaData={widgetMetaData} data={block} actionCallback={actionCallback} />);
       default:
          return (<Alert sx={{m: "0.5rem"}} color="warning">Unsupported block type: {block.blockTypeName}</Alert>)
    }
