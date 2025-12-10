@@ -44,7 +44,7 @@ class TableUtils
     ** By default sections w/ widget names are excluded -- but -- to include them,
     ** provide the metaData plus list of allowedWidgetTypes.
     *******************************************************************************/
-   public static getSectionsForRecordSidebar(tableMetaData: QTableMetaData, allowedFieldNames: any = null, additionalInclusionPredicate?: (section: QTableSection) => boolean): QTableSection[]
+   public static getSectionsForRecordSidebar(tableMetaData: QTableMetaData, allowedFieldNames: any = null, additionalInclusionPredicate?: (section: QTableSection) => boolean, alternativeType?: string): QTableSection[]
    {
       /////////////////////////////////////////////////////////////////
       // if the table has sections, then filter them and return some //
@@ -72,7 +72,12 @@ class TableUtils
             const allowedSections: QTableSection[] = [];
             for (let i = 0; i < tableMetaData.sections.length; i++)
             {
-               const section = tableMetaData.sections[i];
+               let section = tableMetaData.sections[i];
+               if(alternativeType && section.alternatives?.has(alternativeType))
+               {
+                  section = section.alternatives.get(alternativeType);
+               }
+
                let includeSection = false;
 
                for (let j = 0; j < section.fieldNames?.length; j++)
@@ -101,8 +106,9 @@ class TableUtils
 
          ////////////////////////////////////////////////////////////////
          // if there are no filters to apply, then return all sections //
+         // (potentially mapped to an alternative, by the type)        //
          ////////////////////////////////////////////////////////////////
-         return (tableMetaData.sections);
+         return (tableMetaData.sections.map((section) => section.alternatives?.get(alternativeType) ?? section));
       }
 
       ///////////////////////////////////////////////////////////////////////////////////////////////
