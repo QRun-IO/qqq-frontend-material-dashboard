@@ -24,8 +24,7 @@ import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/Adornm
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
-import Widget from "qqq/components/widgets/Widget";
-import WidgetBlock from "qqq/components/widgets/WidgetBlock";
+import DashboardWidgets from "qqq/components/widgets/DashboardWidgets";
 import Client from "qqq/utils/qqq/Client";
 import React, {useEffect, useRef, useState} from "react";
 
@@ -119,9 +118,7 @@ export function FieldValueAsWidget({field, record}: Props): JSX.Element
    /////////////////////////////////////////////
    // assuming all is good, render the widget //
    /////////////////////////////////////////////
-   return (<Box component="span" sx={{"& .widget": {padding: "0", display: "inline-block"}}}>
-      <Widget widgetMetaData={widgetMetaData} widgetData={widgetData} isChild={true} omitPadding={true}>
-         <WidgetBlock widgetMetaData={widgetMetaData} block={widgetData} />
-      </Widget>
+   return (<Box component="span" sx={{"& .widget": {padding: "0 !important", display: "inline-block"}}}>
+      <DashboardWidgets key={`field:${field.name}`} widgetMetaDataList={[widgetMetaData]} initialWidgetDataList={[widgetData]} omitWrappingGridContainer={true} omitPaddingOnWidget={true} screen="recordView"  />
    </Box>);
 }
