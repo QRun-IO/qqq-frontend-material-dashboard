@@ -30,7 +30,7 @@ import React from "react";
  **
  ** <audio src=${path} ${autoPlay} ${showControls} />
  *******************************************************************************/
-export default function AudioBlock({widgetMetaData, data}: StandardBlockComponentProps): JSX.Element
+export default function ImageBlock({widgetMetaData, data}: StandardBlockComponentProps): JSX.Element
 {
    let imageStyle: any = {};
 
