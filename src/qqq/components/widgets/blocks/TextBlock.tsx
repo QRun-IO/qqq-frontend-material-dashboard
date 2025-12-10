@@ -138,7 +138,7 @@ export default function TextBlock({widgetMetaData, data}: StandardBlockComponent
    }
 
    const text = data.values.interpolatedText ?? data.values.text;
-   const lines = text.split("\n");
+   const lines = (text ?? "").split("\n");
 
    const startIcon = data.values.startIcon?.name ? <Icon>{data.values.startIcon.name}</Icon> : null;
    const endIcon = data.values.endIcon?.name ? <Icon>{data.values.endIcon.name}</Icon> : null;
