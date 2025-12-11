@@ -30,12 +30,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import com.kingsrook.qqq.backend.core.actions.dashboard.widgets.AbstractWidgetRenderer;
+import com.kingsrook.qqq.backend.core.actions.tables.InsertAction;
 import com.kingsrook.qqq.backend.core.context.QContext;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
+import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
 import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetInput;
 import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetOutput;
 import com.kingsrook.qqq.backend.core.model.dashboard.widgets.FilterAndColumnsSetupData;
 import com.kingsrook.qqq.backend.core.model.dashboard.widgets.WidgetType;
+import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
 import com.kingsrook.qqq.backend.core.model.metadata.code.QCodeReference;
 import com.kingsrook.qqq.backend.core.model.metadata.dashboard.QWidgetMetaData;
@@ -59,6 +62,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -70,6 +74,10 @@ public class FormAdjusterIT extends QBaseSeleniumWithQApplicationTest
 {
    private static final String TABLE_NAME = "tableWithFormAdjuster";
 
+   public static final String  MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_NAME  = "may-not-edit-custom";
+   public static final String  MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_NAME = "may-not-edit-generic";
+   public static final Integer MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID    = 1;
+   public static final Integer MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID   = 2;
 
 
    /***************************************************************************
@@ -117,6 +125,20 @@ public class FormAdjusterIT extends QBaseSeleniumWithQApplicationTest
    /***************************************************************************
     *
     ***************************************************************************/
+   @Override
+   protected void setupTestData() throws QException
+   {
+      new InsertAction().execute(new InsertInput(TABLE_NAME).withRecords(List.of(
+         new QRecord().withValue("id", MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID).withValue("name", MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_NAME),
+         new QRecord().withValue("id", MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID).withValue("name", MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_NAME)
+      )));
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
    public static class TableAdjuster implements FormAdjusterInterface
    {
       /***************************************************************************
@@ -125,6 +147,15 @@ public class FormAdjusterIT extends QBaseSeleniumWithQApplicationTest
       @Override
       public FormAdjusterOutput execute(FormAdjusterInput input) throws QException
       {
+         if(MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_NAME.equals(input.getFieldValue("name")))
+         {
+            return (new FormAdjusterOutput().withIsFormDisabled(true).withFormDisabledMessage("No soup for you."));
+         }
+         else if(MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_NAME.equals(input.getFieldValue("name")))
+         {
+            return (new FormAdjusterOutput().withIsFormDisabled(true));
+         }
+
          Set<String> names = Collections.emptySet();
          if("name".equals(input.getFieldName()))
          {
@@ -213,6 +244,26 @@ public class FormAdjusterIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelectorContaining("h6", "Data");
       qSeleniumLib.waitForSeconds(1);
       assertEquals("a value", qfmdSeleniumLib.inputTextField("type").getAttribute("value"));
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Test
+   void testDisablingForm()
+   {
+      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/" + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID + "/edit",
+         "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID);
+      qfmdSeleniumLib.waitForAlert("No soup for you.");
+      assertThatThrownBy(() -> qfmdSeleniumLib.inputTextField("size", "XL"));
+      qSeleniumLib.waitForSelectorContaining("button[disabled]", "save");
+
+      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/" + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID + "/edit",
+         "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
+      qfmdSeleniumLib.waitForAlert("You are not allowed to edit this record");
+      qSeleniumLib.waitForSelectorContaining("button[disabled]", "save");
    }
 
 
