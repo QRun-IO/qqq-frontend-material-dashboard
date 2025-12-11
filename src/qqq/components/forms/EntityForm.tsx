@@ -26,6 +26,7 @@ import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import Modal from "@mui/material/Modal";
+import Tooltip from "@mui/material/Tooltip/Tooltip";
 import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
@@ -117,6 +118,10 @@ function EntityForm(props: Props): JSX.Element
 
    const [alertContent, setAlertContent] = useState("");
    const [warningContent, setWarningContent] = useState("");
+   const [isSaveDisabled, setIsSaveDisabled] = useState(false);
+   const [saveDisabledTooltip, setSaveDisabledTooltip] = useState(null as string);
+   const [mayCloseAlert, setMayCloseAlert] = useState(true);
+   const [mayCloseWarning, setMayCloseWarning] = useState(true);
 
    const [asyncLoadInited, setAsyncLoadInited] = useState(false);
    const [tableMetaData, setTableMetaData] = useState(null as QTableMetaData);
@@ -771,6 +776,31 @@ function EntityForm(props: Props): JSX.Element
       if(response?.updatedSectionMetaData)
       {
          updateSections(table, response.updatedSectionMetaData, true);
+      }
+
+      ///////////////////////////////////////////
+      // disable all the things if so directed //
+      ///////////////////////////////////////////
+      if (response?.isFormDisabled)
+      {
+         let message = response.formDisabledMessage;
+         if(!message)
+         {
+            if((props.id && props.isCopy) || !props.id)
+            {
+               message = "You are not allowed to create a new record.";
+            }
+            else
+            {
+               message = "You are not allowed to edit this record.";
+            }
+         }
+
+         setAlertContent(message);
+         setSaveDisabledTooltip(message);
+         table.fields.forEach((field) => field.isEditable = false);
+         setIsSaveDisabled(true);
+         setMayCloseAlert(false);
       }
    };
 
@@ -1621,12 +1651,12 @@ function EntityForm(props: Props): JSX.Element
                   <Grid item xs={12}>
                      {alertContent ? (
                         <Box mb={3}>
-                           <Alert severity="error" onClose={() => setAlertContent(null)}>{alertContent}</Alert>
+                           <Alert severity="error" onClose={mayCloseAlert ? () => setAlertContent(null) : undefined}>{alertContent}</Alert>
                         </Box>
                      ) : ("")}
                      {warningContent ? (
                         <Box mb={3}>
-                           <Alert severity="warning" onClose={() => setWarningContent(null)}>{warningContent}</Alert>
+                           <Alert severity="warning" onClose={mayCloseWarning ? () => setWarningContent(null) : undefined}>{warningContent}</Alert>
                         </Box>
                      ) : ("")}
                   </Grid>
@@ -1753,7 +1783,11 @@ function EntityForm(props: Props): JSX.Element
                                  <Box component="div" p={3} className={props.isModal ? "modalBottomButtonBar" : "stickyBottomButtonBar"}>
                                     <Grid container justifyContent="flex-end" spacing={3}>
                                        <QCancelButton onClickHandler={props.isModal ? props.closeModalHandler : handleCancelClicked} disabled={isSubmitting} />
-                                       <QSaveButton disabled={isSubmitting} label={props.saveButtonLabel} iconName={props.saveButtonIcon} />
+                                       <Tooltip title={saveDisabledTooltip}>
+                                          <Box>
+                                             <QSaveButton disabled={isSubmitting || isSaveDisabled} label={props.saveButtonLabel} iconName={props.saveButtonIcon} />
+                                          </Box>
+                                       </Tooltip>
                                     </Grid>
                                  </Box>
                               }
