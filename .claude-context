@@ -1,0 +1,60 @@
+# Claude Context File - QQQ Frontend Material Dashboard
+# This file helps Claude Code quickly orient itself when starting a new session
+
+## Project Overview
+- **Name:** QQQ Frontend Material Dashboard
+- **Type:** React 18 + TypeScript hybrid Maven project
+- **Purpose:** Default UI for QQQ low-code application framework
+- **Version:** 0.28.3-SNAPSHOT
+- **Core Dependency:** @qrunio/qqq-frontend-core
+
+## Technology Stack
+- React 18.0.0, TypeScript 4.9.4
+- Material-UI (MUI) v5.11.1
+- Formik + Yup for forms
+- React Router v6
+- Maven + frontend-maven-plugin for builds
+- Node.js 18.17.0 (via Maven)
+
+## Key Directories
+- `src/qqq/pages/` - Page components (RecordQuery, RecordView, etc.)
+- `src/qqq/components/` - Reusable components
+- `src/qqq/utils/qqq/Client.ts` - API client singleton
+- `src/qqq/authorization/` - Pluggable auth modules
+- `src/qqq/assets/theme*/` - Light/dark theming
+
+## Code Style (ESLint enforced)
+- 3-space indentation
+- Double quotes
+- Allman brace style (opening brace on new line)
+- Functional components with hooks
+- React Context for state (no Redux)
+
+## Development Commands
+```bash
+npm run install:legacy    # Install with --legacy-peer-deps
+npm start                 # Dev server on port 3000
+npm run build             # Production build
+mvn clean package         # Full Maven build with embedded frontend
+```
+
+## Important Patterns
+1. **Metadata-driven UI** - Components render from QQQ field/table metadata
+2. **Path-agnostic SPA** - Detects base path from script location (PathUtils.ts)
+3. **Dynamic components** - useDynamicComponents() loads from qqq-frontend-core
+4. **Modal stack** - QContext tracks open modals with push/pop
+5. **API client** - Always use Client.getInstance(), never hardcode paths
+
+## Recent Work (Dec 2024)
+- Row Builder widget with drag & drop
+- Field As Widget (adornmentType=widget)
+- Multiple SPA support (path-agnostic routing)
+
+## Related Resources
+- Backend: /Users/james.maes/Git.Local/QRun-IO/qqq/
+- User AI config: ~/.ai/ (Nix-managed)
+- QQQ CODE_STYLE.md for Java conventions
+
+## CI/CD
+- CircleCI with kingsrook/qqq-orb
+- develop -> snapshot, release/* -> RC, tags -> production
