@@ -26,6 +26,7 @@ yalc.lock
 
 # misc
 .DS_Store
+.claude/
 .env.local
 .env.development.local
 .env.test.local
