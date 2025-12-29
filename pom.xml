@@ -58,14 +58,12 @@
   </developers>
 
   <properties>
-    <revision>0.28.0-SNAPSHOT</revision>
-    <qqq.version>
-      0.32.0-SNAPSHOT
-    </qqq.version>
+    <revision>0.35.0-SNAPSHOT</revision>
+    <qqq.version>0.35.0</qqq.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
   </properties>
