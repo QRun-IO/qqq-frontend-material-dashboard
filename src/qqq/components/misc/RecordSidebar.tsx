@@ -33,6 +33,7 @@ import MDTypography from "qqq/components/legacy/MDTypography";
 interface Props
 {
    tableSections: QTableSection[];
+   sectionVisibility?: {[key: string]: boolean };
    metaData?: QTableMetaData;
    widgetMetaDataList?: QWidgetMetaData[];
    light?: boolean;
@@ -51,12 +52,17 @@ interface SidebarEntry
    label: string;
 }
 
-function QRecordSidebar({tableSections, widgetMetaDataList, light, stickyTop}: Props): JSX.Element
+function QRecordSidebar({tableSections, widgetMetaDataList, sectionVisibility, stickyTop}: Props): JSX.Element
 {
    /////////////////////////////////////////////////////////
    // insert widgets after identity (first) table section //
    /////////////////////////////////////////////////////////
    const sidebarEntries = [] as SidebarEntry[];
+   if(!sectionVisibility)
+   {
+      sectionVisibility = {};
+   }
+
    tableSections && tableSections.forEach((section, index) =>
    {
       if(section.isHidden)
@@ -79,9 +85,13 @@ function QRecordSidebar({tableSections, widgetMetaDataList, light, stickyTop}: P
       <Card sx={{borderRadius: "0.75rem", position: "sticky", top: stickyTop, overflow: "hidden", maxHeight: "calc(100vh - 2rem)"}}>
          <Box component="ul" display="flex" flexDirection={{xs: "row", md: "column"}} flexWrap={{xs: "wrap", md: "nowrap"}} p={2} m={0} sx={{listStyle: "none", overflow: "auto", height: "100%"}}>
             {
+               /////////////////////////////////////////////////////////////////////////////////////////////////////////
+               // note on sectionVisibility below - assume that a missing entry means that it wasn't marked           //
+               // for hiding - so only hide sections that are marked as visible == false (assume undef means visible) //
+               /////////////////////////////////////////////////////////////////////////////////////////////////////////
                sidebarEntries ? sidebarEntries.map((entry: SidebarEntry, key: number) => (
 
-                  <Box key={`section-link-${entry.name}`} onClick={() => document.getElementById(entry.name).scrollIntoView()} sx={{cursor: "pointer"}} width={{xs: "50%", md: "100%"}} >
+                  <Box key={`section-link-${entry.name}`} className={`sidebar-section ${sectionVisibility[entry.name] === false ? "is-hidden" : "is-visible"}`} onClick={() => document.getElementById(entry.name)?.scrollIntoView()} sx={{cursor: "pointer"}} width={{xs: "50%", md: "100%"}} >
                      <Box key={`section-${entry.name}`} component="li" pt={0.5} pb={0.5}>
                         <MDTypography
                            variant="button"

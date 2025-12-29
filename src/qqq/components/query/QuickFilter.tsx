@@ -532,7 +532,7 @@ export default function QuickFilter({tableMetaData, fullFieldName, fieldMetaData
    //////////////////////////////
    // return the button & menu //
    //////////////////////////////
-   const widthAndMaxWidth = (fieldMetaData?.type == QFieldType.DATE_TIME) ? 315 : 250;
+   const widthAndMaxWidth = (fieldMetaData?.type == QFieldType.DATE_TIME) ? 315 : fieldMetaData.possibleValueSourceName ? 300 : 250;
    return (
       <>
          {button}
@@ -567,7 +567,7 @@ export default function QuickFilter({tableMetaData, fullFieldName, fieldMetaData
                      slotProps={{popper: {style: {padding: 0, maxHeight: "unset", width: "250px"}}}}
                   />
                </Box>
-               <Box width={widthAndMaxWidth} maxWidth={widthAndMaxWidth} className="quickFilter filterValuesColumn">
+               <Box width={widthAndMaxWidth} maxWidth={widthAndMaxWidth} className="quickFilter filterValuesColumn" sx={{"& .MuiChip-root.MuiAutocomplete-tag": {maxWidth: `${widthAndMaxWidth - 85}px`}}}>
                   <FilterCriteriaRowValues
                      queryScreenUsage={queryScreenUsage}
                      operatorOption={operatorSelectedValue}

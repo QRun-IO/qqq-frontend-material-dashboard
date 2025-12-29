@@ -880,3 +880,16 @@ input[type="search"]::-webkit-search-results-decoration
 {
    padding-top: 1rem;
 }
+
+/* try to fix number input end adornment conflict with up/down spinner */
+.MuiFormControl-root:has(input[type="number"])
+{
+   transition: background-position 0.15s ease;
+   /* give an initial value to avoid it flying in from nowhere when it appears */
+   background-position: right 0.75rem center;
+}
+.MuiFormControl-root:has(input[type="number"]:focus),
+.MuiFormControl-root:has(input[type="number"]):hover
+{
+   background-position: right 1.75rem center;
+}

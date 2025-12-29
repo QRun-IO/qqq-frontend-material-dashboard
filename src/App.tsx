@@ -48,6 +48,7 @@ import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ReportRun from "qqq/pages/processes/ReportRun";
 import EntityCreate from "qqq/pages/records/create/RecordCreate";
 import TableDeveloperView from "qqq/pages/records/developer/TableDeveloperView";
+import {resolveAssetUrl, detectBasePath} from "qqq/utils/PathUtils";
 import EntityEdit from "qqq/pages/records/edit/RecordEdit";
 import RecordQuery from "qqq/pages/records/query/RecordQuery";
 import RecordDeveloperView from "qqq/pages/records/view/RecordDeveloperView";
@@ -276,7 +277,9 @@ export default function App({authenticationMetaData}: Props)
                   /////////////////////////////////////////////////////////////////////////////////////////////////////
                   foundFirstApp = true;
                   setDefaultRoute(path);
-                  console.log("Set default route to: " + path);
+                  const basePath = detectBasePath();
+                  const fullPath = basePath !== "/" ? basePath + path : path;
+                  console.log(`Set default route to: ${path} (browser URL: ${fullPath})`);
                }
             }
             else if (app.type === QAppNodeType.TABLE)
@@ -475,11 +478,11 @@ export default function App({authenticationMetaData}: Props)
                const appleIcon = document.querySelector("link[rel~='apple-touch-icon']") as HTMLLinkElement;
                if (favicon)
                {
-                  favicon.href = metaData.branding.icon;
+                  favicon.href = resolveAssetUrl(metaData.branding.icon);
                }
                if (appleIcon)
                {
-                  appleIcon.href = metaData.branding.icon;
+                  appleIcon.href = resolveAssetUrl(metaData.branding.icon);
                }
                if (metaData.branding.accentColor)
                {
@@ -636,6 +639,7 @@ export default function App({authenticationMetaData}: Props)
    const [tableMetaData, setTableMetaData] = useState(null);
    const [tableProcesses, setTableProcesses] = useState(null);
    const [dotMenuOpen, setDotMenuOpen] = useState(false);
+   const [modalStack, setModalStack] = useState([] as string[]);
    const [keyboardHelpOpen, setKeyboardHelpOpen] = useState(false);
    const [helpHelpActive] = useState(queryParams.has("helpHelp"));
    const [userId, setUserId] = useState(loggedInUser?.email);
@@ -683,6 +687,45 @@ export default function App({authenticationMetaData}: Props)
       </Box>);
    }
 
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   function pushModalOnStack(modalIdentifier: string): void
+   {
+      if(modalStack.length > 0 && modalStack[modalStack.length] == modalIdentifier)
+      {
+         console.warn(`Pushing a new modal on the QContext modalStack that is a duplicate of the current top-of-stack [${modalIdentifier}]`)
+      }
+      modalStack.push(modalIdentifier);
+      setModalStack([...modalStack]);
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   function popModalOffStack(modalIdentifier: string): void
+   {
+      if(modalStack.length > 0 && modalStack[modalStack.length - 1] != modalIdentifier)
+      {
+         console.warn(`Request to pop a modal [${modalIdentifier}] off the QContext modalStack that is not currently on top [${modalStack[modalStack.length - 1]}]`)
+         return;
+      }
+      modalStack.pop();
+      setModalStack([...modalStack]);
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   function clearModalStack(): void
+   {
+      setModalStack([]);
+   }
+
+
    return (
 
       appRoutes && (
@@ -693,6 +736,7 @@ export default function App({authenticationMetaData}: Props)
             tableMetaData: tableMetaData,
             tableProcesses: tableProcesses,
             dotMenuOpen: dotMenuOpen,
+            modalStack: modalStack,
             keyboardHelpOpen: keyboardHelpOpen,
             helpHelpActive: helpHelpActive,
             userId: userId,
@@ -703,6 +747,9 @@ export default function App({authenticationMetaData}: Props)
             setTableProcesses: (tableProcesses: QProcessMetaData[]) => setTableProcesses(tableProcesses),
             setDotMenuOpen: (dotMenuOpent: boolean) => setDotMenuOpen(dotMenuOpent),
             setKeyboardHelpOpen: (keyboardHelpOpen: boolean) => setKeyboardHelpOpen(keyboardHelpOpen),
+            pushModalOnStack: pushModalOnStack,
+            popModalOffStack: popModalOffStack,
+            clearModalStack: clearModalStack,
             recordAnalytics: recordAnalytics,
             pathToLabelMap: pathToLabelMap,
             branding: branding
@@ -713,8 +760,8 @@ export default function App({authenticationMetaData}: Props)
                {banner()}
                <Sidenav
                   color={sidenavColor}
-                  icon={branding.icon}
-                  logo={branding.logo}
+                  icon={resolveAssetUrl(branding.icon)}
+                  logo={resolveAssetUrl(branding.logo)}
                   appName={branding.appName}
                   branding={branding}
                   routes={sideNavRoutes}

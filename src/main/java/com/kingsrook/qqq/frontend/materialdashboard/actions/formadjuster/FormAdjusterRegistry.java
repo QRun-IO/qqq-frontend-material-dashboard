@@ -54,9 +54,34 @@ public class FormAdjusterRegistry
 
 
    /***************************************************************************
-    **
+    * register on-load and on-change form adjusters for a given field.
     ***************************************************************************/
    public static void registerFormAdjusters(QInstance qInstance, MaterialDashboardFieldMetaData materialDashboardFieldMetaData) throws QException
+   {
+      ////////////////////////////////////////////////////////////////
+      // add the code-references to the map of registered adjusters //
+      ////////////////////////////////////////////////////////////////
+      String identifier = materialDashboardFieldMetaData.getFormAdjusterIdentifier();
+
+      QCodeReference onChangeCode = materialDashboardFieldMetaData.getOnChangeFormAdjuster();
+      if(onChangeCode != null)
+      {
+         registerOnChangeFormAdjuster(qInstance, identifier, onChangeCode);
+      }
+
+      QCodeReference onLoadCode = materialDashboardFieldMetaData.getOnLoadFormAdjuster();
+      if(onLoadCode != null)
+      {
+         registerOnLoadFormAdjuster(qInstance, identifier, onLoadCode);
+      }
+   }
+
+
+
+   /***************************************************************************
+    * make sure the route-provider is registered in javalin
+    ***************************************************************************/
+   private static void registerRouteProvider(QInstance qInstance) throws QException
    {
       //////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // support hot-swaps, by checking if the input qInstance is different from one we previously registered for //
@@ -89,31 +114,38 @@ public class FormAdjusterRegistry
          didRegisterRouteProvider = true;
          lastRegisteredQInstance = qInstance;
       }
+   }
 
-      ////////////////////////////////////////////////////////////////
-      // add the code-references to the map of registered adjusters //
-      ////////////////////////////////////////////////////////////////
-      String identifier = materialDashboardFieldMetaData.getFormAdjusterIdentifier();
 
-      QCodeReference onChangeCode = materialDashboardFieldMetaData.getOnChangeFormAdjuster();
-      if(onChangeCode != null)
+
+   /***************************************************************************
+    * register an on-change form adjuster
+    ***************************************************************************/
+   public static void registerOnChangeFormAdjuster(QInstance qInstance, String identifier, QCodeReference codeReference) throws QException
+   {
+      registerRouteProvider(qInstance);
+
+      if(onChangeAdjusters.containsKey(identifier) && !onChangeAdjusters.get(identifier).equals(codeReference))
       {
-         if(onChangeAdjusters.containsKey(identifier) && !onChangeCode.equals(onChangeAdjusters.get(identifier)))
-         {
-            LOG.warn("Attempt to register more than one onChangeFormAdjuster with identifier: " + identifier);
-         }
-         onChangeAdjusters.put(identifier, onChangeCode);
+         LOG.warn("Attempt to register more than one onChangeFormAdjuster with identifier: " + identifier);
       }
+      onChangeAdjusters.put(identifier, codeReference);
+   }
 
-      QCodeReference onLoadCode = materialDashboardFieldMetaData.getOnLoadFormAdjuster();
-      if(onLoadCode != null)
+
+
+   /***************************************************************************
+    * register an on-load form adjuster
+    ***************************************************************************/
+   public static void registerOnLoadFormAdjuster(QInstance qInstance, String identifier, QCodeReference codeReference) throws QException
+   {
+      registerRouteProvider(qInstance);
+
+      if(onLoadAdjusters.containsKey(identifier) && !onLoadAdjusters.get(identifier).equals(codeReference))
       {
-         if(onLoadAdjusters.containsKey(identifier) && !onLoadCode.equals(onLoadAdjusters.get(identifier)))
-         {
-            LOG.warn("Attempt to register more than one onLoadFormAdjuster with identifier: " + identifier);
-         }
-         onLoadAdjusters.put(identifier, onLoadCode);
+         LOG.warn("Attempt to register more than one onLoadFormAdjuster with identifier: " + identifier);
       }
+      onLoadAdjusters.put(identifier, codeReference);
    }
 
 

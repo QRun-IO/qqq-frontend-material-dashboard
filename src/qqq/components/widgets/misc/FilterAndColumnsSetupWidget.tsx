@@ -45,6 +45,7 @@ import Client from "qqq/utils/qqq/Client";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
+import {unborderedButtonSX} from "qqq/components/widgets/misc/RowBuilderWidget";
 
 interface FilterAndColumnsSetupWidgetProps
 {
@@ -54,31 +55,12 @@ interface FilterAndColumnsSetupWidgetProps
    recordValues: { [name: string]: any },
    onSaveCallback?: (values: { [name: string]: any }) => void,
    label?: string
+   widgetComponentProps?: any;
 }
 
 FilterAndColumnsSetupWidget.defaultProps = {
    onSaveCallback: null
 };
-
-export const buttonSX =
-   {
-      border: `1px solid ${colors.grayLines.main} !important`,
-      borderRadius: "0.75rem",
-      textTransform: "none",
-      fontSize: "1rem",
-      fontWeight: "400",
-      paddingLeft: "1rem",
-      paddingRight: "1rem",
-      opacity: "1",
-      color: colors.dark.main,
-      "&:hover": {color: colors.dark.main},
-      "&:focus": {color: colors.dark.main},
-      "&:focus:not(:hover)": {color: colors.dark.main},
-   };
-
-export const unborderedButtonSX = Object.assign({}, buttonSX);
-unborderedButtonSX.border = "none !important";
-unborderedButtonSX.opacity = "0.7";
 
 
 const qController = Client.getInstance();
@@ -87,7 +69,7 @@ const qControllerV1 = Client.getInstanceV1();
 /*******************************************************************************
  ** Component for editing the main setup of a report - that is: filter & columns
  *******************************************************************************/
-export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp, widgetMetaData, widgetData, recordValues, onSaveCallback, label}: FilterAndColumnsSetupWidgetProps): JSX.Element
+export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp, widgetMetaData, widgetData, recordValues, onSaveCallback, label, widgetComponentProps}: FilterAndColumnsSetupWidgetProps): JSX.Element
 {
    const [modalOpen, setModalOpen] = useState(false);
    const [hideColumns] = useState(widgetData?.hideColumns);
@@ -211,7 +193,11 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
          setApiVersion(version);
       }
 
-      if (tableName)
+      //////////////////////////////////////////////////////////////////////////////////////////////////
+      // if we have a tableName, and we've either never loaded tableMetaData, or we had tableMetaData //
+      // for a different table - then we should load table meta data for the current table.           //
+      //////////////////////////////////////////////////////////////////////////////////////////////////
+      if (tableName && (!tableMetaData || tableMetaData.name != tableName))
       {
          (async () =>
          {
@@ -410,14 +396,12 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
    const labelAdditionalElementsRight: JSX.Element[] = [];
    if (isEditable)
    {
-      if (!hideColumns)
+      let buttonLabel = "Edit Filters and Columns";
+      if (hideColumns)
       {
-         labelAdditionalElementsRight.push(<HeaderLinkButtonComponent key="filterAndColumnsHeader" label="Edit Filters and Columns" onClickCallback={openEditor} disabled={tableMetaData == null} disabledTooltip={selectTableFirstTooltipTitle} />);
+         buttonLabel = "Edit Filters";
       }
-      else
-      {
-         labelAdditionalElementsRight.push(<HeaderLinkButtonComponent key="filterAndColumnsHeader" label="Edit Filters" onClickCallback={openEditor} disabled={tableMetaData == null} disabledTooltip={selectTableFirstTooltipTitle} />);
-      }
+      labelAdditionalElementsRight.push(<HeaderLinkButtonComponent key="filterAndColumnsHeader" label={buttonLabel} onClickCallback={openEditor} disabled={tableMetaData == null} disabledTooltip={selectTableFirstTooltipTitle} className="editFiltersButton" />);
    }
 
    if (widgetFailureAlertContent)
@@ -427,7 +411,13 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
       </Widget>);
    }
 
-   return (<Widget widgetMetaData={widgetMetaData} labelAdditionalElementsRight={labelAdditionalElementsRight}>
+   let omitLabel = false;
+   if(widgetComponentProps?.omitLabel)
+   {
+      omitLabel = true;
+   }
+
+   return (<Widget widgetMetaData={widgetMetaData} labelAdditionalElementsRight={labelAdditionalElementsRight} {...(widgetComponentProps ?? {})}>
       <React.Fragment>
          {
             showHelp("sectionSubhead") &&
@@ -443,8 +433,8 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
          </Collapse>
          <Box pt="0.5rem">
             <Box display="flex" justifyContent="space-between" alignItems="center">
-               <h5>{label ?? widgetData.label ?? widgetMetaData.label ?? "Query Filter"}</h5>
-               {!hideSortBy && <Box fontSize="0.75rem" fontWeight="700">{mayShowQuery() && getCurrentSortIndicator(frontendQueryFilter, tableMetaData, null)}</Box>}
+               {!omitLabel && <h5>{label ?? widgetData.label ?? widgetMetaData.label ?? "Query Filter"}</h5>}
+               {!hideSortBy && <Box fontSize="0.75rem" fontWeight="700" ml="auto">{mayShowQuery() && getCurrentSortIndicator(frontendQueryFilter, tableMetaData, null)}</Box>}
             </Box>
             {
                mayShowQuery() &&

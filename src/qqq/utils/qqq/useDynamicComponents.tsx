@@ -20,14 +20,16 @@
  */
 
 import Box from "@mui/material/Box";
+import QContext from "QContext";
 import {qfmdBridge, QFMDBridge} from "qqq/utils/qqq/QFMDBridge";
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 
 // todo - deploy from here!!
 interface DynamicComponentProps
 {
-   qfmdBridge?: QFMDBridge;
-   props?: any;
+   qfmdBridge?: QFMDBridge,
+   props?: any,
+   qContext?: QContext
 }
 
 
@@ -38,6 +40,9 @@ interface DynamicComponentProps
 export default function useDynamicComponents()
 {
    const [dynamicComponents, setDynamicComponents] = useState<{ [name: string]: React.FC }>({});
+
+   const qContext = useContext(QContext);
+
 
    /*******************************************************************************
     **
@@ -100,7 +105,7 @@ export default function useDynamicComponents()
       if (dynamicComponents[name])
       {
          const C: React.FC<DynamicComponentProps> = dynamicComponents[name];
-         return (<C qfmdBridge={qfmdBridge} props={props} />);
+         return (<C qfmdBridge={qfmdBridge} qContext={qContext} props={props} />);
       }
       else
       {

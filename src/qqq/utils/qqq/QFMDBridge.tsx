@@ -19,16 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
-import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
-import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {Alert} from "@mui/material";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
 import Modal from "@mui/material/Modal";
 import {ThemeProvider} from "@mui/material/styles";
+import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
+import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
+import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
+import FormData from "form-data";
 import {Formik} from "formik";
 import QContext from "QContext";
 import QDynamicForm from "qqq/components/forms/DynamicForm";
@@ -42,6 +43,11 @@ import React, {ReactElement, ReactNode, useContext, useEffect, useState} from "r
 import {BrowserRouter} from "react-router-dom";
 import * as Yup from "yup";
 
+//////////////////////////////
+// Context value type alias //
+//////////////////////////////
+type QContextType = React.ContextType<typeof QContext>;
+
 
 // todo - deploy this interface somehow out of this file
 export interface QFMDBridge
@@ -49,7 +55,7 @@ export interface QFMDBridge
    qController?: QController;
    makeAlert: (text: string, color: string) => JSX.Element;
    makeButton: (label: string, onClick: () => void, extra?: { [key: string]: any }) => JSX.Element;
-   makeForm: (fields: QFieldMetaData[], record: QRecord, handleChange: (fieldName: string, newValue: any) => void, handleSubmit: (values: any) => void) => JSX.Element;
+   makeForm: (fields: QFieldMetaData[], record: QRecord, handleChange: (fieldName: string, newValue: any) => void, handleSubmit: (values: any) => void, helpRoles?: string[], helpContentKeyPrefix?: string) => JSX.Element;
    makeModal: (children: ReactElement, onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void) => JSX.Element;
    makeWidget: (widgetName: string, tableName?: string, entityPrimaryKey?: string, record?: QRecord, actionCallback?: (data: any, eventValues?: { [name: string]: any }) => boolean) => JSX.Element;
 }
@@ -63,13 +69,29 @@ interface QFMDBridgeFormProps
    fields: QFieldMetaData[],
    record: QRecord,
    handleChange: (fieldName: string, newValue: any) => void,
-   handleSubmit: (values: any) => void
+   handleSubmit: (values: any) => void,
+   helpRoles?: string[],
+   helpContentKeyPrefix?: string,
 }
 
 QFMDBridgeForm.defaultProps = {};
 
-function QFMDBridgeForm({fields, record, handleChange, handleSubmit}: QFMDBridgeFormProps): JSX.Element
+/////////////////////////////////////////////////////////////////////////////////
+// Bridge helpers: merge helpHelp from URL with value from the ambient context //
+/////////////////////////////////////////////////////////////////////////////////
+const useBridgeHelpHelpActive = (): boolean =>
 {
+   const {helpHelpActive: ctxHelpHelpActive} = useContext(QContext) as QContextType;
+   const fromUrl = (typeof window !== "undefined") && new URLSearchParams(window.location.search).has("helpHelp");
+   return Boolean(ctxHelpHelpActive || fromUrl);
+};
+
+function QFMDBridgeForm({fields, record, handleChange, handleSubmit, helpRoles, helpContentKeyPrefix}: QFMDBridgeFormProps): JSX.Element
+{
+   const parentContext = useContext(QContext) as QContextType;
+   const helpHelpActive = useBridgeHelpHelpActive();
+   const mergedContext: QContextType = {...parentContext, helpHelpActive};
+
    const initialValues: any = {};
    for (let field of fields)
    {
@@ -143,46 +165,49 @@ function QFMDBridgeForm({fields, record, handleChange, handleSubmit}: QFMDBridge
    // re-introduce these two context providers, in case the child calls this      //
    // method under a different root... maybe this should be optional per a param? //
    /////////////////////////////////////////////////////////////////////////////////
-   return (<MaterialUIControllerProvider>
-      <ThemeProvider theme={theme}>
-         <Formik initialValues={initialValues} validationSchema={Yup.object().shape(formValidations)} onSubmit={handleSubmit}>
-            {({values, errors, touched}) =>
-            {
-               const formData: any = {};
-               formData.values = values;
-               formData.touched = touched;
-               formData.errors = errors;
-               formData.formFields = dynamicFormFields;
-
-               try
-               {
-                  let anyDiffs = false;
-                  for (let fieldName in values)
+   return (
+      <QContext.Provider value={mergedContext}>
+         <MaterialUIControllerProvider>
+            <ThemeProvider theme={theme}>
+               <Formik initialValues={initialValues} validationSchema={Yup.object().shape(formValidations)} onSubmit={handleSubmit}>
+                  {({values, errors, touched}) =>
                   {
-                     const value = values[fieldName];
-                     if (lastValues[fieldName] != value)
+                     const formData: any = {};
+                     formData.values = values;
+                     formData.touched = touched;
+                     formData.errors = errors;
+                     formData.formFields = dynamicFormFields;
+
+                     try
                      {
-                        handleChange(fieldName, value);
-                        lastValues[fieldName] = value;
-                        anyDiffs = true;
+                        let anyDiffs = false;
+                        for (let fieldName in values)
+                        {
+                           const value = values[fieldName];
+                           if (lastValues[fieldName] != value)
+                           {
+                              handleChange(fieldName, value);
+                              lastValues[fieldName] = value;
+                              anyDiffs = true;
+                           }
+                        }
+
+                        if (anyDiffs)
+                        {
+                           setLastValues(lastValues);
+                        }
                      }
-                  }
+                     catch (e)
+                     {
+                        console.error(e);
+                     }
 
-                  if (anyDiffs)
-                  {
-                     setLastValues(lastValues);
-                  }
-               }
-               catch (e)
-               {
-                  console.error(e);
-               }
-
-               return (<QDynamicForm formData={formData} record={record} />);
-            }}
-         </Formik>
-      </ThemeProvider>
-   </MaterialUIControllerProvider>);
+                     return (<QDynamicForm formData={formData} record={record} helpRoles={helpRoles} helpContentKeyPrefix={helpContentKeyPrefix} />);
+                  }}
+               </Formik>
+            </ThemeProvider>
+         </MaterialUIControllerProvider>
+      </QContext.Provider>);
 }
 
 
@@ -195,14 +220,15 @@ interface QFMDBridgeWidgetProps
    tableName?: string,
    record?: QRecord,
    entityPrimaryKey?: string,
-   actionCallback?: (data: any, eventValues?: { [p: string]: any }) => boolean
+   actionCallback?: (data: any, eventValues?: { [p: string]: any }) => boolean,
+   qContext?: QContext,
 }
 
 QFMDBridgeWidget.defaultProps = {};
 
-function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, actionCallback}: QFMDBridgeWidgetProps): JSX.Element
+function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, actionCallback, qContext: qContextProp}: QFMDBridgeWidgetProps): JSX.Element
 {
-   const qContext = useContext(QContext);
+   const qContext = useContext(QContext) as QContextType;
 
    const [ready, setReady] = useState(false);
 
@@ -218,14 +244,14 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
          const qController = Client.getInstance();
          const qInstance = await qController.loadMetaData();
 
-         const queryStringParts: string[] = [];
+         const formData: FormData = new FormData();
          for (let key of record?.values?.keys())
          {
-            queryStringParts.push(`${encodeURIComponent(key)}=${encodeURIComponent(record.values.get(key))}`);
+            formData.append(key, record.values.get(key));
          }
 
          setWidgetMetaData(qInstance.widgets.get(widgetName));
-         setWidgetData(await qController.widget(widgetName, queryStringParts.join("&")));
+         setWidgetData(await qController.widget(widgetName, formData));
 
          setReady(true);
       })();
@@ -244,7 +270,7 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
       <MaterialUIControllerProvider>
          <ThemeProvider theme={theme}>
             <QContext.Provider value={{
-               ...qContext,
+               ...(qContextProp ?? qContext),
                setTableMetaData: (tableMetaData: QTableMetaData) => setTableMetaData(tableMetaData),
             }}>
                <div className={`bridgedWidget ${widgetMetaData.type}`}>
@@ -262,30 +288,49 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
  ***************************************************************************/
 interface QFMDBridgeModalProps
 {
-   children: ReactNode;
-   onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void;
+   children: ReactNode,
+   onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void,
+   qContext?: QContextType,
+   modalIdentifier?: string,
 }
 
 QFMDBridgeModal.defaultProps = {};
 
-function QFMDBridgeModal({children, onClose}: QFMDBridgeModalProps): JSX.Element
+function QFMDBridgeModal({children, onClose, qContext: qContextProp, modalIdentifier: modalIdentifierProp}: QFMDBridgeModalProps): JSX.Element
 {
    const [isOpen, setIsOpen] = useState(true);
+   const [modalIdentifier, setModalIdentifier] = useState(modalIdentifierProp ?? ("anonymousModal:" + (new Date().getTime())));
 
-   function closeModalProcess(event: {}, reason: "backdropClick" | "escapeKeyDown")
+   useEffect(() =>
+   {
+      qContextProp?.pushModalOnStack?.(modalIdentifier);
+   }, []);
+
+
+   function doSetIsOpen(isOpen: boolean): void
+   {
+      if (!isOpen)
+      {
+         qContextProp?.popModalOffStack?.(modalIdentifier);
+      }
+
+      setIsOpen(isOpen);
+   }
+
+   function closeModal(event: {}, reason: "backdropClick" | "escapeKeyDown")
    {
       if (onClose)
       {
-         onClose(setIsOpen, event, reason);
+         onClose(doSetIsOpen, event, reason);
       }
       else
       {
-         setIsOpen(false);
+         doSetIsOpen(false);
       }
    }
 
    return (
-      <Modal open={isOpen} onClose={(event, reason) => closeModalProcess(event, reason)}>
+      <Modal open={isOpen} onClose={(event, reason) => closeModal(event, reason)}>
          <Box className="bridgeModal" height="calc(100vh)">
             {children}
          </Box>
@@ -370,22 +415,23 @@ export const qfmdBridge =
 
       makeAlert: (text: string, color: string, mayManuallyClose?: boolean): JSX.Element =>
       {
-         return (<QFMDBridgeAlert color={color} mayManuallyClose={mayManuallyClose}>{text}</QFMDBridgeAlert>);
+         const content = (<div>{text.split("\n").map((line, index) => (<div key={index}>{line}</div>))}</div>);
+         return (<QFMDBridgeAlert color={color} mayManuallyClose={mayManuallyClose}>{content}</QFMDBridgeAlert>);
       },
 
-      makeModal: (children: ReactElement, onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void): JSX.Element =>
+      makeModal: (children: ReactElement, onClose?: (setIsOpen: (isOpen: boolean) => void, event: {}, reason: "backdropClick" | "escapeKeyDown") => void, qContext?: QContextType, modalIdentifier?: string): JSX.Element =>
       {
-         return (<QFMDBridgeModal onClose={onClose}>{children}</QFMDBridgeModal>);
+         return (<QFMDBridgeModal onClose={onClose} qContext={qContext} modalIdentifier={modalIdentifier}>{children}</QFMDBridgeModal>);
       },
 
-      makeWidget: (widgetName: string, tableName?: string, entityPrimaryKey?: string, record?: QRecord, actionCallback?: (data: any, eventValues?: { [name: string]: any }) => boolean): JSX.Element =>
+      makeWidget: (widgetName: string, tableName?: string, entityPrimaryKey?: string, record?: QRecord, actionCallback?: (data: any, eventValues?: { [name: string]: any }) => boolean, qContext?: QContextType): JSX.Element =>
       {
-         return (<QFMDBridgeWidget widgetName={widgetName} tableName={tableName} record={record} entityPrimaryKey={entityPrimaryKey} actionCallback={actionCallback} />);
+         return (<QFMDBridgeWidget widgetName={widgetName} tableName={tableName} record={record} entityPrimaryKey={entityPrimaryKey} actionCallback={actionCallback} qContext={qContext} />);
       },
 
-      makeForm: (fields: QFieldMetaData[], record: QRecord, handleChange: (fieldName: string, newValue: any) => void, handleSubmit: (values: any) => void): JSX.Element =>
+      makeForm: (fields: QFieldMetaData[], record: QRecord, handleChange: (fieldName: string, newValue: any) => void, handleSubmit: (values: any) => void, helpRoles?: string[], helpContentKeyPrefix?: string): JSX.Element =>
       {
-         return (<QFMDBridgeForm fields={fields} record={record} handleChange={handleChange} handleSubmit={handleSubmit} />);
+         return (<QFMDBridgeForm fields={fields} record={record} handleChange={handleChange} handleSubmit={handleSubmit} helpRoles={helpRoles} helpContentKeyPrefix={helpContentKeyPrefix} />);
       }
    };
 

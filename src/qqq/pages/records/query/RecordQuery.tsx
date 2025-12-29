@@ -19,6 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {Alert, Box, Collapse, Menu, Typography} from "@mui/material";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import Divider from "@mui/material/Divider";
+import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import LinearProgress from "@mui/material/LinearProgress";
+import MenuItem from "@mui/material/MenuItem";
+import Modal from "@mui/material/Modal";
+import Tooltip from "@mui/material/Tooltip";
+import {ColumnHeaderFilterIconButtonProps, DataGridPro, GridCallbackDetails, GridColDef, GridColumnHeaderParams, GridColumnMenuContainer, GridColumnMenuProps, GridColumnOrderChangeParams, GridColumnPinningMenuItems, GridColumnResizeParams, GridColumnVisibilityModel, GridDensity, GridEventListener, GridPinnedColumns, gridPreferencePanelStateSelector, GridPreferencePanelsValue, GridRowId, GridRowParams, GridRowsProp, GridSelectionModel, GridSortItem, GridSortModel, GridState, GridToolbarContainer, GridToolbarDensitySelector, HideGridColMenuItem, MuiEvent, SortGridMenuItems, useGridApiContext, useGridApiEventHandler, useGridApiRef, useGridSelector} from "@mui/x-data-grid-pro";
+import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
 import {ApiVersion} from "@qrunio/qqq-frontend-core/lib/controllers/QControllerV1";
 import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
@@ -35,23 +47,12 @@ import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCrit
 import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterCriteria";
 import {QFilterOrderBy} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterOrderBy";
 import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
-import {Alert, Box, Collapse, Menu, Typography} from "@mui/material";
-import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
-import Divider from "@mui/material/Divider";
-import Icon from "@mui/material/Icon";
-import IconButton from "@mui/material/IconButton";
-import LinearProgress from "@mui/material/LinearProgress";
-import MenuItem from "@mui/material/MenuItem";
-import Modal from "@mui/material/Modal";
-import Tooltip from "@mui/material/Tooltip";
-import {ColumnHeaderFilterIconButtonProps, DataGridPro, GridCallbackDetails, GridColDef, GridColumnHeaderParams, GridColumnMenuContainer, GridColumnMenuProps, GridColumnOrderChangeParams, GridColumnPinningMenuItems, GridColumnResizeParams, GridColumnVisibilityModel, GridDensity, GridEventListener, GridPinnedColumns, gridPreferencePanelStateSelector, GridPreferencePanelsValue, GridRowId, GridRowParams, GridRowsProp, GridSelectionModel, GridSortItem, GridSortModel, GridState, GridToolbarContainer, GridToolbarDensitySelector, HideGridColMenuItem, MuiEvent, SortGridMenuItems, useGridApiContext, useGridApiEventHandler, useGridApiRef, useGridSelector} from "@mui/x-data-grid-pro";
-import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import FormData from "form-data";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
 import {QCancelButton, QCreateNewButton} from "qqq/components/buttons/DefaultButtons";
 import MenuButton from "qqq/components/buttons/MenuButton";
+import ErrorBoundary from "qqq/components/misc/ErrorBoundary";
 import {GotoRecordButton} from "qqq/components/misc/GotoRecordDialog";
 import SavedViews from "qqq/components/misc/SavedViews";
 import BasicAndAdvancedQueryControls from "qqq/components/query/BasicAndAdvancedQueryControls";
@@ -116,15 +117,65 @@ const qControllerV1 = Client.getInstanceV1();
  *******************************************************************************/
 const getLoadingScreen = (isModal: boolean) =>
 {
-   if (isModal)
+   return (<Box>&nbsp;</Box>);
+};
+
+
+/***************************************************************************
+ * The exported version of RecordQuery that pages & other components use here,
+ * is actually a wrapper around the true component (RecordQueryInner).
+ * The wrapper adds an ErrorBoundary, with an alert with a link that *tries* to fix
+ * issues that we've seen (e.g., when a bad filter gets put into local storage).
+ ***************************************************************************/
+const RecordQuery = forwardRef((props: Props, ref) =>
+{
+
+   /***************************************************************************
+    * try to fix issues by removing the current view from local storage
+    * and reloading the page.  It fixes some issues at least!
+    ***************************************************************************/
+   const fixIt = () =>
    {
-      return (<Box>&nbsp;</Box>);
+      //////////////////////////////////////////////////////////////////
+      // remove the current view and saved-view-id from local storage //
+      //////////////////////////////////////////////////////////////////
+      localStorage.removeItem(`${VIEW_LOCAL_STORAGE_KEY_ROOT}.${props.table?.name}`);
+      localStorage.removeItem(`${CURRENT_SAVED_VIEW_ID_LOCAL_STORAGE_KEY_ROOT}.${props.table?.name}`);
+
+      ////////////////////////////////////////////////////////////////////////////////////
+      // if the URL looks like we're using a saved view, try to navigate away from that //
+      ////////////////////////////////////////////////////////////////////////////////////
+      if (location.href.indexOf("/savedView/") > -1)
+      {
+         location.href = location.href.replace(/\/savedView\/.*/, "");
+      }
+      else
+      {
+         ///////////////////////////////
+         // else just reload the page //
+         ///////////////////////////////
+         location.reload();
+      }
+   };
+
+   const errorElement = <Box>
+      <h3>Error</h3>
+      <Alert severity="error">
+         An error occurred loading this page. You may try to <a href="#" onClick={fixIt}>click here to fix it</a>.
+      </Alert>
+   </Box>;
+
+   const body = <ErrorBoundary errorElement={errorElement}>
+      <RecordQueryInner {...props} ref={ref} />
+   </ErrorBoundary>;
+
+   if (props.isModal)
+   {
+      return (body);
    }
 
-   return (<BaseLayout>
-      &nbsp;
-   </BaseLayout>);
-};
+   return (<BaseLayout>{body}</BaseLayout>);
+});
 
 
 /*******************************************************************************
@@ -132,7 +183,7 @@ const getLoadingScreen = (isModal: boolean) =>
  **
  ** Yuge component.  The best.  Lots of very smart people are saying so.
  *******************************************************************************/
-const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, allowVariables, initialQueryFilter, initialColumns, omitExposedJoins}: Props, ref) =>
+const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPreview, allowVariables, initialQueryFilter, initialColumns, omitExposedJoins}: Props, ref) =>
 {
    const tableName = table.name;
    const [searchParams] = useSearchParams();
@@ -210,9 +261,10 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
       window.history.replaceState(state, "");
    }
 
-   ////////////////////////////////////////////
-   // look for defaults in the local storage //
-   ////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////////////////////////////////
+   // look for defaults in the local storage                                                    //
+   // note a few of these keys are duplicated in the wrapper where we try to catch & fix errors //
+   ///////////////////////////////////////////////////////////////////////////////////////////////
    const currentSavedViewLocalStorageKey = `${CURRENT_SAVED_VIEW_ID_LOCAL_STORAGE_KEY_ROOT}.${tableName}`;
    const tableVariantLocalStorageKey = `${TABLE_VARIANT_LOCAL_STORAGE_KEY_ROOT}.${tableName}`;
    const viewLocalStorageKey = `${VIEW_LOCAL_STORAGE_KEY_ROOT}.${tableName}`;
@@ -413,33 +465,62 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
    /////////////////////////////
    // page context references //
    /////////////////////////////
-   const {accentColor, accentColorLight, setPageHeader, recordAnalytics, dotMenuOpen, keyboardHelpOpen} = useContext(QContext);
-
-   //////////////////////////////////////////////////////////////////
-   // we use our own header - so clear out the context page header //
-   //////////////////////////////////////////////////////////////////
-   if (!isModal)
-   {
-      setPageHeader(null);
-   }
+   const {accentColor, accentColorLight, setPageHeader, recordAnalytics, dotMenuOpen, keyboardHelpOpen, modalStack} = useContext(QContext);
 
    //////////////////////
    // ole' faithful... //
    //////////////////////
    const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
+   //////////////////////////////////////////////////////////////////
+   // we use our own header - so clear out the context page header //
+   //////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      if (!isModal)
+      {
+         setPageHeader(null);
+      }
+   }, [isModal, setPageHeader]);
+
    ///////////////////////////////////////////////////////////////////////////////////////////
    // add a LoadingState object, in case the initial loads (of meta data and view) are slow //
    ///////////////////////////////////////////////////////////////////////////////////////////
    const [pageLoadingState, _] = useState(new LoadingState(forceUpdate));
 
-   if (isFirstRenderAfterChangingTables)
-   {
-      setIsFirstRenderAfterChangingTables(false);
+   /////////////////////////////////////////////////////////////////////////////////
+   // use this to make changes to the queryFilter more likely to re-run the query //
+   /////////////////////////////////////////////////////////////////////////////////
+   const [filterHash, setFilterHash] = useState("");
 
-      console.log("This is the first render after changing tables - so - setting state based on 'defaults' from localStorage");
-      setView(defaultView);
-   }
+   ///////////////////////////////////////////////////////////////////////////////////////////
+   // handle first render after changing tables - reset state based on defaults from localStorage //
+   ///////////////////////////////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      if (isFirstRenderAfterChangingTables)
+      {
+         setIsFirstRenderAfterChangingTables(false);
+         console.log("This is the first render after changing tables - so - setting state based on 'defaults' from localStorage");
+         setView(defaultView);
+      }
+   }, [isFirstRenderAfterChangingTables, defaultView]);
+
+   ////////////////////////////////////////////////////////////////////////
+   // trigger initial update-table call after page-state goes into ready //
+   ////////////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      if (pageState == "ready")
+      {
+         pageLoadingState.setNotLoading();
+
+         if (!tableVariantPromptOpen)
+         {
+            updateTable("pageState is now ready");
+         }
+      }
+   }, [pageState, tableVariantPromptOpen]);
 
    /*******************************************************************************
     ** utility function to get the names of any join tables which are active,
@@ -501,6 +582,12 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
     *******************************************************************************/
    function openExportMenu(event: any)
    {
+      if (!metaData.tables?.get(tableMetaData.name)?.capabilities?.has(Capability.TABLE_EXPORT))
+      {
+         setAlertContent("Exports are not allowed for this table.");
+         return;
+      }
+
       setExportMenuAnchorElement(event.currentTarget);
    }
 
@@ -640,7 +727,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
          const type = (e.target as any).type;
          const validType = (type !== "text" && type !== "textarea" && type !== "input" && type !== "search");
 
-         if (validType && !isModal && !dotMenuOpen && !keyboardHelpOpen && !activeModalProcess)
+         if (validType && !isModal && !dotMenuOpen && !keyboardHelpOpen && !activeModalProcess && (!modalStack || modalStack.length == 0))
          {
             if (!e.metaKey && !e.ctrlKey && e.key === "n" && table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission)
             {
@@ -678,7 +765,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
       {
          document.removeEventListener("keydown", down);
       };
-   }, [isModal, dotMenuOpen, keyboardHelpOpen, metaData, activeModalProcess]);
+   }, [isModal, dotMenuOpen, keyboardHelpOpen, metaData, activeModalProcess, modalStack]);
 
 
    /*******************************************************************************
@@ -824,7 +911,10 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
    const setupGridColumnModels = (metaData: QInstance, tableMetaData: QTableMetaData, queryColumns: QQueryColumns) =>
    {
       let linkBase = metaData.getTablePath(tableMetaData);
-      linkBase += linkBase.endsWith("/") ? "" : "/";
+      if(linkBase)
+      {
+         linkBase += linkBase.endsWith("/") ? "" : "/";
+      }
       const columns = DataGridUtils.setupGridColumns(tableMetaData, linkBase, metaData, "alphabetical");
 
       ///////////////////////////////////////////////
@@ -910,11 +1000,11 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
     ***************************************************************************/
    const pushWarningAlert = (newMessage: string) =>
    {
-      if(warningAlertList.indexOf(newMessage) == -1)
+      if (warningAlertList.indexOf(newMessage) == -1)
       {
          setWarningAlertList([...warningAlertList, newMessage]);
       }
-   }
+   };
 
 
    /***************************************************************************
@@ -924,7 +1014,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
    {
       warningAlertList.splice(index, 1);
       setWarningAlertList([...warningAlertList]);
-   }
+   };
 
 
    /*******************************************************************************
@@ -956,7 +1046,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
             const value = queryFilter.criteria[i].values[j];
             if (value?.type == "FilterVariableExpression")
             {
-               pushWarningAlert("Cannot perform query because of a missing value for a variable.")
+               pushWarningAlert("Cannot perform query because of a missing value for a variable.");
                setLoading(false);
                setRows([]);
                return;
@@ -1770,7 +1860,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
       // clear warnings if changing views - they should never persist between views, right? //
       // also - this is the callback for the 'reset all changes' link, which should do it.  //
       ////////////////////////////////////////////////////////////////////////////////////////
-      setWarningAlertList([])
+      setWarningAlertList([]);
 
       if (selectedSavedViewId != null)
       {
@@ -1898,7 +1988,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
          {
             console.log(`Deleting an old column from this view ${fieldName}`);
 
-            if(visibilityToggleStates[fieldName])
+            if (visibilityToggleStates[fieldName])
             {
                /////////////////////////////////////////////////////////////////////////////////////////////
                // all available columns in the table (and its joins) are in the view queryColumns object, //
@@ -1973,7 +2063,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
          /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
          if (field?.type == QFieldType.BOOLEAN && operator)
          {
-            if([QCriteriaOperator.EQUALS, QCriteriaOperator.IS_BLANK, QCriteriaOperator.IS_NOT_BLANK].indexOf(operator) == -1)
+            if ([QCriteriaOperator.EQUALS, QCriteriaOperator.IS_BLANK, QCriteriaOperator.IS_NOT_BLANK].indexOf(operator) == -1)
             {
                console.log(`Deleting a criteria field w/ operator not supported for frontend: ${fieldName}`);
                view.queryFilter.criteria.splice(i, 1);
@@ -2059,7 +2149,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
             let value = ValueUtils.getUnadornedValueForDisplay(qFieldMetaData, record.values.get(column.field), record.displayValues.get(column.field));
 
             const isBlank = (value === null || value === undefined);
-            if(isBlank)
+            if (isBlank)
             {
                value = "";
             }
@@ -2094,7 +2184,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
       const materialDashboardInstanceMetaData = metaData.supplementalInstanceMetaData?.get("materialDashboard");
       const limit = materialDashboardInstanceMetaData?.queryScreenCopyFullQueryColumnValuesLimit ?? 100000;
 
-      if(totalRecords > limit)
+      if (totalRecords > limit)
       {
          setErrorAlert(`The current query contains too many rows to be copied (limit: ${ValueUtils.safeToLocaleString(limit)}).`);
          setTimeout(() => setErrorAlert(null), 5000);
@@ -2128,7 +2218,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
             (async () =>
             {
                const numberOfValues = response.split("\n").length - 1;
-               if(numberOfValues == 0)
+               if (numberOfValues == 0)
                {
                   setInfoAlert(null);
                   setWarningAlert(`There are no ${qFieldMetaData.label} values to copy`);
@@ -2143,12 +2233,12 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
                   setSuccessAlert(`Copied ${ValueUtils.safeToLocaleString(numberOfValues)} ${qFieldMetaData.label} value${totalRecords == 1 ? "" : "s"}.`);
                   setTimeout(() => setSuccessAlert(null), 5000);
                }
-               catch(e)
+               catch (e)
                {
                   setInfoAlert(null);
                   let message = `${e}`;
 
-                  if(!document.hasFocus())
+                  if (!document.hasFocus())
                   {
                      message = "Keep this window active until the copy is complete.  Details: " + message;
                   }
@@ -2584,19 +2674,12 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
    if (tableMetaData && !tableMetaData.readPermission)
    {
       return (
-         <BaseLayout>
-            <Alert severity="error">
-               You do not have permission to view {tableMetaData?.label} records
-            </Alert>
-         </BaseLayout>
+         <Alert severity="error">
+            You do not have permission to view {tableMetaData?.label} records
+         </Alert>
       );
    }
 
-
-   /////////////////////////////////////////////////////////////////////////////////
-   // use this to make changes to the queryFilter more likely to re-run the query //
-   /////////////////////////////////////////////////////////////////////////////////
-   const [filterHash, setFilterHash] = useState("");
 
    if (pageState == "ready")
    {
@@ -2754,7 +2837,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
             }
             catch (e)
             {
-               console.error(e)
+               console.error(e);
                setAlertContent("Error parsing filter from URL");
             }
          }
@@ -2859,22 +2942,6 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
       return (getLoadingScreen(isModal));
    }
 
-   ////////////////////////////////////////////////////////////////////////
-   // trigger initial update-table call after page-state goes into ready //
-   ////////////////////////////////////////////////////////////////////////
-   useEffect(() =>
-   {
-      if (pageState == "ready")
-      {
-         pageLoadingState.setNotLoading();
-
-         if (!tableVariantPromptOpen)
-         {
-            updateTable("pageState is now ready");
-         }
-      }
-   }, [pageState, tableVariantPromptOpen]);
-
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // any time these are out of sync, it means we've navigated to a different table, so we need to reload :allthethings: //
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2902,13 +2969,11 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
       if (tableMetaData?.usesVariants && (!tableVariant || tableVariantPromptOpen))
       {
          return (
-            <BaseLayout>
-               <TableVariantDialog table={tableMetaData} isOpen={true} closeHandler={(value: QTableVariant) =>
-               {
-                  setTableVariantPromptOpen(false);
-                  setTableVariant(value);
-               }} />
-            </BaseLayout>
+            <TableVariantDialog table={tableMetaData} isOpen={true} closeHandler={(value: QTableVariant) =>
+            {
+               setTableVariantPromptOpen(false);
+               setTableVariant(value);
+            }} />
          );
       }
 
@@ -2922,9 +2987,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
       }
 
       return (
-         <BaseLayout>
-            <GotoRecordButton metaData={metaData} tableMetaData={tableMetaData} tableVariant={tableVariant} autoOpen={true} buttonVisible={false} mayClose={false} subHeader={gotoVariantSubHeader} />
-         </BaseLayout>
+         <GotoRecordButton metaData={metaData} tableMetaData={tableMetaData} tableVariant={tableVariant} autoOpen={true} buttonVisible={false} mayClose={false} subHeader={gotoVariantSubHeader} />
       );
    }
 
@@ -2935,7 +2998,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
    {
       console.log(`page state is ${pageState}... rendering an alert...`);
       const errorBody = <Box py={3}><Alert severity="error">{alertContent}</Alert></Box>;
-      return isModal ? errorBody : <BaseLayout>{errorBody}</BaseLayout>;
+      return errorBody;
    }
 
    ///////////////////////////////////////////////////////////
@@ -3349,14 +3412,7 @@ const RecordQuery = forwardRef(({table, apiVersion, usage, isModal, isPreview, a
       </React.Fragment>
    );
 
-   if (isModal)
-   {
-      return body;
-   }
-
-   return (
-      <BaseLayout>{body}</BaseLayout>
-   );
+   return body;
 });
 
 

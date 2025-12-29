@@ -27,7 +27,9 @@ import java.util.Map;
 
 
 /*******************************************************************************
- **
+ * Input wrapper to a {@link FormAdjusterInterface}
+ *
+ * Contains values from the browser.
  *******************************************************************************/
 public class FormAdjusterInput
 {
@@ -36,6 +38,26 @@ public class FormAdjusterInput
 
    private Serializable              newValue;
    private Map<String, Serializable> allValues;
+
+
+   /***************************************************************************
+    * For a given field name, return the current value for it.  Which will
+    * be `newValue` if `fieldName` is `this.fieldName` (e.g., this is a field
+    * level event, and you're requesting the effected field's value) - or -
+    * the value for the field from the allValues map.
+    *
+    * @param fieldName what field to get a value for
+    * @return the field's new value (if appropriate), or existing value possibly
+    * null.
+    ***************************************************************************/
+   public Serializable getFieldValue(String fieldName)
+   {
+      if(fieldName.equals(this.fieldName))
+      {
+         return getNewValue();
+      }
+      return getAllValues().get(fieldName);
+   }
 
 
 

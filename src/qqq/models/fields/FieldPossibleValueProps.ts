@@ -36,5 +36,6 @@ export interface FieldPossibleValueProps
    processName?: string;
    possibleValueSourceName?: string;
    possibleValueSourceFilter?: QQueryFilter;
+   otherValues?: Map<string, any>;
 }
 

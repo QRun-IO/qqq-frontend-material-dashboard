@@ -42,8 +42,6 @@
 
 <!-- Link to any related issues in the main QQQ repository -->
 
-This repository contains the **frontend dashboard application** for the QQQ framework. Please ensure your changes are appropriate for a frontend component.
-
 ## 📋 Pull Request Checklist
 
 - [ ] I have read the [contributing guidelines](https://github.com/Kingsrook/qqq.wiki)
@@ -54,6 +52,8 @@ This repository contains the **frontend dashboard application** for the QQQ fram
 - [ ] My changes do not break existing functionality
 
 ## Reminders
+This repository contains the **frontend dashboard application** for the QQQ framework. Please ensure your changes are appropriate for a frontend component.
+
 ### 🎯 What This Repository Is
 
 This repository contains:

@@ -27,12 +27,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import com.kingsrook.qqq.backend.core.instances.QInstanceValidator;
+import com.kingsrook.qqq.backend.core.logging.QLogger;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
+import com.kingsrook.qqq.backend.core.model.metadata.code.QCodeReference;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QSupplementalTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.utils.CollectionUtils;
 import com.kingsrook.qqq.backend.core.utils.StringUtils;
+import com.kingsrook.qqq.frontend.materialdashboard.actions.formadjuster.FormAdjusterInterface;
+import com.kingsrook.qqq.frontend.materialdashboard.actions.formadjuster.FormAdjusterRegistry;
 import com.kingsrook.qqq.frontend.materialdashboard.model.metadata.fieldrules.FieldRule;
+import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
 
 
 /*******************************************************************************
@@ -40,11 +45,16 @@ import com.kingsrook.qqq.frontend.materialdashboard.model.metadata.fieldrules.Fi
  *******************************************************************************/
 public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
 {
+   private static final QLogger LOG = QLogger.getLogger(MaterialDashboardTableMetaData.class);
+
    public static final String TYPE = "materialDashboard";
 
    private List<List<String>> gotoFieldNames;
    private List<String>       defaultQuickFilterFieldNames;
    private List<FieldRule>    fieldRules;
+
+   private QCodeReference onLoadFormAdjuster = null;
+
 
 
    /*******************************************************************************
@@ -68,6 +78,7 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
    }
 
 
+
    /*******************************************************************************
     **
     *******************************************************************************/
@@ -82,6 +93,7 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
 
       return (supplementalMetaData);
    }
+
 
 
    /*******************************************************************************
@@ -116,7 +128,7 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
 
 
    /*******************************************************************************
-    **
+    ** perform QInstance validation on this table meta data.
     *******************************************************************************/
    @Override
    public void validate(QInstance qInstance, QTableMetaData tableMetaData, QInstanceValidator qInstanceValidator)
@@ -135,6 +147,37 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
       for(FieldRule fieldRule : CollectionUtils.nonNullList(fieldRules))
       {
          validateFieldRule(qInstance, tableMetaData, qInstanceValidator, fieldRule, prefix);
+      }
+
+      if(onLoadFormAdjuster != null)
+      {
+         qInstanceValidator.validateSimpleCodeReference(prefix + ", onLoadFormAdjuster", onLoadFormAdjuster, FormAdjusterInterface.class);
+      }
+   }
+
+
+
+   /***************************************************************************
+    * perform QInstance enrichment on this table meta data.
+    ***************************************************************************/
+   @Override
+   public void enrich(QInstance qInstance, QTableMetaData table)
+   {
+      super.enrich(qInstance, table);
+
+      try
+      {
+         if(onLoadFormAdjuster != null)
+         {
+            ///////////////////////////////////////////////////////////////////////////////
+            // if there's an on-load form adjuster, add it to the form adjuster registry //
+            ///////////////////////////////////////////////////////////////////////////////
+            FormAdjusterRegistry.registerOnLoadFormAdjuster(qInstance, "table:" + table.getName(), onLoadFormAdjuster);
+         }
+      }
+      catch(Exception e)
+      {
+         LOG.warn("Error enriching MaterialDashboardTableMetaData", e, logPair("table", table == null ? null : table.getName()));
       }
    }
 
@@ -218,6 +261,7 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
    }
 
 
+
    /*******************************************************************************
     ** Getter for fieldRules
     *******************************************************************************/
@@ -262,6 +306,85 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
       this.fieldRules.add(fieldRule);
 
       return (this);
+   }
+
+
+
+   /*******************************************************************************
+    * Getter for onLoadFormAdjuster
+    * @see #withOnLoadFormAdjuster(QCodeReference)
+    *******************************************************************************/
+   public QCodeReference getOnLoadFormAdjuster()
+   {
+      return (this.onLoadFormAdjuster);
+   }
+
+
+
+   /*******************************************************************************
+    * Setter for onLoadFormAdjuster
+    * @see #withOnLoadFormAdjuster(QCodeReference)
+    *******************************************************************************/
+   public void setOnLoadFormAdjuster(QCodeReference onLoadFormAdjuster)
+   {
+      this.onLoadFormAdjuster = onLoadFormAdjuster;
+   }
+
+
+
+   /*******************************************************************************
+    * Fluent setter for onLoadFormAdjuster
+    *
+    * @param onLoadFormAdjuster code reference to class of type
+    *                           {@link FormAdjusterInterface} to be executed "on load"
+    *                           for insert & edit screens for this table.
+    * @return this
+    *******************************************************************************/
+   public MaterialDashboardTableMetaData withOnLoadFormAdjuster(QCodeReference onLoadFormAdjuster)
+   {
+      this.onLoadFormAdjuster = onLoadFormAdjuster;
+      return (this);
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   @Override
+   protected QSupplementalTableMetaData finishClone(QSupplementalTableMetaData abstractClone)
+   {
+      MaterialDashboardTableMetaData clone = (MaterialDashboardTableMetaData) abstractClone;
+
+      if(gotoFieldNames != null)
+      {
+         clone.gotoFieldNames = new ArrayList<>();
+         for(List<String> gotoFieldNameSubList : gotoFieldNames)
+         {
+            clone.gotoFieldNames.add(new ArrayList<>(gotoFieldNameSubList));
+         }
+      }
+
+      if(defaultQuickFilterFieldNames != null)
+      {
+         clone.defaultQuickFilterFieldNames = new ArrayList<>(defaultQuickFilterFieldNames);
+      }
+
+      if(fieldRules != null)
+      {
+         clone.fieldRules = new ArrayList<>();
+         for(FieldRule fieldRule : fieldRules)
+         {
+            clone.fieldRules.add(fieldRule.clone());
+         }
+      }
+
+      if(onLoadFormAdjuster != null)
+      {
+         clone.onLoadFormAdjuster = onLoadFormAdjuster.clone();
+      }
+
+      return abstractClone;
    }
 
 }

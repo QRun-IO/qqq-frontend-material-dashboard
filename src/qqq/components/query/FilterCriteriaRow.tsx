@@ -33,8 +33,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, {SelectChangeEvent} from "@mui/material/Select/Select";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
-import {omit} from "lodash";
 import FieldAutoComplete from "qqq/components/misc/FieldAutoComplete";
+import {QFilterCriteriaWithId} from "qqq/components/query/CustomFilterPanel";
 import FilterCriteriaRowValues from "qqq/components/query/FilterCriteriaRowValues";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
@@ -245,7 +245,7 @@ export function validateCriteria(criteria: QFilterCriteria, operatorSelectedValu
       }
       else if (criteria.operator == QCriteriaOperator.BETWEEN || criteria.operator == QCriteriaOperator.NOT_BETWEEN)
       {
-         if (criteria.values.length < 2 || isNotSet(criteria.values[0]) || isNotSet(criteria.values[1]))
+         if ((criteria.values?.length ?? 0) < 2 || isNotSet(criteria.values[0]) || isNotSet(criteria.values[1]))
          {
             criteriaIsValid = false;
             criteriaStatusTooltip = "You must enter two values to complete the definition of this condition.";
@@ -253,7 +253,7 @@ export function validateCriteria(criteria: QFilterCriteria, operatorSelectedValu
       }
       else if (criteria.operator == QCriteriaOperator.IN || criteria.operator == QCriteriaOperator.NOT_IN)
       {
-         if (criteria.values.length < 1 || isNotSet(criteria.values[0]))
+         if ((criteria.values?.length ?? 0) < 1 || isNotSet(criteria.values[0]))
          {
             criteriaIsValid = false;
             criteriaStatusTooltip = "You must enter one or more values complete the definition of this condition.";
@@ -515,7 +515,7 @@ export function FilterCriteriaRow({id, index, tableMetaData, metaData, criteria,
          <Box display="inline-block" width={300} className="filterValuesColumn">
             <FilterCriteriaRowValues
                operatorOption={operatorSelectedValue}
-               criteria={{id: id, ...criteria}}
+               criteria={QFilterCriteriaWithId.buildFromCriteria(criteria, id)}
                field={field}
                table={fieldTable}
                valueChangeHandler={(event, valueIndex, newValue) => handleValueChange(event, valueIndex, newValue)}

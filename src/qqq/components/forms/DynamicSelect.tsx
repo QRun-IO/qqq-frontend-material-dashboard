@@ -19,14 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {Checkbox, Chip, CircularProgress, FilterOptionsState, Icon} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
+import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {ErrorMessage, useFormikContext} from "formik";
 import colors from "qqq/assets/theme/base/colors";
 import MDTypography from "qqq/components/legacy/MDTypography";
@@ -46,12 +46,14 @@ interface Props
    onChange?: any;
    isEditable?: boolean;
    isMultiple?: boolean;
+   limitTags?: number;
    bulkEditMode?: boolean;
    bulkEditSwitchChangeHandler?: any;
    otherValues?: Map<string, any>;
    variant: "standard" | "outlined";
    initiallyOpen: boolean;
    useCase: "form" | "filter";
+   processUUID?: string | null;
 }
 
 DynamicSelect.defaultProps = {
@@ -61,6 +63,7 @@ DynamicSelect.defaultProps = {
    onChange: null,
    isEditable: true,
    isMultiple: false,
+   limitTags: 5,
    bulkEditMode: false,
    otherValues: new Map<string, any>(),
    variant: "outlined",
@@ -96,7 +99,7 @@ export const getAutocompleteOutlinedStyle = (isDisabled: boolean) =>
 
 const qController = Client.getInstance();
 
-function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, inForm, initialValue, initialValues, onChange, isEditable, isMultiple, bulkEditMode, bulkEditSwitchChangeHandler, otherValues, variant, initiallyOpen, useCase}: Props)
+function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, inForm, initialValue, initialValues, onChange, isEditable, isMultiple, limitTags, bulkEditMode, bulkEditSwitchChangeHandler, otherValues, variant, initiallyOpen, useCase, processUUID}: Props)
 {
    const {fieldName, initialDisplayValue, possibleValueSourceName, possibleValues, processName, tableName} = fieldPossibleValueProps;
 
@@ -173,7 +176,15 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
     *******************************************************************************/
    const filterInlinePossibleValues = (searchTerm: string, possibleValues: QPossibleValue[]): QPossibleValue[] =>
    {
-      return possibleValues.filter(pv => pv.label?.toLowerCase().startsWith(searchTerm));
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // sometimes search term is null - which we'd like to treat the same as empty (e.g., return all results) //
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+      if(searchTerm == null || searchTerm == undefined)
+      {
+         searchTerm = "";
+      }
+
+      return possibleValues.filter(pv => pv.label?.toLowerCase().startsWith(searchTerm.toLowerCase()));
    };
 
 
@@ -196,7 +207,8 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
                searchTerm: searchTerm ?? "",
                values: otherValues,
                useCase,
-               possibleValueSourceFilter: fieldPossibleValueProps.possibleValueSourceFilter
+               possibleValueSourceFilter: fieldPossibleValueProps.possibleValueSourceFilter,
+               processUUID
             });
       }
    };
@@ -211,6 +223,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
       {
          // console.log("First render, so not searching...");
          setFirstRender(false);
+         return;
 
          /*
          if(!initiallyOpen)
@@ -303,9 +316,14 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
     ***************************************************************************/
    const handleChanged = (event: React.SyntheticEvent, value: any | any[], reason: string, details?: string) =>
    {
-      // console.log("handleChanged.  value is:");
-      // console.log(value);
-      setSearchTerm(null);
+      /////////////////////////////////////////////////////////////////
+      // for multiple mode, keep the searchTerm - but else, clear it //
+      /////////////////////////////////////////////////////////////////
+      if(!isMultiple)
+      {
+         setSearchTerm(null);
+      }
+
 
       if (onChange)
       {
@@ -420,6 +438,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
             fullWidth
             onOpen={() =>
             {
+               reloadIfOtherValuesAreChanged();
                setOpen(true);
                // console.log("setting open...");
                if (options.length == 0)
@@ -451,6 +470,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
             }}
             options={options}
             loading={loading}
+            inputValue={isMultiple ? searchTerm : undefined}
             onInputChange={inputChanged}
             onBlur={handleBlur}
             defaultValue={defaultValue}
@@ -469,7 +489,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
             disabled={isDisabled}
             multiple={isMultiple}
             disableCloseOnSelect={isMultiple}
-            limitTags={5}
+            limitTags={limitTags}
             slotProps={{popper: {className: "DynamicSelectPopper"}}}
             renderInput={(params) => (
                <TextField
@@ -531,7 +551,7 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
    else
    {
       return (
-         <Box>
+         <Box className="DynamicSelectAutoCompleteWrapper">
             {autocomplete}
          </Box>
       );

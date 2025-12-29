@@ -22,6 +22,7 @@
 import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
 import {QControllerV1} from "@qrunio/qqq-frontend-core/lib/controllers/QControllerV1";
 import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
+import {detectBasePath} from "../PathUtils";
 
 /*******************************************************************************
  ** client wrapper of qqq backend
@@ -32,6 +33,7 @@ class Client
    private static qController: QController;
    private static qControllerV1: QControllerV1;
    private static unauthorizedCallback: () => void;
+   private static basePath: string = "";
 
    private static handleException(exception: QException)
    {
@@ -46,10 +48,31 @@ class Client
       throw (exception);
    }
 
+   /**
+    * Initializes the base path for routing and asset detection.
+    * The base path is used for React Router basename only.
+    * API calls are always made to the root path (/) regardless of where the SPA is hosted.
+    * 
+    * This enables the SPA to be hosted at any path without configuration changes.
+    */
+   private static initializeBasePath(): void
+   {
+      if (!this.basePath)
+      {
+         this.basePath = detectBasePath();
+         console.log(`[QQQ] SPA base path detected: ${this.basePath}`);
+         console.log("[QQQ] API calls will be directed to root path (/, /metaData, /qqq/v1, etc.)");
+      }
+   }
+
    public static getInstance()
    {
       if (this.qController == null)
       {
+         this.initializeBasePath();
+         // QController constructor accepts baseUrl as first parameter
+         // APIs are always served from root (/), not from the SPA's base path
+         // Pass empty string to use root path for all API calls
          this.qController = new QController("", this.handleException);
       }
 
@@ -60,6 +83,9 @@ class Client
    {
       if (this.qControllerV1 == null)
       {
+         this.initializeBasePath();
+         // APIs are always served from root (/), not from the SPA's base path
+         // Pass the path directly without prepending the SPA base path
          this.qControllerV1 = new QControllerV1(path, this.handleException);
       }
 
@@ -79,3 +105,5 @@ class Client
 }
 
 export default Client;
+
+

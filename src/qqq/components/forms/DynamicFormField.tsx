@@ -19,13 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {InputAdornment, InputLabel} from "@mui/material";
 import Box from "@mui/material/Box";
 import Switch from "@mui/material/Switch";
+import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
+import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {ErrorMessage, Field, useFormikContext} from "formik";
 import colors from "qqq/assets/theme/base/colors";
 import BooleanFieldSwitch from "qqq/components/forms/BooleanFieldSwitch";
+import DynamicFormFieldAsWidget from "qqq/components/forms/DynamicFormFieldAsWidget";
 import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
 import DynamicSelect from "qqq/components/forms/DynamicSelect";
 import MDInput from "qqq/components/legacy/MDInput";
@@ -37,26 +39,48 @@ import {flushSync} from "react-dom";
 // Declaring props types for FormField
 interface Props
 {
-   label: string;
-   name: string;
-   displayFormat: string;
-   value: any;
-   type: string;
-   isEditable?: boolean;
-   placeholder?: string;
-   backgroundColor?: string;
+   label: string,
+   name: string,
+   displayFormat: string,
+   value: any,
+   type: string,
+   isEditable?: boolean,
+   placeholder?: string,
+   backgroundColor?: string,
+   processUUID?: string,
+   onChangeCallback?: (newValue: any) => void,
+   additionalCallbacks?:
+      {
+         onTextSelect?: (event: React.SyntheticEvent<HTMLInputElement>) => void;
+         onFocus?: (event: React.SyntheticEvent<HTMLInputElement>) => void;
+         onBlur?: (event: React.SyntheticEvent<HTMLInputElement>) => void;
+      },
 
-   onChangeCallback?: (newValue: any) => void;
+   [key: string]: any,
 
-   [key: string]: any;
-
-   bulkEditMode?: boolean;
-   bulkEditSwitchChangeHandler?: any;
-   formFieldObject: any; // is the type returned by DynamicFormUtils.getDynamicField
+   bulkEditMode?: boolean,
+   bulkEditSwitchChangeHandler?: any,
+   formFieldObject: any,
+   otherValues?: Record<string, any>
 }
 
 function QDynamicFormField({
-   label, name, displayFormat, value, bulkEditMode, bulkEditSwitchChangeHandler, type, isEditable, placeholder, backgroundColor, formFieldObject, onChangeCallback, ...rest
+   label,
+   name,
+   displayFormat,
+   value,
+   bulkEditMode,
+   bulkEditSwitchChangeHandler,
+   type,
+   isEditable,
+   placeholder,
+   backgroundColor,
+   formFieldObject,
+   onChangeCallback,
+   additionalCallbacks,
+   processUUID,
+   otherValues,
+   ...rest
 }: Props): JSX.Element
 {
    const [switchChecked, setSwitchChecked] = useState(false);
@@ -187,6 +211,7 @@ function QDynamicFormField({
          onChange={dynamicSelectOnChange}
          // otherValues={otherValuesMap}
          useCase="form"
+         processUUID={processUUID}
       />);
    }
    else if (type === "checkbox")
@@ -235,6 +260,25 @@ function QDynamicFormField({
          </>
       );
    }
+   else if (formFieldObject.fieldMetaData.getAdornment(AdornmentType.WIDGET))
+   {
+      field = (<DynamicFormFieldAsWidget
+         name={name ?? formFieldObject.fieldMetaData.name}
+         fieldMetaData={formFieldObject?.fieldMetaData}
+         setValueCallback={(fieldName: string, value: any) =>
+         {
+            if(fieldName == name)
+            {
+               onChangeCallback(value);
+            }
+            else
+            {
+               console.log(`Discarding a changed value from a DynamicFormFieldAsWidget: [${fieldName}][${value}]`);
+            }
+         }}
+         otherValues={otherValues}
+      />);
+   }
    else
    {
       field = (
@@ -246,6 +290,18 @@ function QDynamicFormField({
                   {
                      e.preventDefault();
                   }
+               }}
+               onSelect={(event: React.SyntheticEvent<HTMLInputElement>) =>
+               {
+                  additionalCallbacks?.onTextSelect?.(event);
+               }}
+               onFocus={(event: React.SyntheticEvent<HTMLInputElement>) =>
+               {
+                  additionalCallbacks?.onFocus?.(event);
+               }}
+               onBlur={(event: React.SyntheticEvent<HTMLInputElement>) =>
+               {
+                  additionalCallbacks?.onBlur?.(event);
                }}
             />
             <Box mt={0.75}>

@@ -92,7 +92,7 @@ const TABLE_VARIANT_LOCAL_STORAGE_KEY_ROOT = "qqq.tableVariant";
 /*******************************************************************************
  **
  *******************************************************************************/
-export function renderSectionOfFields(key: string, fieldNames: string[], tableMetaData: QTableMetaData, helpHelpActive: boolean, record: QRecord, fieldMap?: { [name: string]: QFieldMetaData }, styleOverrides?: {label?: SxProps, value?: SxProps}, tableVariant?: QTableVariant)
+export function renderSectionOfFields(key: string, fieldNames: string[], tableMetaData: QTableMetaData, helpHelpActive: boolean, record: QRecord, fieldMap?: { [name: string]: QFieldMetaData }, styleOverrides?: { label?: SxProps, value?: SxProps }, tableVariant?: QTableVariant)
 {
    return <Grid container lg={12} key={key} display="flex" py={1} pr={2}>
       {
@@ -205,7 +205,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    const openActionsMenu = (event: any) => setActionsMenu(event.currentTarget);
    const closeActionsMenu = () => setActionsMenu(null);
 
-   const {accentColor, setPageHeader, tableMetaData, setTableMetaData, tableProcesses, setTableProcesses, dotMenuOpen, keyboardHelpOpen, helpHelpActive, recordAnalytics, userId: currentUserId} = useContext(QContext);
+   const {accentColor, setPageHeader, tableMetaData, setTableMetaData, tableProcesses, setTableProcesses, dotMenuOpen, keyboardHelpOpen, modalStack, helpHelpActive, recordAnalytics, userId: currentUserId} = useContext(QContext);
 
    const CREATE_CHILD_KEY = "createChild";
 
@@ -248,7 +248,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          const type = (e.target as any).type;
          const validType = (type !== "text" && type !== "textarea" && type !== "input" && type !== "search");
 
-         if (validType && !dotMenuOpen && !keyboardHelpOpen && !showAudit && !showEditChildForm)
+         if (validType && !dotMenuOpen && !keyboardHelpOpen && !showAudit && !showEditChildForm && (!modalStack || modalStack.length == 0))
          {
             if (!e.metaKey && !e.ctrlKey && e.key === "n" && table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission)
             {
@@ -283,7 +283,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       {
          document.removeEventListener("keydown", down);
       };
-   }, [dotMenuOpen, keyboardHelpOpen, showEditChildForm, showAudit, metaData, location]);
+   }, [dotMenuOpen, keyboardHelpOpen, modalStack, showEditChildForm, showAudit, metaData, location]);
 
    const gotoCreate = () =>
    {
@@ -620,7 +620,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                sectionFieldElements.set(section.name,
                   <Grid id={section.name} key={section.name} item lg={widgetMetaData.gridColumns ? widgetMetaData.gridColumns : 12} xs={12} sx={{display: "flex", alignItems: "stretch", flexGrow: 1, scrollMarginTop: "100px"}}>
                      <Box width="100%" flexGrow={1} alignItems="stretch">
-                        <DashboardWidgets key={section.name} tableName={tableMetaData.name} widgetMetaDataList={[widgetMetaData]} record={record} entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)} omitWrappingGridContainer={true} />
+                        <DashboardWidgets key={section.name} tableName={tableMetaData.name} widgetMetaDataList={[widgetMetaData]} record={record} entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)} omitWrappingGridContainer={true} screen="recordView"  />
                      </Box>
                   </Grid>
                );

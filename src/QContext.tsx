@@ -42,6 +42,11 @@ interface QContext
    keyboardHelpOpen: boolean;
    setKeyboardHelpOpen?: (keyboardHelpOpen: boolean) => void;
 
+   modalStack: string[];
+   pushModalOnStack?: (modalIdentifier: string) => void;
+   popModalOffStack?: (modalIdentifier: string) => void;
+   clearModalStack?: () => void;
+
    tableMetaData?: QTableMetaData;
    setTableMetaData?: (tableMetaData: QTableMetaData) => void;
 
@@ -70,6 +75,7 @@ const defaultState = {
    keyboardHelpOpen: false,
    pathToLabelMap: {},
    helpHelpActive: false,
+   modalStack: [] as string[],
 };
 
 const QContext = createContext<QContext>(defaultState);

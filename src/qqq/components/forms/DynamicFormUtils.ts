@@ -28,6 +28,33 @@ import * as Yup from "yup";
 
 type DisabledFields = { [fieldName: string]: boolean } | string[];
 
+type DynamicFormFieldType = "number" | "datetime-local" | "password" | "time" | "date" | "file" | "checkbox" | "text" | "ace"
+
+//////////////////////////////////////
+// type returned by getDynamicField //
+//////////////////////////////////////
+export interface DynamicFormFieldDefinition
+{
+   fieldMetaData: QFieldMetaData;
+   name: string;
+   label: string;
+   isRequired: boolean;
+   isEditable: boolean;
+   type: DynamicFormFieldType;
+   displayFormat?: string;
+   possibleValueProps?: FieldPossibleValueProps;
+   omitFromQDynamicForm?: boolean;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// type returned by getFormData:  associative arrays of field definitions and yup validations //
+////////////////////////////////////////////////////////////////////////////////////////////////
+export interface FormDataDefinition
+{
+   dynamicFormFields: Record<string, DynamicFormFieldDefinition>,
+   formValidations: Record<string, Yup.BaseSchema>
+}
+
 /*******************************************************************************
  ** Meta-data to represent a single field in a table.
  **
@@ -38,10 +65,10 @@ class DynamicFormUtils
    /*******************************************************************************
     **
     *******************************************************************************/
-   public static getFormData(qqqFormFields: QFieldMetaData[], disabledFields?: DisabledFields)
+   public static getFormData(qqqFormFields: QFieldMetaData[], disabledFields?: DisabledFields): FormDataDefinition
    {
-      const dynamicFormFields: any = {};
-      const formValidations: any = {};
+      const dynamicFormFields: Record<string, DynamicFormFieldDefinition> = {};
+      const formValidations: Record<string, Yup.BaseSchema> = {};
 
       qqqFormFields.forEach((field) =>
       {
@@ -56,7 +83,7 @@ class DynamicFormUtils
    /*******************************************************************************
     **
     *******************************************************************************/
-   public static getDynamicField(field: QFieldMetaData, disabledFields?: DisabledFields)
+   public static getDynamicField(field: QFieldMetaData, disabledFields?: DisabledFields): DynamicFormFieldDefinition
    {
       let fieldType: string;
       switch (field.type.toString())
@@ -123,7 +150,7 @@ class DynamicFormUtils
    /*******************************************************************************
     **
     *******************************************************************************/
-   public static getValidationForField(field: QFieldMetaData, disabledFields?: DisabledFields)
+   public static getValidationForField(field: QFieldMetaData, disabledFields?: DisabledFields): Yup.BaseSchema
    {
       const effectiveIsEditable = field.isEditable && !this.isFieldDynamicallyDisabled(field.name, disabledFields);
       const effectivelyIsRequired = field.isRequired && effectiveIsEditable;
@@ -141,9 +168,22 @@ class DynamicFormUtils
 
 
    /*******************************************************************************
-    **
+    * wrapper around addPossibleValueProps to do it for a single field.
     *******************************************************************************/
-   public static addPossibleValueProps(dynamicFormFields: any, qFields: QFieldMetaData[], tableName: string, processName: string, displayValues: Map<string, string>)
+   public static addPossibleValuePropsToSingleField(dynamicFormField: DynamicFormFieldDefinition, qField: QFieldMetaData, tableName: string, processName: string, displayValues: Map<string, string>)
+   {
+      const dynamicFormFields: Record<string, DynamicFormFieldDefinition> = {};
+      dynamicFormFields[dynamicFormField.name] = dynamicFormField;
+      const qFields = [qField];
+      DynamicFormUtils.addPossibleValueProps(dynamicFormFields, qFields, tableName, processName, displayValues);
+   }
+
+
+   /*******************************************************************************
+    * update several DynamicFormFieldDefinition's with properties that make them
+    * behave like possible value objects, based on attributes in QFieldMetaData.
+    *******************************************************************************/
+   public static addPossibleValueProps(dynamicFormFields: Record<string, DynamicFormFieldDefinition>, qFields: QFieldMetaData[], tableName: string, processName: string, displayValues: Map<string, string>)
    {
       for (let i = 0; i < qFields.length; i++)
       {

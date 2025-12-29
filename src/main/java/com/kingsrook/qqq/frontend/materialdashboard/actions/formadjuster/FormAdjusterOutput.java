@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 import com.kingsrook.qqq.backend.core.model.metadata.frontend.QFrontendFieldMetaData;
+import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 
 
 /*******************************************************************************
@@ -37,6 +38,7 @@ public class FormAdjusterOutput
    private Map<String, Serializable>           updatedFieldValues        = null;
    private Map<String, String>                 updatedFieldDisplayValues = null;
    private Set<String>                         fieldsToClear             = null;
+   private Map<String, QFieldSection>          updatedSectionMetaData    = null;
 
 
 
@@ -132,6 +134,7 @@ public class FormAdjusterOutput
    }
 
 
+
    /*******************************************************************************
     ** Getter for updatedFieldDisplayValues
     *******************************************************************************/
@@ -161,5 +164,42 @@ public class FormAdjusterOutput
       return (this);
    }
 
+
+
+   /*******************************************************************************
+    * Getter for updatedSectionMetaData
+    * @see #withUpdatedSectionMetaData(Map)
+    *******************************************************************************/
+   public Map<String, QFieldSection> getUpdatedSectionMetaData()
+   {
+      return (this.updatedSectionMetaData);
+   }
+
+
+
+   /*******************************************************************************
+    * Setter for updatedSectionMetaData
+    * @see #withUpdatedSectionMetaData(Map)
+    *******************************************************************************/
+   public void setUpdatedSectionMetaData(Map<String, QFieldSection> updatedSectionMetaData)
+   {
+      this.updatedSectionMetaData = updatedSectionMetaData;
+   }
+
+
+
+   /*******************************************************************************
+    * Fluent setter for updatedSectionMetaData
+    *
+    * @param updatedSectionMetaData
+    * Map of QFieldSections to be changed by this request - e.g., to hide or change
+    * labels or icons (is probably about all you can do)
+    * @return this
+    *******************************************************************************/
+   public FormAdjusterOutput withUpdatedSectionMetaData(Map<String, QFieldSection> updatedSectionMetaData)
+   {
+      this.updatedSectionMetaData = updatedSectionMetaData;
+      return (this);
+   }
 
 }
