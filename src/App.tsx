@@ -27,6 +27,9 @@ import {QBrandingMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QB
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+// eslint-disable-next-line import/no-unresolved
+import {QThemeMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QThemeMetaData";
+import {Theme} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -39,7 +42,8 @@ import useAnonymousAuthenticationModule from "qqq/authorization/anonymous/useAno
 import useAuth0AuthenticationModule from "qqq/authorization/auth0/useAuth0AuthenticationModule";
 import useOAuth2AuthenticationModule from "qqq/authorization/oauth2/useOAuth2AuthenticationModule";
 import Sidenav from "qqq/components/horseshoe/sidenav/SideNav";
-import theme from "qqq/components/legacy/Theme";
+import {createDynamicTheme} from "qqq/utils/createDynamicTheme";
+import {injectIslandVariables} from "qqq/utils/injectIslandVariables";
 import {getBannerClassName, getBannerStyles, getBanner, makeBannerContent} from "qqq/components/misc/Banners";
 import {setMiniSidenav, useMaterialUIController} from "qqq/context";
 import AppHome from "qqq/pages/apps/Home";
@@ -57,7 +61,7 @@ import RecordViewByUniqueKey from "qqq/pages/records/view/RecordViewByUniqueKey"
 import GoogleAnalyticsUtils, {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
 import ProcessUtils from "qqq/utils/qqq/ProcessUtils";
-import React, {JSXElementConstructor, Key, ReactElement, useEffect, useState,} from "react";
+import React, {JSXElementConstructor, Key, ReactElement, useEffect, useMemo, useState,} from "react";
 import {useCookies} from "react-cookie";
 import {Navigate, Route, Routes, useLocation, useSearchParams,} from "react-router-dom";
 import {Md5} from "ts-md5/dist/md5";
@@ -78,6 +82,7 @@ export default function App({authenticationMetaData}: Props)
    const [isFullyAuthenticated, setIsFullyAuthenticated] = useState(false);
    const [profileRoutes, setProfileRoutes] = useState({});
    const [branding, setBranding] = useState({} as QBrandingMetaData);
+   const [themeMetaData, setThemeMetaData] = useState(null as QThemeMetaData | null);
    const [metaData, setMetaData] = useState({} as QInstance);
    const [needLicenseKey, setNeedLicenseKey] = useState(true);
    const [loggedInUser, setLoggedInUser] = useState({} as { name?: string, email?: string });
@@ -490,6 +495,14 @@ export default function App({authenticationMetaData}: Props)
                }
             }
 
+            ///////////////////////////////////////////////
+            // Set theme metadata for dynamic theming    //
+            ///////////////////////////////////////////////
+            if (metaData.theme)
+            {
+               setThemeMetaData(metaData.theme);
+            }
+
             const gravatarBase = "https://www.gravatar.com/avatar/";
             const hash = Md5.hashStr(loggedInUser?.email || "user");
             const profilePicture = `${gravatarBase}${hash}`;
@@ -633,6 +646,24 @@ export default function App({authenticationMetaData}: Props)
       },
    );
 
+   /////////////////////////////////////////////////////////////////////////////
+   // Create dynamic MUI theme from themeMetaData                            //
+   // Theme is rebuilt when themeMetaData changes (from backend)             //
+   /////////////////////////////////////////////////////////////////////////////
+   const dynamicTheme: Theme = useMemo(() =>
+   {
+      return createDynamicTheme(themeMetaData || undefined);
+   }, [themeMetaData]);
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Inject CSS variables for island components (sidebar, header, DataGrid) //
+   // These components can't use MUI palette, so they need CSS variables      //
+   /////////////////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      injectIslandVariables(themeMetaData || undefined);
+   }, [themeMetaData]);
+
    const [pageHeader, setPageHeader] = useState("" as string | JSX.Element);
    const [accentColor, setAccentColor] = useState("#0062FF");
    const [accentColorLight, setAccentColorLight] = useState("#C0D6F7");
@@ -754,7 +785,7 @@ export default function App({authenticationMetaData}: Props)
             pathToLabelMap: pathToLabelMap,
             branding: branding
          }}>
-            <ThemeProvider theme={theme}>
+            <ThemeProvider theme={dynamicTheme}>
                <CssBaseline />
                <CommandMenu metaData={metaData} />
                {banner()}
