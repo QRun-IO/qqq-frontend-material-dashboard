@@ -158,7 +158,9 @@ This project is part of a three-repo theming system:
 |------------|----------|-----------------|
 | qqq (backend-core) | `com.kingsrook.qqq:qqq-backend-core` | `0.36.0-SNAPSHOT` |
 | qqq-frontend-core | `@qrunio/qqq-frontend-core` | `1.4.2-SNAPSHOT` |
-| qqq-frontend-material-dashboard | `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.36.0-SNAPSHOT` |
+| qqq-frontend-material-dashboard | `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.36.0-pluggable-themes-SNAPSHOT` |
+
+**Feature branch version:** `0.36.0-pluggable-themes-SNAPSHOT` (for testing pluggable themes)
 
 **Dependency order for commits/publishes:** backend-core → frontend-core → dashboard
 

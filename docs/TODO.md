@@ -4,18 +4,13 @@
 
 ## Active Tasks
 
-- [ ] **Debug me-health-portal theme integration issue**
-  - me-health team reports seeing "dark Tailwind theme" instead of themed output
-  - JAR verified to be correctly built and installed
-  - Theme config verified in their codebase
+- [ ] **Await me-health team feedback**
+  - Snapshot `0.36.0-pluggable-themes-SNAPSHOT` published to Maven Central
+  - They need to run `mvn clean package -U` to pull latest
 
-- [ ] **Verify JS bundle contains theme injection code**
-  - Need to inspect the bundled JS to confirm `injectIslandVariables` is included
-  - Check if createDynamicTheme.ts is bundled correctly
-
-- [ ] **Check if me-health app is caching old resources**
-  - May need `mvn clean` on their side
-  - Check browser cache / service worker
+- [ ] **Prepare PR for develop branch**
+  - Once me-health confirms theming works
+  - Update version back to `0.36.0-SNAPSHOT` before merge
 
 ## Completed
 
@@ -27,6 +22,14 @@
   - [x] Fix menu to use CSS variables
   - [x] Fix branded header rendering
 - [x] Phase 4: Run theme tests and validate (60 tests pass)
+- [x] **Fix sidebar selected text/icon color CSS specificity**
+  - Added icon selectors to selected text color rule
+  - Both text AND icons now use `sidebarSelectedTextColor` when selected
+- [x] **Add base typography font-size variable**
+  - `body` and `html` now use `--qqq-font-size-base`
+- [x] **Publish feature branch snapshot**
+  - Version: `0.36.0-pluggable-themes-SNAPSHOT`
+  - Deployed to Maven Central snapshots
 
 ## Test Status
 
