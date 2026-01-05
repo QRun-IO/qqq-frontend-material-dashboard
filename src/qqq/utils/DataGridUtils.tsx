@@ -30,6 +30,7 @@ import Tooltip from "@mui/material/Tooltip/Tooltip";
 import {GridColDef, GridRowsProp, MuiEvent} from "@mui/x-data-grid-pro";
 import {GridColumnHeaderParams} from "@mui/x-data-grid/models/params/gridColumnHeaderParams";
 import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
+import {generateTableHeaderId} from "qqq/utils/qqqIdUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import React from "react";
 import {Link, NavigateFunction} from "react-router-dom";
@@ -311,15 +312,25 @@ export default class DataGridUtils
 
       const helpRoles = ["QUERY_SCREEN", "READ_SCREENS", "ALL_SCREENS"];
       const showHelp = hasHelpContent(field.helpContents, helpRoles); // todo - maybe - take helpHelpActive from context all the way down to here?
+      const dataQqqId = generateTableHeaderId(undefined, field.name, headerName);
+
       if (showHelp)
       {
          const formattedHelpContent = <HelpContent helpContents={field.helpContents} roles={helpRoles} heading={headerName} helpContentKey={`table:${tableMetaData.name};field:${fieldName}`} />;
          column.renderHeader = (params: GridColumnHeaderParams) => (
             <Tooltip title={formattedHelpContent}>
-               <div className="MuiDataGrid-columnHeaderTitle" style={{lineHeight: "initial"}}>
+               <div className="MuiDataGrid-columnHeaderTitle" data-qqq-id={dataQqqId} style={{lineHeight: "initial"}}>
                   {headerName}
                </div>
             </Tooltip>
+         );
+      }
+      else
+      {
+         column.renderHeader = (params: GridColumnHeaderParams) => (
+            <div className="MuiDataGrid-columnHeaderTitle" data-qqq-id={dataQqqId} style={{lineHeight: "initial"}}>
+               {headerName}
+            </div>
          );
       }
 

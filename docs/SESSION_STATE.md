@@ -1,52 +1,73 @@
-# Session State - Pluggable Themes
+# Session State - Pluggable Themes + CSS Selectors
 
-**Last Updated:** 2026-01-04 20:50 CST
+**Last Updated:** 2026-01-05
 **Branch:** `feature/pluggable-themes-v2-mui`
-**Latest Commit:** `6b7845b` - fix(theme): improve sidebar selected state CSS specificity
+**Version:** `0.36.0-pluggable-themes-css-selectors-SNAPSHOT`
 
 ## Current Status
 
-**All 60 theme tests pass locally.** Snapshot published to Maven Central.
+CSS selector implementation complete. All major UI elements now have `data-qqq-id` attributes for targeted styling via `QThemeMetaData.customCss`.
 
-| Artifact | Version |
-|----------|---------|
-| `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.36.0-pluggable-themes-SNAPSHOT` |
+## To Continue
 
-## Recent Bug Fixes (This Session)
+Run `git pull` then review uncommitted changes with `git status`. The TODO.md file tracks remaining tasks.
 
-1. **Sidebar selected text/icon color** - Fixed CSS specificity issue where selected sidebar items showed icon color instead of selected text color. Added icon selectors to the selected text color rule.
+## Files Modified (Uncommitted)
 
-2. **Base typography font-size** - Added `--qqq-font-size-base` CSS variable support for `body` and `html` elements.
+### New Files
+- `src/qqq/utils/qqqIdUtils.ts` - ID sanitization utilities
+- `src/qqq/context/QqqIdContext.tsx` - Optional scope context provider
+- `docs/QQQ_CSS_SELECTORS_GUIDE.md` - Complete selector reference
 
-3. **Sidebar icon specificity** - Added more specific selectors for nested icons in `MuiListItemIcon`.
+### Modified Files
+- `src/qqq/pages/records/view/RecordView.tsx` - View screen selectors
+- `src/qqq/components/forms/EntityForm.tsx` - Create/edit screen selectors
+- `src/qqq/components/misc/RecordSidebar.tsx` - Sidebar selectors
+- `src/qqq/components/legacy/MDButton/index.tsx` - Button selectors
+- `src/qqq/components/legacy/MDButton/MDButtonRoot.tsx` - CSS variable gradients
+- `src/qqq/components/horseshoe/sidenav/*` - Nav selectors
+- `src/qqq/components/forms/DynamicFormField.tsx` - Input selectors
+- `src/qqq/components/forms/DynamicSelect.tsx` - Select selectors
+- `src/qqq/pages/records/query/RecordQuery.tsx` - Query screen selectors
+- `src/qqq/components/query/*` - Query control selectors
+- `src/qqq/pages/apps/Home.tsx` - App home selectors
+- `src/qqq/components/widgets/statistics/MiniStatisticsCard.tsx` - Card selectors
+- `src/qqq/components/processes/ProcessLinkCard.tsx` - Process card selectors
+- `src/qqq/utils/DataGridUtils.tsx` - Table header selectors
 
-## me-health Testing
+## CSS Selector Coverage
 
-The me-health team is testing with `0.36.0-pluggable-themes-SNAPSHOT`. They should:
+| Screen | Elements with Selectors |
+|--------|------------------------|
+| **Sidenav** | Root, items, collapse groups, logout button |
+| **App Home** | App headers, section cards, table/process/report cards |
+| **Record Query** | Action menu, views button, columns button, table headers |
+| **Record View** | Header, avatar, title, actions menu, menu items, sections, button bar, delete dialog |
+| **Record Create** | Header, avatar, title, sections, button bar |
+| **Record Edit** | Header, avatar, title, sections, button bar |
+| **Forms** | All inputs, selects, field containers |
+
+## Selector Patterns
+
+| Element | Pattern | Example |
+|---------|---------|---------|
+| Buttons | `button-{text}` | `button-save` |
+| Icon buttons | `button-icon-{icon}` | `button-icon-delete` |
+| Menu items | `menu-item-{text}` | `menu-item-bulk-edit` |
+| Nav items | `sidenav-{name}` | `sidenav-orders` |
+| Inputs | `input-{field}` | `input-first-name` |
+| Selects | `select-{field}` | `select-status` |
+| Table headers | `table-header-{field}` | `table-header-order-id` |
+| Record view | `record-view-{element}-{table}` | `record-view-header-orders` |
+| Record create | `record-create-{element}-{table}` | `record-create-title-person` |
+| Record edit | `record-edit-{element}-{table}` | `record-edit-avatar-customer` |
+| Sections | `record-section-{name}` | `record-section-identity` |
+| Form sections | `form-section-{name}` | `form-section-details` |
+| Sidebar items | `sidebar-item-{name}` | `sidebar-item-identity` |
+
+## Build Commands
 
 ```bash
-mvn dependency:purge-local-repository -DmanualInclude=com.kingsrook.qqq:qqq-frontend-material-dashboard
-mvn clean package -U
+npm run build                    # Build frontend
+mvn clean install -DskipTests    # Install snapshot locally
 ```
-
-## Key Files
-
-| File | Purpose |
-|------|---------|
-| `src/qqq/styles/qqq-override-styles.css` | CSS variable consumption for MUI components |
-| `src/qqq/utils/themeUtils.ts` | Injects `--qqq-*` CSS variables from QThemeMetaData |
-| `src/qqq/components/horseshoe/BrandedHeaderBar.tsx` | Optional branded header component |
-| `src/App.tsx` | ThemeProvider integration, theme state management |
-
-## Next Steps
-
-1. Wait for me-health team feedback on the new snapshot
-2. If all works, prepare PR to merge `feature/pluggable-themes-v2-mui` into `develop`
-3. Update version back to `0.36.0-SNAPSHOT` before merge
-
-## To Resume
-
-Say "continue from last session" and I will:
-1. Read `docs/SESSION_STATE.md` and `docs/TODO.md`
-2. Check git status
-3. Continue from current state
