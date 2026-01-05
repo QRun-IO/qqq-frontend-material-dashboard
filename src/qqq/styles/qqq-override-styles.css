@@ -895,6 +895,19 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
+ ** Base typography theming - uses CSS variables from QThemeMetaData
+ *****************************************************************************/
+body
+{
+   font-size: var(--qqq-font-size-base, 14px) !important;
+}
+
+html
+{
+   font-size: var(--qqq-font-size-base, 14px) !important;
+}
+
+/*****************************************************************************
  ** Sidebar theming - uses CSS variables from QThemeMetaData
  *****************************************************************************/
 .MuiDrawer-paper
@@ -912,7 +925,11 @@ input[type="search"]::-webkit-search-results-decoration
 
 .MuiDrawer-paper svg,
 .MuiDrawer-paper .MuiIcon-root,
-.MuiDrawer-paper .MuiSvgIcon-root
+.MuiDrawer-paper .MuiSvgIcon-root,
+.MuiDrawer-paper .MuiListItemIcon-root,
+.MuiDrawer-paper .MuiListItemIcon-root .MuiIcon-root,
+.MuiDrawer-paper .MuiListItemIcon-root .MuiSvgIcon-root,
+.MuiDrawer-paper .MuiListItemIcon-root svg
 {
    color: var(--qqq-sidebar-icon-color) !important;
 }
@@ -929,7 +946,13 @@ input[type="search"]::-webkit-search-results-decoration
 
 .MuiDrawer-paper .qqq-sidebar-active,
 .MuiDrawer-paper .qqq-sidebar-active span,
-.MuiDrawer-paper .qqq-sidebar-active .MuiListItemText-primary
+.MuiDrawer-paper .qqq-sidebar-active .MuiListItemText-primary,
+.MuiDrawer-paper .qqq-sidebar-active .MuiIcon-root,
+.MuiDrawer-paper .qqq-sidebar-active .MuiSvgIcon-root,
+.MuiDrawer-paper .qqq-sidebar-active svg,
+.MuiDrawer-paper .qqq-sidebar-active .MuiListItemIcon-root,
+.MuiDrawer-paper .qqq-sidebar-active .MuiListItemIcon-root .MuiIcon-root,
+.MuiDrawer-paper .qqq-sidebar-active .MuiListItemIcon-root svg
 {
    color: var(--qqq-sidebar-selected-text-color) !important;
 }
