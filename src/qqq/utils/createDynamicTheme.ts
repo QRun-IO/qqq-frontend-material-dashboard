@@ -26,6 +26,59 @@ import borders from "qqq/assets/theme/base/borders";
 import boxShadows from "qqq/assets/theme/base/boxShadows";
 import breakpoints from "qqq/assets/theme/base/breakpoints";
 import colors from "qqq/assets/theme/base/colors";
+import globals from "qqq/assets/theme/base/globals";
+import typography from "qqq/assets/theme/base/typography";
+import appBar from "qqq/assets/theme/components/appBar";
+import avatar from "qqq/assets/theme/components/avatar";
+import breadcrumbs from "qqq/assets/theme/components/breadcrumbs";
+import button from "qqq/assets/theme/components/button";
+import buttonBase from "qqq/assets/theme/components/buttonBase";
+import card from "qqq/assets/theme/components/card";
+import cardContent from "qqq/assets/theme/components/card/cardContent";
+import cardMedia from "qqq/assets/theme/components/card/cardMedia";
+import container from "qqq/assets/theme/components/container";
+import dialog from "qqq/assets/theme/components/dialog";
+import dialogActions from "qqq/assets/theme/components/dialog/dialogActions";
+import dialogContent from "qqq/assets/theme/components/dialog/dialogContent";
+import dialogContentText from "qqq/assets/theme/components/dialog/dialogContentText";
+import dialogTitle from "qqq/assets/theme/components/dialog/dialogTitle";
+import divider from "qqq/assets/theme/components/divider";
+import flatpickr from "qqq/assets/theme/components/flatpickr";
+import autocomplete from "qqq/assets/theme/components/form/autocomplete";
+import checkbox from "qqq/assets/theme/components/form/checkbox";
+import formControlLabel from "qqq/assets/theme/components/form/formControlLabel";
+import formLabel from "qqq/assets/theme/components/form/formLabel";
+import input from "qqq/assets/theme/components/form/input";
+import inputLabel from "qqq/assets/theme/components/form/inputLabel";
+import inputOutlined from "qqq/assets/theme/components/form/inputOutlined";
+import radio from "qqq/assets/theme/components/form/radio";
+import select from "qqq/assets/theme/components/form/select";
+import switchButton from "qqq/assets/theme/components/form/switchButton";
+import textField from "qqq/assets/theme/components/form/textField";
+import icon from "qqq/assets/theme/components/icon";
+import iconButton from "qqq/assets/theme/components/iconButton";
+import linearProgress from "qqq/assets/theme/components/linearProgress";
+import link from "qqq/assets/theme/components/link";
+import list from "qqq/assets/theme/components/list";
+import listItem from "qqq/assets/theme/components/list/listItem";
+import listItemText from "qqq/assets/theme/components/list/listItemText";
+import menu from "qqq/assets/theme/components/menu";
+import menuItem from "qqq/assets/theme/components/menu/menuItem";
+import popover from "qqq/assets/theme/components/popover";
+import sidenav from "qqq/assets/theme/components/sidenav";
+import slider from "qqq/assets/theme/components/slider";
+import stepper from "qqq/assets/theme/components/stepper";
+import step from "qqq/assets/theme/components/stepper/step";
+import stepConnector from "qqq/assets/theme/components/stepper/stepConnector";
+import stepIcon from "qqq/assets/theme/components/stepper/stepIcon";
+import stepLabel from "qqq/assets/theme/components/stepper/stepLabel";
+import svgIcon from "qqq/assets/theme/components/svgIcon";
+import tableCell from "qqq/assets/theme/components/table/tableCell";
+import tableContainer from "qqq/assets/theme/components/table/tableContainer";
+import tableHead from "qqq/assets/theme/components/table/tableHead";
+import tabs from "qqq/assets/theme/components/tabs";
+import tab from "qqq/assets/theme/components/tabs/tab";
+import tooltip from "qqq/assets/theme/components/tooltip";
 import boxShadow from "qqq/assets/theme/functions/boxShadow";
 import hexToRgb from "qqq/assets/theme/functions/hexToRgb";
 import linearGradient from "qqq/assets/theme/functions/linearGradient";
@@ -134,12 +187,19 @@ function buildPalette(theme: QThemeMetaData): ThemeOptions["palette"]
 
 /*******************************************************************************
  ** Build MUI typography from QThemeMetaData.
+ ** Merges with base typography to preserve custom properties like size/lineHeight
+ ** that are used by the component override files.
  *******************************************************************************/
 function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
 {
    const fontFamily = theme.fontFamily || "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif";
 
+   /////////////////////////////////////////////////////////////////////////////
+   // Spread base typography to include custom properties (size, lineHeight,  //
+   // fontWeightLighter, display variants) needed by component override files //
+   /////////////////////////////////////////////////////////////////////////////
    return {
+      ...typography,
       fontFamily,
       fontWeightLight: theme.fontWeightLight || 300,
       fontWeightRegular: theme.fontWeightRegular || 400,
@@ -226,8 +286,44 @@ function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
 }
 
 /*******************************************************************************
+ ** Deep merge helper - merges objects recursively.
+ ** Used to combine base component overrides with dynamic theme values.
+ *******************************************************************************/
+function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T
+{
+   const output = {...target} as Record<string, unknown>;
+   for (const key of Object.keys(source))
+   {
+      const sourceVal = source[key];
+      const targetVal = target[key];
+      if (
+         sourceVal &&
+         typeof sourceVal === "object" &&
+         !Array.isArray(sourceVal) &&
+         targetVal &&
+         typeof targetVal === "object" &&
+         !Array.isArray(targetVal)
+      )
+      {
+         output[key] = deepMerge(
+            targetVal as Record<string, unknown>,
+            sourceVal as Record<string, unknown>
+         );
+      }
+      else if (sourceVal !== undefined)
+      {
+         output[key] = sourceVal;
+      }
+   }
+   return output as T;
+}
+
+/*******************************************************************************
  ** Build MUI component overrides from QThemeMetaData.
- ** This replaces the 55 static component override files with dynamic values.
+ **
+ ** Strategy: Import all 55 component override files as base styling, then apply
+ ** dynamic theme values on top. This preserves the detailed styling work while
+ ** allowing colors, spacing, and border-radius to be customized.
  *******************************************************************************/
 function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
 {
@@ -243,25 +339,81 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
    const borderColor = theme.borderColor || "rgba(0, 0, 0, 0.12)";
    const dividerColor = theme.dividerColor || "rgba(0, 0, 0, 0.12)";
 
-   return {
+   /////////////////////////////////////////////////////////////////////////////
+   // Base components from the 55 static files - preserves all detailed        //
+   // styling like shadows, transitions, sizes, etc.                           //
+   /////////////////////////////////////////////////////////////////////////////
+   const baseComponents: ThemeOptions["components"] = {
       MuiCssBaseline: {
          styleOverrides: {
-            html: {
-               scrollBehavior: "smooth",
-            },
+            ...globals,
+            ...flatpickr,
+            ...container,
+         },
+      },
+      MuiDrawer: {...sidenav},
+      MuiList: {...list},
+      MuiListItem: {...listItem},
+      MuiListItemText: {...listItemText},
+      MuiCard: {...card},
+      MuiCardMedia: {...cardMedia},
+      MuiCardContent: {...cardContent},
+      MuiButton: {...button},
+      MuiIconButton: {...iconButton},
+      MuiInput: {...input},
+      MuiInputLabel: {...inputLabel},
+      MuiOutlinedInput: {...inputOutlined},
+      MuiTextField: {...textField},
+      MuiMenu: {...menu},
+      MuiMenuItem: {...menuItem},
+      MuiSwitch: {...switchButton},
+      MuiDivider: {...divider},
+      MuiTableContainer: {...tableContainer},
+      MuiTableHead: {...tableHead},
+      MuiTableCell: {...tableCell},
+      MuiLinearProgress: {...linearProgress},
+      MuiBreadcrumbs: {...breadcrumbs},
+      MuiSlider: {...slider},
+      MuiAvatar: {...avatar},
+      MuiTooltip: {...tooltip},
+      MuiAppBar: {...appBar},
+      MuiTabs: {...tabs},
+      MuiTab: {...tab},
+      MuiStepper: {...stepper},
+      MuiStep: {...step},
+      MuiStepConnector: {...stepConnector},
+      MuiStepLabel: {...stepLabel},
+      MuiStepIcon: {...stepIcon},
+      MuiSelect: {...select},
+      MuiFormControlLabel: {...formControlLabel},
+      MuiFormLabel: {...formLabel},
+      MuiCheckbox: {...checkbox},
+      MuiRadio: {...radio},
+      MuiAutocomplete: {...autocomplete},
+      MuiPopover: {...popover},
+      MuiButtonBase: {...buttonBase},
+      MuiIcon: {...icon},
+      MuiSvgIcon: {...svgIcon},
+      MuiLink: {...link},
+      MuiDialog: {...dialog},
+      MuiDialogTitle: {...dialogTitle},
+      MuiDialogContent: {...dialogContent},
+      MuiDialogContentText: {...dialogContentText},
+      MuiDialogActions: {...dialogActions},
+   };
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Dynamic overrides - theme-specific values that override the base         //
+   // These are the properties that should change based on QThemeMetaData      //
+   /////////////////////////////////////////////////////////////////////////////
+   const dynamicOverrides: ThemeOptions["components"] = {
+      MuiCssBaseline: {
+         styleOverrides: {
             body: {
                backgroundColor,
             },
-            "*, *::before, *::after": {
-               margin: 0,
-               padding: 0,
-            },
-            "a, a:link, a:visited": {
-               textDecoration: "none",
-            },
             "a.link, .link, a.link:link, .link:link, a.link:visited, .link:visited": {
                color: `${primaryColor} !important`,
-               transition: "color 150ms ease-in",
             },
             "a.link:hover, .link:hover, a.link:focus, .link:focus": {
                color: `${primaryColor} !important`,
@@ -269,19 +421,10 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
          },
       },
       MuiButton: {
-         defaultProps: {
-            disableRipple: false,
-         },
          styleOverrides: {
             root: {
                borderRadius: `${borderRadius}px`,
                padding: `${spacingUnit}px ${spacingUnit * 2}px`,
-            },
-            contained: {
-               boxShadow: "none",
-               "&:hover": {
-                  boxShadow: "none",
-               },
             },
             containedPrimary: {
                backgroundColor: primaryColor,
@@ -290,18 +433,12 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
                   filter: "brightness(0.9)",
                },
             },
-            outlined: {
-               borderColor,
-            },
             outlinedPrimary: {
                borderColor: primaryColor,
                color: primaryColor,
                "&:hover": {
                   backgroundColor: `${primaryColor}10`,
                },
-            },
-            text: {
-               color: textPrimary,
             },
             textPrimary: {
                color: primaryColor,
@@ -312,8 +449,6 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
          styleOverrides: {
             root: {
                borderRadius: `${borderRadius}px`,
-               boxShadow: "0rem 0.25rem 0.375rem -0.0625rem rgba(0, 0, 0, 0.1), 0rem 0.125rem 0.25rem -0.0625rem rgba(0, 0, 0, 0.06)",
-               overflow: "visible",
             },
          },
       },
@@ -355,16 +490,6 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
          styleOverrides: {
             root: {
                color: textSecondary,
-               "&:hover": {
-                  backgroundColor: "rgba(0, 0, 0, 0.04)",
-               },
-            },
-         },
-      },
-      MuiInputBase: {
-         styleOverrides: {
-            root: {
-               fontSize: "0.875rem",
             },
          },
       },
@@ -395,10 +520,6 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
          styleOverrides: {
             root: {
                color: primaryColor,
-               textDecoration: "none",
-               "&:hover": {
-                  textDecoration: "underline",
-               },
             },
          },
       },
@@ -406,7 +527,6 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
          styleOverrides: {
             root: {
                borderRadius: `${borderRadius / 2}px`,
-               height: "4px",
             },
             bar: {
                borderRadius: `${borderRadius / 2}px`,
@@ -423,18 +543,13 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
          styleOverrides: {
             paper: {
                borderRadius: `${borderRadius}px`,
-               boxShadow: "0rem 0.25rem 0.375rem -0.0625rem rgba(0, 0, 0, 0.1), 0rem 0.125rem 0.25rem -0.0625rem rgba(0, 0, 0, 0.06)",
             },
          },
       },
       MuiMenuItem: {
          styleOverrides: {
             root: {
-               fontSize: "0.875rem",
                padding: `${spacingUnit}px ${spacingUnit * 2}px`,
-               "&:hover": {
-                  backgroundColor: "rgba(0, 0, 0, 0.04)",
-               },
             },
          },
       },
@@ -452,16 +567,6 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
          styleOverrides: {
             paper: {
                borderRadius: `${borderRadius}px`,
-               boxShadow: "0rem 0.25rem 0.375rem -0.0625rem rgba(0, 0, 0, 0.1), 0rem 0.125rem 0.25rem -0.0625rem rgba(0, 0, 0, 0.06)",
-            },
-         },
-      },
-      MuiSelect: {
-         styleOverrides: {
-            select: {
-               "&:focus": {
-                  backgroundColor: "transparent",
-               },
             },
          },
       },
@@ -503,7 +608,6 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
             head: {
                backgroundColor: theme.tableHeaderBackgroundColor || backgroundColor,
                color: theme.tableHeaderTextColor || textPrimary,
-               fontWeight: 600,
             },
          },
       },
@@ -522,14 +626,8 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
       MuiTooltip: {
          styleOverrides: {
             tooltip: {
-               backgroundColor: "#1a2035",
-               color: "#ffffff",
-               fontSize: "0.75rem",
                borderRadius: `${borderRadius / 2}px`,
                padding: `${spacingUnit / 2}px ${spacingUnit}px`,
-            },
-            arrow: {
-               color: "#1a2035",
             },
          },
       },
@@ -541,6 +639,14 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
          },
       },
    };
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Merge base components with dynamic overrides                             //
+   /////////////////////////////////////////////////////////////////////////////
+   return deepMerge(
+      baseComponents as Record<string, unknown>,
+      dynamicOverrides as Record<string, unknown>
+   ) as ThemeOptions["components"];
 }
 
 /*******************************************************************************
