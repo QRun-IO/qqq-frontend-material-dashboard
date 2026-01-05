@@ -24,8 +24,8 @@ import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import Icon from "@mui/material/Icon";
 import {ReactNode} from "react";
-import colors from "qqq/assets/theme/base/colors";
 import MDTypography from "qqq/components/legacy/MDTypography";
+import {sanitizeId} from "qqq/utils/qqqIdUtils";
 
 interface Props
 {
@@ -39,16 +39,20 @@ interface Props
    };
    icon: ReactNode;
    isDisabled?: boolean;
+   qqqId?: string;
 
    [key: string]: any;
 }
 
 function ProcessLinkCard({
-   color, isReport, title, percentage, icon, isDisabled
+   color, isReport, title, percentage, icon, isDisabled, qqqId
 }: Props): JSX.Element
 {
+   const cardType = isReport ? "report-card" : "process-card";
+   const generatedId = qqqId ? `${cardType}-${sanitizeId(qqqId)}` : `${cardType}-${sanitizeId(title)}`;
+
    return (
-      <Card>
+      <Card data-qqq-id={generatedId}>
          <Box display="flex" justifyContent="space-between" pt={3} px={2} title={isDisabled ? `You do not have permission to access this ${isReport ? "report" : "process"}` : ""}>
             <Box
                color={color === "light" ? "#000000" : "#FFFFFF"}
@@ -59,7 +63,13 @@ function ProcessLinkCard({
                width="4rem"
                height="4rem"
                mt={-1.5}
-               sx={{borderRadius: "10px", backgroundColor: isDisabled ? colors.secondary.main : colors.info.main}}
+               sx={{
+                  borderRadius: "10px",
+                  backgroundColor: isDisabled
+                     ? "var(--qqq-secondary-color, #7b809a)"
+                     : "var(--qqq-info-color, #0062FF)"
+               }}
+               data-qqq-id={`${generatedId}-icon`}
             >
                <Icon fontSize="medium" color="inherit">
                   {icon}
@@ -109,6 +119,7 @@ ProcessLinkCard.defaultProps = {
       label: "",
    },
    isDisabled: false,
+   qqqId: undefined,
 };
 
 export default ProcessLinkCard;

@@ -42,7 +42,7 @@ export function QCreateNewButton({tablePath}: QCreateNewButtonProps): JSX.Elemen
    return (
       <Box display="inline-block" ml={standardML} mr={0} width={standardWidth}>
          <Link to={`${tablePath}/create`}>
-            <MDButton variant="gradient" color="info" fullWidth startIcon={<Icon>add</Icon>}>
+            <MDButton qqqId="create-new" variant="gradient" color="info" fullWidth startIcon={<Icon>add</Icon>}>
                Create New
             </MDButton>
          </Link>
@@ -67,7 +67,7 @@ export function QSaveButton({label, iconName, onClickHandler, disabled}: QSaveBu
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton type="submit" variant="gradient" color="info" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled}>
+         <MDButton qqqId="save" type="submit" variant="gradient" color="info" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled}>
             {label}
          </MDButton>
       </Box>
@@ -88,7 +88,7 @@ export function QDeleteButton({onClickHandler, disabled}: QDeleteButtonProps): J
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton variant="gradient" color="primary" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>delete</Icon>} disabled={disabled}>
+         <MDButton qqqId="delete" variant="gradient" color="primary" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>delete</Icon>} disabled={disabled}>
             Delete
          </MDButton>
       </Box>
@@ -100,7 +100,7 @@ export function QEditButton(): JSX.Element
    return (
       <Box ml={standardML} width={standardWidth}>
          <Link to="edit">
-            <MDButton variant="gradient" color="dark" size="small" fullWidth startIcon={<Icon>edit</Icon>}>
+            <MDButton qqqId="edit" variant="gradient" color="dark" size="small" fullWidth startIcon={<Icon>edit</Icon>}>
                Edit
             </MDButton>
          </Link>
@@ -119,6 +119,7 @@ export function QActionsMenuButton({isOpen, onClickHandler}: QActionsMenuButtonP
    return (
       <Box width={standardWidth} ml={1}>
          <MDButton
+            qqqId="actions-menu"
             variant={isOpen ? "contained" : "outlined"}
             color="dark"
             onClick={onClickHandler}
@@ -146,7 +147,7 @@ export function QCancelButton({
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton type="button" variant="outlined" color="dark" size="small" fullWidth startIcon={<Icon>{iconName}</Icon>} onClick={onClickHandler} disabled={disabled}>
+         <MDButton qqqId="cancel" type="button" variant="outlined" color="dark" size="small" fullWidth startIcon={<Icon>{iconName}</Icon>} onClick={onClickHandler} disabled={disabled}>
             {label}
          </MDButton>
       </Box>
@@ -169,7 +170,7 @@ export function QSubmitButton({label, iconName, disabled}: QSubmitButtonProps): 
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton type="submit" variant="gradient" color="dark" size="small" fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled}>
+         <MDButton qqqId="submit" type="submit" variant="gradient" color="dark" size="small" fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled}>
             {label}
          </MDButton>
       </Box>
@@ -193,7 +194,7 @@ export function QAlternateButton({label, iconName, disabled, onClick}: QAlternat
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton type="button" variant="gradient" color="secondary" size="small" fullWidth startIcon={iconName && <Icon>{iconName}</Icon>} onClick={onClick} disabled={disabled}>
+         <MDButton qqqId="alternate" type="button" variant="gradient" color="secondary" size="small" fullWidth startIcon={iconName && <Icon>{iconName}</Icon>} onClick={onClick} disabled={disabled}>
             {label}
          </MDButton>
       </Box>

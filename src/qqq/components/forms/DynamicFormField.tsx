@@ -35,6 +35,7 @@ import MDTypography from "qqq/components/legacy/MDTypography";
 import React, {useMemo, useState} from "react";
 import AceEditor from "react-ace";
 import {flushSync} from "react-dom";
+import {generateInputId} from "qqq/utils/qqqIdUtils";
 
 // Declaring props types for FormField
 interface Props
@@ -281,9 +282,10 @@ function QDynamicFormField({
    }
    else
    {
+      const dataQqqId = generateInputId(undefined, name, label);
       field = (
          <>
-            <Field {...rest} {...onChange} onWheel={handleOnWheel} name={name} type={type} as={MDInput} variant="outlined" label={label} InputLabelProps={inputLabelProps} InputProps={inputProps} fullWidth disabled={isDisabled}
+            <Field {...rest} {...onChange} onWheel={handleOnWheel} name={name} type={type} as={MDInput} variant="outlined" label={label} InputLabelProps={inputLabelProps} InputProps={inputProps} fullWidth disabled={isDisabled} data-qqq-id={dataQqqId}
                onKeyPress={(e: any) =>
                {
                   if (e.key === "Enter")

@@ -24,9 +24,9 @@ import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import {ReactNode} from "react";
-import colors from "qqq/assets/theme/base/colors";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import {useMaterialUIController} from "qqq/context";
+import {sanitizeId} from "qqq/utils/qqqIdUtils";
 
 
 // Decalaring props types for MiniStatisticsCard
@@ -47,6 +47,7 @@ interface Props {
   };
   direction?: "right" | "left";
   isDisabled?: boolean;
+  qqqId?: string;
   [key: string]: any;
 }
 
@@ -58,13 +59,16 @@ function MiniStatisticsCard({
    icon,
    direction,
    isDisabled,
+   qqqId,
 }: Props): JSX.Element
 {
    const [controller] = useMaterialUIController();
    const {darkMode} = controller;
 
+   const generatedId = qqqId ? `table-card-${sanitizeId(qqqId)}` : (title?.text ? `table-card-${sanitizeId(title.text)}` : undefined);
+
    return (
-      <Card sx={{overflow: "hidden"}}>
+      <Card sx={{overflow: "hidden"}} data-qqq-id={generatedId}>
          <Box
             sx={({palette: {background}}: { palette: any }) => ({
                background: darkMode && background.card,
@@ -110,7 +114,13 @@ function MiniStatisticsCard({
                         justifyContent="center"
                         alignItems="center"
                         color="#FFFFFF"
-                        sx={{borderRadius: "10px", backgroundColor: isDisabled ? colors.secondary.main : colors.info.main}}
+                        sx={{
+                           borderRadius: "10px",
+                           backgroundColor: isDisabled
+                              ? "var(--qqq-secondary-color, #7b809a)"
+                              : "var(--qqq-info-color, #0062FF)"
+                        }}
+                        data-qqq-id={generatedId ? `${generatedId}-icon` : undefined}
                      >
                         <Icon fontSize="medium" color="inherit">
                            {icon.component}
@@ -137,6 +147,7 @@ MiniStatisticsCard.defaultProps = {
    },
    direction: "right",
    isDisabled: false,
+   qqqId: undefined,
 };
 
 export default MiniStatisticsCard;

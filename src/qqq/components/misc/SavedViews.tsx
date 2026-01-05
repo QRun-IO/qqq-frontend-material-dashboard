@@ -43,6 +43,7 @@ import FormData from "form-data";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
 import {QCancelButton, QDeleteButton, QSaveButton} from "qqq/components/buttons/DefaultButtons";
+import {generateButtonId} from "qqq/utils/qqqIdUtils";
 import RecordQueryView from "qqq/models/query/RecordQueryView";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
@@ -635,6 +636,7 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
             <Box order="1" mr={"0.5rem"}>
                <Button
                   onClick={openSavedViewsMenu}
+                  data-qqq-id="button-views"
                   sx={{
                      borderRadius: "0.75rem",
                      textTransform: "none",

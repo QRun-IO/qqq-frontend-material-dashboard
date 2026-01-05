@@ -146,9 +146,56 @@ Component-specific variables (override via customCss):
 ### Documentation
 
 - `docs/QQQ_THEMING_GUIDE.md` - Complete theming reference for LLMs/developers
-- `docs/EXAMPLE_THEME_CONFIGURATION.md` - Java configuration examples
-- `docs/THEME_EXTENSION_PLAN.md` - Original architecture design
-- `docs/THEME_EXTENSION_TODO.md` - Implementation checklist (complete)
+- `docs/QQQ_CSS_SELECTORS_GUIDE.md` - CSS selector reference for targeting UI elements
+
+## CSS Selectors System (Implemented)
+
+### Overview
+
+All major UI elements have stable `data-qqq-id` attributes for targeted styling via `QThemeMetaData.customCss`. IDs are generated from element names using `sanitizeId()` which converts to lowercase and replaces non-alphanumeric characters with hyphens.
+
+### Key Files
+
+- `src/qqq/utils/qqqIdUtils.ts` - ID sanitization utilities
+- `src/qqq/context/QqqIdContext.tsx` - Optional scope context provider
+
+### Selector Patterns
+
+| Element | Pattern | Example |
+|---------|---------|---------|
+| Buttons | `button-{text}` | `button-save` |
+| Icon buttons | `button-icon-{icon}` | `button-icon-delete` |
+| Menu items | `menu-item-{text}` | `menu-item-bulk-edit` |
+| Nav items | `sidenav-{name}` | `sidenav-orders` |
+| Inputs | `input-{field}` | `input-first-name` |
+| Selects | `select-{field}` | `select-status` |
+| Table headers | `table-header-{field}` | `table-header-order-id` |
+| Record view | `record-view-{element}-{table}` | `record-view-header-orders` |
+| Record create | `record-create-{element}-{table}` | `record-create-title-person` |
+| Record edit | `record-edit-{element}-{table}` | `record-edit-avatar-customer` |
+| Sections | `record-section-{name}` | `record-section-identity` |
+| Form sections | `form-section-{name}` | `form-section-details` |
+| Sidebar items | `sidebar-item-{name}` | `sidebar-item-identity` |
+| Table cards | `table-card-{name}` | `table-card-orders` |
+| Process cards | `process-card-{name}` | `process-card-bulk-load` |
+| App headers | `app-header-{name}` | `app-header-inventory` |
+
+### Example CSS Usage
+
+```css
+/* Hide delete menu item */
+[data-qqq-id="menu-item-delete"] { display: none; }
+
+/* Style specific table view header */
+[data-qqq-id="record-view-header-orders"] {
+   background: linear-gradient(to right, #1976D2, #42A5F5);
+}
+
+/* Style all sidebar items */
+[data-qqq-id^="sidebar-item-"] {
+   border-left: 3px solid transparent;
+}
+```
 
 ## Cross-Repository Dependencies
 
@@ -158,9 +205,9 @@ This project is part of a three-repo theming system:
 |------------|----------|-----------------|
 | qqq (backend-core) | `com.kingsrook.qqq:qqq-backend-core` | `0.36.0-SNAPSHOT` |
 | qqq-frontend-core | `@qrunio/qqq-frontend-core` | `1.4.2-SNAPSHOT` |
-| qqq-frontend-material-dashboard | `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.36.0-pluggable-themes-SNAPSHOT` |
+| qqq-frontend-material-dashboard | `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.36.0-pluggable-themes-css-selectors-SNAPSHOT` |
 
-**Feature branch version:** `0.36.0-pluggable-themes-SNAPSHOT` (for testing pluggable themes)
+**Feature branch version:** `0.36.0-pluggable-themes-css-selectors-SNAPSHOT` (for testing pluggable themes + CSS selectors)
 
 **Dependency order for commits/publishes:** backend-core → frontend-core → dashboard
 
