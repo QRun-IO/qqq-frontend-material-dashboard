@@ -4,7 +4,6 @@
 
 ## Active Tasks
 
-- [ ] **Commit and push CSS selector changes**
 - [ ] **Await feedback on CSS selectors**
 - [ ] **Prepare PR for develop branch**
   - Update version back to `0.36.0-SNAPSHOT` before merge
