@@ -1,5 +1,7 @@
 # qqq-frontend-material-dashboard
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 React admin dashboard for QQQ applications.
 
 **For:** Teams using QQQ who want a ready-to-use admin UI without writing frontend code  
@@ -93,4 +95,4 @@ npm test
 
 ## License
 
-AGPL-3.0
+Apache-2.0 - See [LICENSE](LICENSE) for details.
