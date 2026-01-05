@@ -41,6 +41,7 @@ import QContext from "QContext";
 import useAnonymousAuthenticationModule from "qqq/authorization/anonymous/useAnonymousAuthenticationModule";
 import useAuth0AuthenticationModule from "qqq/authorization/auth0/useAuth0AuthenticationModule";
 import useOAuth2AuthenticationModule from "qqq/authorization/oauth2/useOAuth2AuthenticationModule";
+import BrandedHeaderBar from "qqq/components/horseshoe/BrandedHeaderBar";
 import Sidenav from "qqq/components/horseshoe/sidenav/SideNav";
 import {createDynamicTheme} from "qqq/utils/createDynamicTheme";
 import {injectIslandVariables} from "qqq/utils/injectIslandVariables";
@@ -789,6 +790,7 @@ export default function App({authenticationMetaData}: Props)
                <CssBaseline />
                <CommandMenu metaData={metaData} />
                {banner()}
+               <BrandedHeaderBar theme={themeMetaData} />
                <Sidenav
                   color={sidenavColor}
                   icon={resolveAssetUrl(branding.icon)}

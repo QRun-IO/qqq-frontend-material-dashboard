@@ -58,6 +58,7 @@ function SideNavCollapse({
          <ListItem component="li">
             <Box
                {...rest}
+               className={active ? "qqq-sidebar-active" : ""}
                sx={(theme: any) =>
                   collapseItem(theme, {active, transparentSidenav, whiteSidenav, darkMode})
                }
