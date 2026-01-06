@@ -12,6 +12,9 @@
 - [x] **Fix #314**: CSS variables not consumed by components
   - Fixed `--qqq-sidebar-icon-color` - removed hardcoded colors in SideNavCollapse.ts, SideNavItem.ts
   - Fixed `--qqq-font-size-base` - added `.MuiTypography-root` to CSS rule
+- [x] **Process screens theming**: Updated stepper and process components to use CSS variables
+  - Stepper: background, icon, connector, label now use `--qqq-stepper-*` and `--qqq-primary-color`
+  - ProcessRun, ProcessSummaryResults, ValidationReview: borders and backgrounds now themed
 
 - [x] Phase 1: Theme infrastructure (CSS variables, themeUtils.ts)
 - [x] Phase 2: MUI component overrides migration

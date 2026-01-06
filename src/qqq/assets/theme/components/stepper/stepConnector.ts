@@ -15,9 +15,7 @@ Coded by www.creative-tim.com
 
 // Material Dashboard 2 PRO React TS Base Styles
 import borders from "qqq/assets/theme/base/borders";
-import colors from "qqq/assets/theme/base/colors";
 
-const { white } = colors;
 const { borderWidth } = borders;
 
 // types
@@ -26,15 +24,15 @@ type Types = any;
 const stepConnector: Types = {
   styleOverrides: {
     root: {
-      color: "#9fc9ff",
+      color: "var(--qqq-stepper-inactive-color, rgba(255, 255, 255, 0.5))",
       transition: "all 200ms linear",
 
       "&.Mui-active": {
-        color: white.main,
+        color: "var(--qqq-stepper-active-color, #ffffff)",
       },
 
       "&.Mui-completed": {
-        color: white.main,
+        color: "var(--qqq-stepper-active-color, #ffffff)",
       },
     },
 

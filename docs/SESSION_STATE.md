@@ -6,7 +6,7 @@
 
 ## Current Status
 
-Fixed issue #314: CSS variables `--qqq-sidebar-icon-color` and `--qqq-font-size-base` were injected but not consumed. Root cause: inline styles in SideNavCollapse.ts and SideNavItem.ts overrode CSS. Fixed by converting hardcoded palette colors to CSS variables in JS style functions.
+Process screens now fully themed. Stepper uses `--qqq-primary-color` for gradient and `--qqq-stepper-*` variables for icons/labels/connectors. Process components (ProcessRun, ProcessSummaryResults, ValidationReview) use `--qqq-border-color`, `--qqq-surface-color`, and status colors.
 
 ## To Continue
 
