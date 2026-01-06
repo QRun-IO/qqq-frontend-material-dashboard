@@ -6,11 +6,15 @@
 
 ## Current Status
 
-Process screens now fully themed. Stepper uses `--qqq-primary-color` for gradient and `--qqq-stepper-*` variables for icons/labels/connectors. Process components (ProcessRun, ProcessSummaryResults, ValidationReview) use `--qqq-border-color`, `--qqq-surface-color`, and status colors.
+All theming work complete. JAR built and verified with correct JS (`main.2f9c1ea9.js`).
+
+**Latest commits:**
+- `349cf76` - feat(theme): add CSS variable theming to process screens
+- `1e80deb` - fix(theme): consume sidebarIconColor and fontSizeBase CSS variables
 
 ## To Continue
 
-See TODO.md. Ready for PR to develop.
+Ready for PR to develop. Update version back to `0.36.0-SNAPSHOT` before merge.
 
 ## Key Files
 
