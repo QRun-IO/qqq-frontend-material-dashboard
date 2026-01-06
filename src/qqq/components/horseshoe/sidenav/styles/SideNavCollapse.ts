@@ -21,41 +21,41 @@
 
 import {Theme} from "@mui/material/styles";
 
-function collapseItem(theme: Theme, ownerState: any) 
+function collapseItem(theme: Theme, ownerState: any)
 {
    const {palette, transitions, breakpoints, boxShadows, borders, functions} = theme;
    const {active, transparentSidenav, whiteSidenav, darkMode} = ownerState;
 
-   const {white, transparent, dark, grey} = palette;
+   const {white, transparent, grey} = palette;
    const {md} = boxShadows;
    const {borderRadius} = borders;
    const {pxToRem, rgba} = functions;
 
    return {
-      background: () => 
+      background: () =>
       {
          let backgroundValue;
 
-         if (transparentSidenav && darkMode) 
+         if (transparentSidenav && darkMode)
          {
             backgroundValue = active ? rgba(white.main, 0.2) : transparent.main;
          }
-         else if (transparentSidenav && !darkMode) 
+         else if (transparentSidenav && !darkMode)
          {
             backgroundValue = active ? grey[300] : transparent.main;
          }
-         else if (whiteSidenav) 
+         else if (whiteSidenav)
          {
             backgroundValue = active ? grey[200] : transparent.main;
          }
-         else 
+         else
          {
             backgroundValue = active ? rgba(white.main, 0.2) : transparent.main;
          }
 
          return backgroundValue;
       },
-      color: (transparentSidenav && !darkMode) || whiteSidenav ? dark.main : white.main,
+      color: "var(--qqq-sidebar-text-color)",
       display: "flex",
       alignItems: "center",
       width: "100%",
@@ -79,27 +79,22 @@ function collapseItem(theme: Theme, ownerState: any)
       },
 
       "&:hover, &:focus": {
-         backgroundColor:
-        transparentSidenav && !darkMode
-           ? grey[300]
-           : rgba(whiteSidenav ? grey[400] : white.main, 0.2),
+         backgroundColor: "var(--qqq-sidebar-hover-background-color)",
       },
    };
 }
 
-function collapseIconBox(theme: Theme, ownerState: any) 
+function collapseIconBox(theme: Theme, ownerState: any)
 {
-   const {palette, transitions, borders, functions} = theme;
-   const {transparentSidenav, whiteSidenav, darkMode} = ownerState;
+   const {transitions, borders, functions} = theme;
 
-   const {white, dark} = palette;
    const {borderRadius} = borders;
    const {pxToRem} = functions;
 
    return {
       minWidth: pxToRem(32),
       minHeight: pxToRem(32),
-      color: (transparentSidenav && !darkMode) || whiteSidenav ? dark.main : white.main,
+      color: "var(--qqq-sidebar-icon-color)",
       borderRadius: borderRadius.md,
       display: "grid",
       placeItems: "center",
@@ -109,13 +104,13 @@ function collapseIconBox(theme: Theme, ownerState: any)
       }),
 
       "& svg, svg g": {
-         color: transparentSidenav || whiteSidenav ? dark.main : white.main,
+         color: "var(--qqq-sidebar-icon-color)",
       },
    };
 }
 
-const collapseIcon = ({palette: {white, gradients}}: Theme, {active}: any) => ({
-   color: active ? white.main : gradients.dark.state,
+const collapseIcon = (_theme: Theme, {active}: any) => ({
+   color: active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-icon-color)",
 });
 
 function collapseText(theme: any, ownerState: any) 
@@ -147,40 +142,21 @@ function collapseText(theme: any, ownerState: any)
    };
 }
 
-function collapseArrow(theme: Theme, ownerState: any) 
+function collapseArrow(theme: Theme, ownerState: any)
 {
-   const {palette, typography, transitions, breakpoints, functions} = theme;
-   const {noCollapse, transparentSidenav, whiteSidenav, miniSidenav, open, active, darkMode} =
-    ownerState;
+   const {typography, transitions, breakpoints, functions} = theme;
+   const {noCollapse, miniSidenav, transparentSidenav, open, active} = ownerState;
 
-   const {white, dark} = palette;
    const {size} = typography;
-   const {pxToRem, rgba} = functions;
+   const {pxToRem} = functions;
 
    return {
       fontSize: `${size.lg} !important`,
       fontWeight: 700,
       marginBottom: pxToRem(-1),
       transform: open ? "rotate(0)" : "rotate(-180deg)",
-      color: () => 
-      {
-         let colorValue;
-
-         if (transparentSidenav && darkMode) 
-         {
-            colorValue = open || active ? white.main : rgba(white.main, 0.25);
-         }
-         else if (transparentSidenav || whiteSidenav) 
-         {
-            colorValue = open || active ? dark.main : rgba(dark.main, 0.25);
-         }
-         else 
-         {
-            colorValue = open || active ? white.main : rgba(white.main, 0.5);
-         }
-
-         return colorValue;
-      },
+      color: open || active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-icon-color)",
+      opacity: open || active ? 1 : 0.6,
       transition: transitions.create(["color", "transform", "opacity"], {
          easing: transitions.easing.easeInOut,
          duration: transitions.duration.shorter,

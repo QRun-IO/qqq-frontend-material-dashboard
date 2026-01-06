@@ -897,12 +897,9 @@ input[type="search"]::-webkit-search-results-decoration
 /*****************************************************************************
  ** Base typography theming - uses CSS variables from QThemeMetaData
  *****************************************************************************/
-body
-{
-   font-size: var(--qqq-font-size-base, 14px) !important;
-}
-
-html
+body,
+html,
+.MuiTypography-root
 {
    font-size: var(--qqq-font-size-base, 14px) !important;
 }

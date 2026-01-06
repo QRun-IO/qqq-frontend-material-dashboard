@@ -1,17 +1,16 @@
 # Session State - Pluggable Themes + CSS Selectors
 
-**Last Updated:** 2026-01-05
+**Last Updated:** 2026-01-06
 **Branch:** `feature/pluggable-themes-v2-mui-css-selectors`
-**Commit:** `50b1024`
 **Version:** `0.36.0-pluggable-themes-css-selectors-SNAPSHOT`
 
 ## Current Status
 
-CSS selector implementation complete. All major UI elements now have `data-qqq-id` attributes for targeted styling via `QThemeMetaData.customCss`. All changes committed and pushed.
+Fixed issue #314: CSS variables `--qqq-sidebar-icon-color` and `--qqq-font-size-base` were injected but not consumed. Root cause: inline styles in SideNavCollapse.ts and SideNavItem.ts overrode CSS. Fixed by converting hardcoded palette colors to CSS variables in JS style functions.
 
 ## To Continue
 
-Run `git pull` to sync. See TODO.md for remaining tasks.
+See TODO.md. Ready for PR to develop.
 
 ## Key Files
 

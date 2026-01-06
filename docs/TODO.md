@@ -1,14 +1,17 @@
 # TODO - Pluggable Themes + CSS Selectors
 
-**Last Updated:** 2026-01-05
+**Last Updated:** 2026-01-06
 
 ## Active Tasks
 
-- [ ] **Await feedback on CSS selectors**
 - [ ] **Prepare PR for develop branch**
   - Update version back to `0.36.0-SNAPSHOT` before merge
 
 ## Completed
+
+- [x] **Fix #314**: CSS variables not consumed by components
+  - Fixed `--qqq-sidebar-icon-color` - removed hardcoded colors in SideNavCollapse.ts, SideNavItem.ts
+  - Fixed `--qqq-font-size-base` - added `.MuiTypography-root` to CSS rule
 
 - [x] Phase 1: Theme infrastructure (CSS variables, themeUtils.ts)
 - [x] Phase 2: MUI component overrides migration
