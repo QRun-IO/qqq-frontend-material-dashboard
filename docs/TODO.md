@@ -7,6 +7,10 @@
 - [ ] **Prepare PR for develop branch**
   - Update version back to `0.36.0-SNAPSHOT` before merge
 
+## Recently Completed
+
+- [x] **JAR build verified** - Contains correct JS (`main.2f9c1ea9.js`)
+
 ## Completed
 
 - [x] **Fix #314**: CSS variables not consumed by components
