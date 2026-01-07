@@ -55,8 +55,8 @@ Hardcoded color conversion **COMMITTED**. All ~33 instances across 16 files conv
 
 ## Next Steps
 
-1. **Push to remote:** `git push origin feature/pluggable-themes-v2-mui-css-selectors`
-2. **Create PR:** Create PR to develop branch
+1. **Testing:** me-health team validation in progress
+2. **After testing:** Create PR to develop branch
 3. **Before merge:** Update version to `0.36.0-SNAPSHOT`
 
 ## Build Commands
