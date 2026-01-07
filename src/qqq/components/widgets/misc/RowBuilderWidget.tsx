@@ -36,7 +36,6 @@ import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWid
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {Formik, FormikValues, useFormikContext} from "formik";
 import QContext from "QContext";
-import colors from "qqq/assets/theme/base/colors";
 import {QCancelButton, QSaveButton} from "qqq/components/buttons/DefaultButtons";
 import QDynamicForm, {DynamicFormDataDefinition} from "qqq/components/forms/DynamicForm";
 import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
@@ -650,7 +649,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    ): JSX.Element
    {
       return (
-         <Box key={index} borderBottom={`1px solid ${colors.grayLines.main}`} display="flex" alignItems="center" gap="1rem" pb="0.75rem" mb="0.5rem" pr="0.5rem">
+         <Box key={index} borderBottom="1px solid var(--qqq-border-color, #D6D6D6)" display="flex" alignItems="center" gap="1rem" pb="0.75rem" mb="0.5rem" pr="0.5rem">
             {
                mayReorderRows && <Box>
                   <Icon ref={dragRef} sx={{cursor: "ns-resize"}}>drag_indicator</Icon>
@@ -925,7 +924,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
 ////////////////////////////////////////////////////////////////////////////////////////
 export const buttonSX =
    {
-      border: `1px solid ${colors.grayLines.main} !important`,
+      border: "1px solid var(--qqq-border-color, #D6D6D6) !important",
       borderRadius: "0.75rem",
       textTransform: "none",
       fontSize: "1rem",
@@ -933,10 +932,10 @@ export const buttonSX =
       paddingLeft: "1rem",
       paddingRight: "1rem",
       opacity: "1",
-      color: colors.dark.main,
-      "&:hover": {color: colors.dark.main},
-      "&:focus": {color: colors.dark.main},
-      "&:focus:not(:hover)": {color: colors.dark.main},
+      color: "var(--qqq-text-primary)",
+      "&:hover": {color: "var(--qqq-text-primary)"},
+      "&:focus": {color: "var(--qqq-text-primary)"},
+      "&:focus:not(:hover)": {color: "var(--qqq-text-primary)"},
    };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -951,7 +950,7 @@ unborderedButtonSX.opacity = "0.7";
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 export const xIconButtonSX =
    {
-      border: `1px solid ${colors.grayLines.main} !important`,
+      border: "1px solid var(--qqq-border-color, #D6D6D6) !important",
       borderRadius: "0.75rem",
       textTransform: "none",
       fontSize: "1rem",
@@ -960,18 +959,18 @@ export const xIconButtonSX =
       minWidth: "40px",
       paddingLeft: 0,
       paddingRight: 0,
-      color: colors.error.main,
-      "&:hover": {color: colors.error.main},
-      "&:focus": {color: colors.error.main},
-      "&:focus:not(:hover)": {color: colors.error.main},
+      color: "var(--qqq-error-color, #F44335)",
+      "&:hover": {color: "var(--qqq-error-color, #F44335)"},
+      "&:focus": {color: "var(--qqq-error-color, #F44335)"},
+      "&:focus:not(:hover)": {color: "var(--qqq-error-color, #F44335)"},
    };
 
 //////////////////////////////////////////////////
 // todo - share this with similar from BulkLoad //
 //////////////////////////////////////////////////
 let buttonBackground = "none";
-let buttonBorder = colors.grayLines.main;
-let buttonColor = colors.gray.main;
+let buttonBorder = "var(--qqq-border-color, #D6D6D6)";
+let buttonColor = "var(--qqq-grey-600, #757575)";
 const addFieldMenuButtonStyles = {
    borderRadius: "0.75rem",
    border: `1px solid ${buttonBorder}`,

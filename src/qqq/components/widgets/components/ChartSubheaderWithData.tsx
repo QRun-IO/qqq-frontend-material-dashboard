@@ -26,7 +26,6 @@ import Icon from "@mui/material/Icon";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import {Link} from "react-router-dom";
-import colors from "qqq/assets/theme/base/colors";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 
 export interface ChartSubheaderData
@@ -46,8 +45,8 @@ interface Props
    chartSubheaderData: ChartSubheaderData;
 }
 
-const GOOD_COLOR = colors.success.main;
-const BAD_COLOR = colors.error.main;
+const GOOD_COLOR = "var(--qqq-success-color, #4CAF50)";
+const BAD_COLOR = "var(--qqq-error-color, #F44335)";
 const UP_ICON = "arrow_drop_up";
 const DOWN_ICON = "arrow_drop_down";
 
@@ -74,7 +73,7 @@ function StackedBarChart({chartSubheaderData}: Props): JSX.Element
 
    let previousNumberElement = (
       <>
-         <Typography display="block" variant="body2" sx={{color: colors.gray.main, fontSize: ".875rem", fontWeight: 500}}>
+         <Typography display="block" variant="body2" sx={{color: "var(--qqq-grey-600, #757575)", fontSize: ".875rem", fontWeight: 500}}>
             &nbsp;{chartSubheaderData.vsDescription}
             {chartSubheaderData.vsPreviousNumber && (<>&nbsp;({ValueUtils.getFormattedNumber(chartSubheaderData.vsPreviousNumber)})</>)}
          </Typography>

@@ -41,7 +41,6 @@ import Tooltip from "@mui/material/Tooltip";
 import {TooltipProps} from "@mui/material/Tooltip/Tooltip";
 import FormData from "form-data";
 import QContext from "QContext";
-import colors from "qqq/assets/theme/base/colors";
 import {QCancelButton, QDeleteButton, QSaveButton} from "qqq/components/buttons/DefaultButtons";
 import {BulkLoadMapping, BulkLoadTableStructure, FileDescription} from "qqq/models/processes/BulkLoadModels";
 import Client from "qqq/utils/qqq/Client";
@@ -543,8 +542,8 @@ function SavedBulkLoadProfiles({metaData, tableMetaData, tableStructure, current
 
    let buttonText = `Saved Bulk ${bulkAction} Profiles`;
    let buttonBackground = "none";
-   let buttonBorder = colors.grayLines.main;
-   let buttonColor = colors.gray.main;
+   let buttonBorder = "var(--qqq-border-color, #D6D6D6)";
+   let buttonColor = "var(--qqq-grey-600, #757575)";
 
    if (currentSavedBulkLoadProfileRecord)
    {
@@ -631,10 +630,10 @@ function SavedBulkLoadProfiles({metaData, tableMetaData, tableStructure, current
             <Box order="3" display="flex" justifyContent="center" flexDirection="column">
                <Box pl={2} pr={2} fontSize="0.875rem" sx={{display: "flex", alignItems: "center"}}>
                   {
-                     savedSuccessMessage && <Box color={colors.success.main}>{savedSuccessMessage}</Box>
+                     savedSuccessMessage && <Box color="var(--qqq-success-color, #4CAF50)">{savedSuccessMessage}</Box>
                   }
                   {
-                     savedFailedMessage && <Box color={colors.error.main}>{savedFailedMessage}</Box>
+                     savedFailedMessage && <Box color="var(--qqq-error-color, #F44335)">{savedFailedMessage}</Box>
                   }
                   {
                      !currentSavedBulkLoadProfileRecord /*&& bulkLoadProfileIsModified*/ && <>
@@ -653,16 +652,16 @@ function SavedBulkLoadProfiles({metaData, tableMetaData, tableStructure, current
                               </Tooltip>
 
                               {/* vertical rule */}
-                              {allowSelectingProfile && <Box display="inline-block" borderLeft={`1px solid ${colors.grayLines.main}`} height="1rem" width="1px" position="relative" />}
+                              {allowSelectingProfile && <Box display="inline-block" borderLeft="1px solid var(--qqq-border-color, #D6D6D6)" height="1rem" width="1px" position="relative" />}
                            </>
                         }
 
                         {/* for the no-profile use-case, don't give a reset-link on screens other than the first (file mapping) one - which is tied to the allowSelectingProfile attribute */}
                         {allowSelectingProfile && <>
                            <Box pl="0.5rem">Reset to:</Box>
-                           <Button disableRipple={true} sx={{color: colors.gray.main, ...linkButtonStyle}} onClick={() => handleDropdownOptionClick(CLEAR_OPTION)}>Empty Mapping</Button>
-                           <Box display="inline-block" borderLeft={`1px solid ${colors.grayLines.main}`} height="1rem" width="1px" position="relative" />
-                           <Button disableRipple={true} sx={{color: colors.gray.main, ...linkButtonStyle}} onClick={() => handleDropdownOptionClick(RESET_TO_SUGGESTION)}>Suggested Mapping</Button>
+                           <Button disableRipple={true} sx={{color: "var(--qqq-grey-600, #757575)", ...linkButtonStyle}} onClick={() => handleDropdownOptionClick(CLEAR_OPTION)}>Empty Mapping</Button>
+                           <Box display="inline-block" borderLeft="1px solid var(--qqq-border-color, #D6D6D6)" height="1rem" width="1px" position="relative" />
+                           <Button disableRipple={true} sx={{color: "var(--qqq-grey-600, #757575)", ...linkButtonStyle}} onClick={() => handleDropdownOptionClick(RESET_TO_SUGGESTION)}>Suggested Mapping</Button>
                         </>}
 
 
@@ -691,8 +690,8 @@ function SavedBulkLoadProfiles({metaData, tableMetaData, tableStructure, current
                         {/* partly because it isn't correctly resetting the values, but also because, it's a litle unclear that what, it would reset changes from other screens too?? */}
                         {
                            allowSelectingProfile && <>
-                              <Box display="inline-block" borderLeft={`1px solid ${colors.grayLines.main}`} height="1rem" width="1px" position="relative" />
-                              <Button disableRipple={true} sx={{color: colors.gray.main, ...linkButtonStyle}} onClick={() => handleSavedBulkLoadProfileRecordOnClick(currentSavedBulkLoadProfileRecord)}>Reset All Changes</Button>
+                              <Box display="inline-block" borderLeft="1px solid var(--qqq-border-color, #D6D6D6)" height="1rem" width="1px" position="relative" />
+                              <Button disableRipple={true} sx={{color: "var(--qqq-grey-600, #757575)", ...linkButtonStyle}} onClick={() => handleSavedBulkLoadProfileRecordOnClick(currentSavedBulkLoadProfileRecord)}>Reset All Changes</Button>
                            </>
                         }
                      </>
