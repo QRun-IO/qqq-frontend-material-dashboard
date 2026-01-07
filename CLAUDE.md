@@ -337,6 +337,32 @@ Test fixtures in `src/test/resources/fixtures/metaData/`:
 - `withFullCustomTheme.json` - Theme with all properties set
 - `withBrandedHeader.json` - Theme with branded header enabled
 
-## Session State
+## Session State & Continuity
 
-For continuing work across sessions, see `docs/SESSION_STATE.md`.
+**IMPORTANT:** Never use `~/.claude/session-state.md`. Always use local repo files.
+
+When user says "continue from last session", read these files in order:
+1. `docs/SESSION_STATE.md` - Current status, recent commits, next steps
+2. `docs/TODO.md` - Active and completed tasks
+3. `docs/TODO-hardcoded-colors.md` - Detailed color conversion tasks (if working on theming)
+4. This file (`CLAUDE.md`) - Project context
+
+### Key Documentation Files
+
+| File | Purpose |
+|------|---------|
+| `docs/SESSION_STATE.md` | Current work status, branch, version, recent commits |
+| `docs/TODO.md` | Task tracking for current feature |
+| `docs/TODO-hardcoded-colors.md` | Detailed hardcoded color conversion checklist |
+| `docs/QQQ_THEMING_GUIDE.md` | Complete theming reference |
+| `docs/QQQ_CSS_SELECTORS_GUIDE.md` | CSS selector patterns reference |
+| `docs/PLAN-css-selectors.md` | CSS selectors implementation plan (complete) |
+
+### Publishing Snapshots
+
+Use the gitops publish script to create a tagged snapshot:
+```bash
+/Users/james.maes/.local/bin/gitops-publish.sh
+```
+
+This creates a `publish-{commit}` tag that triggers CI/CD to build and publish the JAR.

@@ -3,18 +3,22 @@
 **Last Updated:** 2026-01-06
 **Branch:** `feature/pluggable-themes-v2-mui-css-selectors`
 **Version:** `0.36.0-pluggable-themes-css-selectors-SNAPSHOT`
+**Published Tag:** `publish-9035122`
 
 ## Current Status
 
-All theming work complete. JAR built and verified with correct JS (`main.2f9c1ea9.js`).
+Feature snapshot published. Core theming work complete. Identified ~16 files with hardcoded colors that could be converted to CSS variables (optional follow-up work documented in `docs/TODO-hardcoded-colors.md`).
 
 **Latest commits:**
+- `9035122` - docs: add TODO for hardcoded color conversions
+- `cc60a98` - docs: update session state and TODO after JAR verification
 - `349cf76` - feat(theme): add CSS variable theming to process screens
 - `1e80deb` - fix(theme): consume sidebarIconColor and fontSizeBase CSS variables
 
 ## To Continue
 
-Ready for PR to develop. Update version back to `0.36.0-SNAPSHOT` before merge.
+1. **Optional:** Convert remaining hardcoded colors per `docs/TODO-hardcoded-colors.md`
+2. **When ready:** Create PR to develop, update version to `0.36.0-SNAPSHOT` before merge
 
 ## Key Files
 

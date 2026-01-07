@@ -4,11 +4,19 @@
 
 ## Active Tasks
 
+- [ ] **Optional: Convert hardcoded colors to CSS variables**
+  - See `docs/TODO-hardcoded-colors.md` for detailed list (~16 files, ~33 instances)
+  - Priority 1: Widget components (user-facing)
+  - Priority 2: Bulk load components
+  - Priority 3: Theme components
+  - Priority 4: Legacy components
+
 - [ ] **Prepare PR for develop branch**
   - Update version back to `0.36.0-SNAPSHOT` before merge
 
 ## Recently Completed
 
+- [x] **Feature snapshot published** - Tag `publish-9035122`
 - [x] **JAR build verified** - Contains correct JS (`main.2f9c1ea9.js`)
 
 ## Completed
