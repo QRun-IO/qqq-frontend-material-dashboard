@@ -39,7 +39,7 @@ export default styled(LinearProgress)(
       {
          backgroundValue = gradients[color]
             ? linearGradient(gradients[color].main, gradients[color].state)
-            : linearGradient(gradients.info.main, gradients.info.state);
+            : "linear-gradient(195deg, var(--qqq-info-color, #0062FF), var(--qqq-info-color, #0062FF))";
       }
       else
       {
