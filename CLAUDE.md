@@ -341,11 +341,22 @@ Test fixtures in `src/test/resources/fixtures/metaData/`:
 
 **IMPORTANT:** Never use `~/.claude/session-state.md`. Always use local repo files.
 
-When user says "continue from last session", read these files in order:
-1. `docs/SESSION_STATE.md` - Current status, recent commits, next steps
+### On "continue from last session"
+
+Read these files in order:
+1. `docs/SESSION_STATE.md` - Current status, branch, recent commits, next steps
 2. `docs/TODO.md` - Active and completed tasks
-3. `docs/TODO-hardcoded-colors.md` - Detailed color conversion tasks (if working on theming)
-4. This file (`CLAUDE.md`) - Project context
+3. This file (`CLAUDE.md`) - Project context
+
+### Current Feature Branch Status (as of 2026-01-07)
+
+| Item | Value |
+|------|-------|
+| Branch | `feature/pluggable-themes-v2-mui-css-selectors` |
+| Version | `0.36.0-pluggable-themes-css-selectors-SNAPSHOT` |
+| Latest Commit | `5340c03` - feat(theme): convert hardcoded colors to CSS variables |
+| CI Status | Pipeline #1340 passed (88 tests) |
+| Next Step | me-health team testing, then PR to develop |
 
 ### Key Documentation Files
 
@@ -353,10 +364,27 @@ When user says "continue from last session", read these files in order:
 |------|---------|
 | `docs/SESSION_STATE.md` | Current work status, branch, version, recent commits |
 | `docs/TODO.md` | Task tracking for current feature |
-| `docs/TODO-hardcoded-colors.md` | Detailed hardcoded color conversion checklist |
+| `docs/TODO-hardcoded-colors.md` | Detailed hardcoded color conversion checklist (COMPLETE) |
 | `docs/QQQ_THEMING_GUIDE.md` | Complete theming reference |
 | `docs/QQQ_CSS_SELECTORS_GUIDE.md` | CSS selector patterns reference |
-| `docs/PLAN-css-selectors.md` | CSS selectors implementation plan (complete) |
+| `docs/PLAN-css-selectors.md` | CSS selectors implementation plan (COMPLETE) |
+| `docs/PLAN-pluggable-themes-mui-refactor.md` | MUI refactor plan (COMPLETE) |
+
+### Hardcoded Color Conversion (COMPLETE)
+
+All ~33 hardcoded `colors.*` and `gradients.*` references converted to CSS variables with proper fallbacks:
+
+| CSS Variable | Fallback | Source |
+|--------------|----------|--------|
+| `--qqq-border-color` | `#D6D6D6` | `grayLines.main` |
+| `--qqq-info-color` | `#0062FF` | `info.main` |
+| `--qqq-error-color` | `#F44335` | `error.main` |
+| `--qqq-success-color` | `#4CAF50` | `success.main` |
+| `--qqq-warning-color` | `#fb8c00` | `warning.main` |
+| `--qqq-grey-600` | `#757575` | `grey[600]` |
+| `--qqq-switch-track-color` | `#42424a` | `gradients.dark.main` |
+| `--qqq-primary-color` | `#e91e63` | `primary.main` |
+| `--qqq-secondary-color` | `#7b809a` | `secondary.main` |
 
 ### Publishing Snapshots
 

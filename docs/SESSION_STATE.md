@@ -4,7 +4,8 @@
 **Branch:** `feature/pluggable-themes-v2-mui-css-selectors`
 **Version:** `0.36.0-pluggable-themes-css-selectors-SNAPSHOT`
 **Published Tag:** `publish-ad8453d`
-**Latest Commit:** `b754a16` - feat(theme): convert hardcoded colors to CSS variables
+**Latest Commit:** `5340c03` - feat(theme): convert hardcoded colors to CSS variables
+**CI Status:** Pipeline #1340 passed (all 88 tests)
 
 ## Current Status
 
@@ -14,7 +15,8 @@ Hardcoded color conversion **COMMITTED**. All ~33 instances across 16 files conv
 - Converted all hardcoded `colors.*` and `gradients.*` references to CSS variables
 - Added proper fallback values to ALL CSS variables for backwards compatibility
 - Build passes, all 88 theme tests pass
-- Changes committed (b754a16)
+- Changes committed (5340c03)
+- CI pipeline #1340 passed
 
 **Correct fallback values used:**
 - Border color (`grayLines.main`): `#D6D6D6`
