@@ -49,9 +49,10 @@ MUI components + generated screens
 
 ### Key Entry Points
 
-- `src/App.tsx` - Main app, authentication, route generation from metadata, theme provider
+- `src/App.tsx` - Main app, authentication, route generation from metadata, theme provider, BrandedHeaderBar
 - `src/QContext.tsx` - Global state (accentColor, tableMetaData, modalStack, branding)
 - `src/qqq/utils/qqq/Client.ts` - Singleton wrapper for `@qrunio/qqq-frontend-core` API client
+- `src/qqq/utils/themeUtils.ts` - Theme CSS variable injection and font loading
 
 ### Source Structure
 
@@ -61,7 +62,7 @@ src/qqq/
 │   ├── base/              # Design tokens: colors.ts, typography.ts, boxShadows.ts
 │   └── components/        # 55 MUI component style overrides
 ├── components/
-│   ├── horseshoe/         # Core layout: SideNav, NavBar, Footer, Breadcrumbs
+│   ├── horseshoe/         # Core layout: SideNav, NavBar, Footer, Breadcrumbs, BrandedHeaderBar
 │   ├── forms/             # DynamicForm, EntityForm, field components
 │   ├── widgets/           # Dashboard widgets, charts, statistics
 │   ├── query/             # Table filtering components
@@ -84,35 +85,131 @@ Routes are dynamically created from `QInstance.appTree` metadata in `App.tsx`:
 - Tables get CRUD routes: `/app/{table}`, `/app/{table}/create`, `/app/{table}/:id`, `/app/{table}/:id/edit`
 - Processes get execution routes under their parent table or app
 
-## Theming Architecture
+## Pluggable Themes System (Implemented)
 
-### Current State
+### Overview
 
-Theme configuration is centralized in `src/qqq/assets/theme/` with MUI's `createTheme()`:
+The dashboard supports **runtime theme customization** via CSS custom properties. Theme configuration is defined in `QThemeMetaData` on the Java backend and injected as `--qqq-*` CSS variables by `themeUtils.ts`.
 
-- `base/colors.ts` - Full color palette
-- `base/typography.ts` - Font system (SF Pro Display/Roboto)
-- `components/*.ts` - Per-component MUI overrides
+### Theme Configuration (Java Backend)
 
-The theme is created in `src/qqq/components/legacy/Theme.ts` and applied via `<ThemeProvider>` in App.tsx.
+```java
+qInstance.setTheme(new QThemeMetaData()
+   .withPrimaryColor("#1976D2")
+   .withSidebarBackgroundColor("#1E1E2D")
+   .withBrandedHeaderEnabled(true)
+   .withBrandedHeaderTagline("My Application"));
+```
 
-### Runtime Customization
+### Available Theme Properties (60+)
 
-Limited runtime theming via `QBrandingMetaData` from backend:
-- `accentColor` - Applied to `QContext.accentColor`
-- `logo`, `icon` - Sidebar and favicon
-- `appName` - Display name
+| Category | Properties |
+|----------|------------|
+| **Core Colors** | `primaryColor`, `secondaryColor`, `backgroundColor`, `surfaceColor`, `textPrimary`, `textSecondary`, `errorColor`, `warningColor`, `successColor`, `infoColor` |
+| **Typography Base** | `fontFamily`, `headerFontFamily`, `monoFontFamily`, `fontSizeBase`, `fontWeightLight`, `fontWeightRegular`, `fontWeightMedium`, `fontWeightBold` |
+| **Typography Variants** | `typographyH1FontSize`, `typographyH1FontWeight`, `typographyH1LineHeight`, `typographyH1LetterSpacing`, `typographyH1TextTransform` (same pattern for H2-H6, Body1, Body2, Button, Caption) |
+| **Branded Header** | `brandedHeaderEnabled`, `brandedHeaderBackgroundColor`, `brandedHeaderTextColor`, `brandedHeaderLogoPath`, `brandedHeaderLogoAltText`, `brandedHeaderHeight`, `brandedHeaderTagline` |
+| **App Bar** | `appBarBackgroundColor`, `appBarTextColor` |
+| **Sidebar** | `sidebarBackgroundColor`, `sidebarTextColor`, `sidebarIconColor`, `sidebarSelectedBackgroundColor`, `sidebarSelectedTextColor`, `sidebarHoverBackgroundColor`, `sidebarDividerColor` |
+| **Tables** | `tableHeaderBackgroundColor`, `tableHeaderTextColor`, `tableRowHoverColor`, `tableRowSelectedColor`, `tableBorderColor` |
+| **General** | `dividerColor`, `borderColor`, `cardBorderColor`, `borderRadius`, `density`, `iconStyle` |
+| **Assets** | `logoPath`, `iconPath`, `faviconPath` |
+| **Custom** | `customCss` (raw CSS injection) |
 
-### Known Issues for Theming Work
+### CSS Variables
 
-1. **Hardcoded colors scattered in components** - Search for `#[0-9a-fA-F]{3,6}`, `rgb(`, `rgba(` in TSX files
-2. **~900 lines of CSS overrides** in `src/qqq/styles/qqq-override-styles.css`
-3. **Unused dark theme** - `src/qqq/assets/theme-dark/` exists but is never loaded
-4. **No CSS custom properties** - Theme is compile-time only
+All properties become CSS variables with `--qqq-` prefix:
+- `primaryColor` → `--qqq-primary-color`
+- `sidebarBackgroundColor` → `--qqq-sidebar-background-color`
 
-### Pluggable Themes Design
+Additional generated variables:
+- Grey scale: `--qqq-grey-100` through `--qqq-grey-900`
+- Charts: `--qqq-chart-grid-color`, `--qqq-chart-text-color`, `--qqq-chart-background-color`
+- Links: `--qqq-link-color`
+- Spacing: `--qqq-spacing-base`, `--qqq-spacing-small`, `--qqq-spacing-medium`, `--qqq-spacing-large`
+- Actions: `--qqq-action-active`, `--qqq-action-hover`, `--qqq-action-selected`, `--qqq-action-disabled`
+- Status variants: `--qqq-info-light`, `--qqq-info-dark`, etc.
 
-See `docs/PLUGGABLE_THEMES_DESIGN.md` for the comprehensive plan to implement runtime-swappable themes via CSS custom properties and a new `@qrunio/qqq-theme-default` package.
+Component-specific variables (override via customCss):
+- Stepper: `--qqq-stepper-inactive-color`
+- Tooltip: `--qqq-tooltip-background-color`, `--qqq-tooltip-text-color`, `--qqq-tooltip-shadow`
+- Inputs: `--qqq-input-border-color`
+- Menu: `--qqq-menu-hover-color`
+- Switch: `--qqq-switch-track-color`
+
+### Key Files
+
+- `src/qqq/utils/themeUtils.ts` - CSS variable injection, font loading
+- `src/qqq/components/horseshoe/BrandedHeaderBar.tsx` - Optional header banner
+- `src/qqq/styles/qqq-override-styles.css` - CSS variable overrides for MUI components
+
+### Documentation
+
+- `docs/QQQ_THEMING_GUIDE.md` - Complete theming reference for LLMs/developers
+- `docs/QQQ_CSS_SELECTORS_GUIDE.md` - CSS selector reference for targeting UI elements
+
+## CSS Selectors System (Implemented)
+
+### Overview
+
+All major UI elements have stable `data-qqq-id` attributes for targeted styling via `QThemeMetaData.customCss`. IDs are generated from element names using `sanitizeId()` which converts to lowercase and replaces non-alphanumeric characters with hyphens.
+
+### Key Files
+
+- `src/qqq/utils/qqqIdUtils.ts` - ID sanitization utilities
+- `src/qqq/context/QqqIdContext.tsx` - Optional scope context provider
+
+### Selector Patterns
+
+| Element | Pattern | Example |
+|---------|---------|---------|
+| Buttons | `button-{text}` | `button-save` |
+| Icon buttons | `button-icon-{icon}` | `button-icon-delete` |
+| Menu items | `menu-item-{text}` | `menu-item-bulk-edit` |
+| Nav items | `sidenav-{name}` | `sidenav-orders` |
+| Inputs | `input-{field}` | `input-first-name` |
+| Selects | `select-{field}` | `select-status` |
+| Table headers | `table-header-{field}` | `table-header-order-id` |
+| Record view | `record-view-{element}-{table}` | `record-view-header-orders` |
+| Record create | `record-create-{element}-{table}` | `record-create-title-person` |
+| Record edit | `record-edit-{element}-{table}` | `record-edit-avatar-customer` |
+| Sections | `record-section-{name}` | `record-section-identity` |
+| Form sections | `form-section-{name}` | `form-section-details` |
+| Sidebar items | `sidebar-item-{name}` | `sidebar-item-identity` |
+| Table cards | `table-card-{name}` | `table-card-orders` |
+| Process cards | `process-card-{name}` | `process-card-bulk-load` |
+| App headers | `app-header-{name}` | `app-header-inventory` |
+
+### Example CSS Usage
+
+```css
+/* Hide delete menu item */
+[data-qqq-id="menu-item-delete"] { display: none; }
+
+/* Style specific table view header */
+[data-qqq-id="record-view-header-orders"] {
+   background: linear-gradient(to right, #1976D2, #42A5F5);
+}
+
+/* Style all sidebar items */
+[data-qqq-id^="sidebar-item-"] {
+   border-left: 3px solid transparent;
+}
+```
+
+## Cross-Repository Dependencies
+
+This project is part of a three-repo theming system:
+
+| Repository | Artifact | Current Version |
+|------------|----------|-----------------|
+| qqq (backend-core) | `com.kingsrook.qqq:qqq-backend-core` | `0.36.0-SNAPSHOT` |
+| qqq-frontend-core | `@qrunio/qqq-frontend-core` | `1.4.2-SNAPSHOT` |
+| qqq-frontend-material-dashboard | `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.36.0-pluggable-themes-css-selectors-SNAPSHOT` |
+
+**Feature branch version:** `0.36.0-pluggable-themes-css-selectors-SNAPSHOT` (for testing pluggable themes + CSS selectors)
+
+**Dependency order for commits/publishes:** backend-core → frontend-core → dashboard
 
 ## Dependencies
 
@@ -188,10 +285,10 @@ QQQ backend supports a `material-dashboard-overlay/` directory for serving custo
 
 3. **Frontend resolution**: Assets are served at web root, and `resolveAssetUrl()` in `PathUtils.ts` handles base path resolution.
 
-### What the Overlay Does vs. What Theming Would Do
+### What the Overlay Does vs. What Pluggable Themes Does
 
-| Capability | Overlay (Current) | Pluggable Themes (Proposed) |
-|------------|-------------------|----------------------------|
+| Capability | Overlay | Pluggable Themes |
+|------------|---------|------------------|
 | Logo/icon | Yes | Yes |
 | Single accent color | Yes | Yes |
 | Full color palette | No | Yes |
@@ -201,4 +298,99 @@ QQQ backend supports a `material-dashboard-overlay/` directory for serving custo
 | Dark mode | No | Yes |
 | Runtime switching | Partial (accentColor) | Full |
 
-The overlay system handles **branding assets** (logos, icons). The pluggable themes design in `docs/PLUGGABLE_THEMES_DESIGN.md` addresses **comprehensive styling** (colors, typography, shadows, component overrides) that goes beyond what the overlay can provide.
+The overlay system handles **branding assets** (logos, icons). Pluggable themes handles **comprehensive styling** (colors, typography, shadows, component overrides).
+
+## Selenium Testing
+
+### Test Architecture
+
+Tests use a two-server setup:
+- **React dev server** on port 3001 - serves the dashboard frontend
+- **Javalin mock server** on port 8001 - serves fixture JSON responses
+
+```bash
+# Start React dev server for tests
+PORT=3001 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start
+
+# Run theme tests (in another terminal)
+QQQ_SELENIUM_HEADLESS=true mvn test -Dtest=ThemeIT
+```
+
+### CI/CD
+
+CircleCI uses `qqq-orb` which automatically:
+1. Starts React dev server on port 3001
+2. Waits for server readiness
+3. Runs Maven tests with headless Chrome
+
+### Key Test Classes
+
+- `QBaseSeleniumTest` - Base class, starts Javalin on 8001
+- `QSeleniumJavalin` - Serves fixture JSON from `src/test/resources/fixtures/`
+- `ServerHealthChecker` - Waits for React server readiness
+- `ThemeIT` - Tests theme CSS variable injection
+
+### Fixtures
+
+Test fixtures in `src/test/resources/fixtures/metaData/`:
+- `index.json` - Default metaData response
+- `withFullCustomTheme.json` - Theme with all properties set
+- `withBrandedHeader.json` - Theme with branded header enabled
+
+## Session State & Continuity
+
+**IMPORTANT:** Never use `~/.claude/session-state.md`. Always use local repo files.
+
+### On "continue from last session"
+
+Read these files in order:
+1. `docs/SESSION_STATE.md` - Current status, branch, recent commits, next steps
+2. `docs/TODO.md` - Active and completed tasks
+3. This file (`CLAUDE.md`) - Project context
+
+### Current Feature Branch Status (as of 2026-01-07)
+
+| Item | Value |
+|------|-------|
+| Branch | `feature/pluggable-themes-v2-mui-css-selectors` |
+| Version | `0.36.0-pluggable-themes-css-selectors-SNAPSHOT` |
+| Latest Commit | `5340c03` - feat(theme): convert hardcoded colors to CSS variables |
+| CI Status | Pipeline #1340 passed (88 tests) |
+| Next Step | me-health team testing, then PR to develop |
+
+### Key Documentation Files
+
+| File | Purpose |
+|------|---------|
+| `docs/SESSION_STATE.md` | Current work status, branch, version, recent commits |
+| `docs/TODO.md` | Task tracking for current feature |
+| `docs/TODO-hardcoded-colors.md` | Detailed hardcoded color conversion checklist (COMPLETE) |
+| `docs/QQQ_THEMING_GUIDE.md` | Complete theming reference |
+| `docs/QQQ_CSS_SELECTORS_GUIDE.md` | CSS selector patterns reference |
+| `docs/PLAN-css-selectors.md` | CSS selectors implementation plan (COMPLETE) |
+| `docs/PLAN-pluggable-themes-mui-refactor.md` | MUI refactor plan (COMPLETE) |
+
+### Hardcoded Color Conversion (COMPLETE)
+
+All ~33 hardcoded `colors.*` and `gradients.*` references converted to CSS variables with proper fallbacks:
+
+| CSS Variable | Fallback | Source |
+|--------------|----------|--------|
+| `--qqq-border-color` | `#D6D6D6` | `grayLines.main` |
+| `--qqq-info-color` | `#0062FF` | `info.main` |
+| `--qqq-error-color` | `#F44335` | `error.main` |
+| `--qqq-success-color` | `#4CAF50` | `success.main` |
+| `--qqq-warning-color` | `#fb8c00` | `warning.main` |
+| `--qqq-grey-600` | `#757575` | `grey[600]` |
+| `--qqq-switch-track-color` | `#42424a` | `gradients.dark.main` |
+| `--qqq-primary-color` | `#e91e63` | `primary.main` |
+| `--qqq-secondary-color` | `#7b809a` | `secondary.main` |
+
+### Publishing Snapshots
+
+Use the gitops publish script to create a tagged snapshot:
+```bash
+/Users/james.maes/.local/bin/gitops-publish.sh
+```
+
+This creates a `publish-{commit}` tag that triggers CI/CD to build and publish the JAR.

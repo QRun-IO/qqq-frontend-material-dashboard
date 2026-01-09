@@ -20,9 +20,8 @@ import boxShadows from "qqq/assets/theme/base/boxShadows";
 
 // Material Dashboard 2 PRO React TS Helper Functions
 import pxToRem from "qqq/assets/theme/functions/pxToRem";
-import linearGradient from "qqq/assets/theme/functions/linearGradient";
 
-const { white, gradients, grey, transparent } = colors;
+const { white, grey, transparent } = colors;
 const { borderWidth } = borders;
 const { md } = boxShadows;
 
@@ -36,26 +35,26 @@ const switchButton: Types = {
 
   styleOverrides: {
     switchBase: {
-      color: gradients.dark.main,
+      color: "var(--qqq-switch-track-color, #42424a)",
 
       "&:hover": {
         backgroundColor: transparent.main,
       },
 
       "&.Mui-checked": {
-        color: gradients.dark.main,
+        color: "var(--qqq-switch-track-color, #42424a)",
 
         "&:hover": {
           backgroundColor: transparent.main,
         },
 
         "& .MuiSwitch-thumb": {
-          borderColor: `${gradients.dark.main} !important`,
+          borderColor: "var(--qqq-switch-track-color, #42424a) !important",
         },
 
         "& + .MuiSwitch-track": {
-          backgroundColor: `${gradients.dark.main} !important`,
-          borderColor: `${gradients.dark.main} !important`,
+          backgroundColor: "var(--qqq-switch-track-color, #42424a) !important",
+          borderColor: "var(--qqq-switch-track-color, #42424a) !important",
           opacity: 1,
         },
       },
@@ -65,7 +64,7 @@ const switchButton: Types = {
       },
 
       "&.Mui-focusVisible .MuiSwitch-thumb": {
-        backgroundImage: linearGradient(gradients.info.main, gradients.info.state),
+        backgroundImage: "linear-gradient(195deg, var(--qqq-info-color, #0062FF), var(--qqq-info-color, #0062FF))",
       },
     },
 

@@ -167,11 +167,24 @@ export default styled(Button)(({theme, ownerState}: { theme?: Theme | any; owner
    // styles for the button with variant="gradient"
    const gradientStyles = () =>
    {
-      // background value
+      // Map color names to CSS variable names
+      const colorToCssVar: Record<string, string> = {
+         primary: "var(--qqq-primary-color)",
+         secondary: "var(--qqq-secondary-color)",
+         info: "var(--qqq-info-color)",
+         success: "var(--qqq-success-color)",
+         warning: "var(--qqq-warning-color)",
+         error: "var(--qqq-error-color)",
+      };
+
+      // Use CSS variable if available, otherwise fall back to gradient
+      const cssVarColor = colorToCssVar[color];
       const backgroundValue =
          color === "white" || !gradients[color]
             ? white.main
-            : linearGradient(gradients[color].main, gradients[color].state);
+            : cssVarColor
+               ? cssVarColor
+               : linearGradient(gradients[color].main, gradients[color].state);
 
       // boxShadow value
       const boxShadowValue = colored[color]

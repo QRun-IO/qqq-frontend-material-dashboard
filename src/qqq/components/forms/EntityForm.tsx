@@ -53,6 +53,7 @@ import RecordGridWidget, {ChildRecordListData} from "qqq/components/widgets/misc
 import RowBuilderWidget from "qqq/components/widgets/misc/RowBuilderWidget";
 import {FieldRule, FieldRuleAction, FieldRuleTrigger} from "qqq/models/fields/FieldRules";
 import HtmlUtils from "qqq/utils/HtmlUtils";
+import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import Client from "qqq/utils/qqq/Client";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
@@ -463,8 +464,8 @@ function EntityForm(props: Props): JSX.Element
          return form
       }
 
-      return <Card id={section.name} sx={{overflow: "visible", scrollMarginTop: "100px"}} elevation={cardElevation}>
-         <MDTypography variant="h6" p={3} pb={1}>
+      return <Card id={section.name} sx={{overflow: "visible", scrollMarginTop: "100px"}} elevation={cardElevation} data-qqq-id={`form-section-${sanitizeId(section.name)}`}>
+         <MDTypography variant="h6" p={3} pb={1} data-qqq-id={`form-section-header-${sanitizeId(section.name)}`}>
             {section.label}
          </MDTypography>
          {getSectionHelp(section)}
@@ -1587,6 +1588,8 @@ function EntityForm(props: Props): JSX.Element
    }
 
    const formId = props.id != null ? `edit-${tableMetaData?.name}-form` : `create-${tableMetaData?.name}-form`;
+   const tableNameForId = tableMetaData ? sanitizeId(tableMetaData.name) : "";
+   const formMode = props.isCopy ? "copy" : (props.id != null ? "edit" : "create");
 
    let body;
 
@@ -1644,7 +1647,7 @@ function EntityForm(props: Props): JSX.Element
    else
    {
       body = (
-         <Box mb={3} className="entityForm">
+         <Box mb={3} className="entityForm" data-qqq-id={`record-${formMode}-${tableNameForId}`}>
             {
                (alertContent || warningContent) &&
                <Grid container spacing={3}>
@@ -1750,9 +1753,9 @@ function EntityForm(props: Props): JSX.Element
                               <ScrollToFirstError />
 
                               <Box pb={3} pt={0}>
-                                 <Card id={`${t1sectionName}`} sx={{overflow: "visible", pb: 2, scrollMarginTop: "100px"}} elevation={cardElevation}>
+                                 <Card id={`${t1sectionName}`} sx={{overflow: "visible", pb: 2, scrollMarginTop: "100px"}} elevation={cardElevation} data-qqq-id={`record-${formMode}-header-${tableNameForId}`}>
                                     <Box display="flex" p={3} pb={1}>
-                                       <Box mr={1.5}>
+                                       <Box mr={1.5} data-qqq-id={`record-${formMode}-avatar-${tableNameForId}`}>
                                           <Avatar sx={{bgcolor: accentColor}}>
                                              <Icon>
                                                 {tableMetaData?.iconName}
@@ -1760,7 +1763,7 @@ function EntityForm(props: Props): JSX.Element
                                           </Avatar>
                                        </Box>
                                        <Box display="flex" alignItems="center">
-                                          <MDTypography variant="h5">{formTitle}</MDTypography>
+                                          <MDTypography variant="h5" data-qqq-id={`record-${formMode}-title-${tableNameForId}`}>{formTitle}</MDTypography>
                                        </Box>
                                     </Box>
                                     {t1section && getSectionHelp(t1section)}
@@ -1780,7 +1783,7 @@ function EntityForm(props: Props): JSX.Element
                               )) : null}
 
                               {formFieldsBySection &&
-                                 <Box component="div" p={3} className={props.isModal ? "modalBottomButtonBar" : "stickyBottomButtonBar"}>
+                                 <Box component="div" p={3} className={props.isModal ? "modalBottomButtonBar" : "stickyBottomButtonBar"} data-qqq-id={`record-${formMode}-button-bar-${tableNameForId}`}>
                                     <Grid container justifyContent="flex-end" spacing={3}>
                                        <QCancelButton onClickHandler={props.isModal ? props.closeModalHandler : handleCancelClicked} disabled={isSubmitting} />
                                        <Tooltip title={saveDisabledTooltip}>

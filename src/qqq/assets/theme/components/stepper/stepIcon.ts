@@ -13,14 +13,8 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-// Material Dashboard 2 PRO React TS Base Styles
-import colors from "qqq/assets/theme/base/colors";
-
 // Material Dashboard 2 PRO React TS Helper Functions
 import pxToRem from "qqq/assets/theme/functions/pxToRem";
-import boxShadow from "qqq/assets/theme/functions/boxShadow";
-
-const { white } = colors;
 
 // types
 type Types = any;
@@ -28,9 +22,9 @@ type Types = any;
 const stepIcon: Types = {
   styleOverrides: {
     root: {
-      background: "#9fc9ff",
-      fill: "#9fc9ff",
-      stroke: "#9fc9ff",
+      background: "var(--qqq-stepper-inactive-color, rgba(255, 255, 255, 0.5))",
+      fill: "var(--qqq-stepper-inactive-color, rgba(255, 255, 255, 0.5))",
+      stroke: "var(--qqq-stepper-inactive-color, rgba(255, 255, 255, 0.5))",
       strokeWidth: pxToRem(10),
       width: pxToRem(13),
       height: pxToRem(13),
@@ -39,19 +33,19 @@ const stepIcon: Types = {
       transition: "all 200ms linear",
 
       "&.Mui-active": {
-        background: white.main,
-        fill: white.main,
-        stroke: white.main,
-        borderColor: white.main,
-        boxShadow: boxShadow([0, 0], [0, 2], white.main, 1),
+        background: "var(--qqq-stepper-active-color, #ffffff)",
+        fill: "var(--qqq-stepper-active-color, #ffffff)",
+        stroke: "var(--qqq-stepper-active-color, #ffffff)",
+        borderColor: "var(--qqq-stepper-active-color, #ffffff)",
+        boxShadow: "0rem 0rem 0rem 0.125rem var(--qqq-stepper-active-color, #ffffff)",
       },
 
       "&.Mui-completed": {
-        background: white.main,
-        fill: white.main,
-        stroke: white.main,
-        borderColor: white.main,
-        boxShadow: boxShadow([0, 0], [0, 2], white.main, 1),
+        background: "var(--qqq-stepper-active-color, #ffffff)",
+        fill: "var(--qqq-stepper-active-color, #ffffff)",
+        stroke: "var(--qqq-stepper-active-color, #ffffff)",
+        borderColor: "var(--qqq-stepper-active-color, #ffffff)",
+        boxShadow: "0rem 0rem 0rem 0.125rem var(--qqq-stepper-active-color, #ffffff)",
       },
     },
   },

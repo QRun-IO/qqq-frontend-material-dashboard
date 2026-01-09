@@ -1,0 +1,57 @@
+{
+   "tables": {
+      "person": {
+         "name": "person",
+         "label": "Person",
+         "isHidden": false,
+         "iconName": "person",
+         "deletePermission": true,
+         "editPermission": true,
+         "insertPermission": true,
+         "readPermission": true,
+         "capabilities": ["TABLE_COUNT", "TABLE_GET", "TABLE_QUERY", "TABLE_UPDATE", "TABLE_INSERT", "TABLE_DELETE"]
+      }
+   },
+   "processes": {},
+   "apps": {
+      "testApp": {
+         "name": "testApp",
+         "label": "Sharp Icons Test",
+         "iconName": "settings",
+         "widgets": [],
+         "children": [
+            {"type": "TABLE", "name": "person", "label": "Person", "iconName": "person"}
+         ],
+         "childMap": {
+            "person": {"type": "TABLE", "name": "person", "label": "Person", "iconName": "person"}
+         },
+         "sections": [
+            {"name": "testApp", "label": "Sharp Icons Test", "icon": {"name": "badge"}, "tables": ["person"]}
+         ]
+      }
+   },
+   "appTree": [
+      {
+         "type": "APP",
+         "name": "testApp",
+         "label": "Sharp Icons Test",
+         "children": [
+            {"type": "TABLE", "name": "person", "label": "Person", "iconName": "person"}
+         ],
+         "iconName": "settings"
+      }
+   ],
+   "branding": {
+      "logo": "/kr-logo.png",
+      "icon": "/kr-icon.png"
+   },
+   "supplementalInstanceMetaData": {
+      "theme": {
+         "iconStyle": "sharp"
+      }
+   },
+   "widgets": {},
+   "environmentValues": {
+      "MATERIAL_UI_LICENSE_KEY": "ABCDE"
+   }
+}

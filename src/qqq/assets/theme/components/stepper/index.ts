@@ -16,15 +16,12 @@ Coded by www.creative-tim.com
 // Material Dashboard 2 PRO React TS Base Styles
 import colors from "qqq/assets/theme/base/colors";
 import borders from "qqq/assets/theme/base/borders";
-import boxShadows from "qqq/assets/theme/base/boxShadows";
 
 // Material Dashboard 2 PRO React TS Helper Functions
 import pxToRem from "qqq/assets/theme/functions/pxToRem";
-import linearGradient from "qqq/assets/theme/functions/linearGradient";
 
-const { transparent, gradients } = colors;
+const { transparent } = colors;
 const { borderRadius } = borders;
-const { colored } = boxShadows;
 
 // types
 type Types = any;
@@ -32,10 +29,10 @@ type Types = any;
 const stepper: Types = {
   styleOverrides: {
     root: {
-      background: linearGradient(gradients.info.main, gradients.info.state),
+      background: "var(--qqq-stepper-background, linear-gradient(195deg, var(--qqq-primary-color), var(--qqq-primary-color-dark, var(--qqq-primary-color))))",
       padding: `${pxToRem(24)} 0 ${pxToRem(16)}`,
       borderRadius: borderRadius.lg,
-      boxShadow: colored.info,
+      boxShadow: "var(--qqq-stepper-shadow, 0rem 0.25rem 1.25rem 0rem rgba(0, 0, 0, 0.14), 0rem 0.4375rem 0.625rem -0.3125rem rgba(0, 0, 0, 0.4))",
 
       "&.MuiPaper-root": {
         backgroundColor: transparent.main,

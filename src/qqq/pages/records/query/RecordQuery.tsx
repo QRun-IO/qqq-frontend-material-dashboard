@@ -3311,7 +3311,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                         getRowId={(row) => row.__rowIndex}
                         selectionModel={rowSelectionModel}
                         hideFooterSelectedRowCount={true}
-                        sx={{border: 0, height: `calc(100vh - ${spaceAboveGrid + spaceBelowGrid}px)`}}
+                        sx={{border: 0, height: `calc(100vh - ${spaceAboveGrid + spaceBelowGrid}px - var(--qqq-branded-header-height, 0px))`}}
                      />
                   </Box>
                </Card>

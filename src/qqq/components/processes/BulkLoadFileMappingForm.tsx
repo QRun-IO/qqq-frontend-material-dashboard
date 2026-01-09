@@ -33,7 +33,6 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
 import {useFormikContext} from "formik";
-import colors from "qqq/assets/theme/base/colors";
 import {DynamicFormFieldLabel} from "qqq/components/forms/DynamicForm";
 import QDynamicFormField from "qqq/components/forms/DynamicFormField";
 import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
@@ -271,7 +270,7 @@ const BulkLoadFileMappingForm = forwardRef(({processValues, tableMetaData, metaD
             }}
          />
          {
-            noMappedFieldsError && <Box color={colors.error.main} textAlign="right">{noMappedFieldsError}</Box>
+            noMappedFieldsError && <Box color="var(--qqq-error-color, #F44335)" textAlign="right">{noMappedFieldsError}</Box>
          }
       </Box>
 
