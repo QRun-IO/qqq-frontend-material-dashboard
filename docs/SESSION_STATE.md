@@ -1,70 +1,31 @@
-# Session State - Pluggable Themes + CSS Selectors
+# Session State - QQQ Frontend Material Dashboard
 
-**Last Updated:** 2026-01-07
-**Branch:** `feature/pluggable-themes-v2-mui-css-selectors`
-**Version:** `0.36.0-pluggable-themes-css-selectors-SNAPSHOT`
-**Published Tag:** `publish-ad8453d`
-**Latest Commit:** `5340c03` - feat(theme): convert hardcoded colors to CSS variables
-**CI Status:** Pipeline #1340 passed (all 88 tests)
+**Last Updated:** 2026-01-09
+**Branch:** `develop`
+**Version:** `0.36.0-SNAPSHOT`
 
 ## Current Status
 
-Hardcoded color conversion **COMMITTED**. All ~33 instances across 16 files converted to CSS variables with proper fallbacks for 100% backwards compatibility.
+Bug fixes committed. Ready to push.
 
-**Completed:**
-- Converted all hardcoded `colors.*` and `gradients.*` references to CSS variables
-- Added proper fallback values to ALL CSS variables for backwards compatibility
-- Build passes, all 88 theme tests pass
-- Changes committed (5340c03)
-- CI pipeline #1340 passed
+**Latest Commits:**
+- `9eff022` - fix: add CookiesProvider and use chromedriver for Selenium tests
+- `a1cd14a` - fix(deps): update qqq.version to 0.36.0-SNAPSHOT
+- `064e86d` - feat(theme): pluggable themes + CSS selectors system (#125)
 
-**Correct fallback values used:**
-- Border color (`grayLines.main`): `#D6D6D6`
-- Info color: `#0062FF`
-- Error color: `#F44335`
-- Success color: `#4CAF50`
-- Warning color: `#fb8c00`
-- Grey-600: `#757575`
-- Switch track (`gradients.dark.main`): `#42424a`
-- Primary: `#e91e63`
-- Secondary: `#7b809a`
+## Fixes Applied
 
-## Files Modified (Color Conversion)
+1. **CookiesProvider** - Added missing wrapper in `index.tsx` (required by react-cookie v8)
+2. **chromedriver** - Changed `chromiumdriver()` to `chromedriver()` in test base classes
 
-### P1: User-Facing Components
-1. `src/qqq/components/widgets/Widget.tsx` - info colors
-2. `src/qqq/components/widgets/components/ChartSubheaderWithData.tsx` - success/error
-3. `src/qqq/utils/qqq/FilterUtils.tsx` - filter badge colors
-4. `src/qqq/components/widgets/charts/barchart/HorizontalBarChart.tsx` - chart color
-5. `src/qqq/components/widgets/misc/CronUIWidget.tsx` - error color
-6. `src/qqq/components/widgets/misc/RowBuilderWidget.tsx` - button/border/error colors
-7. `src/qqq/components/sharing/ShareModal.tsx` - border/secondary/error colors
+## Test Status
 
-### P2: Bulk Load Components
-8. `src/qqq/components/processes/BulkLoadFileMappingField.tsx` - border/error/warning
-9. `src/qqq/components/processes/BulkLoadFileMappingForm.tsx` - error
-10. `src/qqq/components/processes/BulkLoadValueMappingForm.tsx` - error
-11. `src/qqq/components/misc/SavedBulkLoadProfiles.tsx` - border/success/error
-
-### P3: Theme Components
-12. `src/qqq/assets/theme/components/tabs/index.ts` - tab indicator color
-13. `src/qqq/assets/theme/components/flatpickr.ts` - selected date
-14. `src/qqq/assets/theme/components/form/switchButton.ts` - switch track
-
-### P4: Legacy Components
-15. `src/qqq/components/legacy/MDBadgeDot/index.tsx` - badge colors
-16. `src/qqq/components/legacy/MDProgress/MDProgressRoot.tsx` - progress gradient
+| Suite | Tests | Status |
+|-------|-------|--------|
+| `selenium.*` | 115 | PASS |
+| `seleniumwithqapplication.*` | 19 | Blocked (infrastructure) |
 
 ## Next Steps
 
-1. **Testing:** me-health team validation in progress
-2. **After testing:** Create PR to develop branch
-3. **Before merge:** Update version to `0.36.0-SNAPSHOT`
-
-## Build Commands
-
-```bash
-npm run build                    # Build frontend (verified passing)
-QQQ_SELENIUM_HEADLESS=true mvn test -Dtest="Theme*"  # Run theme tests (88 pass)
-mvn clean install -DskipTests    # Install snapshot locally
-```
+1. Push commit to origin
+2. Investigate seleniumwithqapplication test infrastructure (optional)

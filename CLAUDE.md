@@ -348,15 +348,28 @@ Read these files in order:
 2. `docs/TODO.md` - Active and completed tasks
 3. This file (`CLAUDE.md`) - Project context
 
-### Current Feature Branch Status (as of 2026-01-07)
+### Current Status (as of 2026-01-09)
 
 | Item | Value |
 |------|-------|
-| Branch | `feature/pluggable-themes-v2-mui-css-selectors` |
-| Version | `0.36.0-pluggable-themes-css-selectors-SNAPSHOT` |
-| Latest Commit | `5340c03` - feat(theme): convert hardcoded colors to CSS variables |
-| CI Status | Pipeline #1340 passed (88 tests) |
-| Next Step | me-health team testing, then PR to develop |
+| Branch | `develop` |
+| Version | `0.36.0-SNAPSHOT` |
+| Latest Commit | `9eff022` - fix: add CookiesProvider and use chromedriver for Selenium tests |
+| Features Merged | Pluggable themes + CSS selectors (PR #125), Virtual fields (#123), Form adjusters (#122) |
+
+### Recent Bug Fixes
+
+1. **CookiesProvider** - Added missing wrapper in `src/index.tsx` (required by react-cookie v8)
+2. **chromedriver** - Changed `chromiumdriver()` to `chromedriver()` in test base classes
+
+### Test Status
+
+| Suite | Tests | Status |
+|-------|-------|--------|
+| `selenium.*` (fixture-based) | 115 | PASS |
+| `seleniumwithqapplication.*` (full QQQ server) | 19 | Infrastructure issue - hangs locally |
+
+The `seleniumwithqapplication` tests require a full QQQ backend server and hang during local execution. They may work in CI.
 
 ### Key Documentation Files
 
