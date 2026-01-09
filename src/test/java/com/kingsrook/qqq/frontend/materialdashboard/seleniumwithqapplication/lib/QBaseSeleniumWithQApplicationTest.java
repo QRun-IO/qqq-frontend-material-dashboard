@@ -97,7 +97,7 @@ public class QBaseSeleniumWithQApplicationTest
          chromeOptions.addArguments("--headless=new");
       }
 
-      WebDriverManager.chromiumdriver().setup();
+      WebDriverManager.chromedriver().setup();
    }
 
 
