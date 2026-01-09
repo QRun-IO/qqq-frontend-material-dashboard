@@ -6,9 +6,10 @@
 
 ## Current Status
 
-Bug fixes committed. Ready to push.
+Bug fixes committed and pushed. 115 selenium tests passing.
 
 **Latest Commits:**
+- `df48647` - docs: update session state and status after CookiesProvider/chromedriver fixes
 - `9eff022` - fix: add CookiesProvider and use chromedriver for Selenium tests
 - `a1cd14a` - fix(deps): update qqq.version to 0.36.0-SNAPSHOT
 - `064e86d` - feat(theme): pluggable themes + CSS selectors system (#125)
