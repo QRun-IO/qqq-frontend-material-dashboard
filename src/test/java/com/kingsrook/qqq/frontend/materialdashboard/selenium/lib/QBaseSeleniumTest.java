@@ -72,7 +72,7 @@ public class QBaseSeleniumTest
          chromeOptions.addArguments("--headless=new");
       }
 
-      WebDriverManager.chromiumdriver().setup();
+      WebDriverManager.chromedriver().setup();
    }
 
 
