@@ -40,6 +40,8 @@ public class FormAdjusterOutput
    private Set<String>                         fieldsToClear             = null;
    private Map<String, QFieldSection>          updatedSectionMetaData    = null;
 
+   private Boolean isFormDisabled      = false;
+   private String  formDisabledMessage = null;
 
 
    /*******************************************************************************
@@ -199,6 +201,83 @@ public class FormAdjusterOutput
    public FormAdjusterOutput withUpdatedSectionMetaData(Map<String, QFieldSection> updatedSectionMetaData)
    {
       this.updatedSectionMetaData = updatedSectionMetaData;
+      return (this);
+   }
+
+
+
+   /*******************************************************************************
+    * Getter for isFormDisabled
+    * @see #withIsFormDisabled(Boolean)
+    *******************************************************************************/
+   public Boolean getIsFormDisabled()
+   {
+      return (this.isFormDisabled);
+   }
+
+
+
+   /*******************************************************************************
+    * Setter for isFormDisabled
+    * @see #withIsFormDisabled(Boolean)
+    *******************************************************************************/
+   public void setIsFormDisabled(Boolean isFormDisabled)
+   {
+      this.isFormDisabled = isFormDisabled;
+   }
+
+
+
+   /*******************************************************************************
+    * Fluent setter for isFormDisabled
+    *
+    * @param isFormDisabled
+    * boolean, defaults to false.  If set to true, then the frontend should disable
+    * the form, fully blocking edits.
+    * @return this
+    *******************************************************************************/
+   public FormAdjusterOutput withIsFormDisabled(Boolean isFormDisabled)
+   {
+      this.isFormDisabled = isFormDisabled;
+      return (this);
+   }
+
+
+
+   /*******************************************************************************
+    * Getter for formDisabledMessage
+    * @see #withFormDisabledMessage(String)
+    *******************************************************************************/
+   public String getFormDisabledMessage()
+   {
+      return (this.formDisabledMessage);
+   }
+
+
+
+   /*******************************************************************************
+    * Setter for formDisabledMessage
+    * @see #withFormDisabledMessage(String)
+    *******************************************************************************/
+   public void setFormDisabledMessage(String formDisabledMessage)
+   {
+      this.formDisabledMessage = formDisabledMessage;
+   }
+
+
+
+   /*******************************************************************************
+    * Fluent setter for formDisabledMessage
+    *
+    * @param formDisabledMessage
+    * Message the frontend should display to the user when the form is disabled
+    * (see withIsFormDisabled()).  If this message isn't set, then the frontend
+    * will display a generic message.
+    * @return this
+    *******************************************************************************/
+   public FormAdjusterOutput withFormDisabledMessage(String formDisabledMessage)
+   {
+      this.formDisabledMessage = formDisabledMessage;
       return (this);
    }
 
