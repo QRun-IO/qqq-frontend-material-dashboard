@@ -21,6 +21,7 @@
 
 import {QAuthenticationMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAuthenticationMetaData";
 import React from "react";
+import {CookiesProvider} from "react-cookie";
 import ReactDOM from "react-dom";
 import {createRoot} from "react-dom/client";
 import {BrowserRouter, useNavigate, useSearchParams} from "react-router-dom";
@@ -99,21 +100,27 @@ authenticationMetaDataPromise.then((authenticationMetaData) =>
 
    if (authenticationMetaData.type === "AUTH_0")
    {
-      root.render(<BrowserRouter basename={detectBasePath()}>
-         <Auth0RouterBody />
-      </BrowserRouter>);
+      root.render(<CookiesProvider>
+         <BrowserRouter basename={detectBasePath()}>
+            <Auth0RouterBody />
+         </BrowserRouter>
+      </CookiesProvider>);
    }
    else if (authenticationMetaData.type === "OAUTH2")
    {
-      root.render(<BrowserRouter basename={detectBasePath()}>
-         <OAuth2RouterBody />
-      </BrowserRouter>);
+      root.render(<CookiesProvider>
+         <BrowserRouter basename={detectBasePath()}>
+            <OAuth2RouterBody />
+         </BrowserRouter>
+      </CookiesProvider>);
    }
    else if (authenticationMetaData.type === "FULLY_ANONYMOUS" || authenticationMetaData.type === "MOCK")
    {
-      root.render(<BrowserRouter basename={detectBasePath()}>
-         <AnonymousRouterBody />
-      </BrowserRouter>);
+      root.render(<CookiesProvider>
+         <BrowserRouter basename={detectBasePath()}>
+            <AnonymousRouterBody />
+         </BrowserRouter>
+      </CookiesProvider>);
    }
    else
    {
