@@ -19,16 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
-import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
-import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
-import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
-import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QTableSection} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableSection";
-import {QTableVariant} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableVariant";
-import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
-import {QueryJoin} from "@qrunio/qqq-frontend-core/lib/model/query/QueryJoin";
 import {Alert, Typography} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -48,6 +38,17 @@ import MenuItem from "@mui/material/MenuItem";
 import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
 import {SxProps} from "@mui/system";
+import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
+import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
+import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
+import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
+import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QTableSection} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableSection";
+import {QTableVariant} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableVariant";
+import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
+import {QueryJoin} from "@qrunio/qqq-frontend-core/lib/model/query/QueryJoin";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
 import AuditBody from "qqq/components/audits/AuditBody";
@@ -61,6 +62,7 @@ import ShareModal from "qqq/components/sharing/ShareModal";
 import DashboardWidgets from "qqq/components/widgets/DashboardWidgets";
 import BaseLayout from "qqq/layouts/BaseLayout";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
+import {FieldValueAsWidget} from "qqq/pages/records/view/FieldValueAsWidget";
 import HistoryUtils from "qqq/utils/HistoryUtils";
 import HtmlUtils from "qqq/utils/HtmlUtils";
 import Client from "qqq/utils/qqq/Client";
@@ -100,6 +102,14 @@ export function renderSectionOfFields(key: string, fieldNames: string[], tableMe
          {
             let [field, tableForField] = tableMetaData ? TableUtils.getFieldAndTable(tableMetaData, fieldName) : fieldMap ? [fieldMap[fieldName], null] : [null, null];
 
+            if(field == null)
+            {
+               if(tableMetaData?.virtualFields?.has(fieldName))
+               {
+                  field = tableMetaData.virtualFields.get(fieldName);
+               }
+            }
+
             if (field != null)
             {
                let label = field.label;
@@ -110,6 +120,13 @@ export function renderSectionOfFields(key: string, fieldNames: string[], tableMe
                const formattedHelpContent = <HelpContent helpContents={field.helpContents} roles={helpRoles} heading={label} helpContentKey={`table:${tableMetaData?.name};field:${fieldName}`} />;
 
                const labelElement = <Typography variant="button" textTransform="none" fontWeight="bold" pr={1} color="rgb(52, 71, 103)" sx={{cursor: "default", ...(styleOverrides?.label ?? {})}}>{label}:</Typography>;
+
+               if(field.hasAdornment(AdornmentType.WIDGET))
+               {
+                  return (<Grid item key={fieldName} lg={gridColumns} flexDirection="column" pr={2}>
+                     <FieldValueAsWidget field={field} record={record} />
+                  </Grid>);
+               }
 
                return (
                   <Grid item key={fieldName} lg={gridColumns} flexDirection="column" pr={2}>
@@ -594,7 +611,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          /////////////////////////////////////////////////
          // define the sections, e.g., for the left-bar //
          /////////////////////////////////////////////////
-         const tableSections = TableUtils.getSectionsForRecordSidebar(tableMetaData);
+         const tableSections = TableUtils.getSectionsForRecordSidebar(tableMetaData, null, undefined, "RECORD_VIEW");
          setTableSections(tableSections);
 
          ////////////////////////////////////////////////////
@@ -604,7 +621,13 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          const nonT1TableSections = [];
          for (let i = 0; i < tableSections.length; i++)
          {
-            const section = tableSections[i];
+            let section = tableSections[i];
+
+            if(section.alternatives?.has("RECORD_VIEW"))
+            {
+               section = section.alternatives.get("RECORD_VIEW")
+            }
+
             if (section.isHidden)
             {
                continue;

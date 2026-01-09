@@ -19,41 +19,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Box from "@mui/material/Box";
+import Icon from "@mui/material/Icon";
 import BlockElementWrapper from "qqq/components/widgets/blocks/BlockElementWrapper";
 import {StandardBlockComponentProps} from "qqq/components/widgets/blocks/BlockModels";
-import DumpJsonBox from "qqq/utils/DumpJsonBox";
 import React from "react";
 
 /*******************************************************************************
- ** Block that renders ... an image tag
+ ** Block that renders ... an <Icon> tag
  **
- ** <audio src=${path} ${autoPlay} ${showControls} />
+ ** <Icon>{name}</Icon>
  *******************************************************************************/
-export default function ImageBlock({widgetMetaData, data}: StandardBlockComponentProps): JSX.Element
+export default function IconBlock({widgetMetaData, data}: StandardBlockComponentProps): JSX.Element
 {
-   let imageStyle: any = {};
-
-   if(data.styles?.width)
-   {
-      imageStyle.width = data.styles?.width;
-   }
-
-   if(data.styles?.height)
-   {
-      imageStyle.height = data.styles?.height;
-   }
-
-   if(data.styles?.bordered)
-   {
-      imageStyle.border = "1px solid #C0C0C0";
-      imageStyle.borderRadius = "0.5rem";
-   }
-
-
    return (
       <BlockElementWrapper metaData={widgetMetaData} data={data} slot="">
-         <img src={data.values?.path} alt={data.values?.alt} style={imageStyle} />
+         <span style={{color: data.styles?.color, lineHeight: 0, fontSize: data.styles?.fontSize}}>
+            <Icon color={data.styles?.color}>{data.values?.name}</Icon>
+         </span>
       </BlockElementWrapper>
    );
 }

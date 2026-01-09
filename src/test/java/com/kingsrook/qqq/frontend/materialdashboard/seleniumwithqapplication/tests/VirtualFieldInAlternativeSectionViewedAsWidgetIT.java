@@ -22,6 +22,7 @@
 package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.tests;
 
 
+import java.time.LocalDate;
 import java.util.List;
 import com.kingsrook.qqq.backend.core.actions.customizers.TableCustomizerInterface;
 import com.kingsrook.qqq.backend.core.actions.customizers.TableCustomizers;
@@ -32,8 +33,13 @@ import com.kingsrook.qqq.backend.core.model.actions.tables.QueryOrGetInputInterf
 import com.kingsrook.qqq.backend.core.model.actions.tables.insert.InsertInput;
 import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetInput;
 import com.kingsrook.qqq.backend.core.model.actions.widgets.RenderWidgetOutput;
-import com.kingsrook.qqq.backend.core.model.dashboard.widgets.FilterAndColumnsSetupData;
+import com.kingsrook.qqq.backend.core.model.dashboard.widgets.CompositeWidgetData;
 import com.kingsrook.qqq.backend.core.model.dashboard.widgets.WidgetType;
+import com.kingsrook.qqq.backend.core.model.dashboard.widgets.blocks.base.BaseStyles;
+import com.kingsrook.qqq.backend.core.model.dashboard.widgets.blocks.icon.IconBlockData;
+import com.kingsrook.qqq.backend.core.model.dashboard.widgets.blocks.icon.IconValues;
+import com.kingsrook.qqq.backend.core.model.dashboard.widgets.blocks.text.TextBlockData;
+import com.kingsrook.qqq.backend.core.model.dashboard.widgets.blocks.text.TextValues;
 import com.kingsrook.qqq.backend.core.model.data.QRecord;
 import com.kingsrook.qqq.backend.core.model.metadata.QInstance;
 import com.kingsrook.qqq.backend.core.model.metadata.code.QCodeReference;
@@ -48,21 +54,21 @@ import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSection;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QFieldSectionAlternativeType;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.backend.core.model.metadata.tables.Tier;
-import com.kingsrook.qqq.frontend.materialdashboard.junit.TestUtils;
-import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.QueryScreenLib;
 import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.lib.QBaseSeleniumWithQApplicationTest;
 import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata.MemoryBackendProducer;
 import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata.PeopleAppProducer;
-import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata.PersonTableProducer;
 import org.junit.jupiter.api.Test;
 
 
 /*******************************************************************************
- * Tests for using a filter widget on a field.
+ * Tests for some new features being added together:
+ * 1) virtual field on a table
+ * 2) used in an alternative section
+ * 3) rendered as a widget on the view screen
  *******************************************************************************/
-public class FilterWidgetOnFieldIT extends QBaseSeleniumWithQApplicationTest
+public class VirtualFieldInAlternativeSectionViewedAsWidgetIT extends QBaseSeleniumWithQApplicationTest
 {
-   private static final String TABLE_NAME = "tableWithFilterField";
+   private static final String TABLE_NAME = "tableWithVirtualFieldInAlternativeSectionViewedAsWidget";
 
 
 
@@ -73,32 +79,42 @@ public class FilterWidgetOnFieldIT extends QBaseSeleniumWithQApplicationTest
    protected void customizeQInstance(QInstance qInstance) throws QException
    {
       QWidgetMetaData widget = new QWidgetMetaData()
-         .withName("someFilterWidget")
-         .withLabel("Filter")
-         .withIsCard(false)
-         .withType(WidgetType.FILTER_AND_COLUMNS_SETUP.getType())
-         .withCodeReference(new QCodeReference(FilterWidgetRenderer.class));
+         .withName("genericCompositeWidget")
+         .withType(WidgetType.COMPOSITE.getType())
+         .withCodeReference(new QCodeReference(NoopWidgetRenderer.class));
       qInstance.addWidget(widget);
 
       QTableMetaData table = new QTableMetaData()
          .withName(TABLE_NAME)
          .withBackendName(MemoryBackendProducer.NAME)
+         .withRecordLabelFormatAndFields("%s", "name")
          .withField(new QFieldMetaData("id", QFieldType.INTEGER).withIsEditable(false))
          .withField(new QFieldMetaData("name", QFieldType.STRING).withIsRequired(true))
-         .withField(new QFieldMetaData("filterJSON", QFieldType.STRING).withLabel("Person Filter")
-            .withGridColumns(12)
-            .withFieldAdornment(new FieldAdornment(AdornmentType.WIDGET)
-               .withValue(AdornmentType.WidgetValues.WIDGET_NAME, widget.getName())))
-         .withSection(new QFieldSection("identity", new QIcon(), Tier.T1, List.of("id", "name")))
-         .withSection(new QFieldSection("filter", new QIcon(), Tier.T2, List.of("filterJSON"))
-            .withAlternative(QFieldSectionAlternativeType.RECORD_VIEW, (s) -> s.setFieldNames(List.of("filterVirtual"))))
-         .withVirtualField(new QVirtualFieldMetaData("filterVirtual", QFieldType.STRING).withLabel("Person Filter"))
-         .withPrimaryKeyField("id")
-         .withCustomizer(TableCustomizers.POST_QUERY_RECORD, new QCodeReference(TableCustomizer.class));
+         .withField(new QFieldMetaData("type", QFieldType.STRING))
+         .withField(new QFieldMetaData("homeTown", QFieldType.STRING))
+         .withField(new QFieldMetaData("createDate", QFieldType.DATE_TIME).withIsEditable(false))
+         .withField(new QFieldMetaData("modifyDate", QFieldType.DATE_TIME).withIsEditable(false))
+         .withSection(new QFieldSection("identity", new QIcon(), Tier.T1, List.of("id", "name", "homeTown"))
+            .withAlternative(QFieldSectionAlternativeType.RECORD_VIEW, (s) -> s.setFieldNames(List.of("mergedField", "homeTown"))))
+         .withSection(new QFieldSection("hidden", new QIcon(), Tier.T2, List.of("type"))
+            .withAlternative(QFieldSectionAlternativeType.RECORD_VIEW, (s) -> s.setIsHidden(true)))
+         .withSection(new QFieldSection("dates", new QIcon(), Tier.T3, List.of("createDate", "modifyDate"))
+            .withAlternative(QFieldSectionAlternativeType.RECORD_VIEW, (s) -> s.getFieldNames().add(0, "currentDate")))
+         .withPrimaryKeyField("id");
+
+      table.withVirtualField(new QVirtualFieldMetaData("mergedField", QFieldType.STRING)
+         .withFieldAdornment(new FieldAdornment().withType(AdornmentType.WIDGET)
+            .withValue(AdornmentType.WidgetValues.WIDGET_NAME, widget.getName())));
+
+      table.withVirtualField(new QVirtualFieldMetaData("currentDate", QFieldType.DATE));
+
+      table.withCustomizer(TableCustomizers.POST_QUERY_RECORD, new QCodeReference(TableCustomizer.class));
 
       qInstance.addTable(table);
       PeopleAppProducer.addTableToGreetingsApp(qInstance, table.getName());
    }
+
+
 
    /***************************************************************************
     *
@@ -106,25 +122,29 @@ public class FilterWidgetOnFieldIT extends QBaseSeleniumWithQApplicationTest
    @Override
    protected void setupTestData() throws QException
    {
-      new InsertAction().execute(new InsertInput(PersonTableProducer.NAME).withRecords(List.of(
-         new QRecord().withValue("firstName", "Darin").withValue("lastName", "Kelkhoff"),
-         new QRecord().withValue("firstName", "Jean-Luc").withValue("lastName", "Picard")
-      )));
+      new InsertAction().execute(new InsertInput(TABLE_NAME).withRecord(new QRecord()
+         .withValue("id", 1)
+         .withValue("name", "Homer")
+         .withValue("type", "Cartoon")
+         .withValue("homeTown", "Springville")
+      ));
+
    }
+
 
 
    /***************************************************************************
     *
     ***************************************************************************/
-   public static class FilterWidgetRenderer extends AbstractWidgetRenderer
+   public static class NoopWidgetRenderer extends AbstractWidgetRenderer
    {
-      /*******************************************************************************
+      /***************************************************************************
        **
-       *******************************************************************************/
+       ***************************************************************************/
       @Override
       public RenderWidgetOutput render(RenderWidgetInput input) throws QException
       {
-         return (new RenderWidgetOutput(new FilterAndColumnsSetupData(TestUtils.TABLE_NAME_PERSON, false, true, null)));
+         return null;
       }
    }
 
@@ -135,15 +155,26 @@ public class FilterWidgetOnFieldIT extends QBaseSeleniumWithQApplicationTest
     ***************************************************************************/
    public static class TableCustomizer implements TableCustomizerInterface
    {
+      /***************************************************************************
+       *
+       ***************************************************************************/
       @Override
-      public List<QRecord> postQuery(QueryOrGetInputInterface queryInput, List<QRecord> records) throws QException
+      public List<QRecord> postQuery(QueryOrGetInputInterface queryInput, List<QRecord> records)
       {
          for(QRecord record : records)
          {
-            record.setValue("filterVirtual", record.getValueString("filterJSON"));
-         }
+            CompositeWidgetData widgetData = new CompositeWidgetData().withLayout(CompositeWidgetData.Layout.FLEX_ROW_WRAPPED)
+               .withStyles(new BaseStyles().withPadding(BaseStyles.Directional.ofY("8")))
+               .withBlocks(List.of(
+                  new IconBlockData().withValues(new IconValues().withName("gavel")),
+                  new TextBlockData().withValues(new TextValues(record.getValueString("id") + "|" + record.getValueString("name") + "|" + record.getValueString("type")))
+               ));
 
-         return (records);
+            record.setValue("mergedField", widgetData);
+
+            record.setValue("currentDate", LocalDate.parse("2025-12-09"));
+         }
+         return records;
       }
    }
 
@@ -155,38 +186,22 @@ public class FilterWidgetOnFieldIT extends QBaseSeleniumWithQApplicationTest
    @Test
    void test()
    {
-      QueryScreenLib queryScreenLib = new QueryScreenLib(qSeleniumLib);
+      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/1", "Homer");
 
-      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/create", "Creating New");
+      qSeleniumLib.waitForSelectorContaining(".material-icons-round", "gavel");
+      qSeleniumLib.waitForSelectorContaining(".compositeWidget", "1|Homer|Cartoon");
 
-      qfmdSeleniumLib.inputTextField("name", "Filter for Darin's");
+      qSeleniumLib.waitForSelectorContaining(".sidebar-section", "Identity");
+      qSeleniumLib.waitForSelectorContainingToNotExist(".sidebar-section", "Hidden");
+      qSeleniumLib.waitForSelectorContaining(".sidebar-section", "Dates");
 
-      qSeleniumLib.waitForSelectorContaining("button", "Edit Filters").click();
-      qfmdSeleniumLib.waitForQueryScreenPaginationValues(1, 2, 2);
-      queryScreenLib.setBasicFilter("First Name", "equals", "Darin");
-      qfmdSeleniumLib.waitForQueryScreenPaginationValues(1, 1, 1);
-      qfmdSeleniumLib.clickOkButton();
+      qSeleniumLib.waitForSelectorContainingToNotExist("h6", "Hidden");
+      qSeleniumLib.waitForSelectorContaining("h6", "Dates");
 
-      qSeleniumLib.waitForSelectorContaining(".advancedQueryString", "First Name equals Darin");
-      qfmdSeleniumLib.clickSaveButton();
+      qfmdSeleniumLib.waitForViewScreenFieldValue("Home Town", "Springville");
+      qfmdSeleniumLib.waitForViewScreenFieldValue("Current Date", "2025-12-09");
 
-      qfmdSeleniumLib.waitForViewScreenFieldValue("Person Filter", """
-            {"criteria":[{"fieldName":"firstName","operator":"EQUALS","values":["Darin"]""");
-
-      qfmdSeleniumLib.chooseFromActionMenu("Edit");
-
-      qSeleniumLib.waitForSelectorContaining(".advancedQueryString", "First Name equals Darin");
-      qSeleniumLib.waitForSelectorContaining("button", "Edit Filters").click();
-      qfmdSeleniumLib.waitForQueryScreenPaginationValues(1, 1, 1);
-      queryScreenLib.clickQuickFilterClearIcon("firstName");
-      qfmdSeleniumLib.waitForQueryScreenPaginationValues(1, 2, 2);
-      qfmdSeleniumLib.clickOkButton();
-
-      qSeleniumLib.waitForSelectorContainingToNotExist(".advancedQueryString", "First Name equals Darin");
-      qfmdSeleniumLib.clickSaveButton();
-
-      qfmdSeleniumLib.waitForViewScreenFieldValue("Person Filter", """
-            {"criteria":[]""");
+      // qSeleniumLib.waitForever();
    }
 
 }
