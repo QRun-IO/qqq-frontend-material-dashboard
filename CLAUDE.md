@@ -199,15 +199,13 @@ All major UI elements have stable `data-qqq-id` attributes for targeted styling 
 
 ## Cross-Repository Dependencies
 
-This project is part of a three-repo theming system:
+This project is part of a three-repo system:
 
 | Repository | Artifact | Current Version |
 |------------|----------|-----------------|
 | qqq (backend-core) | `com.kingsrook.qqq:qqq-backend-core` | `0.36.0-SNAPSHOT` |
 | qqq-frontend-core | `@qrunio/qqq-frontend-core` | `1.4.2-SNAPSHOT` |
-| qqq-frontend-material-dashboard | `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.36.0-pluggable-themes-css-selectors-SNAPSHOT` |
-
-**Feature branch version:** `0.36.0-pluggable-themes-css-selectors-SNAPSHOT` (for testing pluggable themes + CSS selectors)
+| qqq-frontend-material-dashboard | `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.36.0-SNAPSHOT` |
 
 **Dependency order for commits/publishes:** backend-core → frontend-core → dashboard
 
@@ -380,27 +378,32 @@ Read these files in order:
 2. `docs/TODO.md` - Active and completed tasks
 3. This file (`CLAUDE.md`) - Project context
 
-### Current Status (as of 2026-01-09)
+### Current Status (as of 2026-01-10)
 
 | Item | Value |
 |------|-------|
 | Branch | `develop` |
 | Version | `0.36.0-SNAPSHOT` |
-| Latest Commit | `9eff022` - fix: add CookiesProvider and use chromedriver for Selenium tests |
-| Features Merged | Pluggable themes + CSS selectors (PR #125), Virtual fields (#123), Form adjusters (#122) |
+| Latest Commit | `bb6d0dd` - docs: update session state after Playwright integration complete |
+| CI Status | All passing, snapshot published |
 
-### Recent Bug Fixes
+### Recent Merges
 
-1. **CookiesProvider** - Added missing wrapper in `src/index.tsx` (required by react-cookie v8)
-2. **chromedriver** - Changed `chromiumdriver()` to `chromedriver()` in test base classes
+| PR | Description |
+|----|-------------|
+| #127 | Playwright e2e test integration (26 tests) |
+| #125 | Pluggable themes + CSS selectors system |
+| #123 | Virtual fields support |
+| #122 | Form adjusters |
 
 ### Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
 | Playwright e2e | 26 | PASS |
-| `selenium.*` (fixture-based) | 115 | PASS |
-| `seleniumwithqapplication.*` (full QQQ server) | 19 | Infrastructure issue - hangs locally |
+| Selenium fixture-based | 115 | PASS |
+| Java unit | 3 | PASS |
+| Selenium full-server | 19 | Infrastructure issue - hangs locally |
 
 The `seleniumwithqapplication` tests require a full QQQ backend server and hang during local execution. They may work in CI.
 
@@ -410,31 +413,18 @@ The `seleniumwithqapplication` tests require a full QQQ backend server and hang 
 |------|---------|
 | `docs/SESSION_STATE.md` | Current work status, branch, version, recent commits |
 | `docs/TODO.md` | Task tracking for current feature |
-| `docs/TODO-hardcoded-colors.md` | Detailed hardcoded color conversion checklist (COMPLETE) |
 | `docs/QQQ_THEMING_GUIDE.md` | Complete theming reference |
 | `docs/QQQ_CSS_SELECTORS_GUIDE.md` | CSS selector patterns reference |
+| `docs/THEME_TESTING_GUIDE.md` | Guide for testing theme features |
 | `docs/PLAN-css-selectors.md` | CSS selectors implementation plan (COMPLETE) |
 | `docs/PLAN-pluggable-themes-mui-refactor.md` | MUI refactor plan (COMPLETE) |
-
-### Hardcoded Color Conversion (COMPLETE)
-
-All ~33 hardcoded `colors.*` and `gradients.*` references converted to CSS variables with proper fallbacks:
-
-| CSS Variable | Fallback | Source |
-|--------------|----------|--------|
-| `--qqq-border-color` | `#D6D6D6` | `grayLines.main` |
-| `--qqq-info-color` | `#0062FF` | `info.main` |
-| `--qqq-error-color` | `#F44335` | `error.main` |
-| `--qqq-success-color` | `#4CAF50` | `success.main` |
-| `--qqq-warning-color` | `#fb8c00` | `warning.main` |
-| `--qqq-grey-600` | `#757575` | `grey[600]` |
-| `--qqq-switch-track-color` | `#42424a` | `gradients.dark.main` |
-| `--qqq-primary-color` | `#e91e63` | `primary.main` |
-| `--qqq-secondary-color` | `#7b809a` | `secondary.main` |
+| `docs/TODO-hardcoded-colors.md` | Hardcoded color conversion checklist (COMPLETE) |
 
 ### Publishing Snapshots
 
-Use the gitops publish script to create a tagged snapshot:
+Snapshots publish automatically when merged to `develop` via CircleCI `publish_snapshot` workflow.
+
+Manual publish using gitops script:
 ```bash
 /Users/james.maes/.local/bin/gitops-publish.sh
 ```

@@ -6,9 +6,11 @@
 
 ## Current Status
 
-Playwright e2e tests integrated and merged. All CI passing. Snapshot published.
+All work complete. CI passing. Snapshot published.
 
-**Latest Commit:** `b72e0f6` - feat(test): integrate Playwright e2e tests
+**Latest Commits:**
+- `bb6d0dd` - docs: update session state after Playwright integration complete
+- `b72e0f6` - feat(test): integrate Playwright e2e tests (#127)
 
 ## Test Status
 
@@ -19,18 +21,36 @@ Playwright e2e tests integrated and merged. All CI passing. Snapshot published.
 | Java unit | 3 | PASS |
 | Selenium full-server | 19 | Blocked (infrastructure) |
 
-## Recent Work
-
-- PR #127 merged: Playwright e2e test integration
-- Added unified `run-tests.sh` script
-- Added Playwright job to CircleCI
-- Cleaned up old feature branches
-
-## CI/CD
+## CI/CD Status
 
 - `publish_snapshot` workflow: PASS
 - Snapshot JAR published to registry
+- GitHub discussion #340 updated with release notes
+
+## Recent Work Completed
+
+- PR #127: Playwright e2e test integration
+- Unified `run-tests.sh` script for all test execution
+- CircleCI Playwright job added to pipeline
+- Old feature branches cleaned up (v1/v2 theme branches deleted)
+
+## Active Plans
+
+None - all plans complete.
 
 ## Next Steps
 
-None - all tasks complete.
+No pending work. Ready for new tasks.
+
+## Quick Reference
+
+```bash
+# Run all tests
+./run-tests.sh
+
+# Run Playwright only
+./run-tests.sh --playwright
+
+# Run Selenium only
+./run-tests.sh --selenium
+```
