@@ -4,7 +4,17 @@
 
 ## Active Tasks
 
-None - all tasks complete.
+### Fix CI Playwright Tests (IN PROGRESS)
+
+- [x] Added `serve` package for static file serving
+- [x] Updated playwright.config.ts to use combined server approach
+- [x] Updated CircleCI to pre-build React app before tests
+- [x] Modified fixture-server.js to serve static files
+- [ ] **Debug why React app renders blank page**
+- [ ] Test locally with `--debug` flag
+- [ ] Check browser console for JS errors
+- [ ] Verify all required API endpoints are mocked
+- [ ] Push fix once tests pass locally
 
 ## Completed (Recent)
 
@@ -12,28 +22,18 @@ None - all tasks complete.
 - [x] **Playwright tests integrated** - 26 tests from v1 branch
 - [x] **run-tests.sh improved** - Unified script for Playwright + Selenium
 - [x] **CircleCI config updated** - Playwright job added to pipelines
-- [x] **Snapshot published** - publish_snapshot workflow passed
-- [x] **Old branches cleaned up** - Deleted v1/v2 theme branches
-- [x] **GitHub discussion updated** - Added QFMD changes to #340
-
-## Completed (Prior)
-
-- [x] Pluggable themes system (PR #125)
-- [x] CSS selectors system (PR #125)
-- [x] Virtual fields support (PR #123)
-- [x] Form adjusters (PR #122)
-- [x] CookiesProvider fix
-- [x] chromedriver fix
 
 ## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright e2e | 26 | PASS |
+| Playwright e2e | 26 | FAILING (blank page) |
 | Selenium fixture-based | 115 | PASS |
 | Java unit | 3 | PASS |
 | Selenium full-server | 19 | Blocked (infrastructure) |
 
 ## Known Issues
 
+- CI Playwright tests fail - webserver timeout (being fixed)
+- React app renders blank in combined fixture server (debugging)
 - `seleniumwithqapplication` tests hang locally (require full QQQ backend)

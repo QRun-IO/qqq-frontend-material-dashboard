@@ -26,6 +26,9 @@ jobs:
           paths:
             - node_modules
       - run:
+          name: Build React app
+          command: npm run build
+      - run:
           name: Run Playwright e2e tests
           command: npx playwright test
       - store_artifacts:

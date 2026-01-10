@@ -1,7 +1,11 @@
 /**
- * Simple fixture server for Playwright e2e tests.
- * Serves fixture JSON files from src/test/resources/fixtures/
- * mimicking the Javalin mock server used in Selenium tests.
+ * Combined fixture server for Playwright e2e tests.
+ * Serves:
+ * 1. Static React build from build/ directory
+ * 2. Fixture JSON files from src/test/resources/fixtures/
+ *
+ * This allows e2e tests to run against a production build
+ * without needing a proxy between frontend and API.
  */
 const http = require('http');
 const fs = require('fs');
@@ -9,9 +13,28 @@ const path = require('path');
 
 const PORT = process.env.FIXTURE_PORT || 8001;
 const FIXTURES_DIR = path.join(__dirname, '..', 'src', 'test', 'resources', 'fixtures');
+const BUILD_DIR = path.join(__dirname, '..', 'build');
 
 // Determine which metaData fixture to serve based on env var
 const FIXTURE_NAME = process.env.THEME_FIXTURE || 'withFullCustomTheme';
+
+// MIME types for static file serving
+const MIME_TYPES = {
+   '.html': 'text/html',
+   '.js': 'application/javascript',
+   '.css': 'text/css',
+   '.json': 'application/json',
+   '.png': 'image/png',
+   '.jpg': 'image/jpeg',
+   '.jpeg': 'image/jpeg',
+   '.gif': 'image/gif',
+   '.svg': 'image/svg+xml',
+   '.ico': 'image/x-icon',
+   '.woff': 'font/woff',
+   '.woff2': 'font/woff2',
+   '.ttf': 'font/ttf',
+   '.map': 'application/json'
+};
 
 function loadFixture(relativePath) {
    const fixturePath = path.join(FIXTURES_DIR, relativePath);
@@ -30,6 +53,39 @@ function serve404(res, pathname) {
    console.log(`404: ${pathname}`);
    res.writeHead(404, { 'Content-Type': 'application/json' });
    res.end(JSON.stringify({ error: 'Not found', path: pathname }));
+}
+
+function serveStaticFile(res, pathname) {
+   // Map pathname to file in build directory
+   let filePath = path.join(BUILD_DIR, pathname);
+
+   // For SPA routing, serve index.html for non-file paths
+   if (!path.extname(pathname)) {
+      filePath = path.join(BUILD_DIR, 'index.html');
+   }
+
+   // Check if file exists
+   if (!fs.existsSync(filePath)) {
+      // Fall back to index.html for SPA routing
+      filePath = path.join(BUILD_DIR, 'index.html');
+   }
+
+   if (!fs.existsSync(filePath)) {
+      return false;
+   }
+
+   const ext = path.extname(filePath);
+   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+   try {
+      const content = fs.readFileSync(filePath);
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(content);
+      return true;
+   } catch (err) {
+      console.error(`Error reading file ${filePath}:`, err);
+      return false;
+   }
 }
 
 const server = http.createServer((req, res) => {
@@ -154,6 +210,11 @@ const server = http.createServer((req, res) => {
          records: [],
          count: 0
       });
+      return;
+   }
+
+   // Try serving static file (for React build)
+   if (serveStaticFile(res, pathname)) {
       return;
    }
 
