@@ -6,51 +6,54 @@
 
 ## Current Status
 
-All work complete. CI passing. Snapshot published.
+**CI IS FAILING** - `publish_snapshot` workflow (pipeline #1361) fails due to Playwright webserver timeout.
 
-**Latest Commits:**
-- `bb6d0dd` - docs: update session state after Playwright integration complete
-- `b72e0f6` - feat(test): integrate Playwright e2e tests (#127)
+Work in progress on branch: `fix/ci-playwright-timeout`
 
-## Test Status
+## Problem
 
-| Suite | Tests | Status |
-|-------|-------|--------|
-| Playwright e2e | 26 | PASS |
-| Selenium fixture-based | 115 | PASS |
-| Java unit | 3 | PASS |
-| Selenium full-server | 19 | Blocked (infrastructure) |
+The React dev server (`npm start`) times out in CI because webpack compilation takes >120s in the Playwright Docker container.
 
-## CI/CD Status
+## WIP Branch: fix/ci-playwright-timeout
 
-- `publish_snapshot` workflow: PASS
-- Snapshot JAR published to registry
-- GitHub discussion #340 updated with release notes
+Contains attempted fix:
+1. Combined fixture server to serve both static React build AND API fixtures
+2. Added `npm run build` step to CircleCI before Playwright tests
+3. Simplified playwright.config.ts to use single server
 
-## Recent Work Completed
+**Status:** Tests still fail locally - React app renders blank page. Debugging needed.
 
-- PR #127: Playwright e2e test integration
-- Unified `run-tests.sh` script for all test execution
-- CircleCI Playwright job added to pipeline
-- Old feature branches cleaned up (v1/v2 theme branches deleted)
+## Next Steps (Resume Here)
 
-## Active Plans
-
-None - all plans complete.
-
-## Next Steps
-
-No pending work. Ready for new tasks.
+1. Checkout the WIP branch: `git checkout fix/ci-playwright-timeout`
+2. Debug why React app renders blank:
+   - Run `node e2e/fixture-server.js` manually
+   - Open http://localhost:8001 in browser
+   - Check browser console for JavaScript errors
+3. Compare with working Selenium setup (QSeleniumJavalin.java)
+4. Add missing API endpoint stubs to fixture-server.js
+5. Once tests pass locally, push and merge to develop
 
 ## Quick Reference
 
 ```bash
-# Run all tests
-./run-tests.sh
+# Switch to WIP branch
+git checkout fix/ci-playwright-timeout
 
-# Run Playwright only
-./run-tests.sh --playwright
+# Build React app (required before Playwright tests)
+npm run build
 
-# Run Selenium only
-./run-tests.sh --selenium
+# Run fixture server manually for debugging
+node e2e/fixture-server.js
+
+# Run Playwright in debug mode
+npx playwright test --debug
 ```
+
+## Test Status (on develop)
+
+| Suite | Tests | Status |
+|-------|-------|--------|
+| Playwright e2e | 26 | FAILING (CI timeout) |
+| Selenium fixture-based | 115 | PASS |
+| Java unit | 3 | PASS |
