@@ -1,32 +1,39 @@
 # Session State - QQQ Frontend Material Dashboard
 
 **Last Updated:** 2026-01-09
-**Branch:** `develop`
+**Branch:** `feature/integrate-playwright-tests`
 **Version:** `0.36.0-SNAPSHOT`
 
 ## Current Status
 
-Bug fixes committed and pushed. 115 selenium tests passing.
+Playwright e2e tests integrated from v1 branch. Run-tests.sh improved to handle all test types.
 
-**Latest Commits:**
-- `df48647` - docs: update session state and status after CookiesProvider/chromedriver fixes
-- `9eff022` - fix: add CookiesProvider and use chromedriver for Selenium tests
-- `a1cd14a` - fix(deps): update qqq.version to 0.36.0-SNAPSHOT
-- `064e86d` - feat(theme): pluggable themes + CSS selectors system (#125)
+## Work in Progress
 
-## Fixes Applied
-
-1. **CookiesProvider** - Added missing wrapper in `index.tsx` (required by react-cookie v8)
-2. **chromedriver** - Changed `chromiumdriver()` to `chromedriver()` in test base classes
+- Integrated Playwright tests (26 passing) from `feature/pluggable-themes-v1-css-vars`
+- Created unified `run-tests.sh` script for all test execution
+- Added Playwright job to CircleCI config
 
 ## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| `selenium.*` | 115 | PASS |
-| `seleniumwithqapplication.*` | 19 | Blocked (infrastructure) |
+| Playwright e2e | 26 | PASS |
+| Selenium fixture-based | 115 | PASS |
+| Selenium full-server | 19 | Blocked (infrastructure) |
+
+## Files Added/Modified
+
+- `playwright.config.ts` - Playwright configuration
+- `e2e/fixture-server.js` - Node.js fixture server
+- `e2e/tests/theme.spec.ts` - Theme verification tests (595 lines)
+- `run-tests.sh` - Unified test runner script
+- `.circleci/config.yml` - Added Playwright job
+- `package.json` - Added Playwright dependencies and scripts
+- `.gitignore` - Added Playwright artifacts
 
 ## Next Steps
 
-1. Push commit to origin
-2. Investigate seleniumwithqapplication test infrastructure (optional)
+1. Commit and push changes
+2. Verify CI passes
+3. Clean up old feature branches after merge
