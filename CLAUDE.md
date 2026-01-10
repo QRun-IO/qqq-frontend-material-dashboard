@@ -384,8 +384,17 @@ Read these files in order:
 |------|-------|
 | Branch | `develop` |
 | Version | `0.36.0-SNAPSHOT` |
-| Latest Commit | `bb6d0dd` - docs: update session state after Playwright integration complete |
-| CI Status | All passing, snapshot published |
+| Latest Commit | `bcc63ee` - docs: update session state for CI fix WIP |
+| CI Status | **FAILING** - Playwright webserver timeout |
+| WIP Branch | `fix/ci-playwright-timeout` |
+
+### Active Issue
+
+CI `publish_snapshot` workflow fails because React dev server times out (120s) in Playwright Docker container.
+
+**WIP fix on branch:** `fix/ci-playwright-timeout`
+- Combined fixture-server.js to serve static build + API fixtures
+- Tests still fail locally (blank page) - debugging needed
 
 ### Recent Merges
 
@@ -400,12 +409,10 @@ Read these files in order:
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright e2e | 26 | PASS |
+| Playwright e2e | 26 | FAILING (CI timeout) |
 | Selenium fixture-based | 115 | PASS |
 | Java unit | 3 | PASS |
 | Selenium full-server | 19 | Infrastructure issue - hangs locally |
-
-The `seleniumwithqapplication` tests require a full QQQ backend server and hang during local execution. They may work in CI.
 
 ### Key Documentation Files
 
@@ -413,12 +420,10 @@ The `seleniumwithqapplication` tests require a full QQQ backend server and hang 
 |------|---------|
 | `docs/SESSION_STATE.md` | Current work status, branch, version, recent commits |
 | `docs/TODO.md` | Task tracking for current feature |
+| `docs/PLAN-ci-playwright-fix.md` | CI fix plan (IN PROGRESS) |
 | `docs/QQQ_THEMING_GUIDE.md` | Complete theming reference |
 | `docs/QQQ_CSS_SELECTORS_GUIDE.md` | CSS selector patterns reference |
 | `docs/THEME_TESTING_GUIDE.md` | Guide for testing theme features |
-| `docs/PLAN-css-selectors.md` | CSS selectors implementation plan (COMPLETE) |
-| `docs/PLAN-pluggable-themes-mui-refactor.md` | MUI refactor plan (COMPLETE) |
-| `docs/TODO-hardcoded-colors.md` | Hardcoded color conversion checklist (COMPLETE) |
 
 ### Publishing Snapshots
 
