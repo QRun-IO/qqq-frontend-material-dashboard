@@ -300,42 +300,74 @@ QQQ backend supports a `material-dashboard-overlay/` directory for serving custo
 
 The overlay system handles **branding assets** (logos, icons). Pluggable themes handles **comprehensive styling** (colors, typography, shadows, component overrides).
 
-## Selenium Testing
+## Testing
 
-### Test Architecture
+### Unified Test Runner
 
-Tests use a two-server setup:
+```bash
+# Run all tests (Playwright + Selenium)
+./run-tests.sh
+
+# Run only Playwright tests
+./run-tests.sh --playwright
+
+# Run only Selenium tests
+./run-tests.sh --selenium
+
+# Run with visible browser
+QQQ_SELENIUM_HEADLESS=false ./run-tests.sh --selenium
+```
+
+### Playwright E2E Tests
+
+Playwright tests verify theme CSS variable injection and UI behavior.
+
+```bash
+# Run Playwright tests with fixture server
+npm run e2e
+
+# Run with UI mode for debugging
+npm run test:e2e:ui
+
+# Run with visible browser
+npm run test:e2e:headed
+```
+
+Key files:
+- `playwright.config.ts` - Configuration with dual web servers
+- `e2e/fixture-server.js` - Node.js server for fixture JSON (port 8001)
+- `e2e/tests/theme.spec.ts` - Theme verification tests (26 tests)
+
+### Selenium Integration Tests
+
+Selenium tests use a two-server setup:
 - **React dev server** on port 3001 - serves the dashboard frontend
 - **Javalin mock server** on port 8001 - serves fixture JSON responses
 
 ```bash
-# Start React dev server for tests
-PORT=3001 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start
-
-# Run theme tests (in another terminal)
-QQQ_SELENIUM_HEADLESS=true mvn test -Dtest=ThemeIT
+# Manual run (requires React server running)
+PORT=3001 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start &
+QQQ_SELENIUM_HEADLESS=true mvn test -Dtest="**/selenium/tests/*IT"
 ```
 
-### CI/CD
-
-CircleCI uses `qqq-orb` which automatically:
-1. Starts React dev server on port 3001
-2. Waits for server readiness
-3. Runs Maven tests with headless Chrome
-
-### Key Test Classes
-
+Key test classes:
 - `QBaseSeleniumTest` - Base class, starts Javalin on 8001
 - `QSeleniumJavalin` - Serves fixture JSON from `src/test/resources/fixtures/`
 - `ServerHealthChecker` - Waits for React server readiness
 - `ThemeIT` - Tests theme CSS variable injection
 
-### Fixtures
+### Test Fixtures
 
-Test fixtures in `src/test/resources/fixtures/metaData/`:
+Located in `src/test/resources/fixtures/metaData/`:
 - `index.json` - Default metaData response
 - `withFullCustomTheme.json` - Theme with all properties set
 - `withBrandedHeader.json` - Theme with branded header enabled
+
+### CI/CD
+
+CircleCI runs both test suites:
+- **Playwright tests** - Custom job using `mcr.microsoft.com/playwright:v1.57.0-jammy`
+- **Selenium tests** - Via `qqq-orb/mvn_frontend_test_only`
 
 ## Session State & Continuity
 
@@ -366,6 +398,7 @@ Read these files in order:
 
 | Suite | Tests | Status |
 |-------|-------|--------|
+| Playwright e2e | 26 | PASS |
 | `selenium.*` (fixture-based) | 115 | PASS |
 | `seleniumwithqapplication.*` (full QQQ server) | 19 | Infrastructure issue - hangs locally |
 
