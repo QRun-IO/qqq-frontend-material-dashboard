@@ -1,0 +1,23 @@
+{
+   "values": {
+      "transactionLevel": "process",
+      "tableName": "person",
+      "recordsParam": "recordIds",
+      "supportsFullValidation": true,
+      "recordIds": "1,2,3,4,5",
+      "sourceTable": "person",
+      "extract": {
+         "name": "com.kingsrook.qqq.backend.core.processes.implementations.etl.streamedwithfrontend.ExtractViaQueryStep",
+         "codeType": "JAVA"
+      },
+      "recordCount": 5,
+      "previewMessage": "This is a preview of the records that will be updated.",
+      "transform": {
+         "name": "com.kingsrook.qqq.backend.core.processes.implementations.bulk.edit.BulkEditTransformStep",
+         "codeType": "JAVA"
+      },
+      "destinationTable": "person",
+      "bulkEditEnabledFields": "firstName"
+   },
+   "processUUID": "74a03a7d-2f53-4784-9911-3a21f7646c43"
+}

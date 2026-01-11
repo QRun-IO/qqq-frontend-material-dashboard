@@ -1,0 +1,60 @@
+{
+   "values": {
+      "transactionLevel": "process",
+      "tableName": "person",
+      "recordsParam": "recordIds",
+      "supportsFullValidation": true,
+      "doFullValidation": true,
+      "recordIds": "1,2,3,4,5",
+      "sourceTable": "person",
+      "extract": {
+         "name": "com.kingsrook.qqq.backend.core.processes.implementations.etl.streamedwithfrontend.ExtractViaQueryStep",
+         "codeType": "JAVA"
+      },
+      "validationSummary": [
+         {
+            "status": "OK",
+            "count": 5,
+            "message": "Person records will be edited.",
+            "singularFutureMessage": "Person record will be edited.",
+            "pluralFutureMessage": "Person records will be edited.",
+            "singularPastMessage": "Person record was edited.",
+            "pluralPastMessage": "Person records were edited."
+         },
+         {
+            "status": "INFO",
+            "message": "First name will be set to John"
+         }
+      ],
+      "recordCount": 5,
+      "previewMessage": "This is a preview of the records that will be updated.",
+      "transform": {
+         "name": "com.kingsrook.qqq.backend.core.processes.implementations.bulk.edit.BulkEditTransformStep",
+         "codeType": "JAVA"
+      },
+      "destinationTable": "person",
+      "bulkEditEnabledFields": "firstName",
+      "processResults": [
+         {
+            "status": "OK",
+            "count": 5,
+            "message": "Person records were edited.",
+            "singularFutureMessage": "Person record will be edited.",
+            "pluralFutureMessage": "Person records will be edited.",
+            "singularPastMessage": "Person record was edited.",
+            "pluralPastMessage": "Person records were edited."
+         },
+         {
+            "status": "INFO",
+            "message": "Mapping Exception Type was cleared out"
+         }
+      ],
+      "load": {
+         "name": "com.kingsrook.qqq.backend.core.processes.implementations.etl.streamedwithfrontend.LoadViaUpdateStep",
+         "codeType": "JAVA"
+      },
+      "basepullReadyToUpdateTimestamp": true
+   },
+   "processUUID": "74a03a7d-2f53-4784-9911-3a21f7646c43",
+   "nextStep": "result"
+}
