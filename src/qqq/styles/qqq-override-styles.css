@@ -931,6 +931,13 @@ html,
    color: var(--qqq-sidebar-icon-color) !important;
 }
 
+/* General divider color for dividers outside the sidebar */
+.MuiDivider-root:not(.MuiDrawer-paper .MuiDivider-root)
+{
+   border-color: var(--qqq-divider-color) !important;
+}
+
+/* Sidebar-specific divider color */
 .MuiDrawer-paper .MuiDivider-root
 {
    border-color: var(--qqq-sidebar-divider-color);

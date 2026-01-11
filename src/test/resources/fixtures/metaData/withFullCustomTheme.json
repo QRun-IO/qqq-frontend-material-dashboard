@@ -14,11 +14,60 @@
          "fields": {
             "id": {"name": "id", "label": "Id", "type": "INTEGER", "isEditable": false},
             "firstName": {"name": "firstName", "label": "First Name", "type": "STRING", "isEditable": true},
-            "lastName": {"name": "lastName", "label": "Last Name", "type": "STRING", "isEditable": true}
-         }
+            "lastName": {"name": "lastName", "label": "Last Name", "type": "STRING", "isEditable": true},
+            "email": {"name": "email", "label": "Email", "type": "STRING", "isEditable": true},
+            "birthDate": {"name": "birthDate", "label": "Birth Date", "type": "DATE", "isEditable": true},
+            "annualSalary": {"name": "annualSalary", "label": "Annual Salary", "type": "DECIMAL", "isEditable": true},
+            "daysWorked": {"name": "daysWorked", "label": "Days Worked", "type": "INTEGER", "isEditable": true},
+            "isEmployed": {"name": "isEmployed", "label": "Is Employed", "type": "BOOLEAN", "isEditable": true},
+            "homeCityId": {"name": "homeCityId", "label": "Home City", "type": "INTEGER", "isEditable": true, "possibleValueSourceName": "city"},
+            "createDate": {"name": "createDate", "label": "Create Date", "type": "DATE_TIME", "isEditable": false}
+         },
+         "sections": [
+            {
+               "name": "identity",
+               "label": "Identity",
+               "tier": "T1",
+               "fieldNames": ["id", "firstName", "lastName"],
+               "icon": {"name": "badge"}
+            },
+            {
+               "name": "basicInfo",
+               "label": "Basic Info",
+               "tier": "T2",
+               "fieldNames": ["email", "birthDate"],
+               "icon": {"name": "info"}
+            },
+            {
+               "name": "employmentInfo",
+               "label": "Employment Info",
+               "tier": "T2",
+               "fieldNames": ["isEmployed", "annualSalary", "daysWorked", "homeCityId"],
+               "icon": {"name": "work"}
+            }
+         ]
       }
    },
-   "processes": {},
+   "processes": {
+      "person.bulkInsert": {
+         "name": "person.bulkInsert",
+         "label": "Person Bulk Insert",
+         "tableName": "person",
+         "isHidden": true
+      },
+      "person.bulkEdit": {
+         "name": "person.bulkEdit",
+         "label": "Person Bulk Edit",
+         "tableName": "person",
+         "isHidden": true
+      },
+      "person.bulkDelete": {
+         "name": "person.bulkDelete",
+         "label": "Person Bulk Delete",
+         "tableName": "person",
+         "isHidden": true
+      }
+   },
    "apps": {
       "testApp": {
          "name": "testApp",
