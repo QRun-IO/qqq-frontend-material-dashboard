@@ -203,9 +203,9 @@ This project is part of a three-repo system:
 
 | Repository | Artifact | Current Version |
 |------------|----------|-----------------|
-| qqq (backend-core) | `com.kingsrook.qqq:qqq-backend-core` | `0.36.0-SNAPSHOT` |
+| qqq (backend-core) | `com.kingsrook.qqq:qqq-backend-core` | `0.40.0-SNAPSHOT` |
 | qqq-frontend-core | `@qrunio/qqq-frontend-core` | `1.4.2-SNAPSHOT` |
-| qqq-frontend-material-dashboard | `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.36.0-SNAPSHOT` |
+| qqq-frontend-material-dashboard | `com.kingsrook.qqq:qqq-frontend-material-dashboard` | `0.40.0-SNAPSHOT` |
 
 **Dependency order for commits/publishes:** backend-core → frontend-core → dashboard
 
@@ -382,37 +382,34 @@ Read these files in order:
 
 | Item | Value |
 |------|-------|
-| Branch | `develop` |
-| Version | `0.36.0-SNAPSHOT` |
-| Latest Commit | `bcc63ee` - docs: update session state for CI fix WIP |
-| CI Status | **FAILING** - Playwright webserver timeout |
-| WIP Branch | `fix/ci-playwright-timeout` |
+| Branch | `feature/consolidate-playwright-tests` |
+| Version | `0.40.0-SNAPSHOT` |
+| Latest Commit | `6fc7ece` - feat(test): add strict Playwright tests |
+| CI Status | **WIP** - CI fix in progress |
 
-### Active Issue
+### Active Work
 
-CI `publish_snapshot` workflow fails because React dev server times out (120s) in Playwright Docker container.
+**Branch:** `feature/consolidate-playwright-tests`
 
-**WIP fix on branch:** `fix/ci-playwright-timeout`
-- Combined fixture-server.js to serve static build + API fixtures
-- Tests still fail locally (blank page) - debugging needed
-
-### Recent Merges
-
-| PR | Description |
-|----|-------------|
-| #127 | Playwright e2e test integration (26 tests) |
-| #125 | Pluggable themes + CSS selectors system |
-| #123 | Virtual fields support |
-| #122 | Form adjusters |
+Porting Selenium tests to Playwright with strict assertions:
+- 46 tests passing (1 skipped)
+- QueryScreenIT, BulkEditIT, app navigation tests ported
+- CI fix in progress (React dev server timeout in Docker)
 
 ### Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright e2e | 26 | FAILING (CI timeout) |
-| Selenium fixture-based | 115 | PASS |
+| Playwright e2e | 46 | PASS (1 skipped) |
+| Selenium fixture-based | 115 | PASS (not ported) |
 | Java unit | 3 | PASS |
-| Selenium full-server | 19 | Infrastructure issue - hangs locally |
+
+### Key Technical Discoveries
+
+1. **Process `nextStep` field** - Frontend requires this to know which step to render
+2. **MUI Autocomplete inputs** - Don't have `type="text"` attribute, use `input` selector
+3. **Filter popup behavior** - Escape cancels, clicking outside applies
+4. **Role-based selectors** - More stable than CSS class selectors
 
 ### Key Documentation Files
 
@@ -420,10 +417,9 @@ CI `publish_snapshot` workflow fails because React dev server times out (120s) i
 |------|---------|
 | `docs/SESSION_STATE.md` | Current work status, branch, version, recent commits |
 | `docs/TODO.md` | Task tracking for current feature |
-| `docs/PLAN-ci-playwright-fix.md` | CI fix plan (IN PROGRESS) |
+| `docs/PLAN-playwright-consolidation.md` | Test consolidation plan |
 | `docs/QQQ_THEMING_GUIDE.md` | Complete theming reference |
 | `docs/QQQ_CSS_SELECTORS_GUIDE.md` | CSS selector patterns reference |
-| `docs/THEME_TESTING_GUIDE.md` | Guide for testing theme features |
 
 ### Publishing Snapshots
 

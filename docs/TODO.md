@@ -4,33 +4,46 @@
 
 ## Active Tasks
 
-### Fix CI Playwright Tests (WIP on branch `fix/ci-playwright-timeout`)
+### Playwright Consolidation (branch: `feature/consolidate-playwright-tests`)
 
-- [x] Diagnosed issue: webserver timeout in CI (120s not enough)
-- [x] Added `serve` package
-- [x] Modified fixture-server.js to serve static files
-- [x] Updated playwright.config.ts
-- [x] Updated CircleCI config
-- [ ] **Debug blank page issue** (React app not rendering)
-- [ ] Test locally until Playwright tests pass
+**Phase 1: Fix CI** - IN PROGRESS
+- [x] Create feature branch
+- [x] Enhance fixture-server.js with static file serving + SPA fallback
+- [x] Update playwright.config.ts with CI/local conditional config
+- [x] Update CircleCI config with `PUBLIC_URL=/ npm run build`
+- [ ] Debug CI timeout issue (static serving works but tests timeout)
+- [ ] Test in actual CI environment
 - [ ] Merge to develop
+
+**Phase 2: Port Selenium Tests** - MOSTLY COMPLETE
+- [x] Port QueryScreenIT (13 tests - 12 active, 1 skipped)
+- [x] Port BulkEditIT (1 test - strict workflow)
+- [x] Port app navigation tests (6 tests)
+- [x] Port SavedReportIT (1 test)
+- [ ] Port SavedViewsIT
+- [ ] Port remaining Selenium tests
+
+**Phase 3: Remove Selenium** - NOT STARTED
+- [ ] Delete `src/test/java/**/selenium/`
+- [ ] Remove Selenium dependencies from pom.xml
+- [ ] Simplify run-tests.sh
 
 ## Completed (Recent)
 
-- [x] **PR #127 merged** - Playwright e2e test integration
-- [x] **Playwright tests integrated** - 26 tests from v1 branch
-- [x] **run-tests.sh improved** - Unified script for Playwright + Selenium
-- [x] **CircleCI config updated** - Playwright job added to pipelines
+- [x] **Strict test assertions** - All ported tests use explicit step verification
+- [x] **Boolean filter tests** - Fixed and enabled (equals yes/no/is empty)
+- [x] **QueryScreen helper class** - Robust filter builder methods
+- [x] **Process step state tracking** - fixture-server.js handles multi-POST flows
+- [x] **Rebase to 0.40.0-SNAPSHOT** - Branch updated from 0.36.0
 
 ## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright e2e | 26 | FAILING (CI timeout) |
-| Selenium fixture-based | 115 | PASS |
+| Playwright e2e | 46 | PASS (1 skipped) |
+| Selenium fixture-based | 115 | PASS (not ported) |
 | Java unit | 3 | PASS |
 
-## Known Issues
+## Skipped Tests
 
-- CI Playwright tests fail - webserver timeout (WIP fix on branch)
-- `seleniumwithqapplication` tests hang locally (require full QQQ backend)
+- `multi-criteria query with OR` - Needs multi-row filter builder support
