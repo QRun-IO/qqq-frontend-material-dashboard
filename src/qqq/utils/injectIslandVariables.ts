@@ -76,7 +76,7 @@ export function injectIslandVariables(theme?: QThemeMetaData): void
    setVar(root, "branded-header-enabled", mergedTheme.brandedHeaderEnabled ? "true" : "false");
    setVar(root, "branded-header-background-color", mergedTheme.brandedHeaderBackgroundColor);
    setVar(root, "branded-header-text-color", mergedTheme.brandedHeaderTextColor);
-   setVar(root, "branded-header-height", mergedTheme.brandedHeaderHeight);
+   setVar(root, "branded-header-height", mergedTheme.brandedHeaderEnabled ? mergedTheme.brandedHeaderHeight : "0px");
    setVar(root, "branded-header-logo-path", mergedTheme.brandedHeaderLogoPath);
    setVar(root, "branded-header-logo-alt-text", mergedTheme.brandedHeaderLogoAltText);
    setVar(root, "branded-header-tagline", mergedTheme.brandedHeaderTagline);

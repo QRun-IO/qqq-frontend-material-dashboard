@@ -119,7 +119,7 @@ function itemArrow(theme: Theme, ownerState: any)
       marginBottom: pxToRem(-1),
       transform: open ? "rotate(0)" : "rotate(-180deg)",
       color: open || active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-icon-color)",
-      opacity: open || active ? 1 : 0.6,
+      opacity: open || active ? 1 : 0.5,
       transition: transitions.create(["color", "transform", "opacity"], {
          easing: transitions.easing.easeInOut,
          duration: transitions.duration.shorter,

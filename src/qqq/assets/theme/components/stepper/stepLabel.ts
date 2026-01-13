@@ -30,17 +30,17 @@ const stepLabel: Types = {
       marginTop: `${pxToRem(8)} !important`,
       fontWeight: fontWeightRegular,
       fontSize: size.xs,
-      color: "var(--qqq-stepper-inactive-color, rgba(255, 255, 255, 0.5))",
+      color: "var(--qqq-stepper-inactive-color, #9fc9ff)",
       textTransform: "uppercase",
 
       "&.Mui-active": {
         fontWeight: `${fontWeightRegular} !important`,
-        color: "var(--qqq-stepper-active-color, rgba(255, 255, 255, 0.9)) !important",
+        color: "var(--qqq-stepper-active-label-color, rgba(255, 255, 255, 0.8)) !important",
       },
 
       "&.Mui-completed": {
         fontWeight: `${fontWeightRegular} !important`,
-        color: "var(--qqq-stepper-active-color, rgba(255, 255, 255, 0.9)) !important",
+        color: "var(--qqq-stepper-active-label-color, rgba(255, 255, 255, 0.8)) !important",
       },
     },
   },

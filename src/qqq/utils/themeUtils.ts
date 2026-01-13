@@ -129,13 +129,13 @@ export const DEFAULT_THEME: QThemeMetaData = {
    brandedHeaderHeight: "48px",
    brandedHeaderTagline: "",
 
-   // Sidebar (dark theme defaults matching current QQQ)
+   // Sidebar (dark theme defaults matching original QQQ styling)
    sidebarBackgroundColor: "#1a2035",
    sidebarTextColor: "#ffffff",
    sidebarIconColor: "#ffffff",
-   sidebarSelectedBackgroundColor: "#0062FF",
+   sidebarSelectedBackgroundColor: "rgba(255, 255, 255, 0.2)",
    sidebarSelectedTextColor: "#ffffff",
-   sidebarHoverBackgroundColor: "rgba(255, 255, 255, 0.1)",
+   sidebarHoverBackgroundColor: "rgba(255, 255, 255, 0.2)",
    sidebarDividerColor: "rgba(255, 255, 255, 0.2)",
 
    // App Bar
