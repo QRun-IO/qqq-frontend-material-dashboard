@@ -170,6 +170,39 @@ test.describe('Sidebar Defaults (No Theme Config)', () => {
 
       expect(colorsMatch(result, DEFAULTS.sidebarHoverBackgroundColor)).toBe(true);
    });
+
+   test('sidebar branding logo renders from branding.logo', async ({ page }) => {
+      const result = await page.evaluate(() => {
+         // Find the logo area in the sidebar
+         const logoArea = document.querySelector('[data-qqq-id="sidenav-logo-area"]');
+         if (!logoArea) return { found: false, reason: 'no sidenav-logo-area' };
+
+         // Find the NavLink with the logo inside
+         const navLink = logoArea.querySelector('a');
+         if (!navLink) return { found: false, reason: 'no NavLink in logo area' };
+
+         // Find the logo image
+         const logoImg = navLink.querySelector('img') as HTMLImageElement;
+         if (!logoImg) return { found: false, reason: 'no img in NavLink' };
+
+         return {
+            found: true,
+            src: logoImg.src,
+            naturalWidth: logoImg.naturalWidth,
+            naturalHeight: logoImg.naturalHeight,
+            complete: logoImg.complete,
+            display: getComputedStyle(logoImg).display,
+            visibility: getComputedStyle(logoImg).visibility
+         };
+      });
+
+      expect(result.found).toBe(true);
+      // Verify the logo has loaded (naturalWidth > 0 means image loaded)
+      expect(result.naturalWidth).toBeGreaterThan(0);
+      // Verify logo is visible (not hidden by CSS)
+      expect(result.display).not.toBe('none');
+      expect(result.visibility).not.toBe('hidden');
+   });
 });
 
 // ============================================================================
@@ -717,6 +750,61 @@ test.describe('Diagnostic - Dump All Default CSS Variables', () => {
       console.log(JSON.stringify(typographyDiag, null, 2));
 
       // This test always passes - it's for diagnostic output
+      expect(true).toBe(true);
+   });
+
+   test('DIAG: check sidebar logo status', async ({ page }) => {
+      await page.goto('/');
+      await page.waitForSelector('[id="root"]');
+      await page.waitForTimeout(2000);
+
+      const logoDiag = await page.evaluate(() => {
+         const result: Record<string, unknown> = {};
+
+         // Check for logo area
+         const logoArea = document.querySelector('[data-qqq-id="sidenav-logo-area"]');
+         result.logoAreaFound = !!logoArea;
+
+         // Check for img elements in sidenav
+         const drawer = document.querySelector('.MuiDrawer-paper');
+         if (drawer) {
+            const imgs = drawer.querySelectorAll('img');
+            result.imgCount = imgs.length;
+            result.imgs = [];
+            imgs.forEach((img, i) => {
+               (result.imgs as unknown[]).push({
+                  src: img.src,
+                  alt: img.alt,
+                  display: getComputedStyle(img).display,
+                  visibility: getComputedStyle(img).visibility,
+                  width: getComputedStyle(img).width,
+                  height: getComputedStyle(img).height,
+                  naturalWidth: img.naturalWidth,
+                  naturalHeight: img.naturalHeight,
+                  complete: img.complete,
+               });
+            });
+         }
+
+         // Check for NavLink with logo
+         const navLink = document.querySelector('[data-qqq-id="sidenav-logo-area"] a');
+         result.navLinkFound = !!navLink;
+         if (navLink) {
+            result.navLinkChildren = navLink.children.length;
+            result.navLinkHTML = navLink.innerHTML.substring(0, 200);
+         }
+
+         // Check CSS variables
+         const style = getComputedStyle(document.documentElement);
+         result.brandedHeaderHeight = style.getPropertyValue('--qqq-branded-header-height').trim();
+         result.brandedHeaderEnabled = style.getPropertyValue('--qqq-branded-header-enabled').trim();
+
+         return result;
+      });
+
+      console.log('Sidebar Logo Diagnostic:');
+      console.log(JSON.stringify(logoDiag, null, 2));
+
       expect(true).toBe(true);
    });
 });
