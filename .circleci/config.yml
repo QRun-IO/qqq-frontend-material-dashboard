@@ -2,7 +2,7 @@
 version: 2.1
 
 orbs:
-  qqq-orb: kingsrook/qqq-orb@dev:snapshot
+  qqq-orb: kingsrook/qqq-orb@0.5.1
 
 executors:
   playwright:
