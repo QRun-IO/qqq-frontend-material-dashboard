@@ -22,9 +22,9 @@ type Types = any;
 const stepIcon: Types = {
   styleOverrides: {
     root: {
-      background: "var(--qqq-stepper-inactive-color, rgba(255, 255, 255, 0.5))",
-      fill: "var(--qqq-stepper-inactive-color, rgba(255, 255, 255, 0.5))",
-      stroke: "var(--qqq-stepper-inactive-color, rgba(255, 255, 255, 0.5))",
+      background: "var(--qqq-stepper-inactive-color, #9fc9ff)",
+      fill: "var(--qqq-stepper-inactive-color, #9fc9ff)",
+      stroke: "var(--qqq-stepper-inactive-color, #9fc9ff)",
       strokeWidth: pxToRem(10),
       width: pxToRem(13),
       height: pxToRem(13),

@@ -24,7 +24,7 @@ type Types = any;
 const stepConnector: Types = {
   styleOverrides: {
     root: {
-      color: "var(--qqq-stepper-inactive-color, rgba(255, 255, 255, 0.5))",
+      color: "var(--qqq-stepper-inactive-color, #9fc9ff)",
       transition: "all 200ms linear",
 
       "&.Mui-active": {

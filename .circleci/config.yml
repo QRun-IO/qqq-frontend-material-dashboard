@@ -2,7 +2,7 @@
 version: 2.1
 
 orbs:
-  qqq-orb: kingsrook/qqq-orb@dev:snapshot
+  qqq-orb: kingsrook/qqq-orb@0.5.1
 
 executors:
   playwright:
@@ -26,8 +26,11 @@ jobs:
           paths:
             - node_modules
       - run:
-          name: Run Playwright e2e tests
-          command: npx playwright test
+          name: Run Playwright theme tests (with custom theme)
+          command: THEME_FIXTURE=withFullCustomTheme npx playwright test e2e/tests/theme.spec.ts
+      - run:
+          name: Run Playwright default theme tests (no theme config)
+          command: THEME_FIXTURE=index npx playwright test e2e/tests/theme-defaults.spec.ts
       - store_artifacts:
           path: playwright-report/
           destination: playwright-report

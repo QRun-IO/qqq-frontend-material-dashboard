@@ -23,7 +23,11 @@
 import {QThemeMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QThemeMetaData";
 
 /*******************************************************************************
- ** Default theme values matching the current QQQ color scheme.
+ ** Default theme values matching typography.ts from Material Dashboard 2 PRO.
+ **
+ ** IMPORTANT: All typography values MUST match typography.ts exactly!
+ ** These values are used when no QThemeMetaData is provided by the backend.
+ ** Incorrect values here will cause visual regressions.
  *******************************************************************************/
 export const DEFAULT_THEME: QThemeMetaData = {
    // Color palette
@@ -38,83 +42,86 @@ export const DEFAULT_THEME: QThemeMetaData = {
    successColor: "#4CAF50",
    infoColor: "#0062FF",
 
-   // Typography - Base
-   fontFamily: "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
-   headerFontFamily: "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
+   // Typography - Base (from typography.ts baseProperties)
+   fontFamily: "\"SF Pro Display\", \"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
+   headerFontFamily: "\"SF Pro Display\", \"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
    monoFontFamily: "\"Roboto Mono\", \"Courier New\", monospace",
    fontSizeBase: "14px",
    fontWeightLight: 300,
    fontWeightRegular: 400,
-   fontWeightMedium: 500,
+   fontWeightMedium: 600, // typography.ts uses 600, not 500
    fontWeightBold: 700,
 
-   // Typography - H1
-   typographyH1FontSize: "3rem",
+   // Typography - H1 (from typography.ts h1)
+   typographyH1FontSize: "3rem", // pxToRem(48)
    typographyH1FontWeight: 700,
    typographyH1LineHeight: 1.25,
    typographyH1LetterSpacing: "-0.01562em",
    typographyH1TextTransform: "none",
 
-   // Typography - H2
-   typographyH2FontSize: "2.125rem",
+   // Typography - H2 (from typography.ts h2)
+   typographyH2FontSize: "2.25rem", // pxToRem(36)
    typographyH2FontWeight: 700,
    typographyH2LineHeight: 1.3,
    typographyH2LetterSpacing: "-0.00833em",
    typographyH2TextTransform: "none",
 
-   // Typography - H3
-   typographyH3FontSize: "1.5rem",
-   typographyH3FontWeight: 700,
+   // Typography - H3 (from typography.ts h3)
+   typographyH3FontSize: "1.75rem", // typography.ts uses 1.75rem
+   typographyH3FontWeight: 600, // typography.ts uses 600, not 700
    typographyH3LineHeight: 1.375,
    typographyH3LetterSpacing: "0em",
    typographyH3TextTransform: "none",
 
-   // Typography - H4
-   typographyH4FontSize: "1.25rem",
+   // Typography - H4 (from typography.ts h4)
+   typographyH4FontSize: "1.5rem", // pxToRem(24)
    typographyH4FontWeight: 700,
-   typographyH4LineHeight: 1.4,
+   typographyH4LineHeight: 1.375,
    typographyH4LetterSpacing: "0.00735em",
    typographyH4TextTransform: "none",
 
-   // Typography - H5
-   typographyH5FontSize: "1rem",
-   typographyH5FontWeight: 600,
-   typographyH5LineHeight: 1.5,
+   // Typography - H5 (from typography.ts h5)
+   typographyH5FontSize: "1.25rem", // pxToRem(20)
+   typographyH5FontWeight: 700, // typography.ts uses 700
+   typographyH5LineHeight: 1.375,
    typographyH5LetterSpacing: "0em",
    typographyH5TextTransform: "none",
 
-   // Typography - H6
-   typographyH6FontSize: "0.875rem",
-   typographyH6FontWeight: 600,
-   typographyH6LineHeight: 1.6,
+   // Typography - H6 (from typography.ts h6)
+   typographyH6FontSize: "1.125rem", // typography.ts uses 1.125rem
+   typographyH6FontWeight: 500, // typography.ts uses 500
+   typographyH6LineHeight: 1.625,
    typographyH6LetterSpacing: "0.0075em",
    typographyH6TextTransform: "none",
 
-   // Typography - Body1
-   typographyBody1FontSize: "1rem",
+   // Typography - Body1 (from typography.ts body1)
+   typographyBody1FontSize: "1.25rem", // pxToRem(20) = fontSizeXL
    typographyBody1FontWeight: 400,
-   typographyBody1LineHeight: 1.5,
+   typographyBody1LineHeight: 1.625,
    typographyBody1LetterSpacing: "0.00938em",
    typographyBody1TextTransform: "none",
 
-   // Typography - Body2
-   typographyBody2FontSize: "0.875rem",
-   typographyBody2FontWeight: 400,
-   typographyBody2LineHeight: 1.43,
+   // Typography - Body2 (from typography.ts body2)
+   typographyBody2FontSize: "1rem", // pxToRem(16) = fontSizeMD
+   typographyBody2FontWeight: 300, // fontWeightLight
+   typographyBody2LineHeight: 1.6,
    typographyBody2LetterSpacing: "0.01071em",
    typographyBody2TextTransform: "none",
 
    // Typography - Button
-   typographyButtonFontSize: "0.875rem",
-   typographyButtonFontWeight: 500,
-   typographyButtonLineHeight: 1.75,
+   // IMPORTANT: fontWeight MUST be 700 to match original rendered appearance!
+   // The component override in button/root.ts uses fontWeightBold (700), which
+   // overrides typography.ts button.fontWeight (300) in the original Theme.ts.
+   typographyButtonFontSize: "0.875rem", // pxToRem(14) = fontSizeSM
+   typographyButtonFontWeight: 700, // fontWeightBold from button/root.ts (the RENDERED value!)
+   typographyButtonLineHeight: 1.5,
    typographyButtonLetterSpacing: "0.02857em",
    typographyButtonTextTransform: "uppercase",
 
-   // Typography - Caption
-   typographyCaptionFontSize: "0.75rem",
-   typographyCaptionFontWeight: 400,
-   typographyCaptionLineHeight: 1.66,
+   // Typography - Caption (from typography.ts caption)
+   typographyCaptionFontSize: "0.75rem", // pxToRem(12) = fontSizeXS
+   typographyCaptionFontWeight: 300, // fontWeightLight
+   typographyCaptionLineHeight: 1.25,
    typographyCaptionLetterSpacing: "0.03333em",
    typographyCaptionTextTransform: "none",
 
@@ -129,13 +136,13 @@ export const DEFAULT_THEME: QThemeMetaData = {
    brandedHeaderHeight: "48px",
    brandedHeaderTagline: "",
 
-   // Sidebar (dark theme defaults matching current QQQ)
+   // Sidebar (dark theme defaults matching original QQQ styling)
    sidebarBackgroundColor: "#1a2035",
    sidebarTextColor: "#ffffff",
    sidebarIconColor: "#ffffff",
-   sidebarSelectedBackgroundColor: "#0062FF",
+   sidebarSelectedBackgroundColor: "rgba(255, 255, 255, 0.2)",
    sidebarSelectedTextColor: "#ffffff",
-   sidebarHoverBackgroundColor: "rgba(255, 255, 255, 0.1)",
+   sidebarHoverBackgroundColor: "rgba(255, 255, 255, 0.2)",
    sidebarDividerColor: "rgba(255, 255, 255, 0.2)",
 
    // App Bar
