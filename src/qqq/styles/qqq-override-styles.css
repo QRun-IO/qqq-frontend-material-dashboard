@@ -896,12 +896,12 @@ input[type="search"]::-webkit-search-results-decoration
 
 /*****************************************************************************
  ** Base typography theming - uses CSS variables from QThemeMetaData
+ ** Note: Do NOT include .MuiTypography-root here - it would override all
+ ** typography variants (h1, h2, body1, body2, etc.) from the MUI theme.
  *****************************************************************************/
-body,
-html,
-.MuiTypography-root
+html
 {
-   font-size: var(--qqq-font-size-base, 14px) !important;
+   font-size: var(--qqq-font-size-base, 14px);
 }
 
 /*****************************************************************************
@@ -1025,23 +1025,25 @@ a:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root)
 
 /*****************************************************************************
  ** Typography theming - uses CSS variables from QThemeMetaData
+ ** IMPORTANT: Fallback values MUST match typography.ts exactly!
  *****************************************************************************/
 .MuiTypography-body1
 {
-   font-weight: var(--qqq-font-weight-regular, 400) !important;
+   font-weight: var(--qqq-typography-body1-font-weight, 400) !important;
 }
 
 .MuiTypography-body2
 {
-   font-weight: var(--qqq-font-weight-regular, 400) !important;
+   font-weight: var(--qqq-typography-body2-font-weight, 300) !important;
 }
 
 /*****************************************************************************
  ** Button theming - uses CSS variables from QThemeMetaData
+ ** IMPORTANT: Fallback value MUST match button/root.ts (fontWeightBold = 700)
  *****************************************************************************/
 .MuiButton-root
 {
-   font-weight: var(--qqq-typography-button-font-weight, 500) !important;
+   font-weight: var(--qqq-typography-button-font-weight, 700) !important;
 }
 
 .MuiButton-containedPrimary

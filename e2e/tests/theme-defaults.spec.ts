@@ -477,6 +477,124 @@ test.describe('CRITICAL Regression Tests (No Theme Config)', () => {
 });
 
 // ============================================================================
+// TYPOGRAPHY DEFAULTS
+// ============================================================================
+
+/**
+ * Typography default values - these are the ACTUAL rendered values pre-PR #125.
+ *
+ * IMPORTANT: These values come from two sources:
+ * 1. typography.ts - base typography definitions
+ * 2. Component overrides (button/root.ts, etc.) - take precedence for specific components
+ *
+ * The original Theme.ts used {...typography} for the theme and component overrides.
+ * Button component override in button/root.ts explicitly sets fontWeight: fontWeightBold (700).
+ */
+const TYPOGRAPHY_DEFAULTS = {
+   fontFamily: '"SF Pro Display", "Roboto", "Helvetica", "Arial", sans-serif',
+   // Typography variants from typography.ts (no component override)
+   h1: { fontSize: '48px', fontWeight: '700', lineHeight: '1.25' }, // 3rem = 48px
+   h2: { fontSize: '36px', fontWeight: '700', lineHeight: '1.3' }, // 2.25rem = 36px
+   h3: { fontSize: '28px', fontWeight: '600', lineHeight: '1.375' }, // 1.75rem = 28px, fontWeight 600
+   h4: { fontSize: '24px', fontWeight: '700', lineHeight: '1.375' }, // 1.5rem = 24px
+   h5: { fontSize: '20px', fontWeight: '700', lineHeight: '1.375' }, // 1.25rem = 20px
+   h6: { fontSize: '18px', fontWeight: '500', lineHeight: '1.625' }, // 1.125rem = 18px, fontWeight 500
+   body1: { fontSize: '20px', fontWeight: '400', lineHeight: '1.625' }, // 1.25rem = 20px
+   body2: { fontSize: '16px', fontWeight: '300', lineHeight: '1.6' }, // 1rem = 16px, fontWeightLight
+   // Button has component override in button/root.ts: fontWeight: fontWeightBold (700)
+   button: { fontSize: '12px', fontWeight: '700' }, // pxToRem(12)=size.xs, fontWeightBold from component override
+   caption: { fontSize: '12px', fontWeight: '300' }, // 0.75rem = 12px, fontWeightLight
+};
+
+test.describe('Typography Defaults (No Theme Config)', () => {
+   test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+      await page.waitForSelector('[id="root"]');
+      await page.waitForTimeout(2000);
+   });
+
+   test('CRITICAL: default font family includes SF Pro Display', async ({ page }) => {
+      const result = await page.evaluate(() => {
+         const el = document.querySelector('.MuiTypography-root');
+         if (!el) return { found: false, value: '' };
+         return { found: true, value: getComputedStyle(el).fontFamily };
+      });
+
+      // Font family should include SF Pro Display as first choice
+      expect(result.found).toBe(true);
+      expect(
+         result.value.includes('SF Pro Display') || result.value.includes('Roboto'),
+         `Font family is "${result.value}" but should include SF Pro Display or Roboto`
+      ).toBe(true);
+   });
+
+   test('h3 fontWeight MUST be 600 (not 700)', async ({ page }) => {
+      const result = await page.evaluate(() => {
+         const el = document.querySelector('.MuiTypography-h3');
+         if (!el) return { found: false, value: '' };
+         return { found: true, value: getComputedStyle(el).fontWeight };
+      });
+
+      if (result.found) {
+         expect(
+            result.value,
+            `REGRESSION: h3 fontWeight is "${result.value}" but MUST be "600" (Material Dashboard 2 PRO default)`
+         ).toBe(TYPOGRAPHY_DEFAULTS.h3.fontWeight);
+      }
+   });
+
+   test('h6 fontWeight MUST be 500 (not 600)', async ({ page }) => {
+      const result = await page.evaluate(() => {
+         const el = document.querySelector('.MuiTypography-h6');
+         if (!el) return { found: false, value: '' };
+         return { found: true, value: getComputedStyle(el).fontWeight };
+      });
+
+      if (result.found) {
+         expect(
+            result.value,
+            `REGRESSION: h6 fontWeight is "${result.value}" but MUST be "500" (Material Dashboard 2 PRO default)`
+         ).toBe(TYPOGRAPHY_DEFAULTS.h6.fontWeight);
+      }
+   });
+
+   test('body2 fontWeight MUST be 300 (not 400)', async ({ page }) => {
+      const result = await page.evaluate(() => {
+         // Find body2 NOT in sidebar
+         const allElements = document.querySelectorAll('.MuiTypography-body2');
+         for (const el of allElements) {
+            if (!el.closest('.MuiDrawer-root') && !el.closest('.MuiDrawer-paper')) {
+               return { found: true, value: getComputedStyle(el).fontWeight };
+            }
+         }
+         return { found: false, value: '' };
+      });
+
+      if (result.found) {
+         expect(
+            result.value,
+            `REGRESSION: body2 fontWeight is "${result.value}" but MUST be "300" (fontWeightLight)`
+         ).toBe(TYPOGRAPHY_DEFAULTS.body2.fontWeight);
+      }
+   });
+
+   test('button fontWeight MUST be 700 (from component override)', async ({ page }) => {
+      const result = await page.evaluate(() => {
+         const el = document.querySelector('.MuiButton-root');
+         if (!el) return { found: false, value: '' };
+         return { found: true, value: getComputedStyle(el).fontWeight };
+      });
+
+      if (result.found) {
+         expect(
+            result.value,
+            `REGRESSION: button fontWeight is "${result.value}" but MUST be "700" (fontWeightBold from button/root.ts override)`
+         ).toBe(TYPOGRAPHY_DEFAULTS.button.fontWeight);
+      }
+   });
+});
+
+// ============================================================================
 // DIAGNOSTIC DUMP
 // ============================================================================
 
@@ -515,6 +633,88 @@ test.describe('Diagnostic - Dump All Default CSS Variables', () => {
 
       console.log('CSS Variables with Default Theme:');
       console.log(JSON.stringify(cssVars, null, 2));
+
+      // This test always passes - it's for diagnostic output
+      expect(true).toBe(true);
+   });
+
+   test('DIAG: dump actual computed styles for typography elements', async ({ page }) => {
+      await page.goto('/');
+      await page.waitForSelector('[id="root"]');
+      await page.waitForTimeout(2000);
+
+      const typographyDiag = await page.evaluate(() => {
+         const result: Record<string, unknown> = {};
+
+         // Find body2 element - look for real text content, not icons
+         const body2Els = document.querySelectorAll('.MuiTypography-body2');
+         result.body2Count = body2Els.length;
+         result.body2All = [];
+         for (let i = 0; i < Math.min(body2Els.length, 5); i++) {
+            const el = body2Els[i];
+            const style = getComputedStyle(el);
+            (result.body2All as unknown[]).push({
+               fontWeight: style.fontWeight,
+               fontSize: style.fontSize,
+               textContent: (el.textContent || '').substring(0, 30),
+               parentClass: el.parentElement?.className?.substring(0, 50),
+            });
+         }
+
+         // Find button element - check multiple
+         const buttonEls = document.querySelectorAll('.MuiButton-root');
+         result.buttonCount = buttonEls.length;
+         result.buttonAll = [];
+         for (let i = 0; i < Math.min(buttonEls.length, 5); i++) {
+            const el = buttonEls[i];
+            const style = getComputedStyle(el);
+            (result.buttonAll as unknown[]).push({
+               fontWeight: style.fontWeight,
+               fontSize: style.fontSize,
+               textContent: (el.textContent || '').substring(0, 30),
+               variant: el.className.includes('contained') ? 'contained' :
+                        el.className.includes('outlined') ? 'outlined' : 'text',
+            });
+         }
+
+         // Find h3 element - check if it's truly h3
+         const h3Els = document.querySelectorAll('.MuiTypography-h3');
+         result.h3TypoCount = h3Els.length;
+         const h3Tags = document.querySelectorAll('h3');
+         result.h3TagCount = h3Tags.length;
+         result.h3All = [];
+         for (let i = 0; i < Math.min(h3Tags.length, 5); i++) {
+            const el = h3Tags[i];
+            const style = getComputedStyle(el);
+            (result.h3All as unknown[]).push({
+               fontWeight: style.fontWeight,
+               fontSize: style.fontSize,
+               className: el.className,
+               textContent: (el.textContent || '').substring(0, 30),
+            });
+         }
+
+         // Check page title (usually in h3)
+         const pageTitle = document.querySelector('h3, .MuiTypography-h3');
+         if (pageTitle) {
+            const style = getComputedStyle(pageTitle);
+            result.pageTitle = {
+               tagName: pageTitle.tagName,
+               fontWeight: style.fontWeight,
+               fontSize: style.fontSize,
+               textContent: (pageTitle.textContent || '').substring(0, 30),
+            };
+         }
+
+         // Check root font size
+         result.rootFontSize = getComputedStyle(document.documentElement).fontSize;
+         result.bodyFontSize = getComputedStyle(document.body).fontSize;
+
+         return result;
+      });
+
+      console.log('Typography Diagnostic (detailed):');
+      console.log(JSON.stringify(typographyDiag, null, 2));
 
       // This test always passes - it's for diagnostic output
       expect(true).toBe(true);

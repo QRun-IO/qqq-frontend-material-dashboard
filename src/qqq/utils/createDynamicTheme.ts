@@ -192,22 +192,28 @@ function buildPalette(theme: QThemeMetaData): ThemeOptions["palette"]
  *******************************************************************************/
 function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
 {
-   const fontFamily = theme.fontFamily || "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif";
+   /////////////////////////////////////////////////////////////////////////////
+   // Default font family matches typography.ts baseProperties.fontFamily     //
+   /////////////////////////////////////////////////////////////////////////////
+   const fontFamily = theme.fontFamily || "\"SF Pro Display\", \"Roboto\", \"Helvetica\", \"Arial\", sans-serif";
 
    /////////////////////////////////////////////////////////////////////////////
    // Spread base typography to include custom properties (size, lineHeight,  //
    // fontWeightLighter, display variants) needed by component override files //
+   //                                                                         //
+   // IMPORTANT: All default values below MUST match typography.ts exactly!   //
+   // These are the Material Dashboard 2 PRO defaults, not standard MUI.      //
    /////////////////////////////////////////////////////////////////////////////
    return {
       ...typography,
       fontFamily,
       fontWeightLight: theme.fontWeightLight || 300,
       fontWeightRegular: theme.fontWeightRegular || 400,
-      fontWeightMedium: theme.fontWeightMedium || 500,
+      fontWeightMedium: theme.fontWeightMedium || 600, // MD2 uses 600, not 500
       fontWeightBold: theme.fontWeightBold || 700,
       h1: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH1FontSize || "3rem",
+         fontSize: theme.typographyH1FontSize || "3rem", // pxToRem(48)
          fontWeight: theme.typographyH1FontWeight || 700,
          lineHeight: theme.typographyH1LineHeight || 1.25,
          letterSpacing: theme.typographyH1LetterSpacing || "-0.01562em",
@@ -215,7 +221,7 @@ function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
       },
       h2: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH2FontSize || "2.125rem",
+         fontSize: theme.typographyH2FontSize || "2.25rem", // pxToRem(36)
          fontWeight: theme.typographyH2FontWeight || 700,
          lineHeight: theme.typographyH2LineHeight || 1.3,
          letterSpacing: theme.typographyH2LetterSpacing || "-0.00833em",
@@ -223,63 +229,63 @@ function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
       },
       h3: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH3FontSize || "1.5rem",
-         fontWeight: theme.typographyH3FontWeight || 700,
+         fontSize: theme.typographyH3FontSize || "1.75rem", // typography.ts uses 1.75rem
+         fontWeight: theme.typographyH3FontWeight || 600, // typography.ts uses 600
          lineHeight: theme.typographyH3LineHeight || 1.375,
          letterSpacing: theme.typographyH3LetterSpacing || "0em",
          textTransform: (theme.typographyH3TextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "none",
       },
       h4: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH4FontSize || "1.25rem",
+         fontSize: theme.typographyH4FontSize || "1.5rem", // pxToRem(24)
          fontWeight: theme.typographyH4FontWeight || 700,
-         lineHeight: theme.typographyH4LineHeight || 1.4,
+         lineHeight: theme.typographyH4LineHeight || 1.375,
          letterSpacing: theme.typographyH4LetterSpacing || "0.00735em",
          textTransform: (theme.typographyH4TextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "none",
       },
       h5: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH5FontSize || "1rem",
-         fontWeight: theme.typographyH5FontWeight || 600,
-         lineHeight: theme.typographyH5LineHeight || 1.5,
+         fontSize: theme.typographyH5FontSize || "1.25rem", // pxToRem(20)
+         fontWeight: theme.typographyH5FontWeight || 700,
+         lineHeight: theme.typographyH5LineHeight || 1.375,
          letterSpacing: theme.typographyH5LetterSpacing || "0em",
          textTransform: (theme.typographyH5TextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "none",
       },
       h6: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH6FontSize || "0.875rem",
-         fontWeight: theme.typographyH6FontWeight || 600,
-         lineHeight: theme.typographyH6LineHeight || 1.6,
+         fontSize: theme.typographyH6FontSize || "1.125rem", // typography.ts uses 1.125rem
+         fontWeight: theme.typographyH6FontWeight || 500, // typography.ts uses 500
+         lineHeight: theme.typographyH6LineHeight || 1.625,
          letterSpacing: theme.typographyH6LetterSpacing || "0.0075em",
          textTransform: (theme.typographyH6TextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "none",
       },
       body1: {
          fontFamily,
-         fontSize: theme.typographyBody1FontSize || "1rem",
+         fontSize: theme.typographyBody1FontSize || "1.25rem", // pxToRem(20) = fontSizeXL
          fontWeight: theme.typographyBody1FontWeight || 400,
-         lineHeight: theme.typographyBody1LineHeight || 1.5,
+         lineHeight: theme.typographyBody1LineHeight || 1.625,
          letterSpacing: theme.typographyBody1LetterSpacing || "0.00938em",
       },
       body2: {
          fontFamily,
-         fontSize: theme.typographyBody2FontSize || "0.875rem",
-         fontWeight: theme.typographyBody2FontWeight || 400,
-         lineHeight: theme.typographyBody2LineHeight || 1.43,
+         fontSize: theme.typographyBody2FontSize || "1rem", // pxToRem(16) = fontSizeMD
+         fontWeight: theme.typographyBody2FontWeight || 300, // fontWeightLight
+         lineHeight: theme.typographyBody2LineHeight || 1.6,
          letterSpacing: theme.typographyBody2LetterSpacing || "0.01071em",
       },
       button: {
          fontFamily,
-         fontSize: theme.typographyButtonFontSize || "0.875rem",
-         fontWeight: theme.typographyButtonFontWeight || 500,
-         lineHeight: theme.typographyButtonLineHeight || 1.75,
+         fontSize: theme.typographyButtonFontSize || "0.875rem", // pxToRem(14)
+         fontWeight: theme.typographyButtonFontWeight || 300, // fontWeightLight
+         lineHeight: theme.typographyButtonLineHeight || 1.5,
          letterSpacing: theme.typographyButtonLetterSpacing || "0.02857em",
          textTransform: (theme.typographyButtonTextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "uppercase",
       },
       caption: {
          fontFamily,
-         fontSize: theme.typographyCaptionFontSize || "0.75rem",
-         fontWeight: theme.typographyCaptionFontWeight || 400,
-         lineHeight: theme.typographyCaptionLineHeight || 1.66,
+         fontSize: theme.typographyCaptionFontSize || "0.75rem", // pxToRem(12)
+         fontWeight: theme.typographyCaptionFontWeight || 300, // fontWeightLight
+         lineHeight: theme.typographyCaptionLineHeight || 1.25,
          letterSpacing: theme.typographyCaptionLetterSpacing || "0.03333em",
       },
    };

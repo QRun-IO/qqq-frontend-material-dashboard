@@ -22,9 +22,10 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'node e2e/fixture-server.js',
+      // Pass THEME_FIXTURE through to fixture server for fixture selection
+      command: `THEME_FIXTURE=${process.env.THEME_FIXTURE || 'withFullCustomTheme'} node e2e/fixture-server.js`,
       url: 'http://localhost:8001/metaData',
-      reuseExistingServer: true,
+      reuseExistingServer: false, // Don't reuse - different tests need different fixtures
       timeout: 10000,
     },
     {
