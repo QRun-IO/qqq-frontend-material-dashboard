@@ -378,28 +378,28 @@ Read these files in order:
 2. `docs/TODO.md` - Active and completed tasks
 3. This file (`CLAUDE.md`) - Project context
 
-### Current Status (as of 2026-01-10)
+### Current Status (as of 2026-01-14)
 
 | Item | Value |
 |------|-------|
-| Branch | `develop` |
-| Version | `0.36.0-SNAPSHOT` |
-| Latest Commit | `bcc63ee` - docs: update session state for CI fix WIP |
-| CI Status | **FAILING** - Playwright webserver timeout |
-| WIP Branch | `fix/ci-playwright-timeout` |
+| Branch | `release/0.36.0` |
+| Version | `0.36.0-RC.2` |
+| Latest Commit | `89f9e5c` - Bump version to 0.36.0-RC.2 |
+| CI Status | PASS - RC.2 published to Maven Central |
+| Daily Build Log | https://github.com/orgs/QRun-IO/discussions/366 |
 
-### Active Issue
+### Recent Activity
 
-CI `publish_snapshot` workflow fails because React dev server times out (120s) in Playwright Docker container.
-
-**WIP fix on branch:** `fix/ci-playwright-timeout`
-- Combined fixture-server.js to serve static build + API fixtures
-- Tests still fail locally (blank page) - debugging needed
+- **RC.2 Published** - Theme hotfix for CSS variable fallback regressions
+- **PR #129 merged** - Fixed 10 files with incorrect fallback values
+- **30 default theme tests added** - Prevent future regressions
+- JAR verified on Maven Central with correct JS bundle
 
 ### Recent Merges
 
 | PR | Description |
 |----|-------------|
+| #129 | Theme CSS variable fallback fixes (hotfix) |
 | #127 | Playwright e2e test integration (26 tests) |
 | #125 | Pluggable themes + CSS selectors system |
 | #123 | Virtual fields support |
@@ -409,10 +409,14 @@ CI `publish_snapshot` workflow fails because React dev server times out (120s) i
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright e2e | 26 | FAILING (CI timeout) |
+| Playwright e2e | 56 | PASS (26 custom + 30 default) |
 | Selenium fixture-based | 115 | PASS |
 | Java unit | 3 | PASS |
-| Selenium full-server | 19 | Infrastructure issue - hangs locally |
+
+### Pending Work
+
+- **CI Playwright timeout fix** - WIP on `fix/ci-playwright-timeout` branch (paused, blank page issue)
+- **Final 0.36.0 release** - Pending integration testing and QA
 
 ### Key Documentation Files
 
@@ -420,18 +424,12 @@ CI `publish_snapshot` workflow fails because React dev server times out (120s) i
 |------|---------|
 | `docs/SESSION_STATE.md` | Current work status, branch, version, recent commits |
 | `docs/TODO.md` | Task tracking for current feature |
-| `docs/PLAN-ci-playwright-fix.md` | CI fix plan (IN PROGRESS) |
 | `docs/QQQ_THEMING_GUIDE.md` | Complete theming reference |
 | `docs/QQQ_CSS_SELECTORS_GUIDE.md` | CSS selector patterns reference |
 | `docs/THEME_TESTING_GUIDE.md` | Guide for testing theme features |
 
-### Publishing Snapshots
+### Publishing
 
-Snapshots publish automatically when merged to `develop` via CircleCI `publish_snapshot` workflow.
+Release candidates publish automatically on `release/*` branches via CircleCI `publish_release_candidate` workflow.
 
-Manual publish using gitops script:
-```bash
-/Users/james.maes/.local/bin/gitops-publish.sh
-```
-
-This creates a `publish-{commit}` tag that triggers CI/CD to build and publish the JAR.
+Snapshots publish on `develop` via `publish_snapshot` workflow.

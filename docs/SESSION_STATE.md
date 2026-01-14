@@ -1,59 +1,60 @@
 # Session State - QQQ Frontend Material Dashboard
 
-**Last Updated:** 2026-01-10
-**Branch:** `develop`
-**Version:** `0.36.0-SNAPSHOT`
+**Last Updated:** 2026-01-14
+**Branch:** `release/0.36.0`
+**Version:** `0.36.0-RC.2`
 
 ## Current Status
 
-**CI IS FAILING** - `publish_snapshot` workflow (pipeline #1361) fails due to Playwright webserver timeout.
+**RC.2 PUBLISHED** - Theme hotfix released to Maven Central.
 
-Work in progress on branch: `fix/ci-playwright-timeout`
+PR #129 fixed CSS variable fallback regressions from pluggable themes (PR #125). Darin found the issues during downstream integration testing.
 
-## Problem
+## What Was Done This Session
 
-The React dev server (`npm start`) times out in CI because webpack compilation takes >120s in the Playwright Docker container.
+1. Killed hung Claude agent process (PID 78233)
+2. Verified RC.2 JAR on Maven Central contains theme fixes
+3. Published daily build log entry: https://github.com/orgs/QRun-IO/discussions/366
 
-## WIP Branch: fix/ci-playwright-timeout
+## Verification Performed
 
-Contains attempted fix:
-1. Combined fixture server to serve both static React build AND API fixtures
-2. Added `npm run build` step to CircleCI before Playwright tests
-3. Simplified playwright.config.ts to use single server
+Downloaded `qqq-frontend-material-dashboard-0.36.0-RC.2.jar` from Maven Central and verified:
+- Build timestamp: `01-13-2026 22:20` (matches CI pipeline #1373)
+- `#9fc9ff` stepper color present (was `rgba(255,255,255,0.5)`)
+- `sidebarSelectedBackgroundColor:"rgba(255, 255, 255, 0.2)"` present (was `#0062FF`)
 
-**Status:** Tests still fail locally - React app renders blank page. Debugging needed.
+## Next Steps
 
-## Next Steps (Resume Here)
+1. Integration testing of RC.2 with downstream apps
+2. QA validation of theme appearance
+3. Final 0.36.0 release when ready
+4. Address CI Playwright timeout issue (WIP on `fix/ci-playwright-timeout` branch)
 
-1. Checkout the WIP branch: `git checkout fix/ci-playwright-timeout`
-2. Debug why React app renders blank:
-   - Run `node e2e/fixture-server.js` manually
-   - Open http://localhost:8001 in browser
-   - Check browser console for JavaScript errors
-3. Compare with working Selenium setup (QSeleniumJavalin.java)
-4. Add missing API endpoint stubs to fixture-server.js
-5. Once tests pass locally, push and merge to develop
+## Branches
+
+| Branch | Purpose | Status |
+|--------|---------|--------|
+| `release/0.36.0` | Current release candidate | RC.2 published |
+| `develop` | Main development | At 0.40.0-SNAPSHOT |
+| `fix/ci-playwright-timeout` | CI fix WIP | Paused - blank page issue |
 
 ## Quick Reference
 
 ```bash
-# Switch to WIP branch
-git checkout fix/ci-playwright-timeout
+# Current branch
+git checkout release/0.36.0
 
-# Build React app (required before Playwright tests)
-npm run build
+# Check published artifact
+mvn dependency:get -DgroupId=com.kingsrook.qqq -DartifactId=qqq-frontend-material-dashboard -Dversion=0.36.0-RC.2
 
-# Run fixture server manually for debugging
-node e2e/fixture-server.js
-
-# Run Playwright in debug mode
-npx playwright test --debug
+# Verify JAR contents
+unzip -l ~/.m2/repository/com/kingsrook/qqq/qqq-frontend-material-dashboard/0.36.0-RC.2/*.jar | grep material-dashboard
 ```
 
-## Test Status (on develop)
+## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright e2e | 26 | FAILING (CI timeout) |
+| Playwright e2e | 56 | PASS (26 custom + 30 default theme tests) |
 | Selenium fixture-based | 115 | PASS |
 | Java unit | 3 | PASS |
