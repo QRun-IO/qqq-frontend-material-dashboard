@@ -896,10 +896,12 @@ input[type="search"]::-webkit-search-results-decoration
 
 /*****************************************************************************
  ** Sidebar theming - uses CSS variables from QThemeMetaData
+ ** NOT scoped to .qqq-themed because sidebar needs consistent styling
+ ** regardless of theme presence (uses fallback colors when no theme)
  *****************************************************************************/
 .MuiDrawer-paper
 {
-   background: var(--qqq-sidebar-background-color) !important;
+   background: var(--qqq-sidebar-background-color, linear-gradient(195deg, #42424a, #191919)) !important;
 }
 
 .MuiDrawer-paper a,
@@ -907,7 +909,7 @@ input[type="search"]::-webkit-search-results-decoration
 .MuiDrawer-paper .MuiListItemText-primary,
 .MuiDrawer-paper .MuiListItemText-root span
 {
-   color: var(--qqq-sidebar-text-color) !important;
+   color: var(--qqq-sidebar-text-color, #ffffff) !important;
 }
 
 .MuiDrawer-paper svg,
@@ -918,17 +920,17 @@ input[type="search"]::-webkit-search-results-decoration
 .MuiDrawer-paper .MuiListItemIcon-root .MuiSvgIcon-root,
 .MuiDrawer-paper .MuiListItemIcon-root svg
 {
-   color: var(--qqq-sidebar-icon-color) !important;
+   color: var(--qqq-sidebar-icon-color, #ffffff) !important;
 }
 
 .MuiDrawer-paper .MuiDivider-root
 {
-   border-color: var(--qqq-sidebar-divider-color);
+   border-color: var(--qqq-sidebar-divider-color, rgba(255, 255, 255, 0.25));
 }
 
 .MuiDrawer-paper .qqq-sidebar-active
 {
-   background-color: var(--qqq-sidebar-selected-background-color) !important;
+   background-color: var(--qqq-sidebar-selected-background-color, rgba(255, 255, 255, 0.2)) !important;
 }
 
 .MuiDrawer-paper .qqq-sidebar-active,
@@ -941,46 +943,48 @@ input[type="search"]::-webkit-search-results-decoration
 .MuiDrawer-paper .qqq-sidebar-active .MuiListItemIcon-root .MuiIcon-root,
 .MuiDrawer-paper .qqq-sidebar-active .MuiListItemIcon-root svg
 {
-   color: var(--qqq-sidebar-selected-text-color) !important;
+   color: var(--qqq-sidebar-selected-text-color, #ffffff) !important;
 }
 
 .MuiDrawer-paper a:hover,
 .MuiDrawer-paper .MuiListItem-root:hover
 {
-   background-color: var(--qqq-sidebar-hover-background-color);
+   background-color: var(--qqq-sidebar-hover-background-color, rgba(255, 255, 255, 0.2));
 }
 
 /*****************************************************************************
  ** Input field theming - uses CSS variables from QThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
-input.MuiInputBase-input,
-.MuiOutlinedInput-input,
-.MuiFilledInput-input,
-.MuiInput-input
+.qqq-themed input.MuiInputBase-input,
+.qqq-themed .MuiOutlinedInput-input,
+.qqq-themed .MuiFilledInput-input,
+.qqq-themed .MuiInput-input
 {
    color: var(--qqq-text-primary) !important;
 }
 
-.MuiOutlinedInput-notchedOutline
+.qqq-themed .MuiOutlinedInput-notchedOutline
 {
    border-color: var(--qqq-input-border-color, var(--qqq-border-color)) !important;
 }
 
-.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline
+.qqq-themed .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline
 {
    border-color: var(--qqq-input-border-color, var(--qqq-border-color)) !important;
 }
 
-.Mui-focused .MuiOutlinedInput-notchedOutline
+.qqq-themed .Mui-focused .MuiOutlinedInput-notchedOutline
 {
    border-color: var(--qqq-primary-color) !important;
 }
 
 /*****************************************************************************
  ** Link theming - uses CSS variables from QThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
-a:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root),
-.MuiLink-root:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root)
+.qqq-themed a:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root),
+.qqq-themed .MuiLink-root:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root)
 {
    color: var(--qqq-link-color, var(--qqq-secondary-color)) !important;
 }
@@ -988,109 +992,114 @@ a:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root)
 /*****************************************************************************
  ** Paper/Card theming - uses CSS variables from QThemeMetaData
  ** Excludes AppBar (navbar), Drawer (sidebar), Menu, and Popover
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
-.MuiPaper-root:not(.MuiAppBar-root):not(.MuiDrawer-paper):not(.MuiMenu-paper):not(.MuiPopover-paper),
-.MuiCard-root
+.qqq-themed .MuiPaper-root:not(.MuiAppBar-root):not(.MuiDrawer-paper):not(.MuiMenu-paper):not(.MuiPopover-paper),
+.qqq-themed .MuiCard-root
 {
    background-color: var(--qqq-surface-color) !important;
 }
 
 /*****************************************************************************
  ** Menu theming - uses CSS variables from QThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
-.MuiMenu-paper,
-.MuiPopover-paper[role="menu"]
+.qqq-themed .MuiMenu-paper,
+.qqq-themed .MuiPopover-paper[role="menu"]
 {
    background-color: var(--qqq-surface-color) !important;
 }
 
-.MuiMenuItem-root
+.qqq-themed .MuiMenuItem-root
 {
    color: var(--qqq-text-primary);
 }
 
-.MuiMenuItem-root:hover
+.qqq-themed .MuiMenuItem-root:hover
 {
    background-color: var(--qqq-menu-hover-color, var(--qqq-action-hover));
 }
 
 /*****************************************************************************
  ** Typography theming - uses CSS variables from QThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
-.MuiTypography-body1
+.qqq-themed .MuiTypography-body1
 {
    font-weight: var(--qqq-font-weight-regular, 400) !important;
 }
 
-.MuiTypography-body2
+.qqq-themed .MuiTypography-body2
 {
    font-weight: var(--qqq-font-weight-regular, 400) !important;
 }
 
 /*****************************************************************************
  ** Button theming - uses CSS variables from QThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
-.MuiButton-root
+.qqq-themed .MuiButton-root
 {
    font-weight: var(--qqq-typography-button-font-weight, 500) !important;
 }
 
-.MuiButton-containedPrimary
+.qqq-themed .MuiButton-containedPrimary
 {
    background-color: var(--qqq-primary-color) !important;
 }
 
-.MuiButton-containedSecondary
+.qqq-themed .MuiButton-containedSecondary
 {
    background-color: var(--qqq-secondary-color) !important;
 }
 
-.MuiButton-outlinedPrimary
+.qqq-themed .MuiButton-outlinedPrimary
 {
    border-color: var(--qqq-primary-color) !important;
    color: var(--qqq-primary-color) !important;
 }
 
-.MuiButton-textPrimary
+.qqq-themed .MuiButton-textPrimary
 {
    color: var(--qqq-primary-color) !important;
 }
 
 /*****************************************************************************
  ** DataGrid theming - uses CSS variables from QThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
-.MuiDataGrid-columnHeaders,
-.MuiDataGrid-columnHeader
+.qqq-themed .MuiDataGrid-columnHeaders,
+.qqq-themed .MuiDataGrid-columnHeader
 {
    background-color: var(--qqq-table-header-background-color) !important;
 }
 
-.MuiDataGrid-columnHeaderTitle
+.qqq-themed .MuiDataGrid-columnHeaderTitle
 {
    color: var(--qqq-table-header-text-color) !important;
 }
 
-.MuiDataGrid-row:hover
+.qqq-themed .MuiDataGrid-row:hover
 {
    background-color: var(--qqq-table-row-hover-color) !important;
 }
 
-.MuiDataGrid-row.Mui-selected
+.qqq-themed .MuiDataGrid-row.Mui-selected
 {
    background-color: var(--qqq-table-row-selected-color) !important;
 }
 
-.MuiDataGrid-columnSeparator
+.qqq-themed .MuiDataGrid-columnSeparator
 {
    border-color: var(--qqq-table-border-color) !important;
 }
 
-.MuiDataGrid-cell
+.qqq-themed .MuiDataGrid-cell
 {
    border-color: var(--qqq-table-border-color) !important;
 }
 
-.MuiDataGrid-root
+.qqq-themed .MuiDataGrid-root
 {
    border-color: var(--qqq-table-border-color) !important;
 }

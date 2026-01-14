@@ -14,18 +14,21 @@ import { test, expect } from '@playwright/test';
  */
 
 // DEFAULT_THEME values from src/qqq/utils/themeUtils.ts
+// These must match the values in themeUtils.ts to restore pre-PR-125 appearance
 const DEFAULT_THEME = {
    // Core colors
    primaryColor: '#0062FF',
    backgroundColor: '#f0f2f5',
    surfaceColor: '#ffffff',
-   // Sidebar (dark theme)
-   sidebarBackgroundColor: '#1a2035',
+   // Sidebar (dark gray matching original gradients.dark.main)
+   sidebarBackgroundColor: '#42424a',
    sidebarTextColor: '#ffffff',
    sidebarIconColor: '#ffffff',
-   sidebarSelectedBackgroundColor: '#0062FF',
+   sidebarSelectedBackgroundColor: 'rgba(255, 255, 255, 0.2)',
    sidebarSelectedTextColor: '#ffffff',
    sidebarHoverBackgroundColor: 'rgba(255, 255, 255, 0.2)',
+   // Typography (matching original typography.ts)
+   fontFamily: '"SF Pro Display", "Roboto", "Helvetica", "Arial", sans-serif',
 };
 
 // Helper to convert hex to RGB
@@ -100,7 +103,6 @@ function isNotWhite(color: string): boolean {
       return true;
    }
    // Check if NOT white (#ffffff or rgb(255,255,255))
-   const whiteRgb = { r: 255, g: 255, b: 255 };
    const actualRgb = parseRgb(color);
    if (!actualRgb) {
       if (color.startsWith('#')) {
@@ -113,72 +115,68 @@ function isNotWhite(color: string): boolean {
    return !(actualRgb.r > 250 && actualRgb.g > 250 && actualRgb.b > 250);
 }
 
+// Helper to check if a background (which may be a gradient) contains a color
+function backgroundContainsColor(background: string, expectedColor: string, tolerance = 5): boolean {
+   // Extract all rgb/rgba values from the background string
+   const rgbMatches = background.matchAll(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/g);
+   const expectedRgb = expectedColor.startsWith('#') ? hexToRgb(expectedColor) : parseRgb(expectedColor);
+   if (!expectedRgb) return false;
+
+   for (const match of rgbMatches) {
+      const r = parseInt(match[1]);
+      const g = parseInt(match[2]);
+      const b = parseInt(match[3]);
+      if (
+         Math.abs(r - expectedRgb.r) <= tolerance &&
+         Math.abs(g - expectedRgb.g) <= tolerance &&
+         Math.abs(b - expectedRgb.b) <= tolerance
+      ) {
+         return true;
+      }
+   }
+   return false;
+}
+
 // ============================================================================
-// CSS VARIABLES - Verify DEFAULT_THEME values are injected
+// CSS VARIABLES - Verify they are NOT injected for unthemed apps
+// CSS variables are 100% optional - CSS uses fallback values
 // ============================================================================
 
-test.describe('Unthemed App - CSS Variables Injected', () => {
+test.describe('Unthemed App - CSS Variables Are Optional', () => {
    test.beforeEach(async ({ page }) => {
       await page.goto('/');
       await page.waitForSelector('[id="root"]');
       await page.waitForTimeout(2000);
    });
 
-   test('--qqq-sidebar-background-color is injected with DEFAULT_THEME value', async ({ page }) => {
+   test('no --qqq-* CSS variables are injected when no theme is configured', async ({ page }) => {
       const result = await page.evaluate(() => {
-         const value = getComputedStyle(document.documentElement)
-            .getPropertyValue('--qqq-sidebar-background-color').trim();
-         return { found: !!value, value };
+         const root = document.documentElement;
+         const style = getComputedStyle(root);
+         return {
+            sidebarBg: style.getPropertyValue('--qqq-sidebar-background-color').trim(),
+            sidebarText: style.getPropertyValue('--qqq-sidebar-text-color').trim(),
+            surfaceColor: style.getPropertyValue('--qqq-surface-color').trim(),
+            primaryColor: style.getPropertyValue('--qqq-primary-color').trim(),
+         };
       });
-      expect(result.found, 'CSS variable --qqq-sidebar-background-color not found').toBe(true);
-      expect(
-         colorsMatch(result.value, DEFAULT_THEME.sidebarBackgroundColor),
-         `--qqq-sidebar-background-color: expected ${DEFAULT_THEME.sidebarBackgroundColor}, got ${result.value}`
-      ).toBe(true);
+      // All CSS variables should be empty (not injected) for unthemed apps
+      expect(result.sidebarBg, 'CSS variable should not be injected for unthemed app').toBe('');
+      expect(result.sidebarText, 'CSS variable should not be injected for unthemed app').toBe('');
+      expect(result.surfaceColor, 'CSS variable should not be injected for unthemed app').toBe('');
+      expect(result.primaryColor, 'CSS variable should not be injected for unthemed app').toBe('');
    });
 
-   test('--qqq-sidebar-text-color is injected with DEFAULT_THEME value', async ({ page }) => {
-      const result = await page.evaluate(() => {
-         const value = getComputedStyle(document.documentElement)
-            .getPropertyValue('--qqq-sidebar-text-color').trim();
-         return { found: !!value, value };
+   test('body does NOT have .qqq-themed class when no theme is configured', async ({ page }) => {
+      const hasClass = await page.evaluate(() => {
+         return document.body.classList.contains('qqq-themed');
       });
-      expect(result.found, 'CSS variable --qqq-sidebar-text-color not found').toBe(true);
-      expect(
-         colorsMatch(result.value, DEFAULT_THEME.sidebarTextColor),
-         `--qqq-sidebar-text-color: expected ${DEFAULT_THEME.sidebarTextColor}, got ${result.value}`
-      ).toBe(true);
-   });
-
-   test('--qqq-surface-color is injected with DEFAULT_THEME value', async ({ page }) => {
-      const result = await page.evaluate(() => {
-         const value = getComputedStyle(document.documentElement)
-            .getPropertyValue('--qqq-surface-color').trim();
-         return { found: !!value, value };
-      });
-      expect(result.found, 'CSS variable --qqq-surface-color not found').toBe(true);
-      expect(
-         colorsMatch(result.value, DEFAULT_THEME.surfaceColor),
-         `--qqq-surface-color: expected ${DEFAULT_THEME.surfaceColor}, got ${result.value}`
-      ).toBe(true);
-   });
-
-   test('--qqq-primary-color is injected with DEFAULT_THEME value', async ({ page }) => {
-      const result = await page.evaluate(() => {
-         const value = getComputedStyle(document.documentElement)
-            .getPropertyValue('--qqq-primary-color').trim();
-         return { found: !!value, value };
-      });
-      expect(result.found, 'CSS variable --qqq-primary-color not found').toBe(true);
-      expect(
-         colorsMatch(result.value, DEFAULT_THEME.primaryColor),
-         `--qqq-primary-color: expected ${DEFAULT_THEME.primaryColor}, got ${result.value}`
-      ).toBe(true);
+      expect(hasClass, 'Body should not have .qqq-themed class for unthemed app').toBe(false);
    });
 });
 
 // ============================================================================
-// SIDEBAR - Verify dark theme colors from DEFAULT_THEME
+// SIDEBAR - Verify dark theme colors via CSS fallbacks
 // ============================================================================
 
 test.describe('Unthemed App - Sidebar Colors', () => {
@@ -188,16 +186,18 @@ test.describe('Unthemed App - Sidebar Colors', () => {
       await page.waitForTimeout(2000);
    });
 
-   test('sidebar has dark background from DEFAULT_THEME', async ({ page }) => {
+   test('sidebar has dark background via CSS fallback', async ({ page }) => {
       const result = await page.evaluate(() => {
          const el = document.querySelector('.MuiDrawer-paper');
          if (!el) return { found: false, value: '', debug: 'No .MuiDrawer-paper found' };
-         return { found: true, value: getComputedStyle(el).backgroundColor, debug: '' };
+         // Use 'background' not 'backgroundColor' because gradients set background-image
+         return { found: true, value: getComputedStyle(el).background, debug: '' };
       });
       expect(result.found, `Sidebar not found: ${result.debug}`).toBe(true);
+      // Check that the background contains the expected dark color (gradient includes #42424a)
       expect(
-         colorsMatch(result.value, DEFAULT_THEME.sidebarBackgroundColor),
-         `Sidebar background: expected ${DEFAULT_THEME.sidebarBackgroundColor}, got ${result.value}`
+         backgroundContainsColor(result.value, DEFAULT_THEME.sidebarBackgroundColor),
+         `Sidebar background should contain ${DEFAULT_THEME.sidebarBackgroundColor}, got ${result.value}`
       ).toBe(true);
    });
 
@@ -346,15 +346,16 @@ test.describe('Unthemed App - Branded Header Disabled', () => {
       expect(isHidden, `Branded header should not be visible. Height: ${result.height}`).toBe(true);
    });
 
-   test('--qqq-branded-header-height is 0px when disabled', async ({ page }) => {
+   test('--qqq-branded-header-height is not set (CSS fallback to 0px)', async ({ page }) => {
       const result = await page.evaluate(() => {
          const value = getComputedStyle(document.documentElement)
             .getPropertyValue('--qqq-branded-header-height').trim();
          return { value };
       });
+      // CSS variable should be empty (not injected) - CSS fallback handles it
       expect(
-         result.value === '0px' || result.value === '0',
-         `--qqq-branded-header-height should be 0px, got ${result.value}`
+         result.value === '' || result.value === '0px' || result.value === '0',
+         `--qqq-branded-header-height should be empty or 0px, got ${result.value}`
       ).toBe(true);
    });
 

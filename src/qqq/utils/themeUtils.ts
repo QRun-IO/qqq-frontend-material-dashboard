@@ -39,8 +39,8 @@ export const DEFAULT_THEME: QThemeMetaData = {
    infoColor: "#0062FF",
 
    // Typography - Base
-   fontFamily: "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
-   headerFontFamily: "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
+   fontFamily: "\"SF Pro Display\", \"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
+   headerFontFamily: "\"SF Pro Display\", \"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
    monoFontFamily: "\"Roboto Mono\", \"Courier New\", monospace",
    fontSizeBase: "14px",
    fontWeightLight: 300,
@@ -129,11 +129,11 @@ export const DEFAULT_THEME: QThemeMetaData = {
    brandedHeaderHeight: "48px",
    brandedHeaderTagline: "",
 
-   // Sidebar (dark theme defaults matching current QQQ)
-   sidebarBackgroundColor: "#1a2035",
+   // Sidebar (dark theme defaults matching original QQQ - gradients.dark.main)
+   sidebarBackgroundColor: "#42424a",
    sidebarTextColor: "#ffffff",
    sidebarIconColor: "#ffffff",
-   sidebarSelectedBackgroundColor: "#0062FF",
+   sidebarSelectedBackgroundColor: "rgba(255, 255, 255, 0.2)",
    sidebarSelectedTextColor: "#ffffff",
    sidebarHoverBackgroundColor: "rgba(255, 255, 255, 0.2)",
    sidebarDividerColor: "rgba(255, 255, 255, 0.2)",

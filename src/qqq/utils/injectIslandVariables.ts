@@ -43,6 +43,21 @@ export function injectIslandVariables(theme?: QThemeMetaData): void
 {
    const root = document.documentElement;
 
+   //////////////////////////////////////////////////////////////////////////
+   // Add/remove .qqq-themed class on body based on theme presence.        //
+   // CSS overrides in qqq-override-styles.css are scoped to this class.   //
+   // This allows button/input styling to only apply when a theme is set.  //
+   //////////////////////////////////////////////////////////////////////////
+   if (theme)
+   {
+      document.body.classList.add("qqq-themed");
+   }
+   else
+   {
+      document.body.classList.remove("qqq-themed");
+      return; // No theme = no CSS variables injected. CSS uses fallback values.
+   }
+
    /////////////////////////////////////////////////////////////////////////////
    // Merge with defaults, filtering out undefined values                     //
    /////////////////////////////////////////////////////////////////////////////
