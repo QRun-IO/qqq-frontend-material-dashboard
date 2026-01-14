@@ -53,8 +53,8 @@ export default function BrandedHeaderBar({theme}: Props): JSX.Element | null
             alignItems: "center",
             justifyContent: "space-between",
             padding: "0 1rem",
-            backgroundColor: "var(--qqq-branded-header-background-color)",
-            color: "var(--qqq-branded-header-text-color)",
+            backgroundColor: "var(--qqq-branded-header-background-color, #1a2035)",
+            color: "var(--qqq-branded-header-text-color, #ffffff)",
             height: "var(--qqq-branded-header-height, 48px)",
             position: "sticky",
             top: 0,
@@ -82,7 +82,7 @@ export default function BrandedHeaderBar({theme}: Props): JSX.Element | null
                <Typography
                   variant="body1"
                   sx={{
-                     color: "var(--qqq-branded-header-text-color)",
+                     color: "var(--qqq-branded-header-text-color, #ffffff)",
                      fontWeight: 500,
                   }}
                >

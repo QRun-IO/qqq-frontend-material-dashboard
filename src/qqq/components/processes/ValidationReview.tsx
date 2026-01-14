@@ -269,7 +269,7 @@ function ValidationReview({
 
    const recordPreviewWidget = step.recordListFields && (
       <Box border="1px solid var(--qqq-border-color, rgb(70%, 70%, 70%))" borderRadius="10px" p={2} mt={2}>
-         <Box mx={2} mt={-5} p={1} sx={{width: "fit-content", borderColor: "var(--qqq-border-color, rgb(70%, 70%, 70%))", borderWidth: "2px", borderStyle: "solid", borderRadius: ".25em", backgroundColor: "var(--qqq-surface-color, #FFFFFF)"}} width="initial" color="var(--qqq-text-primary)">
+         <Box mx={2} mt={-5} p={1} sx={{width: "fit-content", borderColor: "var(--qqq-border-color, rgb(70%, 70%, 70%))", borderWidth: "2px", borderStyle: "solid", borderRadius: ".25em", backgroundColor: "var(--qqq-surface-color, #FFFFFF)"}} width="initial" color="var(--qqq-text-primary, #344767)">
             <Typography>Preview</Typography>
          </Box>
          <Box p={3} pb={0}>

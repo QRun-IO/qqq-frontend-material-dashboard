@@ -780,7 +780,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
 
             {
                showHelp &&
-               <Box fontSize={"0.875rem"} color="var(--qqq-text-secondary)" pb={2}>
+               <Box fontSize={"0.875rem"} color="var(--qqq-text-secondary, #546E7A)" pb={2}>
                   {formattedHelpContent}
                </Box>
             }
@@ -963,7 +963,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                            component.type === QComponentType.DOWNLOAD_FORM && (
                               <Grid container display="flex" justifyContent="center">
                                  <Grid item xs={12} sm={12} xl={8} m={3} p={3} mt={6} sx={{border: "1px solid var(--qqq-border-color, gray)", borderRadius: "1rem"}}>
-                                    <Box mx={2} mt={-6} p={1} sx={{width: "fit-content", borderColor: "var(--qqq-border-color, rgb(70%, 70%, 70%))", borderWidth: "2px", borderStyle: "solid", borderRadius: ".25em", backgroundColor: "var(--qqq-surface-color, #FFFFFF)"}} width="initial" color="var(--qqq-text-primary)">
+                                    <Box mx={2} mt={-6} p={1} sx={{width: "fit-content", borderColor: "var(--qqq-border-color, rgb(70%, 70%, 70%))", borderWidth: "2px", borderStyle: "solid", borderRadius: ".25em", backgroundColor: "var(--qqq-surface-color, #FFFFFF)"}} width="initial" color="var(--qqq-text-primary, #344767)">
                                        Download
                                     </Box>
                                     <Box display="flex" py={1} pr={2}>

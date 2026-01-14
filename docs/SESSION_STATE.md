@@ -6,32 +6,36 @@
 
 ## Current Status
 
-**READY FOR REVIEW** - Visual regression fixes complete, waiting on Darin to test.
+**COMPLETE** - Round 4 fixes complete: added CSS variable fallbacks to ALL `var(--qqq-*)` instances.
 
-### Latest Commit
-`d4251be` - fix: scope CSS overrides to themed apps only (#128)
+### Latest Changes (Round 4)
+
+Added fallback values to 100% of CSS variables that were missing them, sourced from legacy QQQ colors.ts.
+
+### Files Modified (Round 4)
+
+| File | Change |
+|------|--------|
+| `ProcessSummaryResults.tsx` | Added fallback for `--qqq-success-color`, `--qqq-error-color` |
+| `ProcessRun.tsx` | Added fallback for `--qqq-text-secondary`, `--qqq-text-primary` |
+| `RowBuilderWidget.tsx` | Added fallback for `--qqq-text-primary` |
+| `SideNavItem.ts` | Added fallbacks for sidebar CSS variables |
+| `SideNavCollapse.ts` | Added fallbacks for sidebar CSS variables |
+| `qqq-override-styles.css` | Added fallbacks to 17 CSS variables in .qqq-themed rules |
+| `BrandedHeaderBar.tsx` | Added fallbacks for header background/text colors |
+| `ValidationReview.tsx` | Added fallback for text-primary |
+
+### Fallback Value Sources
+
+All fallback values verified against `src/qqq/components/legacy/colors.ts`:
+- textPrimary: `#344767` (dark.main)
+- primaryColor: `#0062FF` (info.main)
+- secondaryColor: `#7b809a` (secondary.main)
+- sidebarBackgroundColor: `#42424a` (gradients.dark.main)
+- All other colors from legacy colors.ts or themeUtils.ts DEFAULT_THEME
 
 ### GitHub Issue
-Issue #128 - Comment added notifying Darin fixes are ready for testing.
 https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128
-
-## What Was Fixed (Issue #128 - Round 3)
-
-| Issue | Root Cause | Fix |
-|-------|------------|-----|
-| Unthemed apps getting CSS overrides | CSS rules applied globally | Scoped all override rules to `.qqq-themed` class |
-| e2e tests not receiving theme | `setupProxy.js` missing `/metaData` route | Added `/metaData` route (without wildcard) |
-| Theme not parsed by QInstance | Theme at wrong location in fixture JSON | Moved to `supplementalInstanceMetaData.theme` |
-
-### Key Insight
-The `QInstance` class in `@qrunio/qqq-frontend-core` only looks for theme at `object.supplementalInstanceMetaData["theme"]`, NOT at root level.
-
-## Files Modified (This Session)
-
-- `src/setupProxy.js` - Added `/metaData` route for e2e test proxy
-- `src/test/resources/fixtures/metaData/withFullCustomTheme.json` - Fixed theme location
-- `src/qqq/utils/injectIslandVariables.ts` - Added `.qqq-themed` class toggle
-- `src/qqq/styles/qqq-override-styles.css` - Scoped rules to `.qqq-themed`
 
 ## Test Status
 
@@ -39,15 +43,6 @@ The `QInstance` class in `@qrunio/qqq-frontend-core` only looks for theme at `ob
 |-------|-------|--------|
 | Playwright themed | 26 | PASS |
 | Playwright unthemed | 13 | PASS |
-| Selenium fixture-based | 115 | PASS |
-| Java unit | 3 | PASS |
-
-## Next Steps (Resume Here)
-
-1. **Wait for Darin's response** on issue #128
-2. If approved, create PR to merge into `develop`
-3. Publish snapshot after merge
-4. Address CI Playwright timeout issues (separate branch `fix/ci-playwright-timeout`)
 
 ## Running Locally
 

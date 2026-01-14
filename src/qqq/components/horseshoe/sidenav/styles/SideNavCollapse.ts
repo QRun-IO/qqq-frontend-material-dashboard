@@ -55,7 +55,7 @@ function collapseItem(theme: Theme, ownerState: any)
 
          return backgroundValue;
       },
-      color: "var(--qqq-sidebar-text-color)",
+      color: "var(--qqq-sidebar-text-color, #ffffff)",
       display: "flex",
       alignItems: "center",
       width: "100%",
@@ -79,7 +79,7 @@ function collapseItem(theme: Theme, ownerState: any)
       },
 
       "&:hover, &:focus": {
-         backgroundColor: "var(--qqq-sidebar-hover-background-color)",
+         backgroundColor: "var(--qqq-sidebar-hover-background-color, rgba(255, 255, 255, 0.1))",
       },
    };
 }
@@ -94,7 +94,7 @@ function collapseIconBox(theme: Theme, ownerState: any)
    return {
       minWidth: pxToRem(32),
       minHeight: pxToRem(32),
-      color: "var(--qqq-sidebar-icon-color)",
+      color: "var(--qqq-sidebar-icon-color, #ffffff)",
       borderRadius: borderRadius.md,
       display: "grid",
       placeItems: "center",
@@ -104,13 +104,13 @@ function collapseIconBox(theme: Theme, ownerState: any)
       }),
 
       "& svg, svg g": {
-         color: "var(--qqq-sidebar-icon-color)",
+         color: "var(--qqq-sidebar-icon-color, #ffffff)",
       },
    };
 }
 
 const collapseIcon = (_theme: Theme, {active}: any) => ({
-   color: active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-icon-color)",
+   color: active ? "var(--qqq-sidebar-selected-text-color, #ffffff)" : "var(--qqq-sidebar-icon-color, #ffffff)",
 });
 
 function collapseText(theme: any, ownerState: any) 
@@ -155,7 +155,7 @@ function collapseArrow(theme: Theme, ownerState: any)
       fontWeight: 700,
       marginBottom: pxToRem(-1),
       transform: open ? "rotate(0)" : "rotate(-180deg)",
-      color: open || active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-icon-color)",
+      color: open || active ? "var(--qqq-sidebar-selected-text-color, #ffffff)" : "var(--qqq-sidebar-icon-color, #ffffff)",
       opacity: open || active ? 1 : 0.5,
       transition: transitions.create(["color", "transform", "opacity"], {
          easing: transitions.easing.easeInOut,

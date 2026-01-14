@@ -84,10 +84,10 @@ function ProcessSummaryResults({
       </List>
    );
 
-   let headerColor = "var(--qqq-success-color)";
+   let headerColor = `var(--qqq-success-color, ${colors.success.main})`;
    if(processValues.status == "ERROR")
    {
-      headerColor = "var(--qqq-error-color)";
+      headerColor = `var(--qqq-error-color, ${colors.error.main})`;
    }
 
    return (

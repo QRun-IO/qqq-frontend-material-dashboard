@@ -40,7 +40,7 @@ function item(theme: Theme | any, ownerState: any)
       {
          if (active === "isParent")
          {
-            return "var(--qqq-sidebar-selected-background-color)";
+            return "var(--qqq-sidebar-selected-background-color, rgba(255, 255, 255, 0.2))";
          }
          else if (active)
          {
@@ -55,7 +55,7 @@ function item(theme: Theme | any, ownerState: any)
       }),
 
       "&:hover, &:focus": {
-         backgroundColor: !active ? "var(--qqq-sidebar-hover-background-color)" : undefined,
+         backgroundColor: !active ? "var(--qqq-sidebar-hover-background-color, rgba(255, 255, 255, 0.1))" : undefined,
       },
    };
 }
@@ -79,7 +79,7 @@ function itemContent(theme: Theme, ownerState: any)
       position: "relative",
 
       "& span": {
-         color: active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-text-color)",
+         color: active ? "var(--qqq-sidebar-selected-text-color, #ffffff)" : "var(--qqq-sidebar-text-color, #ffffff)",
          fontWeight: active ? fontWeightRegular : fontWeightLight,
          fontSize: size.sm,
          opacity: miniSidenav ? 0 : 1,
@@ -90,7 +90,7 @@ function itemContent(theme: Theme, ownerState: any)
       },
 
       "&::before": {
-         color: active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-text-color)",
+         color: active ? "var(--qqq-sidebar-selected-text-color, #ffffff)" : "var(--qqq-sidebar-text-color, #ffffff)",
          fontWeight: fontWeightRegular,
          display: "flex",
          alignItems: "center",
@@ -118,7 +118,7 @@ function itemArrow(theme: Theme, ownerState: any)
       fontWeight: 700,
       marginBottom: pxToRem(-1),
       transform: open ? "rotate(0)" : "rotate(-180deg)",
-      color: open || active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-icon-color)",
+      color: open || active ? "var(--qqq-sidebar-selected-text-color, #ffffff)" : "var(--qqq-sidebar-icon-color, #ffffff)",
       opacity: open || active ? 1 : 0.6,
       transition: transitions.create(["color", "transform", "opacity"], {
          easing: transitions.easing.easeInOut,
