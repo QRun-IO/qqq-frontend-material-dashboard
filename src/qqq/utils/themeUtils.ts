@@ -31,7 +31,7 @@ export const DEFAULT_THEME: QThemeMetaData = {
    secondaryColor: "#7b809a",
    backgroundColor: "#f0f2f5",
    surfaceColor: "#ffffff",
-   textPrimary: "#344767",
+   textPrimary: "#212121",
    textSecondary: "#7b809a",
    errorColor: "#F44335",
    warningColor: "#fb8c00",
@@ -45,7 +45,7 @@ export const DEFAULT_THEME: QThemeMetaData = {
    fontSizeBase: "14px",
    fontWeightLight: 300,
    fontWeightRegular: 400,
-   fontWeightMedium: 500,
+   fontWeightMedium: 600,
    fontWeightBold: 700,
 
    // Typography - H1
@@ -56,65 +56,65 @@ export const DEFAULT_THEME: QThemeMetaData = {
    typographyH1TextTransform: "none",
 
    // Typography - H2
-   typographyH2FontSize: "2.125rem",
+   typographyH2FontSize: "2.25rem",
    typographyH2FontWeight: 700,
    typographyH2LineHeight: 1.3,
    typographyH2LetterSpacing: "-0.00833em",
    typographyH2TextTransform: "none",
 
    // Typography - H3
-   typographyH3FontSize: "1.5rem",
-   typographyH3FontWeight: 700,
+   typographyH3FontSize: "1.75rem",
+   typographyH3FontWeight: 600,
    typographyH3LineHeight: 1.375,
    typographyH3LetterSpacing: "0em",
    typographyH3TextTransform: "none",
 
    // Typography - H4
-   typographyH4FontSize: "1.25rem",
+   typographyH4FontSize: "1.5rem",
    typographyH4FontWeight: 700,
-   typographyH4LineHeight: 1.4,
+   typographyH4LineHeight: 1.375,
    typographyH4LetterSpacing: "0.00735em",
    typographyH4TextTransform: "none",
 
    // Typography - H5
-   typographyH5FontSize: "1rem",
-   typographyH5FontWeight: 600,
-   typographyH5LineHeight: 1.5,
+   typographyH5FontSize: "1.25rem",
+   typographyH5FontWeight: 700,
+   typographyH5LineHeight: 1.375,
    typographyH5LetterSpacing: "0em",
    typographyH5TextTransform: "none",
 
    // Typography - H6
-   typographyH6FontSize: "0.875rem",
-   typographyH6FontWeight: 600,
-   typographyH6LineHeight: 1.6,
+   typographyH6FontSize: "1.125rem",
+   typographyH6FontWeight: 500,
+   typographyH6LineHeight: 1.625,
    typographyH6LetterSpacing: "0.0075em",
    typographyH6TextTransform: "none",
 
    // Typography - Body1
-   typographyBody1FontSize: "1rem",
+   typographyBody1FontSize: "1.25rem",
    typographyBody1FontWeight: 400,
-   typographyBody1LineHeight: 1.5,
+   typographyBody1LineHeight: 1.625,
    typographyBody1LetterSpacing: "0.00938em",
    typographyBody1TextTransform: "none",
 
    // Typography - Body2
-   typographyBody2FontSize: "0.875rem",
-   typographyBody2FontWeight: 400,
-   typographyBody2LineHeight: 1.43,
+   typographyBody2FontSize: "1rem",
+   typographyBody2FontWeight: 300,
+   typographyBody2LineHeight: 1.6,
    typographyBody2LetterSpacing: "0.01071em",
    typographyBody2TextTransform: "none",
 
    // Typography - Button
    typographyButtonFontSize: "0.875rem",
-   typographyButtonFontWeight: 500,
-   typographyButtonLineHeight: 1.75,
+   typographyButtonFontWeight: 300,
+   typographyButtonLineHeight: 1.5,
    typographyButtonLetterSpacing: "0.02857em",
    typographyButtonTextTransform: "uppercase",
 
    // Typography - Caption
    typographyCaptionFontSize: "0.75rem",
-   typographyCaptionFontWeight: 400,
-   typographyCaptionLineHeight: 1.66,
+   typographyCaptionFontWeight: 300,
+   typographyCaptionLineHeight: 1.25,
    typographyCaptionLetterSpacing: "0.03333em",
    typographyCaptionTextTransform: "none",
 
@@ -140,11 +140,11 @@ export const DEFAULT_THEME: QThemeMetaData = {
 
    // App Bar
    appBarBackgroundColor: "#ffffff",
-   appBarTextColor: "#344767",
+   appBarTextColor: "#212121",
 
    // Tables
    tableHeaderBackgroundColor: "#f0f2f5",
-   tableHeaderTextColor: "#344767",
+   tableHeaderTextColor: "#212121",
    tableRowHoverColor: "rgba(0, 0, 0, 0.04)",
    tableRowSelectedColor: "rgba(0, 98, 255, 0.08)",
    tableBorderColor: "rgba(0, 0, 0, 0.12)",

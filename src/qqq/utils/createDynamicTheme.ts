@@ -143,7 +143,7 @@ function buildPalette(theme: QThemeMetaData): ThemeOptions["palette"]
    const warningColor = theme.warningColor || colors.warning.main;
    const infoColor = theme.infoColor || colors.info.main;
    const successColor = theme.successColor || colors.success.main;
-   const textPrimary = theme.textPrimary || "#344767";
+   const textPrimary = theme.textPrimary || "#212121";
    const textSecondary = theme.textSecondary || "#7b809a";
    const backgroundColor = theme.backgroundColor || colors.background.default;
 
@@ -203,7 +203,7 @@ function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
       fontFamily,
       fontWeightLight: theme.fontWeightLight || 300,
       fontWeightRegular: theme.fontWeightRegular || 400,
-      fontWeightMedium: theme.fontWeightMedium || 500,
+      fontWeightMedium: theme.fontWeightMedium || 600,
       fontWeightBold: theme.fontWeightBold || 700,
       h1: {
          fontFamily: theme.headerFontFamily || fontFamily,
@@ -215,7 +215,7 @@ function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
       },
       h2: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH2FontSize || "2.125rem",
+         fontSize: theme.typographyH2FontSize || "2.25rem",
          fontWeight: theme.typographyH2FontWeight || 700,
          lineHeight: theme.typographyH2LineHeight || 1.3,
          letterSpacing: theme.typographyH2LetterSpacing || "-0.00833em",
@@ -223,63 +223,63 @@ function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
       },
       h3: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH3FontSize || "1.5rem",
-         fontWeight: theme.typographyH3FontWeight || 700,
+         fontSize: theme.typographyH3FontSize || "1.75rem",
+         fontWeight: theme.typographyH3FontWeight || 600,
          lineHeight: theme.typographyH3LineHeight || 1.375,
          letterSpacing: theme.typographyH3LetterSpacing || "0em",
          textTransform: (theme.typographyH3TextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "none",
       },
       h4: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH4FontSize || "1.25rem",
+         fontSize: theme.typographyH4FontSize || "1.5rem",
          fontWeight: theme.typographyH4FontWeight || 700,
-         lineHeight: theme.typographyH4LineHeight || 1.4,
+         lineHeight: theme.typographyH4LineHeight || 1.375,
          letterSpacing: theme.typographyH4LetterSpacing || "0.00735em",
          textTransform: (theme.typographyH4TextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "none",
       },
       h5: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH5FontSize || "1rem",
-         fontWeight: theme.typographyH5FontWeight || 600,
-         lineHeight: theme.typographyH5LineHeight || 1.5,
+         fontSize: theme.typographyH5FontSize || "1.25rem",
+         fontWeight: theme.typographyH5FontWeight || 700,
+         lineHeight: theme.typographyH5LineHeight || 1.375,
          letterSpacing: theme.typographyH5LetterSpacing || "0em",
          textTransform: (theme.typographyH5TextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "none",
       },
       h6: {
          fontFamily: theme.headerFontFamily || fontFamily,
-         fontSize: theme.typographyH6FontSize || "0.875rem",
-         fontWeight: theme.typographyH6FontWeight || 600,
-         lineHeight: theme.typographyH6LineHeight || 1.6,
+         fontSize: theme.typographyH6FontSize || "1.125rem",
+         fontWeight: theme.typographyH6FontWeight || 500,
+         lineHeight: theme.typographyH6LineHeight || 1.625,
          letterSpacing: theme.typographyH6LetterSpacing || "0.0075em",
          textTransform: (theme.typographyH6TextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "none",
       },
       body1: {
          fontFamily,
-         fontSize: theme.typographyBody1FontSize || "1rem",
+         fontSize: theme.typographyBody1FontSize || "1.25rem",
          fontWeight: theme.typographyBody1FontWeight || 400,
-         lineHeight: theme.typographyBody1LineHeight || 1.5,
+         lineHeight: theme.typographyBody1LineHeight || 1.625,
          letterSpacing: theme.typographyBody1LetterSpacing || "0.00938em",
       },
       body2: {
          fontFamily,
-         fontSize: theme.typographyBody2FontSize || "0.875rem",
-         fontWeight: theme.typographyBody2FontWeight || 400,
-         lineHeight: theme.typographyBody2LineHeight || 1.43,
+         fontSize: theme.typographyBody2FontSize || "1rem",
+         fontWeight: theme.typographyBody2FontWeight || 300,
+         lineHeight: theme.typographyBody2LineHeight || 1.6,
          letterSpacing: theme.typographyBody2LetterSpacing || "0.01071em",
       },
       button: {
          fontFamily,
          fontSize: theme.typographyButtonFontSize || "0.875rem",
-         fontWeight: theme.typographyButtonFontWeight || 500,
-         lineHeight: theme.typographyButtonLineHeight || 1.75,
+         fontWeight: theme.typographyButtonFontWeight || 300,
+         lineHeight: theme.typographyButtonLineHeight || 1.5,
          letterSpacing: theme.typographyButtonLetterSpacing || "0.02857em",
          textTransform: (theme.typographyButtonTextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "uppercase",
       },
       caption: {
          fontFamily,
          fontSize: theme.typographyCaptionFontSize || "0.75rem",
-         fontWeight: theme.typographyCaptionFontWeight || 400,
-         lineHeight: theme.typographyCaptionLineHeight || 1.66,
+         fontWeight: theme.typographyCaptionFontWeight || 300,
+         lineHeight: theme.typographyCaptionLineHeight || 1.25,
          letterSpacing: theme.typographyCaptionLetterSpacing || "0.03333em",
       },
    };
@@ -335,7 +335,7 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
    const spacingUnit = DENSITY_SPACING[density] || 8;
 
    const primaryColor = theme.primaryColor || "#0062FF";
-   const textPrimary = theme.textPrimary || "#344767";
+   const textPrimary = theme.textPrimary || "#212121";
    const textSecondary = theme.textSecondary || "#7b809a";
    const backgroundColor = theme.backgroundColor || "#f0f2f5";
    const surfaceColor = theme.surfaceColor || "#ffffff";

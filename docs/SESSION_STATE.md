@@ -6,33 +6,33 @@
 
 ## Current Status
 
-**COMPLETE** - Round 4 fixes complete: added CSS variable fallbacks to ALL `var(--qqq-*)` instances.
+**VERIFIED COMPLETE** - All typography fallbacks match pre-theme-work production values.
 
-### Latest Changes (Round 4)
+### Verification Summary
 
-Added fallback values to 100% of CSS variables that were missing them, sourced from legacy QQQ colors.ts.
+Triple-checked all 32 typography values against `typography.ts` (the source of truth).
+- Original `Theme.ts` used `typography: {...typography}` (direct spread)
+- Our fixes align `createDynamicTheme.ts` fallbacks with that same source
+- `typography.ts` has NOT changed during theme work
 
-### Files Modified (Round 4)
+### Files Modified (Round 5)
 
 | File | Change |
 |------|--------|
-| `ProcessSummaryResults.tsx` | Added fallback for `--qqq-success-color`, `--qqq-error-color` |
-| `ProcessRun.tsx` | Added fallback for `--qqq-text-secondary`, `--qqq-text-primary` |
-| `RowBuilderWidget.tsx` | Added fallback for `--qqq-text-primary` |
-| `SideNavItem.ts` | Added fallbacks for sidebar CSS variables |
-| `SideNavCollapse.ts` | Added fallbacks for sidebar CSS variables |
-| `qqq-override-styles.css` | Added fallbacks to 17 CSS variables in .qqq-themed rules |
-| `BrandedHeaderBar.tsx` | Added fallbacks for header background/text colors |
-| `ValidationReview.tsx` | Added fallback for text-primary |
+| `createDynamicTheme.ts` | Fixed all typography fallbacks to match typography.ts |
+| `themeUtils.ts` | Fixed all DEFAULT_THEME typography values |
 
-### Fallback Value Sources
+### Key Typography Values (verified against typography.ts)
 
-All fallback values verified against `src/qqq/components/legacy/colors.ts`:
-- textPrimary: `#344767` (dark.main)
-- primaryColor: `#0062FF` (info.main)
-- secondaryColor: `#7b809a` (secondary.main)
-- sidebarBackgroundColor: `#42424a` (gradients.dark.main)
-- All other colors from legacy colors.ts or themeUtils.ts DEFAULT_THEME
+| Property | Value | Source |
+|----------|-------|--------|
+| textPrimary | #212121 | colors.ts `dark.main` |
+| fontWeightMedium | 600 | typography.ts line 156 |
+| H3 fontSize/weight | 1.75rem / 600 | typography.ts lines 202-205 |
+| H6 fontSize/weight | 1.125rem / 500 | typography.ts lines 221-224 |
+| body2 weight | 300 | typography.ts line 251 (fontWeightLight) |
+| button weight | 300 | typography.ts line 258 (fontWeightLight) |
+| caption weight | 300 | typography.ts line 266 (fontWeightLight) |
 
 ### GitHub Issue
 https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128
