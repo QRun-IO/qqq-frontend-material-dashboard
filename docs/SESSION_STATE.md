@@ -6,36 +6,47 @@
 
 ## Current Status
 
-**VERIFIED COMPLETE** - All typography fallbacks match pre-theme-work production values.
+**READY FOR REVIEW** - All typography fixes complete and verified. Waiting on Darin to test.
 
-### Verification Summary
+## What Was Done This Session
 
-Triple-checked all 32 typography values against `typography.ts` (the source of truth).
-- Original `Theme.ts` used `typography: {...typography}` (direct spread)
-- Our fixes align `createDynamicTheme.ts` fallbacks with that same source
-- `typography.ts` has NOT changed during theme work
+### Issue #128 Visual Regressions - Round 5 (Typography)
 
-### Files Modified (Round 5)
+**Root Cause:** The `createDynamicTheme.ts` fallback values didn't match `typography.ts`. The original `Theme.ts` used `typography: {...typography}` (direct spread), so production always used `typography.ts` values directly. Our new theme system had wrong hardcoded fallbacks.
+
+**Fix:** Aligned ALL 32 typography fallback values with `typography.ts` source of truth.
+
+### Key Typography Corrections
+
+| Property | Before (WRONG) | After (CORRECT) | Source |
+|----------|---------------|-----------------|--------|
+| textPrimary | #344767 | #212121 | colors.ts dark.main |
+| fontWeightMedium | 500 | 600 | typography.ts:156 |
+| H3 fontSize/weight | 1.5rem/700 | 1.75rem/600 | typography.ts:202-205 |
+| H6 fontSize/weight | 0.875rem/600 | 1.125rem/500 | typography.ts:221-224 |
+| body2 weight | 400 | 300 | typography.ts:251 |
+| button weight | 500 | 300 | typography.ts:258 |
+| caption weight | 400 | 300 | typography.ts:266 |
+
+### Files Modified
 
 | File | Change |
 |------|--------|
-| `createDynamicTheme.ts` | Fixed all typography fallbacks to match typography.ts |
-| `themeUtils.ts` | Fixed all DEFAULT_THEME typography values |
+| `src/qqq/utils/createDynamicTheme.ts` | Fixed all typography fallbacks |
+| `src/qqq/utils/themeUtils.ts` | Fixed all DEFAULT_THEME values |
+| `docs/SESSION_STATE.md` | Updated |
+| `docs/TODO.md` | Updated |
+| `CLAUDE.md` | Updated |
 
-### Key Typography Values (verified against typography.ts)
+### Commits Made
 
-| Property | Value | Source |
-|----------|-------|--------|
-| textPrimary | #212121 | colors.ts `dark.main` |
-| fontWeightMedium | 600 | typography.ts line 156 |
-| H3 fontSize/weight | 1.75rem / 600 | typography.ts lines 202-205 |
-| H6 fontSize/weight | 1.125rem / 500 | typography.ts lines 221-224 |
-| body2 weight | 300 | typography.ts line 251 (fontWeightLight) |
-| button weight | 300 | typography.ts line 258 (fontWeightLight) |
-| caption weight | 300 | typography.ts line 266 (fontWeightLight) |
+- `12934bb` - fix: align typography fallbacks with production typography.ts (#128)
 
-### GitHub Issue
-https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128
+## Next Steps
+
+1. **WAITING:** Darin to test on branch `feature/fix-visual-regressions-128`
+2. If approved, create PR to merge into develop
+3. Publish snapshot after merge
 
 ## Test Status
 
@@ -43,6 +54,16 @@ https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128
 |-------|-------|--------|
 | Playwright themed | 26 | PASS |
 | Playwright unthemed | 13 | PASS |
+
+## Key Files for Theme System
+
+| File | Purpose |
+|------|---------|
+| `src/qqq/assets/theme/base/typography.ts` | **SOURCE OF TRUTH** for typography |
+| `src/qqq/assets/theme/base/colors.ts` | Color definitions (dark.main = #212121) |
+| `src/qqq/utils/createDynamicTheme.ts` | Builds MUI theme from QThemeMetaData |
+| `src/qqq/utils/themeUtils.ts` | DEFAULT_THEME values, CSS variable injection |
+| `src/qqq/components/legacy/Theme.ts` | Original theme (spreads typography.ts) |
 
 ## Running Locally
 
@@ -58,3 +79,7 @@ HTTPS=true PORT=3000 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start
 # Run all e2e tests
 npm run e2e:all
 ```
+
+## GitHub Issue
+
+https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128

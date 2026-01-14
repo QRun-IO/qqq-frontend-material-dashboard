@@ -7,16 +7,14 @@
 ### Issue #128: Visual Regressions - READY FOR REVIEW
 
 **Branch:** `feature/fix-visual-regressions-128`
-**Status:** Fixes complete, waiting on Darin to test
+**Status:** All fixes complete, waiting on Darin to test
 
-- [x] Add `.qqq-themed` class toggle in `injectIslandVariables.ts`
-- [x] Scope all CSS override rules to `.qqq-themed`
-- [x] Add `/metaData` route to `setupProxy.js` for e2e proxy
-- [x] Fix fixture structure (theme under `supplementalInstanceMetaData.theme`)
-- [x] Verify all 26 themed tests pass
-- [x] Verify all 13 unthemed tests pass
-- [x] Commit and push to feature branch
-- [x] Post comment on issue #128 for Darin
+- [x] Round 1-3: Add `.qqq-themed` class toggle, scope CSS overrides
+- [x] Round 4: Add CSS variable fallbacks to all `var(--qqq-*)` instances
+- [x] Round 5: Align ALL typography fallbacks with `typography.ts`
+- [x] Verify all 39 e2e tests pass (26 themed + 13 unthemed)
+- [x] Triple-check all 32 typography values against source of truth
+- [x] Commit typography fixes
 - [ ] **WAITING:** Darin to test and approve
 - [ ] Create PR to merge into develop
 - [ ] Publish snapshot after merge
@@ -35,8 +33,9 @@
 
 ## Completed (Recent)
 
+- [x] **Issue #128 Round 5** - Typography fallbacks aligned with typography.ts
+- [x] **Issue #128 Round 4** - CSS variable fallbacks added
 - [x] **Issue #128 Round 3** - Scoped CSS to `.qqq-themed` class
-- [x] **Issue #128 Round 2** - Fixed surfaceColor, fontSizeBase, hover opacity
 - [x] **39 Playwright tests passing** (26 themed + 13 unthemed)
 - [x] **PR #127 merged** - Playwright e2e test integration
 - [x] **PR #125 merged** - Pluggable themes + CSS selectors system
@@ -47,8 +46,6 @@
 |-------|-------|--------|
 | Playwright themed | 26 | PASS |
 | Playwright unthemed | 13 | PASS |
-| Selenium fixture-based | 115 | PASS |
-| Java unit | 3 | PASS |
 
 ## Known Issues
 
