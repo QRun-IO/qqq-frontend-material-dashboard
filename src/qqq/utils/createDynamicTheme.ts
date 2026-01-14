@@ -324,8 +324,11 @@ function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial
  ** Strategy: Import all 55 component override files as base styling, then apply
  ** dynamic theme values on top. This preserves the detailed styling work while
  ** allowing colors, spacing, and border-radius to be customized.
+ **
+ ** @param theme - merged theme metadata with defaults
+ ** @param hasExplicitTheme - true if backend provided theme, false for unthemed apps
  *******************************************************************************/
-function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
+function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): ThemeOptions["components"]
 {
    const borderRadius = parseBorderRadius(theme.borderRadius);
    const density = theme.density || "normal";
@@ -376,7 +379,16 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
       MuiSlider: {...slider},
       MuiAvatar: {...avatar},
       MuiTooltip: {...tooltip},
-      MuiAppBar: {...appBar},
+      MuiAppBar: {
+         ...appBar,
+         styleOverrides: {
+            ...appBar.styleOverrides,
+            root: {
+               ...appBar.styleOverrides?.root,
+               backgroundColor: "transparent",
+            },
+         },
+      },
       MuiTabs: {...tabs},
       MuiTab: {...tab},
       MuiStepper: {...stepper},
@@ -411,6 +423,7 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
          styleOverrides: {
             body: {
                backgroundColor,
+               fontSize: theme.fontSizeBase || "14px",
             },
             "a.link, .link, a.link:link, .link:link, a.link:visited, .link:visited": {
                color: `${primaryColor} !important`,
@@ -555,9 +568,17 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
       },
       MuiPaper: {
          styleOverrides: {
-            root: {
-               backgroundColor: surfaceColor,
-            },
+            root: hasExplicitTheme
+               ? {
+                  /////////////////////////////////////////////////////////////////////
+                  // Only apply surfaceColor when a theme is explicitly provided.   //
+                  // Exclude AppBar - it handles its own background.                //
+                  /////////////////////////////////////////////////////////////////////
+                  "&:not(.MuiAppBar-root)": {
+                     backgroundColor: surfaceColor,
+                  },
+               }
+               : {},
             rounded: {
                borderRadius: `${borderRadius}px`,
             },
@@ -664,6 +685,7 @@ function buildComponents(theme: QThemeMetaData): ThemeOptions["components"]
 export function createDynamicTheme(themeMetaData?: QThemeMetaData): Theme
 {
    const mergedTheme = mergeWithDefaults(themeMetaData);
+   const hasExplicitTheme = themeMetaData != null;
 
    const density = mergedTheme.density || "normal";
    const spacingUnit = DENSITY_SPACING[density] || 8;
@@ -685,7 +707,7 @@ export function createDynamicTheme(themeMetaData?: QThemeMetaData): Theme
          pxToRem,
          rgba,
       },
-      components: buildComponents(mergedTheme),
+      components: buildComponents(mergedTheme, hasExplicitTheme),
    };
 
    return createTheme(themeOptions);

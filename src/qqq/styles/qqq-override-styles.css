@@ -895,16 +895,6 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
- ** Base typography theming - uses CSS variables from QThemeMetaData
- *****************************************************************************/
-body,
-html,
-.MuiTypography-root
-{
-   font-size: var(--qqq-font-size-base, 14px) !important;
-}
-
-/*****************************************************************************
  ** Sidebar theming - uses CSS variables from QThemeMetaData
  *****************************************************************************/
 .MuiDrawer-paper
@@ -997,8 +987,9 @@ a:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root)
 
 /*****************************************************************************
  ** Paper/Card theming - uses CSS variables from QThemeMetaData
+ ** Excludes AppBar (navbar), Drawer (sidebar), Menu, and Popover
  *****************************************************************************/
-.MuiPaper-root:not(.MuiDrawer-paper):not(.MuiMenu-paper):not(.MuiPopover-paper),
+.MuiPaper-root:not(.MuiAppBar-root):not(.MuiDrawer-paper):not(.MuiMenu-paper):not(.MuiPopover-paper),
 .MuiCard-root
 {
    background-color: var(--qqq-surface-color) !important;

@@ -72,11 +72,20 @@ export function injectIslandVariables(theme?: QThemeMetaData): void
 
    /////////////////////////////////////////////////////////////////////////////
    // Branded Header variables                                                //
+   // Only set non-zero height when branded header is enabled to prevent      //
+   // sidebar positioning issues (issue #128)                                 //
    /////////////////////////////////////////////////////////////////////////////
    setVar(root, "branded-header-enabled", mergedTheme.brandedHeaderEnabled ? "true" : "false");
    setVar(root, "branded-header-background-color", mergedTheme.brandedHeaderBackgroundColor);
    setVar(root, "branded-header-text-color", mergedTheme.brandedHeaderTextColor);
-   setVar(root, "branded-header-height", mergedTheme.brandedHeaderHeight);
+   if (mergedTheme.brandedHeaderEnabled)
+   {
+      setVar(root, "branded-header-height", mergedTheme.brandedHeaderHeight);
+   }
+   else
+   {
+      setVar(root, "branded-header-height", "0px");
+   }
    setVar(root, "branded-header-logo-path", mergedTheme.brandedHeaderLogoPath);
    setVar(root, "branded-header-logo-alt-text", mergedTheme.brandedHeaderLogoAltText);
    setVar(root, "branded-header-tagline", mergedTheme.brandedHeaderTagline);

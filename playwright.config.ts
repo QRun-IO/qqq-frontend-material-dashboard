@@ -22,7 +22,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'node e2e/fixture-server.js',
+      command: `THEME_FIXTURE=${process.env.THEME_FIXTURE || 'withFullCustomTheme'} node e2e/fixture-server.js`,
       url: 'http://localhost:8001/metaData',
       reuseExistingServer: true,
       timeout: 10000,

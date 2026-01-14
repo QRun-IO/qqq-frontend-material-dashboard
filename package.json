@@ -75,7 +75,11 @@
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:headed": "npx playwright test --headed",
     "fixture-server": "node e2e/fixture-server.js",
-    "e2e": "concurrently --kill-others \"npm run fixture-server\" \"npx playwright test\""
+    "fixture-server:unthemed": "THEME_FIXTURE=index node e2e/fixture-server.js",
+    "e2e": "npx playwright test",
+    "e2e:themed": "THEME_FIXTURE=withFullCustomTheme npx playwright test e2e/tests/theme.spec.ts",
+    "e2e:unthemed": "THEME_FIXTURE=index npx playwright test e2e/tests/unthemed-regression.spec.ts",
+    "e2e:all": "npm run e2e:themed && npm run e2e:unthemed"
   },
   "eslintConfig": {
     "extends": [

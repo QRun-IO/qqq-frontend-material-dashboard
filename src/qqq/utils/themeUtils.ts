@@ -135,7 +135,7 @@ export const DEFAULT_THEME: QThemeMetaData = {
    sidebarIconColor: "#ffffff",
    sidebarSelectedBackgroundColor: "#0062FF",
    sidebarSelectedTextColor: "#ffffff",
-   sidebarHoverBackgroundColor: "rgba(255, 255, 255, 0.1)",
+   sidebarHoverBackgroundColor: "rgba(255, 255, 255, 0.2)",
    sidebarDividerColor: "rgba(255, 255, 255, 0.2)",
 
    // App Bar
