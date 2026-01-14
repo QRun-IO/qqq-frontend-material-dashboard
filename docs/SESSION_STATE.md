@@ -1,59 +1,67 @@
 # Session State - QQQ Frontend Material Dashboard
 
-**Last Updated:** 2026-01-10
-**Branch:** `develop`
-**Version:** `0.36.0-SNAPSHOT`
+**Last Updated:** 2026-01-14
+**Branch:** `feature/fix-visual-regressions-128`
+**Version:** `0.40.0-SNAPSHOT`
 
 ## Current Status
 
-**CI IS FAILING** - `publish_snapshot` workflow (pipeline #1361) fails due to Playwright webserver timeout.
+**READY FOR REVIEW** - Visual regression fixes complete, waiting on Darin to test.
 
-Work in progress on branch: `fix/ci-playwright-timeout`
+### Latest Commit
+`3f49959` - fix: restore unthemed app styling to match pre-PR-125 behavior (#128)
 
-## Problem
+### GitHub Issue
+Issue #128 - Comment added notifying Darin fixes are ready for testing.
+https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128#issuecomment-3750384565
 
-The React dev server (`npm start`) times out in CI because webpack compilation takes >120s in the Playwright Docker container.
+## What Was Fixed (Issue #128)
 
-## WIP Branch: fix/ci-playwright-timeout
+| Issue | Root Cause | Fix |
+|-------|------------|-----|
+| Sidebar lost colors | Early return in `injectIslandVariables.ts` | Removed early return - CSS vars always injected |
+| Navbar/breadcrumb white | MuiPaper surfaceColor applied to all Paper | Added `hasExplicitTheme` flag + CSS `:not(.MuiAppBar-root)` |
+| fontSizeBase not applied | Missing from MuiCssBaseline body styles | Added `fontSize: theme.fontSizeBase` to body |
+| Sidebar hover opacity | Default was 0.1 | Changed to 0.2 in `themeUtils.ts` |
 
-Contains attempted fix:
-1. Combined fixture server to serve both static React build AND API fixtures
-2. Added `npm run build` step to CircleCI before Playwright tests
-3. Simplified playwright.config.ts to use single server
+## Files Modified
 
-**Status:** Tests still fail locally - React app renders blank page. Debugging needed.
+- `src/qqq/utils/injectIslandVariables.ts` - Removed early return
+- `src/qqq/utils/createDynamicTheme.ts` - Added hasExplicitTheme, fontSizeBase to body
+- `src/qqq/styles/qqq-override-styles.css` - Added `:not(.MuiAppBar-root)` selector
+- `src/qqq/utils/themeUtils.ts` - Changed hover opacity 0.1 -> 0.2
+- `e2e/tests/unthemed-regression.spec.ts` - NEW: 15 unthemed tests
+- `package.json` - Added e2e:themed, e2e:unthemed, e2e:all scripts
+- `playwright.config.ts` - THEME_FIXTURE env var support
 
-## Next Steps (Resume Here)
-
-1. Checkout the WIP branch: `git checkout fix/ci-playwright-timeout`
-2. Debug why React app renders blank:
-   - Run `node e2e/fixture-server.js` manually
-   - Open http://localhost:8001 in browser
-   - Check browser console for JavaScript errors
-3. Compare with working Selenium setup (QSeleniumJavalin.java)
-4. Add missing API endpoint stubs to fixture-server.js
-5. Once tests pass locally, push and merge to develop
-
-## Quick Reference
-
-```bash
-# Switch to WIP branch
-git checkout fix/ci-playwright-timeout
-
-# Build React app (required before Playwright tests)
-npm run build
-
-# Run fixture server manually for debugging
-node e2e/fixture-server.js
-
-# Run Playwright in debug mode
-npx playwright test --debug
-```
-
-## Test Status (on develop)
+## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright e2e | 26 | FAILING (CI timeout) |
+| Playwright themed | 26 | PASS |
+| Playwright unthemed | 15 | PASS |
 | Selenium fixture-based | 115 | PASS |
 | Java unit | 3 | PASS |
+
+## Next Steps (Resume Here)
+
+1. **Wait for Darin's response** on issue #128
+2. If requested, publish feature build for testing
+3. After approval, create PR to merge into `develop`
+4. Address any CI Playwright timeout issues (separate branch `fix/ci-playwright-timeout`)
+
+## Quick Commands
+
+```bash
+# Switch to this branch
+git checkout feature/fix-visual-regressions-128
+
+# Run themed tests
+npm run e2e:themed
+
+# Run unthemed tests
+npm run e2e:unthemed
+
+# Run all Playwright tests
+npm run e2e:all
+```

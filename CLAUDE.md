@@ -378,41 +378,39 @@ Read these files in order:
 2. `docs/TODO.md` - Active and completed tasks
 3. This file (`CLAUDE.md`) - Project context
 
-### Current Status (as of 2026-01-10)
+### Current Status (as of 2026-01-14)
 
 | Item | Value |
 |------|-------|
-| Branch | `develop` |
-| Version | `0.36.0-SNAPSHOT` |
-| Latest Commit | `bcc63ee` - docs: update session state for CI fix WIP |
-| CI Status | **FAILING** - Playwright webserver timeout |
-| WIP Branch | `fix/ci-playwright-timeout` |
+| Branch | `feature/fix-visual-regressions-128` |
+| Version | `0.40.0-SNAPSHOT` |
+| Latest Commit | `3f49959` - fix: restore unthemed app styling to match pre-PR-125 behavior (#128) |
+| Status | **READY FOR REVIEW** - Waiting on Darin to test |
+| GitHub Issue | #128 - Comment posted with testing instructions |
 
-### Active Issue
+### Active Work: Issue #128 Visual Regressions
 
-CI `publish_snapshot` workflow fails because React dev server times out (120s) in Playwright Docker container.
+**Status:** Fixes complete, waiting on Darin's approval
 
-**WIP fix on branch:** `fix/ci-playwright-timeout`
-- Combined fixture-server.js to serve static build + API fixtures
-- Tests still fail locally (blank page) - debugging needed
+**What was fixed:**
+- Sidebar colors restored (removed early return in `injectIslandVariables.ts`)
+- Navbar/breadcrumb no longer white (added `hasExplicitTheme` flag + CSS selector)
+- fontSizeBase now applies to body element
+- Sidebar hover opacity changed 0.1 -> 0.2
 
-### Recent Merges
-
-| PR | Description |
-|----|-------------|
-| #127 | Playwright e2e test integration (26 tests) |
-| #125 | Pluggable themes + CSS selectors system |
-| #123 | Virtual fields support |
-| #122 | Form adjusters |
+**Next steps:**
+1. Wait for Darin to test
+2. Publish feature build if requested
+3. Create PR to merge into develop
 
 ### Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright e2e | 26 | FAILING (CI timeout) |
+| Playwright themed | 26 | PASS |
+| Playwright unthemed | 15 | PASS (new) |
 | Selenium fixture-based | 115 | PASS |
 | Java unit | 3 | PASS |
-| Selenium full-server | 19 | Infrastructure issue - hangs locally |
 
 ### Key Documentation Files
 
@@ -420,7 +418,6 @@ CI `publish_snapshot` workflow fails because React dev server times out (120s) i
 |------|---------|
 | `docs/SESSION_STATE.md` | Current work status, branch, version, recent commits |
 | `docs/TODO.md` | Task tracking for current feature |
-| `docs/PLAN-ci-playwright-fix.md` | CI fix plan (IN PROGRESS) |
 | `docs/QQQ_THEMING_GUIDE.md` | Complete theming reference |
 | `docs/QQQ_CSS_SELECTORS_GUIDE.md` | CSS selector patterns reference |
 | `docs/THEME_TESTING_GUIDE.md` | Guide for testing theme features |
