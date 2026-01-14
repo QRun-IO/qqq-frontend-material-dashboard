@@ -384,33 +384,50 @@ Read these files in order:
 |------|-------|
 | Branch | `feature/fix-visual-regressions-128` |
 | Version | `0.40.0-SNAPSHOT` |
-| Latest Commit | `3f49959` - fix: restore unthemed app styling to match pre-PR-125 behavior (#128) |
-| Status | **READY FOR REVIEW** - Waiting on Darin to test |
-| GitHub Issue | #128 - Comment posted with testing instructions |
+| Latest Commit | `d4251be` - fix: scope CSS overrides to themed apps only (#128) |
+| Status | **READY FOR REVIEW** - Comment posted on issue #128 for Darin to test |
+| GitHub Issue | [#128](https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128) |
 
-### Active Work: Issue #128 Visual Regressions
+### Active Work: Issue #128 Visual Regressions (Round 3)
 
 **Status:** Fixes complete, waiting on Darin's approval
 
-**What was fixed:**
-- Sidebar colors restored (removed early return in `injectIslandVariables.ts`)
-- Navbar/breadcrumb no longer white (added `hasExplicitTheme` flag + CSS selector)
-- fontSizeBase now applies to body element
-- Sidebar hover opacity changed 0.1 -> 0.2
+**What was fixed (this session):**
+- Added `.qqq-themed` class toggle in `injectIslandVariables.ts`
+- Scoped all CSS override rules to `.qqq-themed` in `qqq-override-styles.css`
+- Added `/metaData` route to `setupProxy.js` (without wildcard) for e2e test proxy
+- Fixed fixture structure: theme must be under `supplementalInstanceMetaData.theme` (per `QInstance` class in qqq-frontend-core)
+
+**Key insight:** The `QInstance` class in `@qrunio/qqq-frontend-core` only looks for theme at `object.supplementalInstanceMetaData["theme"]`, NOT at root level.
 
 **Next steps:**
-1. Wait for Darin to test
-2. Publish feature build if requested
-3. Create PR to merge into develop
+1. Wait for Darin to test on branch `feature/fix-visual-regressions-128`
+2. If approved, create PR to merge into develop
+3. Publish snapshot after merge
 
 ### Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
 | Playwright themed | 26 | PASS |
-| Playwright unthemed | 15 | PASS (new) |
+| Playwright unthemed | 13 | PASS |
 | Selenium fixture-based | 115 | PASS |
 | Java unit | 3 | PASS |
+
+### Running Locally for Testing
+
+```bash
+# Unthemed (original MUI styling, no CSS variable overrides)
+THEME_FIXTURE=index npm run fixture-server &
+HTTPS=true PORT=3000 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start
+
+# Themed (full theme applied with CSS variables)
+THEME_FIXTURE=withFullCustomTheme npm run fixture-server &
+HTTPS=true PORT=3000 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start
+
+# Run all e2e tests (themed + unthemed)
+npm run e2e:all
+```
 
 ### Key Documentation Files
 

@@ -9,59 +9,57 @@
 **READY FOR REVIEW** - Visual regression fixes complete, waiting on Darin to test.
 
 ### Latest Commit
-`3f49959` - fix: restore unthemed app styling to match pre-PR-125 behavior (#128)
+`d4251be` - fix: scope CSS overrides to themed apps only (#128)
 
 ### GitHub Issue
 Issue #128 - Comment added notifying Darin fixes are ready for testing.
-https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128#issuecomment-3750384565
+https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128
 
-## What Was Fixed (Issue #128)
+## What Was Fixed (Issue #128 - Round 3)
 
 | Issue | Root Cause | Fix |
 |-------|------------|-----|
-| Sidebar lost colors | Early return in `injectIslandVariables.ts` | Removed early return - CSS vars always injected |
-| Navbar/breadcrumb white | MuiPaper surfaceColor applied to all Paper | Added `hasExplicitTheme` flag + CSS `:not(.MuiAppBar-root)` |
-| fontSizeBase not applied | Missing from MuiCssBaseline body styles | Added `fontSize: theme.fontSizeBase` to body |
-| Sidebar hover opacity | Default was 0.1 | Changed to 0.2 in `themeUtils.ts` |
+| Unthemed apps getting CSS overrides | CSS rules applied globally | Scoped all override rules to `.qqq-themed` class |
+| e2e tests not receiving theme | `setupProxy.js` missing `/metaData` route | Added `/metaData` route (without wildcard) |
+| Theme not parsed by QInstance | Theme at wrong location in fixture JSON | Moved to `supplementalInstanceMetaData.theme` |
 
-## Files Modified
+### Key Insight
+The `QInstance` class in `@qrunio/qqq-frontend-core` only looks for theme at `object.supplementalInstanceMetaData["theme"]`, NOT at root level.
 
-- `src/qqq/utils/injectIslandVariables.ts` - Removed early return
-- `src/qqq/utils/createDynamicTheme.ts` - Added hasExplicitTheme, fontSizeBase to body
-- `src/qqq/styles/qqq-override-styles.css` - Added `:not(.MuiAppBar-root)` selector
-- `src/qqq/utils/themeUtils.ts` - Changed hover opacity 0.1 -> 0.2
-- `e2e/tests/unthemed-regression.spec.ts` - NEW: 15 unthemed tests
-- `package.json` - Added e2e:themed, e2e:unthemed, e2e:all scripts
-- `playwright.config.ts` - THEME_FIXTURE env var support
+## Files Modified (This Session)
+
+- `src/setupProxy.js` - Added `/metaData` route for e2e test proxy
+- `src/test/resources/fixtures/metaData/withFullCustomTheme.json` - Fixed theme location
+- `src/qqq/utils/injectIslandVariables.ts` - Added `.qqq-themed` class toggle
+- `src/qqq/styles/qqq-override-styles.css` - Scoped rules to `.qqq-themed`
 
 ## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
 | Playwright themed | 26 | PASS |
-| Playwright unthemed | 15 | PASS |
+| Playwright unthemed | 13 | PASS |
 | Selenium fixture-based | 115 | PASS |
 | Java unit | 3 | PASS |
 
 ## Next Steps (Resume Here)
 
 1. **Wait for Darin's response** on issue #128
-2. If requested, publish feature build for testing
-3. After approval, create PR to merge into `develop`
-4. Address any CI Playwright timeout issues (separate branch `fix/ci-playwright-timeout`)
+2. If approved, create PR to merge into `develop`
+3. Publish snapshot after merge
+4. Address CI Playwright timeout issues (separate branch `fix/ci-playwright-timeout`)
 
-## Quick Commands
+## Running Locally
 
 ```bash
-# Switch to this branch
-git checkout feature/fix-visual-regressions-128
+# Unthemed (original MUI styling)
+THEME_FIXTURE=index npm run fixture-server &
+HTTPS=true PORT=3000 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start
 
-# Run themed tests
-npm run e2e:themed
+# Themed (full theme with CSS variables)
+THEME_FIXTURE=withFullCustomTheme npm run fixture-server &
+HTTPS=true PORT=3000 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start
 
-# Run unthemed tests
-npm run e2e:unthemed
-
-# Run all Playwright tests
+# Run all e2e tests
 npm run e2e:all
 ```

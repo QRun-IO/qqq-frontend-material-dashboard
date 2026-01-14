@@ -2,36 +2,41 @@
 
 **Status:** COMPLETE - Waiting on Darin to test
 **Branch:** `feature/fix-visual-regressions-128`
-**Commit:** `3f49959`
+**Latest Commit:** `d4251be`
 
 ## Goal
-Fix visual regressions in 0.36.0-RC.1 caused by PR #125 pluggable themes so that unthemed apps look identical to pre-PR-125.
+Fix visual regressions caused by PR #125 pluggable themes so that unthemed apps look identical to pre-PR-125.
 
-## Root Causes Identified
+## Solution Summary
 
-| Issue | Root Cause | Fix Applied |
-|-------|------------|-------------|
-| Sidebar losing colors | Early return in `injectIslandVariables.ts` | Removed early return |
-| Navbar/breadcrumb white | MuiPaper surfaceColor on all Paper | Added `hasExplicitTheme` flag + CSS `:not(.MuiAppBar-root)` |
-| fontSizeBase not applied | Missing from body styles | Added to MuiCssBaseline |
-| Sidebar hover too subtle | Default was 0.1 opacity | Changed to 0.2 |
+The key fix was **scoping CSS override rules to themed apps only**:
+1. Added `.qqq-themed` class toggle in `injectIslandVariables.ts`
+2. Scoped all CSS rules in `qqq-override-styles.css` to `.qqq-themed`
+3. Fixed e2e test infrastructure (`setupProxy.js` missing `/metaData` route)
+4. Fixed fixture structure (theme must be under `supplementalInstanceMetaData.theme`)
+
+### Key Insight
+`QInstance` class in `@qrunio/qqq-frontend-core` only looks for theme at `object.supplementalInstanceMetaData["theme"]`, NOT at root level.
 
 ## Files Modified
 
-- `src/qqq/utils/injectIslandVariables.ts` - Removed early return
-- `src/qqq/utils/createDynamicTheme.ts` - Added hasExplicitTheme, fontSizeBase
-- `src/qqq/styles/qqq-override-styles.css` - CSS selector exclusion
-- `src/qqq/utils/themeUtils.ts` - Hover opacity 0.1 -> 0.2
-- `e2e/tests/unthemed-regression.spec.ts` - 15 new tests
+| File | Change |
+|------|--------|
+| `src/qqq/utils/injectIslandVariables.ts` | Added `.qqq-themed` class toggle |
+| `src/qqq/styles/qqq-override-styles.css` | Scoped rules to `.qqq-themed` |
+| `src/setupProxy.js` | Added `/metaData` route |
+| `src/test/resources/fixtures/metaData/withFullCustomTheme.json` | Fixed theme location |
 
 ## Test Results
 
-- 26 themed tests: PASS
-- 15 unthemed tests: PASS
-- 115 Selenium tests: PASS
+| Suite | Tests | Status |
+|-------|-------|--------|
+| Playwright themed | 26 | PASS |
+| Playwright unthemed | 13 | PASS |
+| Selenium fixture-based | 115 | PASS |
 
 ## Next Steps
 
-1. Wait for Darin's approval
-2. Publish feature build if requested
-3. Create PR to merge into develop
+1. Wait for Darin's approval on issue #128
+2. Create PR to merge into develop
+3. Publish snapshot after merge

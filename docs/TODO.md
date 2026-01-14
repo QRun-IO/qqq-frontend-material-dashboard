@@ -9,18 +9,17 @@
 **Branch:** `feature/fix-visual-regressions-128`
 **Status:** Fixes complete, waiting on Darin to test
 
-- [x] Remove early return in `injectIslandVariables.ts`
-- [x] Add `hasExplicitTheme` flag to `createDynamicTheme.ts`
-- [x] Add `:not(.MuiAppBar-root)` to CSS surfaceColor rule
-- [x] Apply fontSizeBase to body element
-- [x] Change sidebar hover opacity 0.1 -> 0.2
-- [x] Create 15 unthemed regression tests
+- [x] Add `.qqq-themed` class toggle in `injectIslandVariables.ts`
+- [x] Scope all CSS override rules to `.qqq-themed`
+- [x] Add `/metaData` route to `setupProxy.js` for e2e proxy
+- [x] Fix fixture structure (theme under `supplementalInstanceMetaData.theme`)
 - [x] Verify all 26 themed tests pass
+- [x] Verify all 13 unthemed tests pass
 - [x] Commit and push to feature branch
-- [x] Update issue #128 with testing instructions
+- [x] Post comment on issue #128 for Darin
 - [ ] **WAITING:** Darin to test and approve
-- [ ] Publish feature build (if requested)
 - [ ] Create PR to merge into develop
+- [ ] Publish snapshot after merge
 
 ---
 
@@ -36,8 +35,9 @@
 
 ## Completed (Recent)
 
-- [x] **Issue #128 fixes** - All visual regressions resolved
-- [x] **41 Playwright tests passing** (26 themed + 15 unthemed)
+- [x] **Issue #128 Round 3** - Scoped CSS to `.qqq-themed` class
+- [x] **Issue #128 Round 2** - Fixed surfaceColor, fontSizeBase, hover opacity
+- [x] **39 Playwright tests passing** (26 themed + 13 unthemed)
 - [x] **PR #127 merged** - Playwright e2e test integration
 - [x] **PR #125 merged** - Pluggable themes + CSS selectors system
 
@@ -46,7 +46,7 @@
 | Suite | Tests | Status |
 |-------|-------|--------|
 | Playwright themed | 26 | PASS |
-| Playwright unthemed | 15 | PASS |
+| Playwright unthemed | 13 | PASS |
 | Selenium fixture-based | 115 | PASS |
 | Java unit | 3 | PASS |
 
