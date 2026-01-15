@@ -100,9 +100,9 @@ const DENSITY_SPACING: Record<string, number> = {
  *******************************************************************************/
 function parseBorderRadius(value: string | undefined): number
 {
-   if (!value) return 8;
+   if (!value) return 4;
    const parsed = parseInt(value, 10);
-   return isNaN(parsed) ? 8 : parsed;
+   return isNaN(parsed) ? 4 : parsed;
 }
 
 /*******************************************************************************
@@ -270,8 +270,8 @@ function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
       button: {
          fontFamily,
          fontSize: theme.typographyButtonFontSize || "0.875rem",
-         fontWeight: theme.typographyButtonFontWeight || 300,
-         lineHeight: theme.typographyButtonLineHeight || 1.5,
+         fontWeight: theme.typographyButtonFontWeight || 500,
+         lineHeight: theme.typographyButtonLineHeight || 1.75,
          letterSpacing: theme.typographyButtonLetterSpacing || "0.02857em",
          textTransform: (theme.typographyButtonTextTransform as "none" | "uppercase" | "lowercase" | "capitalize") || "uppercase",
       },
@@ -556,13 +556,6 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
          styleOverrides: {
             paper: {
                borderRadius: `${borderRadius}px`,
-            },
-         },
-      },
-      MuiMenuItem: {
-         styleOverrides: {
-            root: {
-               padding: `${spacingUnit}px ${spacingUnit * 2}px`,
             },
          },
       },

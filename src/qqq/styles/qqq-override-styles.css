@@ -946,12 +946,6 @@ input[type="search"]::-webkit-search-results-decoration
    color: var(--qqq-sidebar-selected-text-color, #ffffff) !important;
 }
 
-.MuiDrawer-paper a:hover,
-.MuiDrawer-paper .MuiListItem-root:hover
-{
-   background-color: var(--qqq-sidebar-hover-background-color, rgba(255, 255, 255, 0.2));
-}
-
 /*****************************************************************************
  ** Input field theming - uses CSS variables from QThemeMetaData
  ** Scoped to .qqq-themed to avoid affecting unthemed apps
@@ -1036,30 +1030,30 @@ input[type="search"]::-webkit-search-results-decoration
 
 /*****************************************************************************
  ** Button theming - uses CSS variables from QThemeMetaData
- ** Scoped to .qqq-themed to avoid affecting unthemed apps
+ ** NOT scoped to .qqq-themed to match develop behavior (applies to all apps)
  *****************************************************************************/
-.qqq-themed .MuiButton-root
+.MuiButton-root
 {
    font-weight: var(--qqq-typography-button-font-weight, 500) !important;
 }
 
-.qqq-themed .MuiButton-containedPrimary
+.MuiButton-containedPrimary
 {
    background-color: var(--qqq-primary-color, #0062FF) !important;
 }
 
-.qqq-themed .MuiButton-containedSecondary
+.MuiButton-containedSecondary
 {
    background-color: var(--qqq-secondary-color, #7b809a) !important;
 }
 
-.qqq-themed .MuiButton-outlinedPrimary
+.MuiButton-outlinedPrimary
 {
    border-color: var(--qqq-primary-color, #0062FF) !important;
    color: var(--qqq-primary-color, #0062FF) !important;
 }
 
-.qqq-themed .MuiButton-textPrimary
+.MuiButton-textPrimary
 {
    color: var(--qqq-primary-color, #0062FF) !important;
 }

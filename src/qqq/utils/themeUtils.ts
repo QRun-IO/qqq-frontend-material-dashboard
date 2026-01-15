@@ -106,8 +106,8 @@ export const DEFAULT_THEME: QThemeMetaData = {
 
    // Typography - Button
    typographyButtonFontSize: "0.875rem",
-   typographyButtonFontWeight: 300,
-   typographyButtonLineHeight: 1.5,
+   typographyButtonFontWeight: 500,
+   typographyButtonLineHeight: 1.75,
    typographyButtonLetterSpacing: "0.02857em",
    typographyButtonTextTransform: "uppercase",
 
@@ -119,7 +119,7 @@ export const DEFAULT_THEME: QThemeMetaData = {
    typographyCaptionTextTransform: "none",
 
    // Sizing
-   borderRadius: "8px",
+   borderRadius: "4px",
    density: "normal",
 
    // Branded Header Bar (disabled by default)
