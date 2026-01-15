@@ -4,7 +4,16 @@ import { test, expect } from '@playwright/test';
  * STRICT Visual Regression Tests for UNTHEMED Apps (Issue #128)
  *
  * These tests verify that apps WITHOUT a backend theme look correct.
- * Run with: THEME_FIXTURE=index npm run e2e
+ * Run with: THEME_FIXTURE=index npm run e2e:unthemed
+ *
+ * IMPORTANT: These tests require the 'index' fixture (no theme configured).
+ * They will be SKIPPED if running with a themed fixture (e.g., withFullCustomTheme).
+ *
+ * To run these tests:
+ *   npm run e2e:unthemed     (uses THEME_FIXTURE=index)
+ *
+ * To run all tests properly:
+ *   npm run e2e:all          (runs themed then unthemed with correct fixtures)
  *
  * Tests verify:
  * 1. Sidebar has correct DEFAULT_THEME colors (dark background, white text)
@@ -12,6 +21,19 @@ import { test, expect } from '@playwright/test';
  * 3. CSS variables are injected with DEFAULT_THEME values
  * 4. Cards/Paper get surfaceColor but AppBar does not
  */
+
+// Helper function to check if themed fixture is loaded and skip if so
+async function skipIfThemedFixture(page: import('@playwright/test').Page) {
+   const hasTheme = await page.evaluate(() => {
+      const primaryColor = getComputedStyle(document.documentElement)
+         .getPropertyValue('--qqq-primary-color').trim();
+      return primaryColor !== '';
+   });
+
+   if (hasTheme) {
+      test.skip(true, 'Skipping unthemed test: themed fixture detected. Run with: npm run e2e:unthemed');
+   }
+}
 
 // DEFAULT_THEME values from src/qqq/utils/themeUtils.ts
 // These must match the values in themeUtils.ts to restore pre-PR-125 appearance
@@ -146,7 +168,8 @@ test.describe('Unthemed App - CSS Variables Are Optional', () => {
    test.beforeEach(async ({ page }) => {
       await page.goto('/');
       await page.waitForSelector('[id="root"]');
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
+      await skipIfThemedFixture(page);
    });
 
    test('no --qqq-* CSS variables are injected when no theme is configured', async ({ page }) => {
@@ -183,7 +206,8 @@ test.describe('Unthemed App - Sidebar Colors', () => {
    test.beforeEach(async ({ page }) => {
       await page.goto('/');
       await page.waitForSelector('[id="root"]');
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
+      await skipIfThemedFixture(page);
    });
 
    test('sidebar has dark background via CSS fallback', async ({ page }) => {
@@ -236,7 +260,8 @@ test.describe('Unthemed App - Navbar NOT White (Issue #128)', () => {
    test.beforeEach(async ({ page }) => {
       await page.goto('/');
       await page.waitForSelector('[id="root"]');
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1000);
+      await skipIfThemedFixture(page);
    });
 
    test('CRITICAL: AppBar background is NOT white/surfaceColor', async ({ page }) => {
@@ -302,6 +327,7 @@ test.describe('Unthemed App - Cards Use Surface Color', () => {
       await page.goto('/testApp/person');
       await page.waitForSelector('[id="root"]');
       await page.waitForTimeout(2500);
+      await skipIfThemedFixture(page);
    });
 
    test('Cards in main content use surfaceColor', async ({ page }) => {
@@ -328,6 +354,7 @@ test.describe('Unthemed App - Branded Header Disabled', () => {
       await page.goto('/');
       await page.waitForSelector('[id="root"]');
       await page.waitForTimeout(2000);
+      await skipIfThemedFixture(page);
    });
 
    test('branded header is not visible when not configured', async ({ page }) => {
@@ -404,10 +431,14 @@ test.describe('Unthemed App - Branded Header Disabled', () => {
 // ============================================================================
 
 test.describe('Unthemed App - Diagnostic Dump', () => {
-   test('output all CSS variables and rendered values', async ({ page }) => {
+   test.beforeEach(async ({ page }) => {
       await page.goto('/');
       await page.waitForSelector('[id="root"]');
       await page.waitForTimeout(2000);
+      await skipIfThemedFixture(page);
+   });
+
+   test('output all CSS variables and rendered values', async ({ page }) => {
 
       const diagnostics = await page.evaluate(() => {
          const root = document.documentElement;

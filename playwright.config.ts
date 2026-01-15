@@ -16,7 +16,13 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
+      name: 'themed',
+      testMatch: /.*(?<!unthemed-regression)\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'unthemed',
+      testMatch: /unthemed-regression\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'] },
     },
   ],

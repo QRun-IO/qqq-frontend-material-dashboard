@@ -47,9 +47,13 @@ const server = http.createServer((req, res) => {
    const url = new URL(req.url, `http://localhost:${PORT}`);
    const pathname = url.pathname;
 
+   // Support per-request fixture selection via ?fixture=name query parameter
+   // This allows unthemed tests to request the 'index' fixture explicitly
+   const requestedFixture = url.searchParams.get('fixture') || FIXTURE_NAME;
+
    // /metaData endpoint - return main metadata with theme
    if (pathname === '/metaData' || pathname === '/metaData/' || pathname === '/api/metaData') {
-      const data = loadFixture(`metaData/${FIXTURE_NAME}.json`);
+      const data = loadFixture(`metaData/${requestedFixture}.json`);
       if (data) {
          serveJson(res, data);
          return;
