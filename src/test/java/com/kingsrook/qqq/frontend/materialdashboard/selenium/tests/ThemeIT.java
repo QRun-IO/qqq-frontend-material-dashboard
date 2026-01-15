@@ -303,7 +303,8 @@ public class ThemeIT extends QBaseSeleniumTest
 
 
    /*******************************************************************************
-    ** Test that default theme values are used when no theme is provided.
+    ** Test that CSS variables are NOT injected when no theme is provided.
+    ** CSS fallbacks in the stylesheet handle default styling.
     *******************************************************************************/
    @Test
    void testDefaultThemeWhenNotProvided()
@@ -318,10 +319,11 @@ public class ThemeIT extends QBaseSeleniumTest
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Greetings App");
 
       //////////////////////////////////////////////////////////////////////
-      // Default primary color should be QQQ blue                          //
+      // CSS variables should NOT be injected for unthemed apps            //
+      // CSS fallback values handle default styling                        //
       //////////////////////////////////////////////////////////////////////
       String primaryColor = getCssVariable("--qqq-primary-color");
-      assertThat(primaryColor).isEqualToIgnoringCase("#0062FF");
+      assertThat(primaryColor).isEmpty();
    }
 
 
@@ -871,7 +873,8 @@ public class ThemeIT extends QBaseSeleniumTest
 
 
    /*******************************************************************************
-    ** Test that empty theme object uses all defaults.
+    ** Test that CSS variables are NOT injected when no theme is configured.
+    ** CSS fallbacks in the stylesheet handle default styling.
     *******************************************************************************/
    @Test
    void testEmptyThemeUsesDefaults()
@@ -883,11 +886,12 @@ public class ThemeIT extends QBaseSeleniumTest
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Greetings App");
 
       //////////////////////////////////////////////////////////////////////////
-      // Verify default values are applied                                      //
+      // CSS variables should NOT be injected for unthemed apps                //
+      // CSS fallback values handle default styling                            //
       //////////////////////////////////////////////////////////////////////////
-      assertThat(getCssVariable("--qqq-primary-color")).isEqualToIgnoringCase("#0062FF");
-      assertThat(getCssVariable("--qqq-density")).isEqualTo("normal");
-      assertThat(getCssVariable("--qqq-icon-style")).isEqualTo("filled");
-      assertThat(getCssVariable("--qqq-border-radius")).isEqualTo("8px");
+      assertThat(getCssVariable("--qqq-primary-color")).isEmpty();
+      assertThat(getCssVariable("--qqq-density")).isEmpty();
+      assertThat(getCssVariable("--qqq-icon-style")).isEmpty();
+      assertThat(getCssVariable("--qqq-border-radius")).isEmpty();
    }
 }
