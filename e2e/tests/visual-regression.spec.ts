@@ -10,6 +10,12 @@
  */
 import { test, expect } from '@playwright/test';
 
+// Tight tolerance for pixel-level regression detection
+// Snapshots must be generated on Linux (via Docker) to match CI environment
+const SCREENSHOT_OPTIONS = {
+   maxDiffPixelRatio: 0.01, // 1% tolerance - pixel-level accuracy
+};
+
 test.describe('Visual Regression - Unthemed Baseline', () => {
 
    test.beforeEach(async ({ page }) => {
@@ -27,7 +33,7 @@ test.describe('Visual Regression - Unthemed Baseline', () => {
       // Capture full page screenshot
       await expect(page).toHaveScreenshot('home-page-full.png', {
          fullPage: true,
-         maxDiffPixelRatio: 0.01,
+         ...SCREENSHOT_OPTIONS,
       });
    });
 
@@ -40,9 +46,7 @@ test.describe('Visual Regression - Unthemed Baseline', () => {
 
       if (await sidebarPaper.count() > 0 && await sidebarPaper.isVisible()) {
          // Capture sidebar screenshot
-         await expect(sidebarPaper).toHaveScreenshot('sidebar-navigation.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(sidebarPaper).toHaveScreenshot('sidebar-navigation.png', SCREENSHOT_OPTIONS);
       } else {
          // If sidebar is collapsed/hidden, skip this test
          test.skip();
@@ -55,30 +59,30 @@ test.describe('Visual Regression - Unthemed Baseline', () => {
       await expect(appBar).toBeVisible({ timeout: 10000 });
 
       // Capture app bar screenshot
-      await expect(appBar).toHaveScreenshot('top-navigation-bar.png', {
-         maxDiffPixelRatio: 0.01,
-      });
+      await expect(appBar).toHaveScreenshot('top-navigation-bar.png', SCREENSHOT_OPTIONS);
    });
 
    test('button styles - contained primary', async ({ page }) => {
+      // Wait for app to load
+      await page.waitForSelector('.MuiAppBar-root', { timeout: 10000 });
+
       // Find a contained primary button
       const button = page.locator('.MuiButton-containedPrimary').first();
 
       if (await button.count() > 0) {
-         await expect(button).toHaveScreenshot('button-contained-primary.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(button).toHaveScreenshot('button-contained-primary.png', SCREENSHOT_OPTIONS);
       }
    });
 
    test('button styles - text primary', async ({ page }) => {
+      // Wait for app to load
+      await page.waitForSelector('.MuiAppBar-root', { timeout: 10000 });
+
       // Find a text primary button
       const button = page.locator('.MuiButton-textPrimary').first();
 
       if (await button.count() > 0) {
-         await expect(button).toHaveScreenshot('button-text-primary.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(button).toHaveScreenshot('button-text-primary.png', SCREENSHOT_OPTIONS);
       }
    });
 
@@ -92,60 +96,60 @@ test.describe('Visual Regression - Unthemed Baseline', () => {
 
       // Capture h6 (commonly used in dashboard)
       if (await h6.count() > 0 && await h6.isVisible()) {
-         await expect(h6).toHaveScreenshot('typography-h6.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(h6).toHaveScreenshot('typography-h6.png', SCREENSHOT_OPTIONS);
       }
 
       // Capture body text
       if (await body.count() > 0 && await body.isVisible()) {
-         await expect(body).toHaveScreenshot('typography-body1.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(body).toHaveScreenshot('typography-body1.png', SCREENSHOT_OPTIONS);
       }
    });
 
    test('card component styles', async ({ page }) => {
+      // Wait for app to load
+      await page.waitForSelector('.MuiAppBar-root', { timeout: 10000 });
+
       // Find a card component
       const card = page.locator('.MuiCard-root').first();
 
       if (await card.count() > 0) {
-         await expect(card).toHaveScreenshot('card-component.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(card).toHaveScreenshot('card-component.png', SCREENSHOT_OPTIONS);
       }
    });
 
    test('paper component styles', async ({ page }) => {
+      // Wait for app to load
+      await page.waitForSelector('.MuiAppBar-root', { timeout: 10000 });
+
       // Find a paper component (excluding cards)
       const paper = page.locator('.MuiPaper-root:not(.MuiCard-root)').first();
 
       if (await paper.count() > 0) {
-         await expect(paper).toHaveScreenshot('paper-component.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(paper).toHaveScreenshot('paper-component.png', SCREENSHOT_OPTIONS);
       }
    });
 
    test('input field styles', async ({ page }) => {
+      // Wait for app to load
+      await page.waitForSelector('.MuiAppBar-root', { timeout: 10000 });
+
       // Find an input field
       const input = page.locator('.MuiTextField-root, .MuiOutlinedInput-root').first();
 
       if (await input.count() > 0) {
-         await expect(input).toHaveScreenshot('input-field.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(input).toHaveScreenshot('input-field.png', SCREENSHOT_OPTIONS);
       }
    });
 
    test('chip/badge styles', async ({ page }) => {
+      // Wait for app to load
+      await page.waitForSelector('.MuiAppBar-root', { timeout: 10000 });
+
       // Find a chip component
       const chip = page.locator('.MuiChip-root').first();
 
       if (await chip.count() > 0) {
-         await expect(chip).toHaveScreenshot('chip-component.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(chip).toHaveScreenshot('chip-component.png', SCREENSHOT_OPTIONS);
       }
    });
 });
@@ -164,9 +168,7 @@ test.describe('Visual Regression - Table Views', () => {
          // Capture data grid header
          const header = dataGrid.locator('.MuiDataGrid-columnHeaders');
          if (await header.count() > 0) {
-            await expect(header).toHaveScreenshot('datagrid-header.png', {
-               maxDiffPixelRatio: 0.01,
-            });
+            await expect(header).toHaveScreenshot('datagrid-header.png', SCREENSHOT_OPTIONS);
          }
       }
    });
@@ -179,9 +181,7 @@ test.describe('Visual Regression - Table Views', () => {
       const pagination = page.locator('.MuiTablePagination-root');
 
       if (await pagination.count() > 0) {
-         await expect(pagination).toHaveScreenshot('table-pagination.png', {
-            maxDiffPixelRatio: 0.01,
-         });
+         await expect(pagination).toHaveScreenshot('table-pagination.png', SCREENSHOT_OPTIONS);
       }
    });
 });

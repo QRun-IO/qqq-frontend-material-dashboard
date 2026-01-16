@@ -9,6 +9,7 @@ export default defineConfig({
   reporter: [['html', { open: 'never' }], ['list']],
   timeout: 60000,
   // Snapshot configuration for visual regression
+  // Snapshots generated via Docker (Linux) to match CI environment
   snapshotDir: './e2e/snapshots',
   snapshotPathTemplate: '{snapshotDir}/{testFilePath}/{arg}{ext}',
   expect: {
