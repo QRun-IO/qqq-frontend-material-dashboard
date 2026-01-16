@@ -1,60 +1,61 @@
 # Session State - QQQ Frontend Material Dashboard
 
-**Last Updated:** 2026-01-14
+**Last Updated:** 2026-01-16
 **Branch:** `release/0.36.0`
-**Version:** `0.36.0-RC.2`
+**Version:** `0.36.0-RC.4`
 
 ## Current Status
 
-**RC.2 PUBLISHED** - Theme hotfix released to Maven Central.
+**RC.4 PUBLISHED** - Theming feature reverted, visual regression tests added.
 
-PR #129 fixed CSS variable fallback regressions from pluggable themes (PR #125). Darin found the issues during downstream integration testing.
+Issue #128 required reverting the pluggable themes feature due to visual regressions that couldn't be fixed incrementally. The revert removes all theming code and restores original MUI styling.
 
 ## What Was Done This Session
 
-1. Killed hung Claude agent process (PID 78233)
-2. Verified RC.2 JAR on Maven Central contains theme fixes
-3. Published daily build log entry: https://github.com/orgs/QRun-IO/discussions/366
+1. Cherry-picked 5 commits from `feature/revert-theming-128` to `release/0.36.0`
+2. Resolved merge conflicts (stepper, sidenav, MDButton, CSS files)
+3. Published RC.4 via CI (pipeline #1392)
+4. Added visual regression tests (18 Playwright screenshot tests)
+5. Created Docker-based snapshot generation script
+6. Published blog post to daily developers blog
 
-## Verification Performed
+## Cherry-Picked Commits
 
-Downloaded `qqq-frontend-material-dashboard-0.36.0-RC.2.jar` from Maven Central and verified:
-- Build timestamp: `01-13-2026 22:20` (matches CI pipeline #1373)
-- `#9fc9ff` stepper color present (was `rgba(255,255,255,0.5)`)
-- `sidebarSelectedBackgroundColor:"rgba(255, 255, 255, 0.2)"` present (was `#0062FF`)
+| Commit | Description |
+|--------|-------------|
+| `c65dd77` | revert: remove pluggable themes feature (#128) |
+| `668f172` | test: add visual regression tests for unthemed baseline (#128) |
+| `5bfd0c6` | test: add Docker-based snapshot generation for CI compatibility (#128) |
+| `1ba88ba` | fix: regenerate snapshots with servers running inside Docker (#128) |
+| `6e78104` | docs: add visual regression testing blog post |
+
+## Visual Regression Testing
+
+18 Playwright screenshot tests covering home page, sidebar, nav bar, buttons, typography, cards. Snapshots generated via Docker to match CI environment (Linux fonts).
+
+```bash
+# Regenerate snapshots after visual changes
+./scripts/update-snapshots.sh
+```
 
 ## Next Steps
 
-1. Integration testing of RC.2 with downstream apps
-2. QA validation of theme appearance
+1. Integration testing of RC.4 with downstream apps
+2. QA validation of reverted appearance
 3. Final 0.36.0 release when ready
-4. Address CI Playwright timeout issue (WIP on `fix/ci-playwright-timeout` branch)
+4. Re-implement theming with different approach (future work)
 
 ## Branches
 
 | Branch | Purpose | Status |
 |--------|---------|--------|
-| `release/0.36.0` | Current release candidate | RC.2 published |
+| `release/0.36.0` | Current release candidate | RC.4 published |
 | `develop` | Main development | At 0.40.0-SNAPSHOT |
-| `fix/ci-playwright-timeout` | CI fix WIP | Paused - blank page issue |
-
-## Quick Reference
-
-```bash
-# Current branch
-git checkout release/0.36.0
-
-# Check published artifact
-mvn dependency:get -DgroupId=com.kingsrook.qqq -DartifactId=qqq-frontend-material-dashboard -Dversion=0.36.0-RC.2
-
-# Verify JAR contents
-unzip -l ~/.m2/repository/com/kingsrook/qqq/qqq-frontend-material-dashboard/0.36.0-RC.2/*.jar | grep material-dashboard
-```
+| `feature/revert-theming-128` | Theming revert work | Complete, cherry-picked |
 
 ## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright e2e | 56 | PASS (26 custom + 30 default theme tests) |
-| Selenium fixture-based | 115 | PASS |
-| Java unit | 3 | PASS |
+| Playwright visual regression | 18 | PASS |
+| Selenium fixture-based | ~100 | PASS |
