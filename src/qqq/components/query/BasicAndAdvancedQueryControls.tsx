@@ -657,8 +657,8 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
                      size="small"
                      sx={{pl: 0.5, width: "10rem"}}
                   >
-                     <ToggleButton value="basic" data-qqq-id="button-query-mode-basic" disabled={!canFilterWorkAsBasic}>Basic</ToggleButton>
-                     <ToggleButton value="advanced" data-qqq-id="button-query-mode-advanced">Advanced</ToggleButton>
+                     <ToggleButton value="basic" disabled={!canFilterWorkAsBasic}>Basic</ToggleButton>
+                     <ToggleButton value="advanced">Advanced</ToggleButton>
                   </ToggleButtonGroup>
                </Tooltip>
             </Box>
@@ -747,7 +747,6 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
                            <>
                               <Button
                                  className="filterBuilderButton"
-                                 data-qqq-id="button-filter-builder"
                                  onClick={(e) => openFilterBuilder(e)}
                                  {...filterBuilderMouseEvents}
                                  startIcon={<Icon>build</Icon>}

@@ -36,6 +36,7 @@ import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {ErrorMessage, useFormikContext} from "formik";
 import QContext from "QContext";
+import colors from "qqq/assets/theme/base/colors";
 import {DynamicFormFieldLabel} from "qqq/components/forms/DynamicForm";
 import QDynamicFormField from "qqq/components/forms/DynamicFormField";
 import DynamicFormUtils, {DynamicFormFieldDefinition} from "qqq/components/forms/DynamicFormUtils";
@@ -857,7 +858,7 @@ export default function CronUIWidget({widgetMetaData, widgetData, screen, record
                      </Grid>
                   }
                   <Box fontSize="1rem" sx={{transition: "margin-top 0.25s ease", mt: (advancedCaretPosition ? "1.75rem" : "0rem"), mb: "-1rem", display: "inline-block", overflow: "hidden"}}>
-                     {cronDescription ? <Box>{cronDescription}</Box> : <Box color="var(--qqq-error-color, #F44335)">{cronDescriptionError}</Box>}
+                     {cronDescription ? <Box>{cronDescription}</Box> : <Box color={colors.error.main}>{cronDescriptionError}</Box>}
                      {loadingDescription ? <LinearProgress color="info" /> : <Box height="0.375rem"></Box>}
                   </Box>
                </>

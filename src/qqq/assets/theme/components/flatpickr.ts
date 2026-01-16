@@ -19,7 +19,7 @@ import colors from "qqq/assets/theme/base/colors";
 // Material Dashboard 2 PRO React TS Helper Functions
 import rgba from "qqq/assets/theme/functions/rgba";
 
-const { info, white } = colors;
+const { info, white, gradients } = colors;
 
 // types
 type Types = any;
@@ -43,7 +43,7 @@ const flatpickr: Types = {
 
   ".flatpickr-day.selected, .flatpickr-day.selected:hover, .flatpickr-day.nextMonthDay.selected, .flatpickr-day.nextMonthDay.selected:hover, .flatpickr-day.nextMonthDay.selected:focus":
     {
-      background: "var(--qqq-info-color, #0062FF) !important",
+      background: `${gradients.info.state} !important`,
       color: white.main,
       border: "none",
     },

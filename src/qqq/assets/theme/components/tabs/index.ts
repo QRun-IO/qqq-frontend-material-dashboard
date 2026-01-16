@@ -66,7 +66,7 @@ const tabs: Types = {
          borderRadius: 0,
          backgroundColor: white.main,
          borderBottom: "2px solid",
-         borderBottomColor: "var(--qqq-info-color, #0062FF)",
+         borderBottomColor: colors.info.main,
          transition: "all 500ms ease",
       },
    },

@@ -780,7 +780,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
 
             {
                showHelp &&
-               <Box fontSize={"0.875rem"} color="var(--qqq-text-secondary)" pb={2}>
+               <Box fontSize={"0.875rem"} color={colors.blueGray.main} pb={2}>
                   {formattedHelpContent}
                </Box>
             }
@@ -962,8 +962,8 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                         {
                            component.type === QComponentType.DOWNLOAD_FORM && (
                               <Grid container display="flex" justifyContent="center">
-                                 <Grid item xs={12} sm={12} xl={8} m={3} p={3} mt={6} sx={{border: "1px solid var(--qqq-border-color, gray)", borderRadius: "1rem"}}>
-                                    <Box mx={2} mt={-6} p={1} sx={{width: "fit-content", borderColor: "var(--qqq-border-color, rgb(70%, 70%, 70%))", borderWidth: "2px", borderStyle: "solid", borderRadius: ".25em", backgroundColor: "var(--qqq-surface-color, #FFFFFF)"}} width="initial" color="var(--qqq-text-primary)">
+                                 <Grid item xs={12} sm={12} xl={8} m={3} p={3} mt={6} sx={{border: "1px solid gray", borderRadius: "1rem"}}>
+                                    <Box mx={2} mt={-6} p={1} sx={{width: "fit-content", borderColor: "rgb(70%, 70%, 70%)", borderWidth: "2px", borderStyle: "solid", borderRadius: ".25em", backgroundColor: "#FFFFFF"}} width="initial" color="white">
                                        Download
                                     </Box>
                                     <Box display="flex" py={1} pr={2}>
@@ -2154,7 +2154,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
       mainCardStyles.minHeight = `calc(100vh - ${isModal ? 150 : 400}px)`;
       if (!processError && (qJobRunning || activeStep === null) && !isModal && !isWidget)
       {
-         mainCardStyles.background = "var(--qqq-surface-color, #FFFFFF)";
+         mainCardStyles.background = "#FFFFFF";
          mainCardStyles.boxShadow = "none";
       }
 

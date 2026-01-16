@@ -33,7 +33,6 @@ import MDTypography from "qqq/components/legacy/MDTypography";
 import {FieldPossibleValueProps} from "qqq/models/fields/FieldPossibleValueProps";
 import Client from "qqq/utils/qqq/Client";
 import React, {useEffect, useState} from "react";
-import {generateSelectId} from "qqq/utils/qqqIdUtils";
 
 interface Props
 {
@@ -429,13 +428,11 @@ function DynamicSelect({fieldPossibleValueProps, overrideId, name, fieldLabel, i
       autocompleteSX = getAutocompleteOutlinedStyle(isDisabled);
    }
 
-   const dataQqqId = generateSelectId(undefined, name ?? fieldName, fieldLabel);
    const autocomplete = (
       <Box>
          <Autocomplete
             id={overrideId ?? fieldName ?? possibleValueSourceName ?? "anonymous"}
             name={name}
-            data-qqq-id={dataQqqId}
             sx={autocompleteSX}
             open={open}
             fullWidth

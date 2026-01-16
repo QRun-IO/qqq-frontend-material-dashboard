@@ -31,6 +31,7 @@ import Tooltip from "@mui/material/Tooltip/Tooltip";
 import Typography from "@mui/material/Typography";
 import parse from "html-react-parser";
 import QContext from "QContext";
+import colors from "qqq/assets/theme/base/colors";
 import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
 import WidgetDropdownMenu, {DropdownOption} from "qqq/components/widgets/components/WidgetDropdownMenu";
 import {WidgetUtils} from "qqq/components/widgets/WidgetUtils";
@@ -425,7 +426,7 @@ export class ReloadControl extends LabelComponent
       return (<Typography key={1} variant="body2" py={0} px={0} display="inline" position="relative" top="-0.25rem">
          <Tooltip title="Refresh">
             <Button sx={{px: 1, py: 0, minWidth: "initial"}} onClick={() => this.callback()}>
-               <Icon sx={{color: "var(--qqq-grey-600, #757575)", fontSize: 1.125}}>refresh</Icon>
+               <Icon sx={{color: colors.gray.main, fontSize: 1.125}}>refresh</Icon>
             </Button>
          </Tooltip>
       </Typography>);
@@ -750,7 +751,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                                  width: "64px",
                                  height: "64px",
                                  borderRadius: "8px",
-                                 background: "var(--qqq-info-color, #0062FF)",
+                                 background: colors.info.main,
                                  color: "#ffffff",
                                  float: "left"
                               }}
@@ -768,7 +769,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                                  width: "64px",
                                  height: "64px",
                                  borderRadius: "8px",
-                                 background: "var(--qqq-info-color, #0062FF)",
+                                 background: colors.info.main,
                                  color: "#ffffff",
                                  float: "left"
                               }}

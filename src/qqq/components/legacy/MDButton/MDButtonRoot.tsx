@@ -167,7 +167,7 @@ export default styled(Button)(({theme, ownerState}: { theme?: Theme | any; owner
    // styles for the button with variant="gradient"
    const gradientStyles = () =>
    {
-      // background value - use original gradients for default appearance
+      // background value
       const backgroundValue =
          color === "white" || !gradients[color]
             ? white.main

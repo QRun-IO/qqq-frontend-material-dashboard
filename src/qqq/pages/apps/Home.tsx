@@ -32,13 +32,13 @@ import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import QContext from "QContext";
+import colors from "qqq/assets/theme/base/colors";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import ProcessLinkCard from "qqq/components/processes/ProcessLinkCard";
 import DashboardWidgets from "qqq/components/widgets/DashboardWidgets";
 import MiniStatisticsCard from "qqq/components/widgets/statistics/MiniStatisticsCard";
 import BaseLayout from "qqq/layouts/BaseLayout";
 import Client from "qqq/utils/qqq/Client";
-import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import React, {useContext, useEffect, useState} from "react";
 import {Link, useLocation} from "react-router-dom";
 
@@ -233,21 +233,21 @@ function AppHome({app}: Props): JSX.Element
          <BaseLayout>
             {
                showAppLabelOnHomeScreen &&
-               <Typography textTransform="capitalize" variant="h3" data-qqq-id={`app-header-${sanitizeId(app.name)}`}>
+               <Typography textTransform="capitalize" variant="h3">
                   {app.label}
                </Typography>
             }
             <Grid container spacing={3}>
                <Grid item xs={12} lg={12}>
-                  <Card sx={{overflow: "visible"}} data-qqq-id="app-section-child-apps">
+                  <Card sx={{overflow: "visible"}}>
                      <Box p={3} display="flex" alignItems="center" gap=".5rem">
-                        <Typography variant="h5" data-qqq-id="section-header-apps">Apps</Typography>
+                        <Typography variant="h5">Apps</Typography>
                      </Box>
                      <Grid container spacing={3} padding={3} pt={0}>
                         {childApps.map((childApp) => (
                            <Grid key={childApp.name} item xs={12} lg={3}>
                               <Link to={childApp.name}>
-                                 <Card data-qqq-id={`app-card-${sanitizeId(childApp.name)}`}>
+                                 <Card>
                                     <Box display="flex" alignItems="center" p={2}>
                                        <Box
                                           color={"#FFFFFF"}
@@ -256,8 +256,7 @@ function AppHome({app}: Props): JSX.Element
                                           alignItems="center"
                                           width="4rem"
                                           height="4rem"
-                                          sx={{borderRadius: "10px", backgroundColor: "var(--qqq-info-color, #0062FF)"}}
-                                          data-qqq-id={`app-card-${sanitizeId(childApp.name)}-icon`}
+                                          sx={{borderRadius: "10px", backgroundColor: colors.info.main}}
                                        >
                                           <Icon fontSize="medium" color="inherit">
                                              {childApp.iconName || app.iconName}
@@ -285,13 +284,13 @@ function AppHome({app}: Props): JSX.Element
       <BaseLayout>
          {
             showAppLabelOnHomeScreen &&
-            <Typography textTransform="capitalize" variant="h3" data-qqq-id={`app-header-${sanitizeId(app.name)}`}>
+            <Typography textTransform="capitalize" variant="h3">
                {app.label}
             </Typography>
          }
-         <Box data-qqq-id={`app-home-${sanitizeId(app.name)}`}>
+         <Box>
             {app.widgets && app.widgets.length > 0 && (
-               <Box pb={app.sections ? 2.375 : 4} pt={"0.5rem"} data-qqq-id="app-widgets-container">
+               <Box pb={app.sections ? 2.375 : 4} pt={"0.5rem"}>
                   <DashboardWidgets widgetMetaDataList={widgets} />
                </Box>
             )}
@@ -301,22 +300,22 @@ function AppHome({app}: Props): JSX.Element
                      <Grid item xs={12} lg={12}>
                         {app.sections.map((section) => (
                            <Box key={section.name} mb={3}>
-                              <Card sx={{overflow: "visible"}} data-qqq-id={`app-section-${sanitizeId(section.name)}`}>
+                              <Card sx={{overflow: "visible"}}>
                                  <Box p={3} display="flex" alignItems="center" gap=".5rem">
                                     {
                                        section.icon &&
                                        (
-                                          section.icon.path && <img src={section.icon.path} alt={section.label} data-qqq-id={`section-icon-${sanitizeId(section.name)}`} />
+                                          section.icon.path && <img src={section.icon.path} alt={section.label} />
                                        )
                                     }
-                                    <Typography variant="h5" data-qqq-id={`section-header-${sanitizeId(section.name)}`}>
+                                    <Typography variant="h5">
                                        {section.label}
                                     </Typography>
                                  </Box>
                                  {
                                     section.processes ? (
                                        <Box p={3} pl={3} pt={0} pb={1}>
-                                          <MDTypography variant="h6" data-qqq-id={`section-subheader-${sanitizeId(section.name)}-actions`}>Actions</MDTypography>
+                                          <MDTypography variant="h6">Actions</MDTypography>
                                        </Box>
                                     ) : null
                                  }
@@ -357,7 +356,7 @@ function AppHome({app}: Props): JSX.Element
                                  {
                                     section.reports ? (
                                        <Box p={3} pl={3} pt={0} pb={1}>
-                                          <MDTypography variant="h6" data-qqq-id={`section-subheader-${sanitizeId(section.name)}-reports`}>Reports</MDTypography>
+                                          <MDTypography variant="h6">Reports</MDTypography>
                                        </Box>
                                     ) : null
                                  }
@@ -400,7 +399,7 @@ function AppHome({app}: Props): JSX.Element
                                  {
                                     section.tables ? (
                                        <Box p={3} pl={3} pb={1} pt={0}>
-                                          <MDTypography variant="h6" data-qqq-id={`section-subheader-${sanitizeId(section.name)}-data`}>Data</MDTypography>
+                                          <MDTypography variant="h6">Data</MDTypography>
                                        </Box>
                                     ) : null
                                  }

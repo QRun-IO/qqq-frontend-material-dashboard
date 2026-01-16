@@ -43,7 +43,7 @@ const menu: Types = {
       fontSize: size.sm,
       color: text.main,
       textAlign: "left",
-      backgroundColor: "var(--qqq-surface-color, #FFFFFF) !important",
+      backgroundColor: `${white.main} !important`,
       borderRadius: borderRadius.md,
     },
   },

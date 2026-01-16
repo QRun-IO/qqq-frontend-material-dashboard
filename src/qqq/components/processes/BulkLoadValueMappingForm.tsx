@@ -25,6 +25,7 @@ import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTabl
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
+import colors from "qqq/assets/theme/base/colors";
 import QDynamicFormField from "qqq/components/forms/DynamicFormField";
 import SavedBulkLoadProfiles from "qqq/components/misc/SavedBulkLoadProfiles";
 import {BulkLoadMapping, BulkLoadProfile, BulkLoadTableStructure, FileDescription, Wrapper} from "qqq/models/processes/BulkLoadModels";
@@ -216,7 +217,7 @@ const BulkLoadValueMappingForm = forwardRef(({processValues, setActiveStepLabel,
                      />
                      {
                         valueErrors[fileValue] &&
-                        <Box fontSize={"0.875rem"} mt={"-0.75rem"} color="var(--qqq-error-color, #F44335)">
+                        <Box fontSize={"0.875rem"} mt={"-0.75rem"} color={colors.error.main}>
                            {valueErrors[fileValue]}
                         </Box>
                      }

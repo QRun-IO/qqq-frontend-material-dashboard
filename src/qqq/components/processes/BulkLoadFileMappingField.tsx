@@ -29,6 +29,7 @@ import Icon from "@mui/material/Icon";
 import RadioGroup from "@mui/material/RadioGroup";
 import TextField from "@mui/material/TextField";
 import {useFormikContext} from "formik";
+import colors from "qqq/assets/theme/base/colors";
 import QDynamicFormField from "qqq/components/forms/DynamicFormField";
 import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
 import {BulkLoadField, FileDescription} from "qqq/models/processes/BulkLoadModels";
@@ -47,7 +48,7 @@ interface BulkLoadMappingFieldProps
 
 const xIconButtonSX =
    {
-      border: "1px solid var(--qqq-border-color, #D6D6D6) !important",
+      border: `1px solid ${colors.grayLines.main} !important`,
       borderRadius: "0.5rem",
       textTransform: "none",
       fontSize: "1rem",
@@ -60,10 +61,10 @@ const xIconButtonSX =
       paddingRight: 0,
       marginRight: "0.5rem",
       marginTop: "0.5rem",
-      color: "var(--qqq-error-color, #F44335)",
-      "&:hover": {color: "var(--qqq-error-color, #F44335)"},
-      "&:focus": {color: "var(--qqq-error-color, #F44335)"},
-      "&:focus:not(:hover)": {color: "var(--qqq-error-color, #F44335)"},
+      color: colors.error.main,
+      "&:hover": {color: colors.error.main},
+      "&:focus": {color: colors.error.main},
+      "&:focus:not(:hover)": {color: colors.error.main},
    };
 
 const qController = Client.getInstance();
@@ -309,13 +310,13 @@ export default function BulkLoadFileMappingField({bulkLoadField, isRequired, rem
             </Box>
             {
                bulkLoadField.warning &&
-               <Box fontSize={smallerFontSize} color="var(--qqq-warning-color, #fb8c00)" ml="145px" className="bulkLoadFieldError">
+               <Box fontSize={smallerFontSize} color={colors.warning.main} ml="145px" className="bulkLoadFieldError">
                   {bulkLoadField.warning}
                </Box>
             }
             {
                bulkLoadField.error &&
-               <Box fontSize={smallerFontSize} color="var(--qqq-error-color, #F44335)" ml="145px" className="bulkLoadFieldError">
+               <Box fontSize={smallerFontSize} color={colors.error.main} ml="145px" className="bulkLoadFieldError">
                   {bulkLoadField.error}
                </Box>
             }

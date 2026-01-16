@@ -24,6 +24,7 @@ import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import {ReactNode, useMemo} from "react";
 import {Bar} from "react-chartjs-2";
+import colors from "qqq/components/legacy/colors";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import {GenericChartData} from "qqq/components/widgets/charts/datastructures/GenericChartData";
 
@@ -132,7 +133,7 @@ function HorizontalBarChart({icon, title, description, height, data, isCurrency}
             borderRadius: 4,
             backgroundColor: dataset?.color
                ? dataset.color
-               : "var(--qqq-info-color, #0062FF)",
+               : colors.info.main,
             fill: false,
             maxBarThickness: 15,
          }))

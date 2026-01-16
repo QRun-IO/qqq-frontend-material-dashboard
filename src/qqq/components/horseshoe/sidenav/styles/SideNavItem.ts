@@ -23,11 +23,12 @@ import {Theme} from "@mui/material/styles";
 
 function item(theme: Theme | any, ownerState: any)
 {
-   const {palette, borders, transitions} = theme;
-   const {active, color} = ownerState;
+   const {palette, borders, functions, transitions} = theme;
+   const {active, color, transparentSidenav, whiteSidenav, darkMode} = ownerState;
 
-   const {transparent} = palette;
+   const {transparent, white, grey} = palette;
    const {borderRadius} = borders;
+   const {rgba} = functions;
 
    return {
       pl: 3,
@@ -38,16 +39,29 @@ function item(theme: Theme | any, ownerState: any)
       cursor: "pointer",
       backgroundColor: () =>
       {
-         if (active === "isParent")
+         let backgroundValue = transparent.main;
+
+         if (
+            (active === "isParent" && !transparentSidenav && !whiteSidenav) ||
+            (active === "isParent" && transparentSidenav && darkMode)
+         )
          {
-            return "var(--qqq-sidebar-selected-background-color)";
+            backgroundValue = rgba(white.main, 0.2);
+         }
+         else if (active === "isParent" && transparentSidenav)
+         {
+            backgroundValue = grey[300];
+         }
+         else if (active === "isParent" && whiteSidenav)
+         {
+            backgroundValue = grey[200];
          }
          else if (active)
          {
-            return palette[color].main;
+            backgroundValue = palette[color].main;
          }
 
-         return transparent.main;
+         return backgroundValue;
       },
       transition: transitions.create("background-color", {
          easing: transitions.easing.easeInOut,
@@ -55,16 +69,19 @@ function item(theme: Theme | any, ownerState: any)
       }),
 
       "&:hover, &:focus": {
-         backgroundColor: !active ? "var(--qqq-sidebar-hover-background-color)" : undefined,
+         backgroundColor:
+            !active &&
+            rgba((transparentSidenav && !darkMode) || whiteSidenav ? grey[400] : white.main, 0.2),
       },
    };
 }
 
 function itemContent(theme: Theme, ownerState: any)
 {
-   const {typography, transitions, functions} = theme;
-   const {miniSidenav, active} = ownerState;
+   const {palette, typography, transitions, functions} = theme;
+   const {miniSidenav, name, active, transparentSidenav, whiteSidenav, darkMode} = ownerState;
 
+   const {white, dark} = palette;
    const {size, fontWeightRegular, fontWeightLight} = typography;
    const {pxToRem} = functions;
 
@@ -79,7 +96,10 @@ function itemContent(theme: Theme, ownerState: any)
       position: "relative",
 
       "& span": {
-         color: active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-text-color)",
+         color:
+            ((transparentSidenav && !darkMode) || whiteSidenav) && (active === "isParent" || !active)
+               ? dark.main
+               : white.main,
          fontWeight: active ? fontWeightRegular : fontWeightLight,
          fontSize: size.sm,
          opacity: miniSidenav ? 0 : 1,
@@ -90,7 +110,10 @@ function itemContent(theme: Theme, ownerState: any)
       },
 
       "&::before": {
-         color: active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-text-color)",
+         color:
+            ((transparentSidenav && !darkMode) || whiteSidenav) && (active === "isParent" || !active)
+               ? dark.main
+               : white.main,
          fontWeight: fontWeightRegular,
          display: "flex",
          alignItems: "center",
@@ -107,19 +130,38 @@ function itemContent(theme: Theme, ownerState: any)
 
 function itemArrow(theme: Theme, ownerState: any)
 {
-   const {typography, transitions, breakpoints, functions} = theme;
-   const {noCollapse, transparentSidenav, miniSidenav, open, active} = ownerState;
+   const {palette, typography, transitions, breakpoints, functions} = theme;
+   const {noCollapse, transparentSidenav, whiteSidenav, miniSidenav, open, active, darkMode} =
+      ownerState;
 
+   const {white, dark} = palette;
    const {size} = typography;
-   const {pxToRem} = functions;
+   const {pxToRem, rgba} = functions;
 
    return {
       fontSize: `${size.lg} !important`,
       fontWeight: 700,
       marginBottom: pxToRem(-1),
       transform: open ? "rotate(0)" : "rotate(-180deg)",
-      color: open || active ? "var(--qqq-sidebar-selected-text-color)" : "var(--qqq-sidebar-icon-color)",
-      opacity: open || active ? 1 : 0.5,
+      color: () =>
+      {
+         let colorValue;
+
+         if (transparentSidenav && darkMode)
+         {
+            colorValue = open || active ? white.main : rgba(white.main, 0.25);
+         }
+         else if (transparentSidenav || whiteSidenav)
+         {
+            colorValue = open || active ? dark.main : rgba(dark.main, 0.25);
+         }
+         else
+         {
+            colorValue = open || active ? white.main : rgba(white.main, 0.5);
+         }
+
+         return colorValue;
+      },
       transition: transitions.create(["color", "transform", "opacity"], {
          easing: transitions.easing.easeInOut,
          duration: transitions.duration.shorter,

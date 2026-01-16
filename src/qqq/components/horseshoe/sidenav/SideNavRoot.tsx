@@ -96,9 +96,8 @@ export default styled(Drawer)(({theme, ownerState}: { theme?: Theme | any; owner
          border: "none",
          margin: "0",
          borderRadius: "0",
-         // Account for branded header height when present
-         top: "var(--qqq-branded-header-height, 0px)",
-         height: "calc(100vh - var(--qqq-branded-header-height, 0px))",
+         height: "100%",
+         top: "unset",
 
          ...(miniSidenav ? drawerCloseStyles() : drawerOpenStyles()),
       },

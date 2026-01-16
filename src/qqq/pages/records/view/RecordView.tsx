@@ -51,7 +51,6 @@ import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {QueryJoin} from "@qrunio/qqq-frontend-core/lib/model/query/QueryJoin";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
-import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import AuditBody from "qqq/components/audits/AuditBody";
 import {QActionsMenuButton, QCancelButton, QDeleteButton, QEditButton, standardWidth} from "qqq/components/buttons/DefaultButtons";
 import EntityForm from "qqq/components/forms/EntityForm";
@@ -666,8 +665,8 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                   sectionFieldElements.set(section.name,
                      <Grid id={section.name} key={section.name} item lg={section.gridColumns ?? 12} xs={12} sx={{display: "flex", alignItems: "stretch", scrollMarginTop: "100px"}}>
                         <Box width="100%">
-                           <Card id={section.name} sx={{overflow: "visible", scrollMarginTop: "100px", height: "100%"}} data-qqq-id={`record-section-${sanitizeId(section.name)}`}>
-                              <Typography variant="h6" p={3} pb={1} data-qqq-id={`section-header-${sanitizeId(section.name)}`}>
+                           <Card id={section.name} sx={{overflow: "visible", scrollMarginTop: "100px", height: "100%"}}>
+                              <Typography variant="h6" p={3} pb={1}>
                                  {section.label}
                               </Typography>
                               {getSectionHelp(section)}
@@ -798,38 +797,35 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          open={Boolean(actionsMenu)}
          onClose={closeActionsMenu}
          keepMounted
-         data-qqq-id="record-view-actions-menu"
       >
          {
             table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission &&
-            <MenuItem onClick={() => gotoCreate()} data-qqq-id="menu-item-new">
+            <MenuItem onClick={() => gotoCreate()}>
                <ListItemIcon><Icon>add</Icon></ListItemIcon>
                New
             </MenuItem>
          }
          {
             table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission &&
-            <MenuItem onClick={() => navigate("copy")} data-qqq-id="menu-item-copy">
+            <MenuItem onClick={() => navigate("copy")}>
                <ListItemIcon><Icon>copy</Icon></ListItemIcon>
                Copy
             </MenuItem>
          }
          {
             table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission &&
-            <MenuItem onClick={() => navigate("edit")} data-qqq-id="menu-item-edit">
+            <MenuItem onClick={() => navigate("edit")}>
                <ListItemIcon><Icon>edit</Icon></ListItemIcon>
                Edit
             </MenuItem>
          }
          {
             table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission &&
-            <MenuItem
-               onClick={() =>
-               {
-                  setActionsMenu(null);
-                  handleClickDeleteButton();
-               }}
-               data-qqq-id="menu-item-delete"
+            <MenuItem onClick={() =>
+            {
+               setActionsMenu(null);
+               handleClickDeleteButton();
+            }}
             >
                <ListItemIcon><Icon>delete</Icon></ListItemIcon>
                Delete
@@ -837,7 +833,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          }
          {tableProcesses?.length > 0 && hasEditOrDelete && <Divider />}
          {tableProcesses?.map((process) => (
-            <MenuItem key={process.name} onClick={() => processClicked(process)} data-qqq-id={`menu-item-${sanitizeId(process.name)}`}>
+            <MenuItem key={process.name} onClick={() => processClicked(process)}>
                <ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>
                {process.label}
             </MenuItem>
@@ -847,13 +843,13 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
             getGenericProcesses(metaData).map((process) =>
                (
                   process &&
-                  <MenuItem key={process.name} onClick={() => processClicked(process)} data-qqq-id={`menu-item-${sanitizeId(process.name)}`}>
+                  <MenuItem key={process.name} onClick={() => processClicked(process)}>
                      <ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>
                      {process.label}
                   </MenuItem>
                ))
          }
-         <MenuItem onClick={() => navigate("dev")} data-qqq-id="menu-item-developer-mode">
+         <MenuItem onClick={() => navigate("dev")}>
             <ListItemIcon><Icon>code</Icon></ListItemIcon>
             Developer Mode
          </MenuItem>
@@ -863,7 +859,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
             {
                setActionsMenu(null);
                navigate("#audit");
-            }} data-qqq-id="menu-item-audit">
+            }}>
                <ListItemIcon><Icon>checklist</Icon></ListItemIcon>
                Audit
             </MenuItem>
@@ -1022,11 +1018,9 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       }
    };
 
-   const tableNameForId = tableMetaData ? sanitizeId(tableMetaData.name) : "";
-
    return (
       <BaseLayout>
-         <Box className="recordView" data-qqq-id={`record-view-${tableNameForId}`}>
+         <Box className="recordView">
             <Grid container>
                <Grid item xs={12}>
                   <Box mb={3}>
@@ -1075,9 +1069,9 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
 
                                     <Grid container spacing={3}>
                                        <Grid item xs={12} mb={3}>
-                                          <Card id={t1SectionName} sx={{scrollMarginTop: "100px", minHeight: "88px"}} data-qqq-id={`record-view-header-${tableNameForId}`}>
+                                          <Card id={t1SectionName} sx={{scrollMarginTop: "100px", minHeight: "88px"}}>
                                              <Box display="flex" p={3} pb={1}>
-                                                <Box mr={1.5} data-qqq-id={`record-view-avatar-${tableNameForId}`}>
+                                                <Box mr={1.5}>
                                                    <Avatar sx={{bgcolor: accentColor}}>
                                                       <Icon>
                                                          {tableMetaData?.iconName}
@@ -1085,7 +1079,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                                    </Avatar>
                                                 </Box>
                                                 <Box display="flex" justifyContent="space-between" width="100%" alignItems="flex-start" flexWrap={{xs: "wrap", md: "nowrap"}}>
-                                                   <Typography variant="h5" mb="0.5rem" data-qqq-id={`record-view-title-${tableNameForId}`}>
+                                                   <Typography variant="h5" mb="0.5rem">
                                                       {tableMetaData && record ? `Viewing ${tableMetaData?.label}: ${record?.recordLabel || ""}` : ""}
                                                    </Typography>
                                                    <Box display="flex" ml="auto">
@@ -1112,7 +1106,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                     </Grid>
                                     {
                                        tableMetaData && record && ((table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission) || (table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission)) &&
-                                       <Box component="div" p={3} className={"stickyBottomButtonBar"} data-qqq-id={`record-view-button-bar-${tableNameForId}`}>
+                                       <Box component="div" p={3} className={"stickyBottomButtonBar"}>
                                           <Grid container justifyContent="flex-end" spacing={3}>
                                              {
                                                 table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission && <QDeleteButton onClickHandler={handleClickDeleteButton} />
@@ -1133,17 +1127,16 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                  onClose={handleDeleteConfirmClose}
                                  aria-labelledby="alert-dialog-title"
                                  aria-describedby="alert-dialog-description"
-                                 data-qqq-id="delete-confirmation-dialog"
                               >
-                                 <DialogTitle id="alert-dialog-title" data-qqq-id="delete-confirmation-title">Confirm Deletion</DialogTitle>
+                                 <DialogTitle id="alert-dialog-title">Confirm Deletion</DialogTitle>
                                  <DialogContent>
-                                    <DialogContentText id="alert-dialog-description" data-qqq-id="delete-confirmation-text">
+                                    <DialogContentText id="alert-dialog-description">
                                        Are you sure you want to delete this record?
                                     </DialogContentText>
                                  </DialogContent>
-                                 <DialogActions data-qqq-id="delete-confirmation-actions">
-                                    <Button onClick={handleDeleteConfirmClose} data-qqq-id="button-delete-no">No</Button>
-                                    <Button onClick={handleDelete} autoFocus disabled={isDeleteSubmitting} data-qqq-id="button-delete-yes">
+                                 <DialogActions>
+                                    <Button onClick={handleDeleteConfirmClose}>No</Button>
+                                    <Button onClick={handleDelete} autoFocus disabled={isDeleteSubmitting}>
                                        Yes
                                     </Button>
                                  </DialogActions>

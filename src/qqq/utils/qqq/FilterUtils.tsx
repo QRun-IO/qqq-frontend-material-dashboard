@@ -605,9 +605,9 @@ class FilterUtils
       {
          return (
             <Box display="inline" whiteSpace="nowrap" color="#FFFFFF" mb={"0.5rem"}>
-               <Box display="inline" p="0.125rem" pl="0.5rem" sx={{background: "var(--qqq-info-color, #0062FF)"}} borderRadius="0.5rem 0 0 0.5rem">{fieldLabel} </Box>
-               <Box display="inline" p="0.125rem" sx={{background: "var(--qqq-grey-600, #757575)"}} borderRadius={valuesString ? "0" : "0 0.5rem 0.5rem 0"}> {FilterUtils.operatorToHumanString(criteria, field)} </Box>
-               {valuesString && <Box display="inline" p="0.125rem" pr="0.5rem" sx={{background: "var(--qqq-success-color, #4CAF50)"}} borderRadius="0 0.5rem 0.5rem 0"> {valuesString}</Box>}
+               <Box display="inline" p="0.125rem" pl="0.5rem" sx={{background: "#0062FF"}} borderRadius="0.5rem 0 0 0.5rem">{fieldLabel} </Box>
+               <Box display="inline" p="0.125rem" sx={{background: "#757575"}} borderRadius={valuesString ? "0" : "0 0.5rem 0.5rem 0"}> {FilterUtils.operatorToHumanString(criteria, field)} </Box>
+               {valuesString && <Box display="inline" p="0.125rem" pr="0.5rem" sx={{background: "#009971"}} borderRadius="0 0.5rem 0.5rem 0"> {valuesString}</Box>}
                &nbsp;
             </Box>
          );

@@ -32,7 +32,6 @@ import ListItem, {ListItemProps} from "@mui/material/ListItem/ListItem";
 import Menu from "@mui/material/Menu";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
-import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import React, {useMemo, useState} from "react";
 
 interface FieldListMenuProps
@@ -585,7 +584,7 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
 
    return (
       <>
-         <Button onClick={openMenu} data-qqq-id={`button-${sanitizeId(idPrefix)}`} {...buttonProps}>
+         <Button onClick={openMenu} {...buttonProps}>
             {buttonChildren}
          </Button>
          <Menu
