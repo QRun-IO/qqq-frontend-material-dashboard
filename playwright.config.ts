@@ -8,11 +8,23 @@ export default defineConfig({
   workers: 1,
   reporter: [['html', { open: 'never' }], ['list']],
   timeout: 60000,
+  // Snapshot configuration for visual regression
+  snapshotDir: './e2e/snapshots',
+  snapshotPathTemplate: '{snapshotDir}/{testFilePath}/{arg}{ext}',
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+      maxDiffPixelRatio: 0.01,
+      animations: 'disabled',
+    },
+  },
   use: {
     baseURL: 'https://localhost:3001',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     ignoreHTTPSErrors: true,
+    // Consistent viewport for visual regression
+    viewport: { width: 1280, height: 720 },
   },
   projects: [
     {
