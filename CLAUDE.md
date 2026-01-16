@@ -237,17 +237,17 @@ Read these files in order:
 
 | Item | Value |
 |------|-------|
-| Branch | `release/0.36.0` |
-| Version | `0.36.0-RC.4` |
-| Latest Commit | `857404f` - Bump version to 0.36.0-RC.4 |
-| CI Status | PASS - Pipeline #1392 |
+| Branch | `develop` |
+| Version | `0.40.0-SNAPSHOT` |
+| Release Branch | `release/0.36.0` at `0.36.0-RC.4` |
+| Theme Code | Removed from both branches |
 
 ### Recent Activity
 
+- **develop reset** - Force pushed from RC4 base for clean history
 - **RC.4 Published** - Theming feature reverted, visual regression tests added
 - **Issue #128** - Pluggable themes caused visual regressions, reverted entirely
 - **18 visual regression tests** - Playwright screenshot tests with Docker-based generation
-- **Blog post** - https://github.com/orgs/QRun-IO/discussions/370
 
 ### Test Status
 
