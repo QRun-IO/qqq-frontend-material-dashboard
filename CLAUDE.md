@@ -240,6 +240,7 @@ Read these files in order:
 
 | Item | Value |
 |------|-------|
+<<<<<<< HEAD
 | Branch | `feature/371-Anonymous-auth-module` |
 | Version | `0.40.0-SNAPSHOT` |
 | PR | #131 (awaiting approval from @darinkelkhoff) |
@@ -253,6 +254,19 @@ Read these files in order:
 - **GitHub Security** - Added `Secure` flag to cookie clearing per code scan
 - **qqq-orb v0.6.1** - Fixed version commit skip for feature branches
 - **Dual-platform snapshots** - linux/ for CI, darwin/ for local dev
+=======
+| Branch | `develop` |
+| Version | `0.40.0-SNAPSHOT` |
+| Release Branch | `release/0.36.0` at `0.36.0-RC.4` |
+| Theme Code | Removed from both branches |
+
+### Recent Activity
+
+- **develop reset** - Force pushed from RC4 base for clean history
+- **RC.4 Published** - Theming feature reverted, visual regression tests added
+- **Issue #128** - Pluggable themes caused visual regressions, reverted entirely
+- **18 visual regression tests** - Playwright screenshot tests with Docker-based generation
+>>>>>>> b8f8af0 (docs: update session state after develop reset)
 
 ### Test Status
 
