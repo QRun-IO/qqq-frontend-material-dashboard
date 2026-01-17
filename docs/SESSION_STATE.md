@@ -1,48 +1,55 @@
 # Session State - QQQ Frontend Material Dashboard
 
-**Last Updated:** 2026-01-16
-**Branch:** `develop`
+**Last Updated:** 2026-01-17
+**Branch:** `feature/371-Anonymous-auth-module`
 **Version:** `0.40.0-SNAPSHOT`
 
 ## Current Status
 
-**DEVELOP RESET** - develop branch reset to RC4 base, theme code removed, version bumped to 0.40.0-SNAPSHOT.
-
-Both `release/0.36.0` (RC.4) and `develop` now have the theming revert and visual regression tests. Clean linear history achieved via force push.
+**PR #131 AWAITING APPROVAL** - Anonymous auth module feature complete, waiting for review from @darinkelkhoff.
 
 ## What Was Done This Session
 
-1. Cherry-picked 5 commits from `feature/revert-theming-128` to `release/0.36.0`
-2. Resolved merge conflicts (stepper, sidenav, MDButton, CSS files)
-3. Published RC.4 via CI (pipeline #1392)
-4. Reset `develop` to RC4 base via force push (cleaner than merge)
-5. Bumped develop version to `0.40.0-SNAPSHOT`
+1. Implemented dual-platform visual regression snapshots (linux/darwin)
+2. Updated `playwright.config.ts` to use `{platform}` in snapshot paths
+3. Created `scripts/update-snapshots-mac.sh` for local macOS snapshot generation
+4. Renamed `scripts/update-snapshots.sh` to `scripts/update-snapshots-linux.sh`
+5. Removed obsolete `e2e/tests/theme-defaults.spec.ts`
+6. Fixed CircleCI config to run visual regression tests
+7. Added `manageSession` call to anonymous auth module to fetch user info
+8. Created PR #131 (closes #371)
 
 ## Branch State
 
-| Branch | Version | Theme Code | Status |
-|--------|---------|------------|--------|
-| `release/0.36.0` | `0.36.0-RC.4` | Removed | RC published |
-| `develop` | `0.40.0-SNAPSHOT` | Removed | Reset from RC4 |
+| Branch | Version | Status |
+|--------|---------|--------|
+| `feature/371-Anonymous-auth-module` | `0.40.0-SNAPSHOT` | PR #131 awaiting review |
+| `develop` | `0.40.0-SNAPSHOT` | Base branch |
 
-## Visual Regression Testing
+## PR Status
 
-18 Playwright screenshot tests covering home page, sidebar, nav bar, buttons, typography, cards. Snapshots generated via Docker to match CI environment (Linux fonts).
+- **PR:** https://github.com/QRun-IO/qqq-frontend-material-dashboard/pull/131
+- **Closes:** #371 (Anonymous auth module should call manageSession to populate user info)
+- **CI:** Pipeline #1397 passed (11 minutes)
+- **Review:** Requested from @darinkelkhoff
 
-```bash
-# Regenerate snapshots after visual changes
-./scripts/update-snapshots.sh
+## Commits on Branch
+
+```
+787b965 fix(ci): update Playwright tests to run visual regression tests
+1bc0723 feat(auth): fetch user info after anonymous authentication
+76d8d4d feat(e2e): add dual-platform visual regression snapshots
 ```
 
 ## Next Steps
 
-1. Integration testing of RC.4 with downstream apps
-2. QA validation of reverted appearance
-3. Final 0.36.0 release when ready
+1. Wait for approval from @darinkelkhoff
+2. Merge PR #131 to develop
+3. Issue #371 auto-closes on merge
 
 ## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright visual regression | 18 | PASS |
+| Playwright visual regression | 18 | PASS (both platforms) |
 | Selenium fixture-based | ~100 | PASS |

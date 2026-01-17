@@ -1,33 +1,38 @@
 # TODO - QQQ Frontend Material Dashboard
 
-**Last Updated:** 2026-01-16
+**Last Updated:** 2026-01-17
 
 ## Active Tasks
 
-### Final 0.36.0 Release
+### Issue #371 - Anonymous Auth Module
+- [x] Add `manageSession` call after anonymous authentication
+- [x] Set logged-in user from session values
+- [x] Create PR #131
+- [ ] **WAITING:** Review approval from @darinkelkhoff
+- [ ] Merge to develop
 
-- [x] Issue #128 - Revert pluggable themes feature
-- [x] Visual regression tests added (18 Playwright screenshot tests)
-- [x] Docker-based snapshot generation script
-- [x] RC.4 published to Maven Central
-- [x] Reset develop to RC4 base
-- [ ] Integration testing with downstream apps
-- [ ] QA validation of reverted appearance
-- [ ] Final release
+### Dual-Platform Visual Regression
+- [x] Update `playwright.config.ts` with `{platform}` in snapshot path
+- [x] Rename `update-snapshots.sh` to `update-snapshots-linux.sh`
+- [x] Create `update-snapshots-mac.sh` for local macOS snapshots
+- [x] Generate Linux snapshots in `e2e/snapshots/.../linux/`
+- [x] Generate macOS snapshots in `e2e/snapshots/.../darwin/`
+- [x] Remove obsolete `theme-defaults.spec.ts`
+- [x] Update CircleCI config
+- [x] Verify CI passes (Pipeline #1397)
 
 ## Completed (This Session)
 
-- [x] **Cherry-pick theming revert to release/0.36.0**
-- [x] **Resolve merge conflicts** (stepper, sidenav, MDButton, CSS)
-- [x] **Publish RC.4** (pipeline #1392)
-- [x] **Reset develop branch** (force push from RC4 base)
-- [x] **Bump develop to 0.40.0-SNAPSHOT**
+- [x] Implemented dual-platform visual regression snapshots
+- [x] Added anonymous auth user info fetch
+- [x] Fixed CircleCI Playwright test configuration
+- [x] Created and pushed PR #131
 
 ## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright visual regression | 18 | PASS |
+| Playwright visual regression | 18 | PASS (both platforms) |
 | Selenium fixture-based | ~100 | PASS |
 
 ## Future Work

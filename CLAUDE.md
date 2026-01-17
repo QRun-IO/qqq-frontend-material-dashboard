@@ -175,24 +175,27 @@ QQQ backend supports a `material-dashboard-overlay/` directory for serving custo
 
 ### Visual Regression Tests (Playwright)
 
-18 Playwright screenshot tests verify UI appearance doesn't regress.
+18 Playwright screenshot tests verify UI appearance doesn't regress. Uses **dual-platform snapshots** for CI (Linux) and local development (macOS).
 
 ```bash
-# Run visual regression tests
+# Run visual regression tests (uses platform-appropriate snapshots automatically)
 npm run e2e
 
-# Regenerate snapshots after visual changes (uses Docker for CI compatibility)
-./scripts/update-snapshots.sh
+# Regenerate Linux snapshots (for CI) - requires Docker
+./scripts/update-snapshots-linux.sh
+
+# Regenerate macOS snapshots (for local dev)
+./scripts/update-snapshots-mac.sh
 ```
 
 Key files:
-- `playwright.config.ts` - Configuration with dual web servers
+- `playwright.config.ts` - Configuration with `{platform}` in snapshot paths
 - `e2e/fixture-server.js` - Node.js server for fixture JSON (port 8001)
 - `e2e/tests/visual-regression.spec.ts` - 18 screenshot tests
-- `e2e/snapshots/` - Baseline PNG files
-- `scripts/update-snapshots.sh` - Docker-based snapshot regeneration
+- `e2e/snapshots/.../linux/` - Linux snapshots (for CI)
+- `e2e/snapshots/.../darwin/` - macOS snapshots (for local dev)
 
-**Important:** Snapshots must be generated via Docker to match CI environment (Linux fonts). Running `npx playwright test --update-snapshots` locally on macOS will cause CI failures due to font rendering differences.
+**Dual-Platform Workflow:** Playwright automatically selects the correct snapshots based on platform. Update both when making visual changes.
 
 ### Selenium Integration Tests
 
@@ -233,34 +236,33 @@ Read these files in order:
 2. `docs/TODO.md` - Active and completed tasks
 3. This file (`CLAUDE.md`) - Project context
 
-### Current Status (as of 2026-01-16)
+### Current Status (as of 2026-01-17)
 
 | Item | Value |
 |------|-------|
-| Branch | `develop` |
+| Branch | `feature/371-Anonymous-auth-module` |
 | Version | `0.40.0-SNAPSHOT` |
-| Release Branch | `release/0.36.0` at `0.36.0-RC.4` |
-| Theme Code | Removed from both branches |
+| PR | #131 (awaiting approval from @darinkelkhoff) |
+| Issue | #371 (closes on merge) |
 
 ### Recent Activity
 
-- **develop reset** - Force pushed from RC4 base for clean history
-- **RC.4 Published** - Theming feature reverted, visual regression tests added
-- **Issue #128** - Pluggable themes caused visual regressions, reverted entirely
-- **18 visual regression tests** - Playwright screenshot tests with Docker-based generation
+- **PR #131** - Anonymous auth module calls manageSession to populate user info
+- **Dual-platform snapshots** - linux/ for CI, darwin/ for local dev
+- **Removed theme tests** - Obsolete theme-defaults.spec.ts deleted
+- **CI fixed** - Updated CircleCI to run visual regression tests
 
 ### Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright visual regression | 18 | PASS |
+| Playwright visual regression | 18 | PASS (both platforms) |
 | Selenium fixture-based | ~100 | PASS |
 
 ### Pending Work
 
-- Integration testing of RC.4 with downstream apps
-- QA validation of reverted appearance
-- Final 0.36.0 release
+- Wait for PR #131 approval from @darinkelkhoff
+- Merge PR #131 to develop (auto-closes #371)
 
 ### Key Documentation Files
 
