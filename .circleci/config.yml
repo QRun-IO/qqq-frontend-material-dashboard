@@ -26,11 +26,8 @@ jobs:
           paths:
             - node_modules
       - run:
-          name: Run Playwright theme tests (with custom theme)
-          command: THEME_FIXTURE=withFullCustomTheme npx playwright test e2e/tests/theme.spec.ts
-      - run:
-          name: Run Playwright default theme tests (no theme config)
-          command: THEME_FIXTURE=index npx playwright test e2e/tests/theme-defaults.spec.ts
+          name: Run Playwright visual regression tests
+          command: npx playwright test
       - store_artifacts:
           path: playwright-report/
           destination: playwright-report
