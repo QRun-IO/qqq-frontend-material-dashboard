@@ -1,8 +1,8 @@
 #!/bin/bash
-# Generate Playwright snapshots using Docker to match CI environment
+# Generate Playwright snapshots for Linux/CI using Docker
 #
 # Usage:
-#   ./scripts/update-snapshots.sh
+#   ./scripts/update-snapshots-linux.sh
 #
 # Prerequisites:
 #   - Docker must be running
@@ -12,7 +12,7 @@
 #   1. Runs everything inside Docker matching CI environment
 #   2. Starts the fixture server and React dev server inside Docker
 #   3. Runs Playwright tests with --update-snapshots flag
-#   4. Copies generated snapshots to host
+#   4. Generates snapshots in e2e/snapshots/.../linux/
 
 set -e
 
@@ -42,17 +42,19 @@ echo -e "${YELLOW}This may take several minutes...${NC}"
 docker run --rm \
     -v "$PROJECT_ROOT:/app" \
     -w /app \
-    -e CI=true \
     -e HTTPS=true \
     -e PORT=3001 \
     -e REACT_APP_PROXY_LOCALHOST_PORT=8001 \
     mcr.microsoft.com/playwright:v1.57.0-jammy \
-    sh -c "
-        echo '=== Installing dependencies...' &&
-        npm ci --legacy-peer-deps &&
-        echo '=== Running Playwright tests with --update-snapshots...' &&
-        npx playwright test --update-snapshots --reporter=list
-    "
+    bash -c '
+        echo "=== Installing dependencies..."
+        npm ci --legacy-peer-deps
 
-echo -e "${GREEN}=== Snapshots updated successfully! ===${NC}"
-echo -e "${YELLOW}Don't forget to commit the updated snapshots in e2e/snapshots/${NC}"
+        echo "=== Running Playwright tests with --update-snapshots..."
+        echo "=== (Playwright will start servers automatically)..."
+        npx playwright test --update-snapshots --reporter=list
+    '
+
+echo -e "${GREEN}=== Linux snapshots updated successfully! ===${NC}"
+echo -e "${YELLOW}Snapshots are in e2e/snapshots/.../linux/${NC}"
+echo -e "${YELLOW}Don't forget to commit the updated snapshots.${NC}"
