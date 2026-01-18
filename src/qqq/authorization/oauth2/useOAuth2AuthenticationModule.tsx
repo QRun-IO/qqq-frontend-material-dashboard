@@ -379,7 +379,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       /////////////////////////////////////////////////////////////////////////////////////////////////////
       console.log("[OAuth2] Removing session cookies (path: /)");
       document.cookie = `${SESSION_UUID_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0;`;
-      document.cookie = `sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0;`;
+      document.cookie = "sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0;";
 
       ///////////////////////////////////////////////////////////////////////////////////
       // ** Clear all OIDC-related items from localStorage (state, verifiers, etc.) * //
