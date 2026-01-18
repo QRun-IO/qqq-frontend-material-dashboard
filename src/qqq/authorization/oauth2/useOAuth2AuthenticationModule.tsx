@@ -442,13 +442,18 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       const basePath = detectBasePath();
       const baseUrl = (basePath && basePath !== "/") ? `${window.location.origin}${basePath}` : window.location.origin;
       
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      // ** Extract scopes from metadata, with sensible default for backwards compatibility * //
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      const scopes = authenticationMetaData.data.scopes || "openid profile email offline_access";
+
       const oidcConfig = {
          authority: authority,
          client_id: clientId,
          redirect_uri: `${baseUrl}/token`,
          post_logout_redirect_uri: baseUrl,
          response_type: "code",
-         scope: "openid profile email offline_access",
+         scope: scopes,
       };
 
       ///////////////////////////////////////////////////////////////////////////////
