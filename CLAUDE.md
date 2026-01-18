@@ -236,21 +236,23 @@ Read these files in order:
 2. `docs/TODO.md` - Active and completed tasks
 3. This file (`CLAUDE.md`) - Project context
 
-### Current Status (as of 2026-01-17)
+### Current Status (as of 2026-01-18)
 
 | Item | Value |
 |------|-------|
 | Branch | `feature/371-Anonymous-auth-module` |
 | Version | `0.40.0-SNAPSHOT` |
 | PR | #131 (awaiting approval from @darinkelkhoff) |
-| Issue | #371 (closes on merge) |
+| Issues | #371, #374, #375, #339 (all close on merge) |
 
 ### Recent Activity
 
-- **PR #131** - Anonymous auth module calls manageSession to populate user info
+- **PR #131** - Auth module enhancements (anonymous auth, OAuth2 scopes, logout fixes)
+- **Issue #339** - Clear both `sessionUUID` and `sessionId` cookies on logout
+- **Issue #375** - Call `/qqq/v1/logout` backend endpoint before client cleanup
+- **GitHub Security** - Added `Secure` flag to cookie clearing per code scan
+- **qqq-orb v0.6.1** - Fixed version commit skip for feature branches
 - **Dual-platform snapshots** - linux/ for CI, darwin/ for local dev
-- **Removed theme tests** - Obsolete theme-defaults.spec.ts deleted
-- **CI fixed** - Updated CircleCI to run visual regression tests
 
 ### Test Status
 
@@ -262,7 +264,7 @@ Read these files in order:
 ### Pending Work
 
 - Wait for PR #131 approval from @darinkelkhoff
-- Merge PR #131 to develop (auto-closes #371)
+- Merge PR #131 to develop (auto-closes #371, #374, #375, #339)
 
 ### Key Documentation Files
 
