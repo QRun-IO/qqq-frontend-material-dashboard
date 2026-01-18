@@ -378,8 +378,8 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       // ** Use direct document.cookie manipulation (react-cookie's removeCookie has bugs)             * //
       /////////////////////////////////////////////////////////////////////////////////////////////////////
       console.log("[OAuth2] Removing session cookies (path: /)");
-      document.cookie = `${SESSION_UUID_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0;`;
-      document.cookie = "sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0;";
+      document.cookie = `${SESSION_UUID_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0; Secure;`;
+      document.cookie = "sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0; Secure;";
 
       ///////////////////////////////////////////////////////////////////////////////////
       // ** Clear all OIDC-related items from localStorage (state, verifiers, etc.) * //
