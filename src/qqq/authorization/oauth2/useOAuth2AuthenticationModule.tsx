@@ -356,7 +356,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       ///////////////////////////////////////////////////////////////////////////////////
       try
       {
-         await fetch("/api/v1/logout", {
+         await fetch("/qqq/v1/logout", {
             method: "POST",
             credentials: "include"
          });
@@ -372,12 +372,14 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       qController.clearAuthenticationMetaDataLocalStorage();
 
       /////////////////////////////////////////////////////////////////////////////////////////////////////
-      // ** Remove the session UUID cookie from the browser                                            * //
-      // ** Backend always sets the cookie at path="/", so we only need to remove it from that path    * //
+      // ** Remove session cookies from the browser                                                    * //
+      // ** Backend sets both sessionUUID and sessionId cookies (see issue #339)                       * //
+      // ** Must clear both to prevent stale session persistence                                       * //
       // ** Use direct document.cookie manipulation (react-cookie's removeCookie has bugs)             * //
       /////////////////////////////////////////////////////////////////////////////////////////////////////
-      console.log("[OAuth2] Removing sessionUUID cookie (path: /)");
+      console.log("[OAuth2] Removing session cookies (path: /)");
       document.cookie = `${SESSION_UUID_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0;`;
+      document.cookie = `sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0;`;
 
       ///////////////////////////////////////////////////////////////////////////////////
       // ** Clear all OIDC-related items from localStorage (state, verifiers, etc.) * //
