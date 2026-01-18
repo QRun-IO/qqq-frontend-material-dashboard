@@ -337,18 +337,35 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
     * Logs out the current user by clearing all authentication data and redirecting to the identity provider's logout endpoint.
     *
     * This function performs a complete cleanup of the authentication session:
-    * 1. Clears authentication metadata from local storage (via QQQ client controller)
-    * 2. Removes the session UUID cookie from the browser
-    * 3. Clears all OIDC-related localStorage items (session state, verifiers, etc.)
-    * 4. Redirects to the identity provider's logout endpoint for server-side session cleanup
+    * 1. Calls the backend logout endpoint to invalidate the server-side session
+    * 2. Clears authentication metadata from local storage (via QQQ client controller)
+    * 3. Removes the session UUID cookie from the browser
+    * 4. Clears all OIDC-related localStorage items (session state, verifiers, etc.)
+    * 5. Redirects to the identity provider's logout endpoint for server-side session cleanup
     *
     * After logout, the user will need to re-authenticate to access protected resources.
     *
     * @function logout
-    * @returns {void}
+    * @returns {Promise<void>}
     */
-   const logout = () =>
+   const logout = async () =>
    {
+      ///////////////////////////////////////////////////////////////////////////////////
+      // ** Call backend logout endpoint FIRST to invalidate server-side session      * //
+      // ** This ensures the session is deleted from database and cache is cleared    * //
+      ///////////////////////////////////////////////////////////////////////////////////
+      try
+      {
+         await fetch("/api/v1/logout", {
+            method: "POST",
+            credentials: "include"
+         });
+      }
+      catch (e)
+      {
+         console.warn("[OAuth2] Backend logout failed:", e);
+      }
+
       //////////////////////////////////////////////////////////////////////////////////
       // ** Clear authentication metadata stored in local storage by the QQQ client * //
       //////////////////////////////////////////////////////////////////////////////////
