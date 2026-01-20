@@ -731,13 +731,20 @@ public class QSeleniumLib
 
 
    /*******************************************************************************
-    **
+    * to help assert about files being downloaded by tests, this method loads the
+    * chrome://downloads/ page, then tries to grab text from the page representing
+    * the latest downloaded file.
+    *
+    * <p>Note that the selectors used in this method may need updated over time
+    * as chrome changes the html of the downloads page...</p>
+    *
+    * @return (at the time of this writing) - downloaded filename, newline, "From https://localhost:3001"
     *******************************************************************************/
    public String getLatestChromeDownloadedFileInfo()
    {
       driver.get("chrome://downloads/");
       JavascriptExecutor js      = (JavascriptExecutor) driver;
-      WebElement         element = (WebElement) js.executeScript("return document.querySelector('downloads-manager').shadowRoot.querySelector('#mainContainer > iron-list > downloads-item').shadowRoot.querySelector('#content')");
+      WebElement         element = (WebElement) js.executeScript("return document.querySelector('downloads-manager').shadowRoot.querySelector('downloads-item').shadowRoot.querySelector('#content')");
       return (element.getText());
    }
 

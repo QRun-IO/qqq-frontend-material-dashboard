@@ -23,9 +23,11 @@ package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.li
 
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import com.kingsrook.qqq.backend.core.context.CapturedContext;
 import com.kingsrook.qqq.backend.core.context.QContext;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
@@ -160,6 +162,60 @@ public class QBaseSeleniumWithQApplicationTest
       //////////////////
    }
 
+
+
+   /***************************************************************************
+    * To allow each test method to have different qInstance customization,
+    * while keeping that setup ("given") code closer to the test method itself:
+    * allow @Test methods to have a @Tag, with a value of "do..." - where that
+    * tag value is assumed to be a method name (must start with "do"), which takes
+    * a QInstance parameter.
+    *
+    * <p>The full pattern here being (with a call to this method in customizeQInstance):
+    *
+    * <pre>
+    *    &commat;Test
+    *    &commat;Tag("doFooBar")
+    *    public void testFooBar()
+    *    {
+    *       doFooBar(null);
+    *    }
+    *
+    *    public void doFooBar(QInstance qInstance)
+    *    {
+    *       if(qInstance != null)
+    *       {
+    *          // customize the qInstance for this test here.
+    *          // qInstance.with...
+    *          return;
+    *       }
+    *
+    *       // run the test here.
+    *       // qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain...
+    *       // qSeleniumLib.waitForSelectorContaining...
+    *    }
+    * </pre>
+    ***************************************************************************/
+   protected void customizeQInstanceViaTestMethodTagSpecifyingDoMethodName(QInstance qInstance) throws QException
+   {
+      Optional<String> doTag = testInfo.getTags().stream().filter(s -> s.startsWith("do")).findFirst();
+      if(doTag.isPresent())
+      {
+         try
+         {
+            Method method = getClass().getMethod(doTag.get(), QInstance.class);
+            method.invoke(this, qInstance);
+         }
+         catch(NoSuchMethodException e)
+         {
+            fail("Missing method: [public void " + doTag.get() + "(QInstance)] specified in @Tag(do...) for [" + testInfo.getDisplayName() + "]");
+         }
+         catch(Exception e)
+         {
+            throw (new QException("Error in customizeQInstanceViaTestMethodTagSpecifyingDoMethodName", e));
+         }
+      }
+   }
 
 
    /***************************************************************************

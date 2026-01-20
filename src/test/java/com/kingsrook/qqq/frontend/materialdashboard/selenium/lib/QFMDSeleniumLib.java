@@ -195,4 +195,14 @@ public class QFMDSeleniumLib
    {
       qSeleniumLib.waitForSelectorContaining(".MuiTablePagination-displayedRows", "Showing " + from + " to " + to + " of " + of);
    }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void clickCancelButton()
+   {
+      qSeleniumLib.waitForSelectorContaining("button", "Cancel").click();
+   }
 }
