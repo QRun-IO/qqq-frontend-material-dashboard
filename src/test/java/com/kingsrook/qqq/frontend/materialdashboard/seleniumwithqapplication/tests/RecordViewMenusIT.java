@@ -72,7 +72,7 @@ public class RecordViewMenusIT extends QBaseSeleniumWithQApplicationTest
    @Override
    public void customizeQInstance(QInstance qInstance) throws QException
    {
-      customizeQInstanceViaTestMethodTagSpecifyingDoMethodName(qInstance);
+      customizeQInstanceViaTestMethodTagSpecifyingCustomizeQInstanceMethodName(qInstance);
    }
 
 
@@ -118,50 +118,38 @@ public class RecordViewMenusIT extends QBaseSeleniumWithQApplicationTest
 
 
 
-   /*******************************************************************************
+   /***************************************************************************
     *
-    *******************************************************************************/
-   @Test
-   @Tag("doActionMenuWithChanges")
-   void testActionMenuWithChanges()
+    ***************************************************************************/
+   public void customizeQInstanceForActionMenuWithChanges(QInstance qInstance)
    {
-      doActionMenuWithChanges(null);
+      QTableMetaData table = qInstance.getTable(TestUtils.TABLE_NAME_PERSON);
+
+      ///////////////////////////////////
+      // remove edit, add a 2nd "copy" //
+      ///////////////////////////////////
+      QMenuDefaultViewScreenActionsMenu menu = new QMenuDefaultViewScreenActionsMenu();
+      QMenuAdjuster.removeFirst(menu, new QMenuItemMatcher("Edit"));
+      QMenuAdjuster.addLast(menu, new QMenuItemBuiltIn(QMenuItemBuiltIn.DefaultOptions.COPY));
+
+      ////////////////////////////////////////////////////////////////////////////
+      // put the no-op process as the very first thing, with a divider below it //
+      ////////////////////////////////////////////////////////////////////////////
+      QMenuAdjuster.addFirst(menu, new QMenuItemRunProcess(PersonNoopProcessMetaDataProducer.NAME));
+      QMenuAdjuster.addAtIndex(menu, 1, new QMenuItemDivider());
+
+      table.withMenu(menu);
    }
 
 
 
-   /***************************************************************************
+   /*******************************************************************************
     *
-    ***************************************************************************/
-   public void doActionMenuWithChanges(QInstance qInstance)
+    *******************************************************************************/
+   @Test
+   @Tag("customizeQInstanceForActionMenuWithChanges")
+   void testActionMenuWithChanges()
    {
-      /////////////////////////////////////////////////////////////////////////////////////////////
-      // qInstance setup, called by customizeQInstance based on @Tag("do...") on the test method //
-      /////////////////////////////////////////////////////////////////////////////////////////////
-      if(qInstance != null)
-      {
-         QTableMetaData table = qInstance.getTable(TestUtils.TABLE_NAME_PERSON);
-
-         ///////////////////////////////////
-         // remove edit, add a 2nd "copy" //
-         ///////////////////////////////////
-         QMenuDefaultViewScreenActionsMenu menu = new QMenuDefaultViewScreenActionsMenu();
-         QMenuAdjuster.removeFirst(menu, new QMenuItemMatcher("Edit"));
-         QMenuAdjuster.addLast(menu, new QMenuItemBuiltIn(QMenuItemBuiltIn.DefaultOptions.COPY));
-
-         ////////////////////////////////////////////////////////////////////////////
-         // put the no-op process as the very first thing, with a divider below it //
-         ////////////////////////////////////////////////////////////////////////////
-         QMenuAdjuster.addFirst(menu, new QMenuItemRunProcess(PersonNoopProcessMetaDataProducer.NAME));
-         QMenuAdjuster.addAtIndex(menu, 1, new QMenuItemDivider());
-
-         table.withMenu(menu);
-         return;
-      }
-
-      ///////////////
-      // test body //
-      ///////////////
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/person/1", "Homer");
 
       qSeleniumLib.waitForSelectorContaining("button", "Actions").click();
@@ -195,46 +183,32 @@ public class RecordViewMenusIT extends QBaseSeleniumWithQApplicationTest
 
 
    /*******************************************************************************
-    *
+    **
     *******************************************************************************/
-   @Test
-   @Tag("doAdditionalMenus")
-   void testAdditionalMenus()
+   public void customizeQInstanceForAdditionalMenus(QInstance qInstance)
    {
-      doAdditionalMenus(null);
+      QTableMetaData table = qInstance.getTable(TestUtils.TABLE_NAME_PERSON);
+
+      addBlobField(table, "fileContents");
+
+      QMenu customMenu1 = new QMenu()
+         .withLabel("Hamburgers")
+         .withSlot(QMenuSlot.VIEW_SCREEN_ADDITIONAL)
+         .withIcon(new QIcon().withName("lunch_dining"))
+         .withItem(new QMenuItemBuiltIn(QMenuItemBuiltIn.DefaultOptions.COPY))
+         .withItem(new QMenuItemDownloadFile("fileContents").withLabel("Download File Contents"))
+         .withItem(new QMenuItemRunProcess(PersonNoopProcessMetaDataProducer.NAME));
+      table.withMenu(customMenu1);
    }
 
 
-
-   /***************************************************************************
+   /*******************************************************************************
     *
-    ***************************************************************************/
-   public void doAdditionalMenus(QInstance qInstance)
+    *******************************************************************************/
+   @Test
+   @Tag("customizeQInstanceForAdditionalMenus")
+   void testAdditionalMenus()
    {
-      /////////////////////////////////////////////////////////////////////////////////////////////
-      // qInstance setup, called by customizeQInstance based on @Tag("do...") on the test method //
-      /////////////////////////////////////////////////////////////////////////////////////////////
-      if(qInstance != null)
-      {
-         QTableMetaData table = qInstance.getTable(TestUtils.TABLE_NAME_PERSON);
-
-         addBlobField(table, "fileContents");
-
-         QMenu customMenu1 = new QMenu()
-            .withLabel("Hamburgers")
-            .withSlot(QMenuSlot.VIEW_SCREEN_ADDITIONAL)
-            .withIcon(new QIcon().withName("lunch_dining"))
-            .withItem(new QMenuItemBuiltIn(QMenuItemBuiltIn.DefaultOptions.COPY))
-            .withItem(new QMenuItemDownloadFile("fileContents").withLabel("Download File Contents"))
-            .withItem(new QMenuItemRunProcess(PersonNoopProcessMetaDataProducer.NAME));
-         table.withMenu(customMenu1);
-
-         return;
-      }
-
-      ///////////////
-      // test body //
-      ///////////////
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/person/1", "Homer");
 
       qSeleniumLib.waitForSelectorContaining("button", "Hamburgers").click();
@@ -255,50 +229,38 @@ public class RecordViewMenusIT extends QBaseSeleniumWithQApplicationTest
 
 
    /*******************************************************************************
-    *
+    **
     *******************************************************************************/
-   @Test
-   @Tag("doSubMenu")
-   void testSubMenu() throws QException
+   public void customizeQInstanceForSubMenu(QInstance qInstance)
    {
-      doSubMenu(null);
+      QTableMetaData table = qInstance.getTable(TestUtils.TABLE_NAME_PERSON);
+
+      addBlobField(table, "fileA");
+      addBlobField(table, "fileB");
+
+      QMenuDefaultViewScreenActionsMenu menu = new QMenuDefaultViewScreenActionsMenu();
+      QMenuAdjuster.addBefore(menu, new QMenuItemSubList()
+            .withItem(new QMenuItemSubMenu()
+               .withLabel("Files")
+               .withIcon(new QIcon().withName("attach_file"))
+               .withItem(new QMenuItemDownloadFile("fileA").withLabel("File A"))
+               .withItem(new QMenuItemDownloadFile("fileB").withLabel("File B"))
+            )
+            .withItem(new QMenuItemDivider()),
+         new QMenuItemMatcher(QMenuItemBuiltIn.DefaultOptions.THIS_TABLE_PROCESS_LIST));
+      table.withMenu(menu);
+
+      return;
    }
 
 
-
-   /***************************************************************************
+   /*******************************************************************************
     *
-    ***************************************************************************/
-   public void doSubMenu(QInstance qInstance) throws QException
+    *******************************************************************************/
+   @Test
+   @Tag("customizeQInstanceForSubMenu")
+   void testSubMenu() throws QException
    {
-      /////////////////////////////////////////////////////////////////////////////////////////////
-      // qInstance setup, called by customizeQInstance based on @Tag("do...") on the test method //
-      /////////////////////////////////////////////////////////////////////////////////////////////
-      if(qInstance != null)
-      {
-         QTableMetaData table = qInstance.getTable(TestUtils.TABLE_NAME_PERSON);
-
-         addBlobField(table, "fileA");
-         addBlobField(table, "fileB");
-
-         QMenuDefaultViewScreenActionsMenu menu = new QMenuDefaultViewScreenActionsMenu();
-         QMenuAdjuster.addBefore(menu, new QMenuItemSubList()
-               .withItem(new QMenuItemSubMenu()
-                  .withLabel("Files")
-                  .withIcon(new QIcon().withName("attach_file"))
-                  .withItem(new QMenuItemDownloadFile("fileA").withLabel("File A"))
-                  .withItem(new QMenuItemDownloadFile("fileB").withLabel("File B"))
-               )
-               .withItem(new QMenuItemDivider()),
-            new QMenuItemMatcher(QMenuItemBuiltIn.DefaultOptions.THIS_TABLE_PROCESS_LIST));
-         table.withMenu(menu);
-
-         return;
-      }
-
-      ///////////////
-      // test body //
-      ///////////////
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/person/2", "Marge");
 
       qSeleniumLib.waitForSelectorContaining("button", "Actions").click();
@@ -330,7 +292,6 @@ public class RecordViewMenusIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.clickBackdrop();
       //qSeleniumLib.waitForever();
    }
-
 
 
    /***************************************************************************
