@@ -132,11 +132,11 @@ public class RecordViewMenusIT extends QBaseSeleniumWithQApplicationTest
       QMenuAdjuster.removeFirst(menu, new QMenuItemMatcher("Edit"));
       QMenuAdjuster.addLast(menu, new QMenuItemBuiltIn(QMenuItemBuiltIn.DefaultOptions.COPY));
 
-      ////////////////////////////////////////////////////////////////////////////
-      // put the no-op process as the very first thing, with a divider below it //
-      ////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // put the no-op process as the very first thing, with a divider below it (so we add them out-of-order) //
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////
+      QMenuAdjuster.addFirst(menu, new QMenuItemDivider());
       QMenuAdjuster.addFirst(menu, new QMenuItemRunProcess(PersonNoopProcessMetaDataProducer.NAME));
-      QMenuAdjuster.addAtIndex(menu, 1, new QMenuItemDivider());
 
       table.withMenu(menu);
    }
