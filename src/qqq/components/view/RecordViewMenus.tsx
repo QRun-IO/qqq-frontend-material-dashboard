@@ -33,9 +33,7 @@ import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTabl
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {QActionsMenuButton} from "qqq/components/buttons/DefaultButtons";
 import {RecordViewMenuActions} from "qqq/pages/records/view/RecordView";
-import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import React, {useEffect, useState} from "react";
-
 
 /////////////////////////////////////////////////
 // component for the multiple additional menus //
@@ -392,5 +390,22 @@ export class ItemsShownInMenu
       return true;
    }
 
+}
+
+
+// todo - after theme code is merged back in, use this function from util file:
+// import {sanitizeId} from "qqq/utils/qqqIdUtils";
+function sanitizeId(text: string): string
+{
+   if (!text)
+   {
+      return "";
+   }
+
+   return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .substring(0, 50);
 }
 
