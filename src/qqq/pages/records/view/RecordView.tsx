@@ -29,12 +29,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
 import {SxProps} from "@mui/system";
@@ -42,7 +39,9 @@ import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
 import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
 import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
+import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
+import {QMenu} from "@qrunio/qqq-frontend-core/lib/model/metaData/QMenu";
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QTableSection} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableSection";
@@ -59,10 +58,11 @@ import {GotoRecordButton} from "qqq/components/misc/GotoRecordDialog";
 import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
 import QRecordSidebar from "qqq/components/misc/RecordSidebar";
 import ShareModal from "qqq/components/sharing/ShareModal";
+import {FieldValueAsWidget} from "qqq/components/view/FieldValueAsWidget";
+import {ItemsShownInMenu, RecordViewAdditionalMenus, RecordViewMenuItem} from "qqq/components/view/RecordViewMenus";
 import DashboardWidgets from "qqq/components/widgets/DashboardWidgets";
 import BaseLayout from "qqq/layouts/BaseLayout";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
-import {FieldValueAsWidget} from "qqq/pages/records/view/FieldValueAsWidget";
 import HistoryUtils from "qqq/utils/HistoryUtils";
 import HtmlUtils from "qqq/utils/HtmlUtils";
 import Client from "qqq/utils/qqq/Client";
@@ -87,6 +87,28 @@ RecordView.defaultProps =
       record: null,
       launchProcess: null,
    };
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// define an object that is passed into the components of RecordViewMenu.tsx for getting data from //
+// this component, and for making callbacks into this component to perform actions from menus.     //
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+export interface RecordViewMenuActions
+{
+   new: () => void;
+   copy: () => void;
+   edit: () => void;
+   developerMode: () => void;
+   audit: (closeMenu?: () => void) => void;
+   delete: (closeMenu?: () => void) => void;
+   runProcess: (processName: string) => void;
+   downloadFileFromField: (fieldName: string, closeMenu?: () => void) => void;
+
+   getMetaData: () => QInstance;
+   getTableProcesses: () => QProcessMetaData[];
+   getGenericProcesses: () => QProcessMetaData[];
+}
+
 
 const TABLE_VARIANT_LOCAL_STORAGE_KEY_ROOT = "qqq.tableVariant";
 
@@ -204,7 +226,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    const [t1SectionElement, setT1SectionElement] = useState(null as JSX.Element);
    const [nonT1TableSections, setNonT1TableSections] = useState([] as QTableSection[]);
    const [allTableProcesses, setAllTableProcesses] = useState([] as QProcessMetaData[]);
-   const [actionsMenu, setActionsMenu] = useState(null);
+   const [actionsMenuAnchorElement, setActionsMenuAnchorElement] = useState(null);
    const [notFoundMessage, setNotFoundMessage] = useState(null as string);
    const [errorMessage, setErrorMessage] = useState(null as string);
    const [successMessage, setSuccessMessage] = useState(null as string);
@@ -219,8 +241,10 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
 
    const [isDeleteSubmitting, setIsDeleteSubmitting] = useState(false);
 
-   const openActionsMenu = (event: any) => setActionsMenu(event.currentTarget);
-   const closeActionsMenu = () => setActionsMenu(null);
+   const [actionMenu, setActionMenu] = useState(null as QMenu);
+
+   const openActionsMenu = (event: any) => setActionsMenuAnchorElement(event.currentTarget);
+   const closeActionsMenu = () => setActionsMenuAnchorElement(null);
 
    const {accentColor, setPageHeader, tableMetaData, setTableMetaData, tableProcesses, setTableProcesses, dotMenuOpen, keyboardHelpOpen, modalStack, helpHelpActive, recordAnalytics, userId: currentUserId} = useContext(QContext);
 
@@ -439,6 +463,67 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       setActiveModalProcess(null);
       reload();
    }, [location.pathname, location.hash]);
+
+
+   /***************************************************************************
+    * For when the backend didn't specify an action menu on the table, define
+    * the default version of that menu.
+    *
+    * This object is intended to match QMenuDefaultViewScreenActionsMenu in QQQ.
+    ***************************************************************************/
+   function buildDefaultActionMenu(): QMenu
+   {
+      return new QMenu(
+         {
+            label: "Actions",
+            icon: {name: "game"},
+            slot: "VIEW_SCREEN_ACTIONS",
+            items: [
+               {
+                  itemType: "SUB_LIST", values: {
+                     items: [
+                        {itemType: "BUILT_IN", values: {option: "NEW"}},
+                        {itemType: "BUILT_IN", values: {option: "COPY"}},
+                        {itemType: "BUILT_IN", values: {option: "EDIT"}},
+                        {itemType: "BUILT_IN", values: {option: "DELETE"}}
+                     ]
+                  }
+               },
+               {itemType: "DIVIDER"},
+               {itemType: "BUILT_IN", values: {option: "THIS_TABLE_PROCESS_LIST"}},
+               {itemType: "DIVIDER"},
+               {
+                  itemType: "SUB_LIST", values: {
+                     items: [
+                        {itemType: "BUILT_IN", values: {option: "ALL_TABLES_PROCESS_LIST"}},
+                        {itemType: "BUILT_IN", values: {option: "DEVELOPER_MODE"}},
+                        {itemType: "BUILT_IN", values: {option: "AUDIT"}}
+                     ]
+                  }
+               }
+            ]
+         }
+      );
+   }
+
+
+   /////////////////////////////////////////////////////////////////////////////////////////////
+   // when the tableMetaData changes, grab the action menu out of it (or build a default one) //
+   /////////////////////////////////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      let actionMenu: QMenu = null;
+      if (tableMetaData)
+      {
+         actionMenu = (tableMetaData.menus ?? []).find(m => m.slot == "VIEW_SCREEN_ACTIONS");
+
+         if (!actionMenu)
+         {
+            actionMenu = buildDefaultActionMenu();
+         }
+      }
+      setActionMenu(actionMenu);
+   }, [tableMetaData]);
 
 
    /*******************************************************************************
@@ -768,104 +853,81 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       })();
    };
 
-   function handleRevealIconClick(fieldName: string)
-   {
-      adornmentFieldsMap.set(fieldName, !adornmentFieldsMap.get(fieldName));
-      setAdornmentFieldsMap(adornmentFieldsMap);
-      setReloadCounter(reloadCounter + 1);
-   }
-
    function processClicked(process: QProcessMetaData)
    {
       openModalProcess(process);
    }
 
-   let hasEditOrDelete = (table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission) || (table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission);
 
+   ///////////////////////////////////////////////
+   // populate the RecordViewMenuActions object //
+   ///////////////////////////////////////////////
+   const recordViewMenuActions: RecordViewMenuActions =
+      {
+         new: () => gotoCreate(),
+         copy: () => navigate("copy"),
+         edit: () => navigate("edit"),
+         delete: (closeMenu?: () => void) =>
+         {
+            closeMenu?.();
+            handleClickDeleteButton();
+         },
+         developerMode: () => navigate("dev"),
+         audit: (closeMenu?: () => void) =>
+         {
+            closeMenu?.();
+            navigate("#audit");
+         },
+         runProcess: (processName: string) =>
+         {
+            const process = metaData?.processes?.get(processName);
+            if (process)
+            {
+               processClicked(process);
+            }
+            else
+            {
+               console.log("No process found for name: [" + processName + "]");
+            }
+         },
+         downloadFileFromField: (fieldName: string, closeMenu?: () => void) =>
+         {
+            ////////////////////////////////////////////////////////////
+            // todo can or should this share more with BlobComponent? //
+            ////////////////////////////////////////////////////////////
+            const fieldValue = record?.values?.get(fieldName);
+            if (fieldName && fieldValue)
+            {
+               const field = tableMetaData.fields.get(fieldName);
+               const url = ValueUtils.getUrlFromBlobOrFileDownloadField(fieldValue, tableVariant, field, record, fieldName);
 
-   const renderActionsMenu = (
-      <Menu
-         anchorEl={actionsMenu}
-         anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-         }}
-         transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-         }}
-         open={Boolean(actionsMenu)}
-         onClose={closeActionsMenu}
-         keepMounted
-      >
+               if (field.type == QFieldType.BLOB)
+               {
+                  const fileName = record?.displayValues?.get(fieldName) ?? fieldName;
+                  HtmlUtils.downloadUrlViaIFrame(field, url, fileName);
+               }
+               else
+               {
+                  window.open(url);
+               }
+            }
+
+            closeMenu?.();
+         },
+         getMetaData: () =>
          {
-            table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission &&
-            <MenuItem onClick={() => gotoCreate()}>
-               <ListItemIcon><Icon>add</Icon></ListItemIcon>
-               New
-            </MenuItem>
-         }
+            return metaData;
+         },
+         getTableProcesses: () =>
          {
-            table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission &&
-            <MenuItem onClick={() => navigate("copy")}>
-               <ListItemIcon><Icon>copy</Icon></ListItemIcon>
-               Copy
-            </MenuItem>
-         }
+            return tableProcesses;
+         },
+         getGenericProcesses: () =>
          {
-            table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission &&
-            <MenuItem onClick={() => navigate("edit")}>
-               <ListItemIcon><Icon>edit</Icon></ListItemIcon>
-               Edit
-            </MenuItem>
+            return getGenericProcesses(metaData);
          }
-         {
-            table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission &&
-            <MenuItem onClick={() =>
-            {
-               setActionsMenu(null);
-               handleClickDeleteButton();
-            }}
-            >
-               <ListItemIcon><Icon>delete</Icon></ListItemIcon>
-               Delete
-            </MenuItem>
-         }
-         {tableProcesses?.length > 0 && hasEditOrDelete && <Divider />}
-         {tableProcesses?.map((process) => (
-            <MenuItem key={process.name} onClick={() => processClicked(process)}>
-               <ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>
-               {process.label}
-            </MenuItem>
-         ))}
-         {(tableProcesses?.length > 0 || hasEditOrDelete) && <Divider />}
-         {
-            getGenericProcesses(metaData).map((process) =>
-               (
-                  process &&
-                  <MenuItem key={process.name} onClick={() => processClicked(process)}>
-                     <ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>
-                     {process.label}
-                  </MenuItem>
-               ))
-         }
-         <MenuItem onClick={() => navigate("dev")}>
-            <ListItemIcon><Icon>code</Icon></ListItemIcon>
-            Developer Mode
-         </MenuItem>
-         {
-            metaData && metaData.tables.has("audit") &&
-            <MenuItem onClick={() =>
-            {
-               setActionsMenu(null);
-               navigate("#audit");
-            }}>
-               <ListItemIcon><Icon>checklist</Icon></ListItemIcon>
-               Audit
-            </MenuItem>
-         }
-      </Menu>
-   );
+      };
+
 
 
    /*******************************************************************************
@@ -1018,6 +1080,12 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       }
    };
 
+   /////////////////////////////////////////////////////////////////////////////////////////////////
+   // built an object to help track what's shown in the actions menu.                             //
+   // we tried just passing (new ItemsShownInMenu()) as the prop, but that didn't seem to work... //
+   /////////////////////////////////////////////////////////////////////////////////////////////////
+   const itemsShownInActionsMenu = new ItemsShownInMenu();
+
    return (
       <BaseLayout>
          <Box className="recordView">
@@ -1085,9 +1153,20 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                                    <Box display="flex" ml="auto">
                                                       <GotoRecordButton metaData={metaData} tableMetaData={tableMetaData} />
                                                       {renderShareButton()}
-                                                      <QActionsMenuButton isOpen={actionsMenu} onClickHandler={openActionsMenu} />
+                                                      {tableMetaData && <RecordViewAdditionalMenus tableMetaData={tableMetaData} record={record} actions={recordViewMenuActions} />}
+                                                      <QActionsMenuButton isOpen={actionsMenuAnchorElement} onClickHandler={openActionsMenu} />
                                                    </Box>
-                                                   {renderActionsMenu}
+                                                   <Menu
+                                                      anchorEl={actionsMenuAnchorElement}
+                                                      anchorOrigin={{vertical: "bottom", horizontal: "right",}}
+                                                      transformOrigin={{vertical: "top", horizontal: "right",}}
+                                                      open={Boolean(actionsMenuAnchorElement)}
+                                                      onClose={closeActionsMenu}
+                                                      keepMounted
+                                                      data-qqq-id="record-view-actions-menu"
+                                                   >
+                                                      {actionMenu?.items.map((item, index) => (<RecordViewMenuItem key={index} tableMetaData={tableMetaData} menuItem={item} record={record} actions={recordViewMenuActions} closeMenu={closeActionsMenu} itemsShown={itemsShownInActionsMenu} />))}
+                                                   </Menu>
                                                 </Box>
                                              </Box>
                                              {t1Section && getSectionHelp(t1Section)}

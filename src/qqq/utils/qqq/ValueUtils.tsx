@@ -221,35 +221,14 @@ class ValueUtils
 
       if (field.type == QFieldType.BLOB || field.hasAdornment(AdornmentType.FILE_DOWNLOAD))
       {
-         let url = rawValue;
-         if(tableVariant)
-         {
-            url += "?tableVariant=" + encodeURIComponent(JSON.stringify(tableVariant));
-         }
+         let url = this.getUrlFromBlobOrFileDownloadField(rawValue, tableVariant, field, record, fieldName);
 
-         //////////////////////////////////////////////////////////////////////////////
-         // if the field has the download adornment with a downloadUrlDynamic value, //
-         // then get the url from a displayValue of `fieldName`:downloadUrlDynamic.  //
-         //////////////////////////////////////////////////////////////////////////////
-         if(field.hasAdornment(AdornmentType.FILE_DOWNLOAD))
+         if(!url)
          {
-            const adornment = field.getAdornment(AdornmentType.FILE_DOWNLOAD);
-            let downloadUrlDynamicAdornmentValue = adornment.getValue("downloadUrlDynamic");
-            if(downloadUrlDynamicAdornmentValue)
-            {
-               const downloadUrlDynamicValue = record?.displayValues?.get(fieldName + ":downloadUrlDynamic");
-               if (downloadUrlDynamicValue)
-               {
-                  url = downloadUrlDynamicValue;
-               }
-               else
-               {
-                  ////////////////////////////////////////////////////////////////
-                  // if the url isn't available, then return w/o the adornment. //
-                  ////////////////////////////////////////////////////////////////
-                  return (ValueUtils.getUnadornedValueForDisplay(field, rawValue, displayValue));
-               }
-            }
+            ////////////////////////////////////////////////////////////////
+            // if the url isn't available, then return w/o the adornment. //
+            ////////////////////////////////////////////////////////////////
+            return (ValueUtils.getUnadornedValueForDisplay(field, rawValue, displayValue));
          }
 
          return (<BlobComponent field={field} url={url} filename={displayValue} usage={usage} />);
@@ -258,6 +237,37 @@ class ValueUtils
       return (ValueUtils.getUnadornedValueForDisplay(field, rawValue, displayValue));
    }
 
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public static getUrlFromBlobOrFileDownloadField(rawValue: any, tableVariant: QTableVariant, field: QFieldMetaData, record: QRecord, fieldName: string)
+   {
+      let url = rawValue;
+      if (tableVariant)
+      {
+         url += "?tableVariant=" + encodeURIComponent(JSON.stringify(tableVariant));
+      }
+
+      //////////////////////////////////////////////////////////////////////////////
+      // if the field has the download adornment with a downloadUrlDynamic value, //
+      // then get the url from a displayValue of `fieldName`:downloadUrlDynamic.  //
+      //////////////////////////////////////////////////////////////////////////////
+      if (field.hasAdornment(AdornmentType.FILE_DOWNLOAD))
+      {
+         const adornment = field.getAdornment(AdornmentType.FILE_DOWNLOAD);
+         let downloadUrlDynamicAdornmentValue = adornment.getValue("downloadUrlDynamic");
+         if (downloadUrlDynamicAdornmentValue)
+         {
+            const downloadUrlDynamicValue = record?.displayValues?.get(fieldName + ":downloadUrlDynamic");
+            if (downloadUrlDynamicValue)
+            {
+               url = downloadUrlDynamicValue;
+            }
+         }
+      }
+      return url;
+   }
 
    /*******************************************************************************
     ** After we know there's no element to be returned (e.g., because no adornment),
@@ -754,9 +764,9 @@ function BlobComponent({field, url, filename, usage}: BlobComponentProps): JSX.E
    }
 
    const tooltipPlacement = usage == "view" ? "bottom" : "right";
+   const downloadUrl = url + (url.indexOf("?") > -1 ? "&" : "?") + "download"
 
    // todo - thumbnails if adorned?
-   // challenge is - must post (for auth header)...
    return (
       <Box display="inline-flex">
          {
@@ -776,7 +786,7 @@ function BlobComponent({field, url, filename, usage}: BlobComponentProps): JSX.E
                field.type == QFieldType.BLOB ? (
                   <Icon className={"blobIcon"} fontSize="small" onClick={(e) => download(e)}>save_alt</Icon>
                ) : (
-                  <a style={{color: "inherit"}} href={url} download="test.pdf"><Icon className={"blobIcon"} fontSize="small">save_alt</Icon></a>
+                  <a style={{color: "inherit"}} href={downloadUrl}><Icon className={"blobIcon"} fontSize="small">save_alt</Icon></a>
                )
             }
          </Tooltip>

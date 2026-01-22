@@ -23,9 +23,11 @@ package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.li
 
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import com.kingsrook.qqq.backend.core.context.CapturedContext;
 import com.kingsrook.qqq.backend.core.context.QContext;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
@@ -160,6 +162,56 @@ public class QBaseSeleniumWithQApplicationTest
       //////////////////
    }
 
+
+
+   /***************************************************************************
+    * To allow each test method to have different qInstance customization (which
+    * must be set up in the BeforeEach part of the JUnit flow - not within the @Test)
+    * while keeping that setup ("given") code closer to the test method itself
+    * and not having a big switch in the @BeforeEach method, this method
+    * allows @Test methods to have a @Tag, with a value of "customizeQInstance..."
+    * - where that tag value is assumed to be a method name (must start with
+    * "customizeQInstance"), which takes a QInstance parameter
+    *
+    * <p>The full pattern here being (with a call to this method in customizeQInstance):
+    *
+    * <pre>
+    *    public void customizeQInstanceForTestFooBar(QInstance qInstance)
+    *    {
+    *       // customize the qInstance for this test here.
+    *       // qInstance.with...
+    *    }
+    *
+    *    &commat;Test
+    *    &commat;Tag("customizeQInstanceForTestFooBar")
+    *    public void testFooBar()
+    *    {
+    *       // run the test here.
+    *       // qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain...
+    *       // qSeleniumLib.waitForSelectorContaining...
+    *    }
+    * </pre>
+    ***************************************************************************/
+   protected void customizeQInstanceViaTestMethodTagSpecifyingCustomizeQInstanceMethodName(QInstance qInstance) throws QException
+   {
+      Optional<String> customizeQInstanceTag = testInfo.getTags().stream().filter(s -> s.matches("^customizeQInstance.*")).findFirst();
+      if(customizeQInstanceTag.isPresent())
+      {
+         try
+         {
+            Method method = getClass().getMethod(customizeQInstanceTag.get(), QInstance.class);
+            method.invoke(this, qInstance);
+         }
+         catch(NoSuchMethodException e)
+         {
+            fail("Missing method: [public void " + customizeQInstanceTag.get() + "(QInstance)] specified in @Tag(\"customizeQInstance...\") for [" + testInfo.getDisplayName() + "]");
+         }
+         catch(Exception e)
+         {
+            throw (new QException("Error in customizeQInstanceViaTestMethodTagSpecifyingDoMethodName", e));
+         }
+      }
+   }
 
 
    /***************************************************************************

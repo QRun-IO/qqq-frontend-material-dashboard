@@ -21,6 +21,7 @@
 
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
+import {QIcon} from "@qrunio/qqq-frontend-core/lib/model/metaData/QIcon";
 import React from "react";
 import {Link} from "react-router-dom";
 import MDButton from "qqq/components/legacy/MDButton";
@@ -112,9 +113,11 @@ interface QActionsMenuButtonProps
 {
    isOpen: boolean;
    onClickHandler: any;
+   label?: string;
+   qIcon?: QIcon;
 }
 
-export function QActionsMenuButton({isOpen, onClickHandler}: QActionsMenuButtonProps): JSX.Element
+export function QActionsMenuButton({isOpen, onClickHandler, label, qIcon}: QActionsMenuButtonProps): JSX.Element
 {
    return (
       <Box width={standardWidth} ml={1}>
@@ -122,10 +125,10 @@ export function QActionsMenuButton({isOpen, onClickHandler}: QActionsMenuButtonP
             variant={isOpen ? "contained" : "outlined"}
             color="dark"
             onClick={onClickHandler}
-            startIcon={<Icon>games</Icon>}
+            startIcon={<Icon>{qIcon?.name ?? "games"}</Icon>}
             fullWidth
          >
-            actions&nbsp;
+            {label ?? "actions"}&nbsp;
             <Icon>keyboard_arrow_down</Icon>
          </MDButton>
       </Box>
