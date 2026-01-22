@@ -19,6 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import Icon from "@mui/material/Icon";
+import {ThemeProvider} from "@mui/material/styles";
+import {LicenseInfo} from "@mui/x-license-pro";
 import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
 import {QAppNodeType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAppNodeType";
 import {QAppTreeNode} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAppTreeNode";
@@ -27,12 +33,7 @@ import {QBrandingMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QB
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Icon from "@mui/material/Icon";
-import {ThemeProvider} from "@mui/material/styles";
-import {LicenseInfo} from "@mui/x-license-pro";
+// eslint-disable-next-line import/no-unresolved
 import CommandMenu from "CommandMenu";
 import QContext from "QContext";
 import useAnonymousAuthenticationModule from "qqq/authorization/anonymous/useAnonymousAuthenticationModule";
@@ -40,7 +41,7 @@ import useAuth0AuthenticationModule from "qqq/authorization/auth0/useAuth0Authen
 import useOAuth2AuthenticationModule from "qqq/authorization/oauth2/useOAuth2AuthenticationModule";
 import Sidenav from "qqq/components/horseshoe/sidenav/SideNav";
 import theme from "qqq/components/legacy/Theme";
-import {getBannerClassName, getBannerStyles, getBanner, makeBannerContent} from "qqq/components/misc/Banners";
+import {getBanner, getBannerClassName, getBannerStyles, makeBannerContent} from "qqq/components/misc/Banners";
 import {setMiniSidenav, useMaterialUIController} from "qqq/context";
 import AppHome from "qqq/pages/apps/Home";
 import NoApps from "qqq/pages/apps/NoApps";
@@ -48,18 +49,18 @@ import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ReportRun from "qqq/pages/processes/ReportRun";
 import EntityCreate from "qqq/pages/records/create/RecordCreate";
 import TableDeveloperView from "qqq/pages/records/developer/TableDeveloperView";
-import {resolveAssetUrl, detectBasePath} from "qqq/utils/PathUtils";
 import EntityEdit from "qqq/pages/records/edit/RecordEdit";
 import RecordQuery from "qqq/pages/records/query/RecordQuery";
 import RecordDeveloperView from "qqq/pages/records/view/RecordDeveloperView";
 import RecordView from "qqq/pages/records/view/RecordView";
 import RecordViewByUniqueKey from "qqq/pages/records/view/RecordViewByUniqueKey";
 import GoogleAnalyticsUtils, {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {detectBasePath, resolveAssetUrl} from "qqq/utils/PathUtils";
 import Client from "qqq/utils/qqq/Client";
 import ProcessUtils from "qqq/utils/qqq/ProcessUtils";
 import React, {JSXElementConstructor, Key, ReactElement, useEffect, useState,} from "react";
 import {useCookies} from "react-cookie";
-import {Navigate, Route, Routes, useLocation, useSearchParams,} from "react-router-dom";
+import {Navigate, Route, Routes, useLocation, useParams, useSearchParams,} from "react-router-dom";
 import {Md5} from "ts-md5/dist/md5";
 
 
@@ -570,6 +571,21 @@ export default function App({authenticationMetaData}: Props)
       })();
    }, [needToLoadRoutes, isFullyAuthenticated]);
 
+   ///////////////////////////////////////////////////////////////
+   // write routes to manage redirects specified by the backend //
+   ///////////////////////////////////////////////////////////////
+   const getRedirectRoutes = (redirects: Map<string, string>): any =>
+   {
+      const rs = [] as any[];
+
+      for (let from of redirects.keys())
+      {
+         rs.push(<Route key={from} path={from} element={<RedirectRoute to={redirects.get(from)} />} />);
+      }
+
+      return (rs);
+   };
+
    ///////////////////////////////////////////////////
    // Open sidenav when mouse enter on mini sidenav //
    ///////////////////////////////////////////////////
@@ -682,7 +698,7 @@ export default function App({authenticationMetaData}: Props)
          return (null);
       }
 
-      return (<Box className={getBannerClassName(banner)} sx={{display: "flex", justifyContent: "center", padding: "0.5rem", position: "sticky", top: "0", zIndex: 1, ...getBannerStyles(banner)}}>
+      return (<Box className={getBannerClassName(banner)} sx={{display: "flex", justifyContent: "center", padding: "0.5rem", position: "sticky", top: "0", zIndex: 1000, ...getBannerStyles(banner)}}>
          {makeBannerContent(banner)}
       </Box>);
    }
@@ -723,6 +739,19 @@ export default function App({authenticationMetaData}: Props)
    function clearModalStack(): void
    {
       setModalStack([]);
+   }
+
+
+   /***************************************************************************
+    * handle routes that need to redirect to another path.
+    *
+    * Uses `replace` so that the browser history doesn't get updated with a new entry.
+    ***************************************************************************/
+   function RedirectRoute({to}: { to: string })
+   {
+      const params = useParams();
+      const wildcardPath = params["*"] || "";
+      return <Navigate to={`${to}/${wildcardPath}`} replace />;
    }
 
 
@@ -771,6 +800,7 @@ export default function App({authenticationMetaData}: Props)
                />
                <Routes>
                   <Route path="*" element={<Navigate to={defaultRoute} />} />
+                  {metaData?.redirects && getRedirectRoutes(metaData.redirects)}
                   {appRoutes && getRoutes(appRoutes)}
                   {profileRoutes && getRoutes([profileRoutes])}
                </Routes>

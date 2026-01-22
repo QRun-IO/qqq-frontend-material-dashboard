@@ -169,6 +169,21 @@ public class QFMDSeleniumLib
 
 
    /***************************************************************************
+    * bring up the dot menu - type something in, then select an option by name
+    ***************************************************************************/
+   public void dotMenu(String searchText, String nameOfItemToSelect)
+   {
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      // this button is maybe more reliable than sending dot to some nothing-selected element? //
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      qSeleniumLib.waitForSelectorContaining("header button", "search").click();
+      qSeleniumLib.waitForSelector("div[cmdk-root] input").click();
+      qSeleniumLib.waitForSelector("div[cmdk-root] input").sendKeys(searchText);
+      qSeleniumLib.waitForSelector("div[cmdk-item][data-value=\"" + nameOfItemToSelect + "\"]").click();
+   }
+
+
+   /***************************************************************************
     *
     ***************************************************************************/
    public void waitForPageHeaderToContain(String textContains)
