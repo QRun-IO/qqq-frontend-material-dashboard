@@ -1,87 +1,58 @@
 # Session State - QQQ Frontend Material Dashboard
 
-<<<<<<< HEAD
-**Last Updated:** 2026-01-18
-**Branch:** `feature/371-Anonymous-auth-module`
-=======
-**Last Updated:** 2026-01-16
+**Last Updated:** 2026-01-24
 **Branch:** `develop`
->>>>>>> b8f8af0 (docs: update session state after develop reset)
 **Version:** `0.40.0-SNAPSHOT`
 
 ## Current Status
 
-<<<<<<< HEAD
-**PR #131** - Open, includes four auth-related fixes. Awaiting review from @darinkelkhoff.
+On `develop` branch. Just completed fix for issue #134 (base path detection bug).
 
-## Recent Commits on Branch
+## Active PR
 
-=======
-**DEVELOP RESET** - develop branch reset to RC4 base, theme code removed, version bumped to 0.40.0-SNAPSHOT.
+- **PR #136** - fix(PathUtils): correct base path detection for root deployments
+  - Branch: `feature/134-base-path-detection-bug`
+  - Fixes issue #134
+  - Adds 25 unit tests for PathUtils
+  - Awaiting review/merge
 
-Both `release/0.36.0` (RC.4) and `develop` now have the theming revert and visual regression tests. Clean linear history achieved via force push.
+## Recent Commits (develop)
+
+```
+a969192 chore: update qqq-frontend-core to 0.40.4-SNAPSHOT
+a43b5c8 Merged feature/365-formal-support-for-tables-belonging-to-multiple-apps
+1d82bfd Merged feature/364-customizable-table-action-menus-and-additional-menu-support
+7287659 chore: bump package.json version to 0.40.0-SNAPSHOT to match pom.xml
+99a8f79 Merge pull request #131 from QRun-IO/feature/371-Anonymous-auth-module
+```
 
 ## What Was Done This Session
 
-1. Cherry-picked 5 commits from `feature/revert-theming-128` to `release/0.36.0`
-2. Resolved merge conflicts (stepper, sidenav, MDButton, CSS files)
-3. Published RC.4 via CI (pipeline #1392)
-4. Reset `develop` to RC4 base via force push (cleaner than merge)
-5. Bumped develop version to `0.40.0-SNAPSHOT`
-
-## Branch State
-
-| Branch | Version | Theme Code | Status |
-|--------|---------|------------|--------|
-| `release/0.36.0` | `0.36.0-RC.4` | Removed | RC published |
-| `develop` | `0.40.0-SNAPSHOT` | Removed | Reset from RC4 |
-
-## Visual Regression Testing
-
-18 Playwright screenshot tests covering home page, sidebar, nav bar, buttons, typography, cards. Snapshots generated via Docker to match CI environment (Linux fonts).
-
-```bash
-# Regenerate snapshots after visual changes
-./scripts/update-snapshots.sh
->>>>>>> b8f8af0 (docs: update session state after develop reset)
-```
-d077f24 fix: add Secure flag to cookie clearing (security scan)
-e1abc85 chore: update qqq-orb to 0.6.1
-a7967e1 fix: use double quotes for non-interpolated string (ESLint)
-30f1bb9 fix(oauth2): logout fixes for dual cookies and correct URL
-8a312ce fix(oauth2): call backend logout endpoint to invalidate session
-035785d feat(oauth2): read scopes from backend metadata
-1bc0723 feat(auth): fetch user info after anonymous authentication
-```
-
-## Issues Addressed
-
-| Issue | Title | Status |
-|-------|-------|--------|
-| #371 | Anonymous auth manageSession | In PR #131 |
-| #374 | OAuth2 configurable scopes | In PR #131 |
-| #375 | Backend logout call | In PR #131 |
-| #339 | Dual cookie clearing | In PR #131 |
-
-## Related Work
-
-- **qqq-orb v0.6.1** - Fixed version commit skip for feature branches (pushed to orb repo)
-- **GitHub Security** - Added `Secure` flag to cookie clearing per code scan recommendation
+1. Analyzed issue #134 - base path detection bug causing path duplication
+2. Identified two bugs in `detectBasePath()`:
+   - Bug 1: `if (match && match[1])` fails for root deployments (empty string is falsy)
+   - Bug 2: Strategy 3 incorrectly used current URL path as base path
+3. Fixed both bugs in `src/qqq/utils/PathUtils.ts`
+4. Created comprehensive test suite with 25 unit tests
+5. Verified all Playwright visual regression tests pass (18 tests)
+6. Created feature branch, committed, and opened PR #136
+7. Updated GitHub issue #134 with fix details
 
 ## Next Steps
 
-<<<<<<< HEAD
-1. Wait for PR #131 approval from @darinkelkhoff
-2. Merge to develop (auto-closes #371, #374, #375, #339)
-=======
-1. Integration testing of RC.4 with downstream apps
-2. QA validation of reverted appearance
-3. Final 0.36.0 release when ready
+- [ ] Get PR #136 reviewed and merged
+- [ ] Review dependabot PR #135 (lodash bump)
+- [ ] Address npm audit vulnerabilities
 
 ## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
+| Jest unit tests (PathUtils) | 25 | PASS |
 | Playwright visual regression | 18 | PASS |
-| Selenium fixture-based | ~100 | PASS |
->>>>>>> b8f8af0 (docs: update session state after develop reset)
+| Selenium fixture-based | ~100 | Not run this session |
+
+## Key Files Modified This Session
+
+- `src/qqq/utils/PathUtils.ts` - Bug fix
+- `src/qqq/utils/PathUtils.test.ts` - New test file (25 tests)

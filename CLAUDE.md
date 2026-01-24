@@ -236,49 +236,36 @@ Read these files in order:
 2. `docs/TODO.md` - Active and completed tasks
 3. This file (`CLAUDE.md`) - Project context
 
-### Current Status (as of 2026-01-18)
+### Current Status (as of 2026-01-24)
 
 | Item | Value |
 |------|-------|
-<<<<<<< HEAD
-| Branch | `feature/371-Anonymous-auth-module` |
-| Version | `0.40.0-SNAPSHOT` |
-| PR | #131 (awaiting approval from @darinkelkhoff) |
-| Issues | #371, #374, #375, #339 (all close on merge) |
-
-### Recent Activity
-
-- **PR #131** - Auth module enhancements (anonymous auth, OAuth2 scopes, logout fixes)
-- **Issue #339** - Clear both `sessionUUID` and `sessionId` cookies on logout
-- **Issue #375** - Call `/qqq/v1/logout` backend endpoint before client cleanup
-- **GitHub Security** - Added `Secure` flag to cookie clearing per code scan
-- **qqq-orb v0.6.1** - Fixed version commit skip for feature branches
-- **Dual-platform snapshots** - linux/ for CI, darwin/ for local dev
-=======
 | Branch | `develop` |
 | Version | `0.40.0-SNAPSHOT` |
-| Release Branch | `release/0.36.0` at `0.36.0-RC.4` |
-| Theme Code | Removed from both branches |
+| Active PR | #136 (base path detection fix) |
 
 ### Recent Activity
 
-- **develop reset** - Force pushed from RC4 base for clean history
-- **RC.4 Published** - Theming feature reverted, visual regression tests added
-- **Issue #128** - Pluggable themes caused visual regressions, reverted entirely
-- **18 visual regression tests** - Playwright screenshot tests with Docker-based generation
->>>>>>> b8f8af0 (docs: update session state after develop reset)
+- **PR #136** - Fix for issue #134 (base path detection bug)
+- **PR #131** - Auth module enhancements (merged)
+- **Feature #364** - Customizable table action menus (merged)
+- **Feature #365** - Tables belonging to multiple apps (merged)
+- **25 unit tests** - Added for PathUtils (detectBasePath, resolveAssetUrl)
+- **18 visual regression tests** - Playwright screenshot tests
 
 ### Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright visual regression | 18 | PASS (both platforms) |
+| Jest unit tests (PathUtils) | 25 | PASS |
+| Playwright visual regression | 18 | PASS |
 | Selenium fixture-based | ~100 | PASS |
 
 ### Pending Work
 
-- Wait for PR #131 approval from @darinkelkhoff
-- Merge PR #131 to develop (auto-closes #371, #374, #375, #339)
+- Get PR #136 reviewed and merged (closes #134)
+- Review dependabot PR #135 (lodash bump)
+- Address npm audit vulnerabilities
 
 ### Key Documentation Files
 
