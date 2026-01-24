@@ -175,24 +175,27 @@ QQQ backend supports a `material-dashboard-overlay/` directory for serving custo
 
 ### Visual Regression Tests (Playwright)
 
-18 Playwright screenshot tests verify UI appearance doesn't regress.
+18 Playwright screenshot tests verify UI appearance doesn't regress. Uses **dual-platform snapshots** for CI (Linux) and local development (macOS).
 
 ```bash
-# Run visual regression tests
+# Run visual regression tests (uses platform-appropriate snapshots automatically)
 npm run e2e
 
-# Regenerate snapshots after visual changes (uses Docker for CI compatibility)
-./scripts/update-snapshots.sh
+# Regenerate Linux snapshots (for CI) - requires Docker
+./scripts/update-snapshots-linux.sh
+
+# Regenerate macOS snapshots (for local dev)
+./scripts/update-snapshots-mac.sh
 ```
 
 Key files:
-- `playwright.config.ts` - Configuration with dual web servers
+- `playwright.config.ts` - Configuration with `{platform}` in snapshot paths
 - `e2e/fixture-server.js` - Node.js server for fixture JSON (port 8001)
 - `e2e/tests/visual-regression.spec.ts` - 18 screenshot tests
-- `e2e/snapshots/` - Baseline PNG files
-- `scripts/update-snapshots.sh` - Docker-based snapshot regeneration
+- `e2e/snapshots/.../linux/` - Linux snapshots (for CI)
+- `e2e/snapshots/.../darwin/` - macOS snapshots (for local dev)
 
-**Important:** Snapshots must be generated via Docker to match CI environment (Linux fonts). Running `npx playwright test --update-snapshots` locally on macOS will cause CI failures due to font rendering differences.
+**Dual-Platform Workflow:** Playwright automatically selects the correct snapshots based on platform. Update both when making visual changes.
 
 ### Selenium Integration Tests
 
@@ -233,10 +236,25 @@ Read these files in order:
 2. `docs/TODO.md` - Active and completed tasks
 3. This file (`CLAUDE.md`) - Project context
 
-### Current Status (as of 2026-01-16)
+### Current Status (as of 2026-01-18)
 
 | Item | Value |
 |------|-------|
+<<<<<<< HEAD
+| Branch | `feature/371-Anonymous-auth-module` |
+| Version | `0.40.0-SNAPSHOT` |
+| PR | #131 (awaiting approval from @darinkelkhoff) |
+| Issues | #371, #374, #375, #339 (all close on merge) |
+
+### Recent Activity
+
+- **PR #131** - Auth module enhancements (anonymous auth, OAuth2 scopes, logout fixes)
+- **Issue #339** - Clear both `sessionUUID` and `sessionId` cookies on logout
+- **Issue #375** - Call `/qqq/v1/logout` backend endpoint before client cleanup
+- **GitHub Security** - Added `Secure` flag to cookie clearing per code scan
+- **qqq-orb v0.6.1** - Fixed version commit skip for feature branches
+- **Dual-platform snapshots** - linux/ for CI, darwin/ for local dev
+=======
 | Branch | `develop` |
 | Version | `0.40.0-SNAPSHOT` |
 | Release Branch | `release/0.36.0` at `0.36.0-RC.4` |
@@ -248,19 +266,19 @@ Read these files in order:
 - **RC.4 Published** - Theming feature reverted, visual regression tests added
 - **Issue #128** - Pluggable themes caused visual regressions, reverted entirely
 - **18 visual regression tests** - Playwright screenshot tests with Docker-based generation
+>>>>>>> b8f8af0 (docs: update session state after develop reset)
 
 ### Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Playwright visual regression | 18 | PASS |
+| Playwright visual regression | 18 | PASS (both platforms) |
 | Selenium fixture-based | ~100 | PASS |
 
 ### Pending Work
 
-- Integration testing of RC.4 with downstream apps
-- QA validation of reverted appearance
-- Final 0.36.0 release
+- Wait for PR #131 approval from @darinkelkhoff
+- Merge PR #131 to develop (auto-closes #371, #374, #375, #339)
 
 ### Key Documentation Files
 
