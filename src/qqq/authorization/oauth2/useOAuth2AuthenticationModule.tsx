@@ -31,6 +31,7 @@ import {useNavigate, useSearchParams} from "react-router-dom";
 // ** Singleton instance of the QQQ client controller for API communication * //
 ////////////////////////////////////////////////////////////////////////////////
 const qController = Client.getInstance();
+const qControllerV1 = Client.getInstanceV1();
 
 /**
  * Properties interface for the useOAuth2AuthenticationModule hook.
@@ -95,10 +96,9 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
    const authOidc: AuthContextProps | null = inOAuthContext ? useAuth() : null;
 
    /////////////////////////////////////////////////////////////////////////////
-   // ** Cookie management hook for reading the session UUID cookie         * //
-   // ** (Removal is done via direct document.cookie manipulation in logout) * //
+   // ** Cookie management hook for reading and removing session cookies    * //
    /////////////////////////////////////////////////////////////////////////////
-   const [cookies] = useCookies([SESSION_UUID_COOKIE_NAME]);
+   const [cookies, , removeCookie] = useCookies([SESSION_UUID_COOKIE_NAME]);
 
    ////////////////////////////////////////////////////////////////////////////////////////////
    // ** URL search parameters hook for extracting OAuth callback parameters (code, state) * //
@@ -356,9 +356,10 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       ///////////////////////////////////////////////////////////////////////////////////
       try
       {
-         await fetch("/qqq/v1/logout", {
+         await qControllerV1.axiosRequest({
             method: "POST",
-            credentials: "include"
+            url: "/qqq/v1/logout",
+            withCredentials: true
          });
       }
       catch (e)
@@ -375,11 +376,10 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       // ** Remove session cookies from the browser                                                    * //
       // ** Backend sets both sessionUUID and sessionId cookies (see issue #339)                       * //
       // ** Must clear both to prevent stale session persistence                                       * //
-      // ** Use direct document.cookie manipulation (react-cookie's removeCookie has bugs)             * //
       /////////////////////////////////////////////////////////////////////////////////////////////////////
       console.log("[OAuth2] Removing session cookies (path: /)");
-      document.cookie = `${SESSION_UUID_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0; Secure;`;
-      document.cookie = "sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0; Secure;";
+      removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
+      removeCookie("sessionId", {path: "/"});
 
       ///////////////////////////////////////////////////////////////////////////////////
       // ** Clear all OIDC-related items from localStorage (state, verifiers, etc.) * //
