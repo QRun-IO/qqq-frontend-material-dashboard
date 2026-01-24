@@ -53,7 +53,7 @@
     "react-google-drive-picker": "^1.2.0",
     "react-markdown": "9.0.1",
     "react-oidc-context": "2.3.1",
-    "react-router-dom": "6.2.1",
+    "react-router-dom": "6.30.3",
     "react-router-hash-link": "2.4.3",
     "react-table": "7.7.0",
     "sass": "1.63.4",
