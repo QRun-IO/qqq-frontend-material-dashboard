@@ -98,7 +98,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
    /////////////////////////////////////////////////////////////////////////////
    // ** Cookie management hook for reading and removing session cookies    * //
    /////////////////////////////////////////////////////////////////////////////
-   const [cookies, , removeCookie] = useCookies([SESSION_UUID_COOKIE_NAME]);
+   const [cookies, , removeCookie] = useCookies([SESSION_UUID_COOKIE_NAME, "sessionId"]);
 
    ////////////////////////////////////////////////////////////////////////////////////////////
    // ** URL search parameters hook for extracting OAuth callback parameters (code, state) * //
