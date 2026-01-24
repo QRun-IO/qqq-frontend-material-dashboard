@@ -27,19 +27,8 @@ test.describe('Visual Regression - Unthemed Baseline', () => {
    test('app home page layout', async ({ page }) => {
       // Wait for main content to render (the app bar is always visible)
       await page.waitForSelector('.MuiAppBar-root', { timeout: 10000 });
-
-      // Wait for skeleton loaders to disappear (widgets finished loading)
-      // This prevents flaky tests where screenshots capture loading states
-      await page.waitForFunction(() => {
-         const skeletons = document.querySelectorAll('.MuiSkeleton-root');
-         return skeletons.length === 0;
-      }, { timeout: 15000 }).catch(() => {
-         // If skeletons don't disappear, continue anyway (some widgets may not load in test env)
-         console.log('Warning: Skeleton loaders still present after timeout');
-      });
-
-      // Additional wait for any async renders to complete
-      await page.waitForTimeout(500);
+      // Give time for all content to load
+      await page.waitForTimeout(2000);
 
       // Capture full page screenshot
       await expect(page).toHaveScreenshot('home-page-full.png', {
