@@ -33,10 +33,23 @@ interface Props
    otherValues?: Map<string, any>;
 }
 
+interface Result
+{
+   getDisplayValues: GetDisplayValuesFunction;
+   getDisplayValue: GetDisplayValueFunction;
+}
+
+export type GetDisplayValueFunction = (field: DynamicFormFieldDefinition, id: any) => Promise<string>;
+export type GetDisplayValuesFunction = (field: DynamicFormFieldDefinition, ids: any[]) => Promise<Record<any, string>>;
+
+
 /***************************************************************************
  * Hook to act as a cache and lookup utility for possible value labels.
+ *
+ * The hook returns 2 functions, that can be used to get the label for a given
+ * possible value field and either 1 or multiple ids
  ***************************************************************************/
-export default function usePossibleValueLabels({useCase, processUUID, otherValues}: Props)
+export default function usePossibleValueLabels({useCase, processUUID, otherValues}: Props) : Result
 {
    const [cache] = useState({} as Record<string, Record<any, string>>);
 
@@ -45,7 +58,7 @@ export default function usePossibleValueLabels({useCase, processUUID, otherValue
     * for a given field, and list of ids, return possible value labels for them
     * in an object key'ed by id.
     ***************************************************************************/
-   const getDisplayValues = async (field: DynamicFormFieldDefinition, ids: any[]): Promise<Record<any, string>> =>
+   const getDisplayValues: GetDisplayValuesFunction = async (field, ids) =>
    {
       ////////////////////////////////////////////
       // ensure sub-cache for this field exists //
@@ -107,7 +120,7 @@ export default function usePossibleValueLabels({useCase, processUUID, otherValue
    /***************************************************************************
     * for a given field, return the possible value label for a given id.
     ***************************************************************************/
-   const getDisplayValue = async (field: DynamicFormFieldDefinition, id: any): Promise<string> =>
+   const getDisplayValue: GetDisplayValueFunction = async (field, id) =>
    {
       const object = await getDisplayValues(field, [id]);
       return object[id]
