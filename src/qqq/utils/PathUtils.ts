@@ -22,13 +22,12 @@
 /**
  * Detects the base path where the SPA is running at RUNTIME.
  * Works for any base path: /, /admin, /my-app, /client/portal, etc.
- * 
+ *
  * Detection strategy (in order of reliability):
  * 1. Extract from script tag sources (looks for /static/js/ pattern from Create React App)
  * 2. Extract from HTML <base> tag if present
- * 3. Use first path segment if it doesn't look like an app route
- * 4. Default to / (root)
- * 
+ * 3. Default to / (root)
+ *
  * @returns The detected base path (e.g., "/admin", "/", "/my-app")
  */
 export function detectBasePath(): string
@@ -43,7 +42,7 @@ export function detectBasePath(): string
       if (src && src.includes("/static/js/"))
       {
          const match = src.match(/^https?:\/\/[^\/]+([\/\w-]*?)\/static\/js\//);
-         if (match && match[1])
+         if (match)
          {
             return match[1] || "/";
          }
@@ -59,24 +58,6 @@ export function detectBasePath(): string
       if (href && href !== "/")
       {
          return href.endsWith("/") ? href.slice(0, -1) : href;
-      }
-   }
-
-   // Strategy 3: Use first path segment if it doesn't look like an app route
-   // Avoid treating routes like "/users/123" as base path
-   // Only use if it's a simple single segment without additional path parts
-   const currentPath = window.location.pathname;
-   const parts = currentPath.split("/").filter(p => p);
-   
-   // If URL is like /something (single segment), it MIGHT be the base path
-   // But be conservative - only use if it's common base path names or doesn't look like data
-   if (parts.length === 1)
-   {
-      const firstPart = parts[0];
-      // If it's not numeric and not obviously a route, assume it's base path
-      if (!/^\d+$/.test(firstPart) && firstPart.length > 1)
-      {
-         return "/" + firstPart;
       }
    }
 
