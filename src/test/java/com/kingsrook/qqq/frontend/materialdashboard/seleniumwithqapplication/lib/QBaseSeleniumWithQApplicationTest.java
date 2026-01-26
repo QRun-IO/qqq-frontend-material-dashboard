@@ -154,10 +154,21 @@ public class QBaseSeleniumWithQApplicationTest
    protected static void assertBaseUrlHostAndPortIsConnectable()
    {
       String baseUrl = new QSeleniumLib(null).getBaseUrl();
-      String host = baseUrl.substring(baseUrl.indexOf("//") + 2).replaceAll("[:/].*", "");
-      String port = baseUrl.substring(baseUrl.lastIndexOf(":") + 1).replaceAll("/.*", "");
+      String  host;
+      Integer port;
 
-      try (Socket ignored = new Socket(host, Integer.parseInt(port)))
+      try
+      {
+         host = baseUrl.substring(baseUrl.indexOf("//") + 2).replaceAll("[:/].*", "");
+         port = Integer.parseInt(baseUrl.substring(baseUrl.lastIndexOf(":") + 1).replaceAll("/.*", ""));
+      }
+      catch(Exception e)
+      {
+         fail("Failed to parse hostname or port from baseUrl [" + baseUrl + "]", e);
+         return;
+      }
+
+      try(Socket ignored = new Socket(host, port))
       {
          //////////////////////
          // test can proceed //

@@ -34,7 +34,7 @@ import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilter
 import {QFilterOrderBy} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterOrderBy";
 import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
 import {ThisOrLastPeriodExpression} from "@qrunio/qqq-frontend-core/lib/model/query/ThisOrLastPeriodExpression";
-import DynamicFormUtils, {DynamicFormFieldDefinition} from "qqq/components/forms/DynamicFormUtils";
+import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
 import {validateCriteria} from "qqq/components/query/FilterCriteriaRow";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
@@ -164,7 +164,7 @@ class FilterUtils
                      // expects an array of possible values (objects with id & label) - so convert them. //
                      //////////////////////////////////////////////////////////////////////////////////////
                      const possibleValuesArray: QPossibleValue[] = [];
-                     for (let value of values || [])
+                     for (let value of values)
                      {
                         possibleValuesArray.push(new QPossibleValue({id: value, label: displayValuesMap[value] ?? value}));
                      }
