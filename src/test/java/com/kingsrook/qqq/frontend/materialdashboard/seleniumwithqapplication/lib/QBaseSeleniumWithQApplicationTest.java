@@ -23,7 +23,9 @@ package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.li
 
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -97,6 +99,12 @@ public class QBaseSeleniumWithQApplicationTest
          chromeOptions.addArguments("--headless=new");
       }
 
+      //////////////////////////////////////////////////////////////////////////////////////
+      // before chrome is started, check if we can connect to the base URL.  If not, fail //
+      // the test early with a more helpful error message than you might otherwise get    //
+      //////////////////////////////////////////////////////////////////////////////////////
+      assertBaseUrlHostAndPortIsConnectable();
+
       WebDriverManager.chromedriver().setup();
    }
 
@@ -135,6 +143,33 @@ public class QBaseSeleniumWithQApplicationTest
          });
 
          testApplicationServer.start();
+      }
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   protected static void assertBaseUrlHostAndPortIsConnectable()
+   {
+      String baseUrl = new QSeleniumLib(null).getBaseUrl();
+      String host = baseUrl.substring(baseUrl.indexOf("//") + 2).replaceAll("[:/].*", "");
+      String port = baseUrl.substring(baseUrl.lastIndexOf(":") + 1).replaceAll("/.*", "");
+
+      try (Socket ignored = new Socket(host, Integer.parseInt(port)))
+      {
+         //////////////////////
+         // test can proceed //
+         //////////////////////
+         System.out.println("Connection to [" + host + ":" + port + "] successful.  Continuing with test.");
+      }
+      catch (IOException e)
+      {
+         ////////////////
+         // fail early //
+         ////////////////
+         fail("Could not connect to [" + host + ":" + port + "].  Is a material-dashboard server running?", e);
       }
    }
 
