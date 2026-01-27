@@ -144,6 +144,15 @@ public class QFMDSeleniumLib
    }
 
 
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForAlertToNotExist(String message)
+   {
+      qSeleniumLib.waitForSelectorContainingToNotExist(".MuiAlert-root", message);
+   }
+
+
 
    /***************************************************************************
     *
@@ -219,5 +228,35 @@ public class QFMDSeleniumLib
    public void clickCancelButton()
    {
       qSeleniumLib.waitForSelectorContaining("button", "Cancel").click();
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void closeAlert()
+   {
+      qSeleniumLib.waitForSelector(".MuiAlert-root button").click();
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForDataGridContent(String expectedText)
+   {
+      qSeleniumLib.waitForSelectorContaining(".MuiDataGrid-cell", expectedText);
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForDataGridContentToNotExist(String expectedText)
+   {
+      qSeleniumLib.waitForSelectorContainingToNotExist(".MuiDataGrid-cell", expectedText);
    }
 }
