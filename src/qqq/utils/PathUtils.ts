@@ -32,9 +32,31 @@
  */
 export function detectBasePath(): string
 {
-   // Strategy 1: Try to extract from script tags (most reliable for CRA builds)
-   // CRA always puts scripts in /static/js/, so we can extract the base path from that
-   // Example: http://example.com/my-app/static/js/main.abc123.js -> /my-app
+   //////////////////////////////////////////////////////////////
+   // Strategy 1: Check for HTML <base> tag                    //
+   // If the HTML has <base href="/my-app/">, use that.        //
+   // The idea being, if someone said "this is the base path", //
+   // then trust it - there's no need to figure out anything.  //
+   //////////////////////////////////////////////////////////////
+   const baseTag = document.querySelector("base");
+   if (baseTag && baseTag.getAttribute("href"))
+   {
+      const href = baseTag.getAttribute("href");
+      if (href && href !== "/")
+      {
+         return href.endsWith("/") ? href.slice(0, -1) : href;
+      }
+   }
+
+
+   //////////////////////////////////////////////////////////////////////////////////////////
+   // Strategy 2: Try to extract from script tags (most reliable for CRA builds)           //
+   // CRA always puts scripts in /static/js/, so we can extract the base path from that    //
+   // Example: http://example.com/my-app/static/js/main.abc123.js -> /my-app               //
+   // At one time this was thought to be the most reliable approach, but (in a not-yet     //
+   // understood way) it was seen to return differing results throughout the SPA lifecycle //
+   // if the page was originally loaded from the root path (/).                            //
+   //////////////////////////////////////////////////////////////////////////////////////////
    const scripts = document.getElementsByTagName("script");
    for (let i = 0; i < scripts.length; i++)
    {
@@ -46,18 +68,6 @@ export function detectBasePath(): string
          {
             return match[1] || "/";
          }
-      }
-   }
-
-   // Strategy 2: Check for HTML <base> tag
-   // If the HTML has <base href="/my-app/">, use that
-   const baseTag = document.querySelector("base");
-   if (baseTag && baseTag.getAttribute("href"))
-   {
-      const href = baseTag.getAttribute("href");
-      if (href && href !== "/")
-      {
-         return href.endsWith("/") ? href.slice(0, -1) : href;
       }
    }
 
