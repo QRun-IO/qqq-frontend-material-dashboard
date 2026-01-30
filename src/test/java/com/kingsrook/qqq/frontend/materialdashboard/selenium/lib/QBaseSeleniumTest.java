@@ -72,7 +72,10 @@ public class QBaseSeleniumTest
          chromeOptions.addArguments("--headless=new");
       }
 
-      WebDriverManager.chromedriver().setup();
+      WebDriverManager.chromedriver()
+         .clearDriverCache()
+         .clearResolutionCache()
+         .setup();
    }
 
 
