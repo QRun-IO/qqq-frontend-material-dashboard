@@ -72,7 +72,7 @@ interface Props
    authenticationMetaData: QAuthenticationMetaData;
 }
 
-export default function App({authenticationMetaData}: Props)
+export default function App({authenticationMetaData}: Props) 
 {
    const [, , removeCookie] = useCookies([SESSION_UUID_COOKIE_NAME]);
    const [loadingToken, setLoadingToken] = useState(false);
@@ -97,7 +97,7 @@ export default function App({authenticationMetaData}: Props)
    /////////////////////////////////////////////////
    // deal with making sure user is authenticated //
    /////////////////////////////////////////////////
-   useEffect(() =>
+   useEffect(() => 
    {
       if (loadingToken)
       {
@@ -105,7 +105,7 @@ export default function App({authenticationMetaData}: Props)
       }
       setLoadingToken(true);
 
-      (async () =>
+      (async () => 
       {
          if (authenticationMetaData.type === "AUTH_0")
          {
@@ -130,7 +130,7 @@ export default function App({authenticationMetaData}: Props)
 
    if (needLicenseKey)
    {
-      (async () =>
+      (async () => 
       {
          const metaData: QInstance = await qController.loadMetaData();
          LicenseInfo.setLicenseKey(metaData.environmentValues?.get("MATERIAL_UI_LICENSE_KEY") || process.env.REACT_APP_MATERIAL_UI_LICENSE_KEY);
@@ -175,7 +175,7 @@ export default function App({authenticationMetaData}: Props)
    ////////////////////////////////////////////
    // load qqq meta data to make more routes //
    ////////////////////////////////////////////
-   useEffect(() =>
+   useEffect(() => 
    {
       if (!needToLoadRoutes || !isFullyAuthenticated)
       {
@@ -183,7 +183,7 @@ export default function App({authenticationMetaData}: Props)
       }
       setNeedToLoadRoutes(false);
 
-      (async () =>
+      (async () => 
       {
          function addAppToSideNavList(app: QAppTreeNode, appList: any[], parentPath: string, depth: number)
          {
@@ -200,9 +200,9 @@ export default function App({authenticationMetaData}: Props)
             }
 
             const childList: any[] = [];
-            if (app.children)
+            if (app.children && !app.hideChildrenFromNavigation)
             {
-               app.children.forEach((child: QAppTreeNode) =>
+               app.children.forEach((child: QAppTreeNode) => 
                {
                   addAppToSideNavList(child, childList, path, depth + 1);
                });
@@ -258,7 +258,7 @@ export default function App({authenticationMetaData}: Props)
             {
                if (app.children)
                {
-                  app.children.forEach((child: QAppTreeNode) =>
+                  app.children.forEach((child: QAppTreeNode) => 
                   {
                      addAppToAppRoutesList(metaData, child, routeList, path, depth + 1);
                   });
@@ -360,7 +360,7 @@ export default function App({authenticationMetaData}: Props)
                });
 
                const processesForTable = ProcessUtils.getProcessesForTable(metaData, table.name, true);
-               processesForTable.forEach((process) =>
+               processesForTable.forEach((process) => 
                {
                   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                   // paths to open modal process under its owning table.                                                                           //
@@ -435,7 +435,7 @@ export default function App({authenticationMetaData}: Props)
                }
 
                const reportsForTable = ProcessUtils.getReportsForTable(metaData, table.name, true);
-               reportsForTable.forEach((report) =>
+               reportsForTable.forEach((report) => 
                {
                   // todo - do we need some table/report routes here, that would go to RecordQuery and/or RecordView
                   routeList.push({
@@ -574,7 +574,7 @@ export default function App({authenticationMetaData}: Props)
    ///////////////////////////////////////////////////////////////
    // write routes to manage redirects specified by the backend //
    ///////////////////////////////////////////////////////////////
-   const getRedirectRoutes = (redirects: Map<string, string>): any =>
+   const getRedirectRoutes = (redirects: Map<string, string>): any => 
    {
       const rs = [] as any[];
 
@@ -589,7 +589,7 @@ export default function App({authenticationMetaData}: Props)
    ///////////////////////////////////////////////////
    // Open sidenav when mouse enter on mini sidenav //
    ///////////////////////////////////////////////////
-   const handleOnMouseEnter = () =>
+   const handleOnMouseEnter = () => 
    {
       if (miniSidenav && !onMouseEnter)
       {
@@ -601,7 +601,7 @@ export default function App({authenticationMetaData}: Props)
    /////////////////////////////////////////////////
    // Close sidenav when mouse leave mini sidenav //
    /////////////////////////////////////////////////
-   const handleOnMouseLeave = () =>
+   const handleOnMouseLeave = () => 
    {
       if (onMouseEnter)
       {
@@ -610,7 +610,7 @@ export default function App({authenticationMetaData}: Props)
       }
    };
 
-   useEffect(() =>
+   useEffect(() => 
    {
       document.body.setAttribute("dir", direction);
    }, [direction]);
@@ -618,7 +618,7 @@ export default function App({authenticationMetaData}: Props)
    //////////////////////////////////////////////////////
    // Setting page scroll to 0 when changing the route //
    //////////////////////////////////////////////////////
-   useEffect(() =>
+   useEffect(() => 
    {
       document.documentElement.scrollTop = 0;
       document.scrollingElement.scrollTop = 0;
@@ -633,7 +633,7 @@ export default function App({authenticationMetaData}: Props)
          route: string;
          component: ReactElement<any, string | JSXElementConstructor<any>>;
          key: Key;
-      }) =>
+      }) => 
       {
          if (route.collapse)
          {
@@ -660,7 +660,7 @@ export default function App({authenticationMetaData}: Props)
    const [helpHelpActive] = useState(queryParams.has("helpHelp"));
    const [userId, setUserId] = useState(loggedInUser?.email);
 
-   useEffect(() =>
+   useEffect(() => 
    {
       setUserId(loggedInUser?.email);
    }, [loggedInUser]);
@@ -709,7 +709,7 @@ export default function App({authenticationMetaData}: Props)
     ***************************************************************************/
    function pushModalOnStack(modalIdentifier: string): void
    {
-      if(modalStack.length > 0 && modalStack[modalStack.length] == modalIdentifier)
+      if (modalStack.length > 0 && modalStack[modalStack.length] == modalIdentifier)
       {
          console.warn(`Pushing a new modal on the QContext modalStack that is a duplicate of the current top-of-stack [${modalIdentifier}]`)
       }
@@ -723,7 +723,7 @@ export default function App({authenticationMetaData}: Props)
     ***************************************************************************/
    function popModalOffStack(modalIdentifier: string): void
    {
-      if(modalStack.length > 0 && modalStack[modalStack.length - 1] != modalIdentifier)
+      if (modalStack.length > 0 && modalStack[modalStack.length - 1] != modalIdentifier)
       {
          console.warn(`Request to pop a modal [${modalIdentifier}] off the QContext modalStack that is not currently on top [${modalStack[modalStack.length - 1]}]`)
          return;

@@ -66,9 +66,9 @@ function AppHome({app}: Props): JSX.Element
 
    const location = useLocation();
 
-   useEffect(() =>
+   useEffect(() => 
    {
-      (async () =>
+      (async () => 
       {
          const newQInstance = await qController.loadMetaData();
          setQInstance(newQInstance);
@@ -78,13 +78,13 @@ function AppHome({app}: Props): JSX.Element
    const mdbMetaData = app?.supplementalAppMetaData?.get("materialDashboard");
    let showAppLabelOnHomeScreen = true;
    let includeTableCountsOnHomeScreen = true;
-   if(mdbMetaData)
+   if (mdbMetaData)
    {
       showAppLabelOnHomeScreen = mdbMetaData.showAppLabelOnHomeScreen;
       includeTableCountsOnHomeScreen = mdbMetaData.includeTableCountsOnHomeScreen;
    }
 
-   useEffect(() =>
+   useEffect(() => 
    {
       setPageHeader(null);
       recordAnalytics({location: window.location, title: "App: " + app.label});
@@ -100,7 +100,7 @@ function AppHome({app}: Props): JSX.Element
       const newReports: QReportMetaData[] = [];
       const newChildApps: QAppMetaData[] = [];
 
-      app.children.forEach((child) =>
+      app.children.forEach((child) => 
       {
          switch (child.type)
          {
@@ -130,12 +130,12 @@ function AppHome({app}: Props): JSX.Element
       const tableCounts = new Map<string, { isLoading: boolean, value: number }>();
       const tableCountNumbers = new Map<string, string>();
       const tableCountTexts = new Map<string, string>();
-      newTables.forEach((table) =>
+      newTables.forEach((table) => 
       {
-         if(includeTableCountsOnHomeScreen)
+         if (includeTableCountsOnHomeScreen)
          {
             tableCounts.set(table.name, {isLoading: true, value: null});
-            setTimeout(async () =>
+            setTimeout(async () => 
             {
                const tableMetaData = await qController.loadTableMetaData(table.name);
                let countResult = null;
@@ -195,7 +195,7 @@ function AppHome({app}: Props): JSX.Element
          // load widget meta data //
          ///////////////////////////
          const matchingWidgets: QWidgetMetaData[] = [];
-         app.widgets.forEach((widgetName) =>
+         app.widgets.forEach((widgetName) => 
          {
             const widget = qInstance.widgets.get(widgetName);
             matchingWidgets.push(widget);
@@ -206,17 +206,17 @@ function AppHome({app}: Props): JSX.Element
 
    const tileSizeLg = 3;
 
-   const hasTablePermission = (tableName: string) =>
+   const hasTablePermission = (tableName: string) => 
    {
       return tables.find(t => t.name === tableName && (t.readPermission || t.insertPermission || t.editPermission || t.deletePermission));
    };
 
-   const hasProcessPermission = (processName: string) =>
+   const hasProcessPermission = (processName: string) => 
    {
       return processes.find(p => p.name === processName && p.hasPermission);
    };
 
-   const hasReportPermission = (reportName: string) =>
+   const hasReportPermission = (reportName: string) => 
    {
       return reports.find(r => r.name === reportName && r.hasPermission);
    };
@@ -227,7 +227,7 @@ function AppHome({app}: Props): JSX.Element
    //////////////////////////////////////////////////////////////////////////////////////////////////////
    // if our app has no widgets or sections, but it does have child apps, then return those child apps //
    //////////////////////////////////////////////////////////////////////////////////////////////////////
-   if(widgetCount == 0 && sectionCount == 0 && childApps && childApps.length > 0)
+   if (widgetCount == 0 && sectionCount == 0 && childApps && childApps.length > 0)
    {
       return (
          <BaseLayout>
@@ -323,7 +323,7 @@ function AppHome({app}: Props): JSX.Element
                                     section.processes ? (
                                        <Grid container spacing={3} padding={3} paddingTop={0}>
                                           {
-                                             section.processes.map((processName) =>
+                                             section.processes.map((processName) => 
                                              {
                                                 let process = app.childMap.get(processName);
                                                 return (
@@ -364,7 +364,7 @@ function AppHome({app}: Props): JSX.Element
                                     section.reports ? (
                                        <Grid container spacing={3} padding={3} paddingTop={0}>
                                           {
-                                             section.reports.map((reportName) =>
+                                             section.reports.map((reportName) => 
                                              {
                                                 let report = app.childMap.get(reportName);
                                                 return (
@@ -397,6 +397,39 @@ function AppHome({app}: Props): JSX.Element
                                     ) : null
                                  }
                                  {
+                                    section.apps ? (
+                                       <Box p={3} pl={3} pb={1} pt={0}>
+                                          <MDTypography variant="h6">Apps</MDTypography>
+                                       </Box>
+                                    ) : null
+                                 }
+                                 {
+                                    section.apps && qInstance ? (
+                                       <Grid container spacing={3} padding={3} paddingBottom={0} paddingTop={0}>
+                                          {
+                                             section.apps.map((app) => 
+                                             {
+                                                var qAppMetaData = qInstance.apps.get(app);
+                                                return (
+                                                   <Grid key={qAppMetaData.name} item xs={12} md={12} lg={tileSizeLg}>
+                                                      <Link to={qAppMetaData.name}>
+                                                         <Box className="big-icon" mb={3}>
+                                                            <MiniStatisticsCard
+                                                               count={""}
+                                                               percentage={{color: "info", text: ""}}
+                                                               title={{fontWeight: "bold", text: qAppMetaData.label}}
+                                                               icon={{color: "info", component: <Icon>{qAppMetaData.iconName}</Icon>}}
+                                                            />
+                                                         </Box>
+                                                      </Link>
+                                                   </Grid>
+                                                );
+                                             })
+                                          }
+                                       </Grid>
+                                    ) : null
+                                 }
+                                 {
                                     section.tables ? (
                                        <Box p={3} pl={3} pb={1} pt={0}>
                                           <MDTypography variant="h6">Data</MDTypography>
@@ -407,12 +440,12 @@ function AppHome({app}: Props): JSX.Element
                                     section.tables ? (
                                        <Grid container spacing={3} padding={3} paddingBottom={0} paddingTop={0}>
                                           {
-                                             section.tables.map((tableName) =>
+                                             section.tables.map((tableName) => 
                                              {
                                                 let table = app.childMap.get(tableName);
                                                 let count = "";
                                                 let percentage = "";
-                                                if(includeTableCountsOnHomeScreen)
+                                                if (includeTableCountsOnHomeScreen)
                                                 {
                                                    count = !tableCounts.has(table.name) || tableCounts.get(table.name).isLoading ? "..." : (tableCountNumbers.get(table.name));
                                                    percentage = !tableCounts.has(table.name) || tableCounts.get(table.name).isLoading ? "" : (tableCountTexts.get(table.name));
