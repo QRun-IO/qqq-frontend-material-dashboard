@@ -263,7 +263,7 @@ function RecordViewSubMenu({actions, menu, tableMetaData, record, subMenuItem, i
 
    return (<>
       <MenuItem onClick={openMenu}>
-         {content(subMenuItem, "double_arrow", menu.label)}
+         {content(subMenuItem, "double_arrow", menu.label, "chevron_right")}
       </MenuItem>
       <Menu
          anchorEl={menuElement}
@@ -285,11 +285,14 @@ function RecordViewSubMenu({actions, menu, tableMetaData, record, subMenuItem, i
 /***************************************************************************
  * output the content for a menu item - a box, an icon, a label.
  ***************************************************************************/
-function content(menuItem: QMenuItem, defaultIconName: string, defaultLabel: string)
+function content(menuItem: QMenuItem, defaultIconName: string, defaultLabel: string, rightIconName?: string): JSX.Element
 {
-   return <Box display="flex" alignItems="center" sx={{"& .MuiListItemIcon-root": {minWidth: "30px"}}}>
-      <ListItemIcon><Icon>{menuItem.icon?.name ?? defaultIconName}</Icon></ListItemIcon>
-      {menuItem.label ?? defaultLabel}
+   return <Box display="flex" alignItems="center" justifyContent="space-between" width="100%" sx={{"& .MuiListItemIcon-root": {minWidth: "auto"}}}>
+      <Box display="flex" alignItems="center" sx={{"& .MuiListItemIcon-root": {minWidth: "30px"}}}>
+         <ListItemIcon><Icon>{menuItem.icon?.name ?? defaultIconName}</Icon></ListItemIcon>
+         {menuItem.label ?? defaultLabel}
+      </Box>
+      {rightIconName && <ListItemIcon><Icon>{rightIconName}</Icon></ListItemIcon>}
    </Box>;
 }
 
