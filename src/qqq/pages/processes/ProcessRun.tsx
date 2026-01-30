@@ -1650,14 +1650,21 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                         const fieldName = field.name;
                         if (field.possibleValueSourceName && newValues && newValues[fieldName])
                         {
-                           const results: QPossibleValue[] = await qController.possibleValues(null, processName, fieldName, null, [newValues[fieldName]]);
-                           if (results && results.length > 0)
+                           try
                            {
-                              if (!cachedPossibleValueLabels[fieldName])
+                              const results: QPossibleValue[] = await qController.possibleValues(null, processName, fieldName, null, [newValues[fieldName]]);
+                              if (results && results.length > 0)
                               {
-                                 cachedPossibleValueLabels[fieldName] = {};
+                                 if (!cachedPossibleValueLabels[fieldName])
+                                 {
+                                    cachedPossibleValueLabels[fieldName] = {};
+                                 }
+                                 cachedPossibleValueLabels[fieldName][newValues[fieldName]] = results[0].label;
                               }
-                              cachedPossibleValueLabels[fieldName][newValues[fieldName]] = results[0].label;
+                           }
+                           catch(e)
+                           {
+                              console.warn(`Error looking up possible value label for field [${fieldName}], value [${newValues[fieldName]}]: ${e}`);
                            }
                         }
                      }
