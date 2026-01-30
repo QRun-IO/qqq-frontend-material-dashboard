@@ -513,7 +513,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    useEffect(() =>
    {
       let actionMenu: QMenu = null;
-      if (tableMetaData)
+      if (metaData && tableMetaData)
       {
          actionMenu = (tableMetaData.menus ?? []).find(m => m.slot == "VIEW_SCREEN_ACTIONS");
 
@@ -523,7 +523,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          }
       }
       setActionMenu(actionMenu);
-   }, [tableMetaData]);
+   }, [metaData, tableMetaData]);
 
 
    /*******************************************************************************
@@ -1153,8 +1153,8 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                                    <Box display="flex" ml="auto">
                                                       <GotoRecordButton metaData={metaData} tableMetaData={tableMetaData} />
                                                       {renderShareButton()}
-                                                      {tableMetaData && <RecordViewAdditionalMenus tableMetaData={tableMetaData} record={record} actions={recordViewMenuActions} />}
-                                                      <QActionsMenuButton isOpen={actionsMenuAnchorElement} onClickHandler={openActionsMenu} />
+                                                      {metaData && tableMetaData && <RecordViewAdditionalMenus tableMetaData={tableMetaData} record={record} actions={recordViewMenuActions} />}
+                                                      {metaData && tableMetaData && <QActionsMenuButton isOpen={actionsMenuAnchorElement} onClickHandler={openActionsMenu} />}
                                                    </Box>
                                                    <Menu
                                                       anchorEl={actionsMenuAnchorElement}

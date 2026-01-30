@@ -218,7 +218,7 @@ export function RecordViewMenuItem({tableMetaData: table, menuItem, record, acti
             }
             case "AUDIT":
             {
-               return actions.getMetaData().tables.has("audit")
+               return actions.getMetaData()?.tables?.has("audit")
                   ? <MenuItem onClick={() => actions.audit(closeMenu)} data-qqq-id="menu-item-audit">{content(menuItem, "checklist", "Audit")}</MenuItem>
                   : <></>;
             }
