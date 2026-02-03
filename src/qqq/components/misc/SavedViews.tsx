@@ -45,7 +45,7 @@ import RecordQueryView from "qqq/models/query/RecordQueryView";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import {SavedViewUtils} from "qqq/utils/qqq/SavedViewUtils";
-import React, {useContext, useRef, useState} from "react";
+import React, {useContext, useState} from "react";
 import {useNavigate} from "react-router-dom";
 
 interface Props
