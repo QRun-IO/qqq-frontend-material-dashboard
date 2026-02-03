@@ -28,7 +28,6 @@ import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import FormData from "form-data";
 import QContext from "QContext";
 import {useContext, useEffect, useState} from "react";
-import {useLocation} from "react-router-dom";
 
 
 interface Props
@@ -66,7 +65,6 @@ export default function useSavedViews(props: Props): UseSavedViewsResult
    const [savedViewsHaveLoaded, setSavedViewsHaveLoaded] = useState(false);
 
    const {userId: currentUserId} = useContext(QContext);
-   const location = useLocation();
 
    //////////////////////////////////////////////////////////////////////////
    // load filters on first run, then monitor location or metadata changes //
@@ -77,7 +75,7 @@ export default function useSavedViews(props: Props): UseSavedViewsResult
       {
          loadSavedViews()
       }
-   }, [location, tableMetaData, metaData]);
+   }, [tableMetaData, metaData]);
 
 
    /*******************************************************************************

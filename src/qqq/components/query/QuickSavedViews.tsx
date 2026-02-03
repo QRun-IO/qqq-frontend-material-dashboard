@@ -22,6 +22,7 @@
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Icon from "@mui/material/Icon";
 import {ApiVersion} from "@qrunio/qqq-frontend-core/lib/controllers/QControllerV1";
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
@@ -63,6 +64,7 @@ interface QuickSavedViewsProps
 export default function QuickSavedViews({metaData, tableMetaData, apiVersion, tableVariant, useSavedViewsResult, viewOnChangeCallback, queryScreenUsage, currentSavedView, activeView}: QuickSavedViewsProps): JSX.Element
 {
    const [countsBySavedViewId, setCountsBySavedViewId] = useState({} as Record<number, number>);
+   const [errorsBySavedViewId, setErrorsBySavedViewId] = useState({} as Record<number, boolean>);
 
    const navigate = useNavigate();
    const isQueryScreen = queryScreenUsage == "queryScreen";
@@ -138,13 +140,22 @@ export default function QuickSavedViews({metaData, tableMetaData, apiVersion, ta
          {
             (async () =>
             {
+               const id = view.values.get("id");
                const viewJson = view.values.get("viewJson");
                const viewObject = RecordQueryView.buildFromJSON(viewJson);
                const filterForBackend = FilterUtils.prepQueryFilterForBackend(tableMetaData, viewObject.queryFilter);
 
-               const [count] = await qControllerV1.count(tableMetaData?.name, apiVersion, filterForBackend, null, undefined, tableVariant);
-               countsBySavedViewId[view.values.get("id")] = count;
-               setCountsBySavedViewId({...countsBySavedViewId});
+               try
+               {
+                  const [count] = await qControllerV1.count(tableMetaData?.name, apiVersion, filterForBackend, null, undefined, tableVariant);
+                  setCountsBySavedViewId(prev => ({...prev, [id]: count}));
+                  setErrorsBySavedViewId(prev => ({...prev, [id]: false}));
+               }
+               catch (e)
+               {
+                  console.error(e);
+                  setErrorsBySavedViewId(prev => ({...prev, [id]: true}));
+               }
             })();
          }
       });
@@ -161,7 +172,14 @@ export default function QuickSavedViews({metaData, tableMetaData, apiVersion, ta
                onClick={(event) => quickViewOnClick(event, view)}
             >
                {view.values.get("label")}
-               {view.values.get("doCount") && <span>&nbsp;({ValueUtils.safeToLocaleString(countsBySavedViewId[view.values.get("id")], "...")})</span>}
+               {view.values.get("doCount") &&
+                  <>
+                     {errorsBySavedViewId[view.values.get("id")]
+                        ? <span>&nbsp;<Icon sx={{verticalAlign: "text-top"}} title="Error loading count">error_outline</Icon></span>
+                        : <span>&nbsp;({ValueUtils.safeToLocaleString(countsBySavedViewId[view.values.get("id")], "...")})</span>
+                     }
+                  </>
+               }
             </Button>
          )}
       </Box>
