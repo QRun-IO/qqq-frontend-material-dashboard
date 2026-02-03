@@ -260,6 +260,40 @@ public class QBaseSeleniumWithQApplicationTest
    }
 
 
+
+   /***************************************************************************
+    * To allow each test method to have different test data (which
+    * must be set up in the BeforeEach part of the JUnit flow - not within the @Test)
+    * while keeping that setup ("given") code closer to the test method itself
+    * and not having a big switch in the @BeforeEach method, this method
+    * allows @Test methods to have a @Tag, with a value of "setupTestData..."
+    * - where that tag value is assumed to be a method name (must start with
+    * "setupTestData"), which takes no parameters.
+    *
+    * @see #customizeQInstanceViaTestMethodTagSpecifyingCustomizeQInstanceMethodName(QInstance)
+    ***************************************************************************/
+   protected void setupTestDataViaTestMethodTagSpecifyingSetupTestDataMethodName() throws QException
+   {
+      Optional<String> setupTestDataTag = testInfo.getTags().stream().filter(s -> s.matches("^setupTestData.*")).findFirst();
+      if(setupTestDataTag.isPresent())
+      {
+         try
+         {
+            Method method = getClass().getMethod(setupTestDataTag.get());
+            method.invoke(this);
+         }
+         catch(NoSuchMethodException e)
+         {
+            fail("Missing method: [public void " + setupTestDataTag.get() + "()] specified in @Tag(\"setupTestData...\") for [" + testInfo.getDisplayName() + "]");
+         }
+         catch(Exception e)
+         {
+            throw (new QException("Error in setupTestDataViaTestMethodTagSpecifyingSetupTestDataMethodName", e));
+         }
+      }
+   }
+
+
    /***************************************************************************
     *
     ***************************************************************************/

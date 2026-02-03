@@ -388,6 +388,38 @@ public class QSeleniumLib
    /*******************************************************************************
     **
     *******************************************************************************/
+   public void waitForSelectorTextMatchingRegexToNotExist(String cssSelector, String textMatches)
+   {
+      LOG.debug("Waiting for non-existence of element matching selector [" + cssSelector + "] matching regex [" + textMatches + "]");
+      long start = System.currentTimeMillis();
+
+      do
+      {
+         List<WebElement> elements = driver.findElements(By.cssSelector(cssSelector));
+         if(elements.isEmpty())
+         {
+            LOG.debug("Found non-existence of element(s) matching selector [" + cssSelector + "]");
+            return;
+         }
+
+         if(elements.stream().noneMatch(e -> e.getText().toLowerCase().matches(textMatches.toLowerCase())))
+         {
+            LOG.debug("Found non-existence of element(s) matching selector [" + cssSelector + "] matches regex [" + textMatches + "]");
+            return;
+         }
+
+         sleepABit();
+      }
+      while(start + (1000 * WAIT_SECONDS) > System.currentTimeMillis());
+
+      fail("Failed for non-existence of element matching selector [" + cssSelector + "] matching regex [" + textMatches + "] after [" + WAIT_SECONDS + "] seconds.");
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
    public void waitForNumberOfWindowsToBe(int number)
    {
       LOG.debug("Waiting for number of windows (tabs) to be [" + number + "]");
