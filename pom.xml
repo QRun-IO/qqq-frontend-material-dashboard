@@ -59,7 +59,7 @@
 
   <properties>
     <revision>0.40.0-SNAPSHOT</revision>
-    <qqq.version>0.40.0-SNAPSHOT</qqq.version>
+    <qqq.version>0.40.0-quick-views-16791785-20260202.235216-1</qqq.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>21</maven.compiler.source>
