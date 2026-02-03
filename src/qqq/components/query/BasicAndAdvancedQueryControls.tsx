@@ -20,15 +20,6 @@
  */
 
 
-import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
-import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
-import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QTableSection} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableSection";
-import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCriteriaOperator";
-import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterCriteria";
-import {QFilterOrderBy} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterOrderBy";
-import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -41,6 +32,18 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Tooltip from "@mui/material/Tooltip";
 import {GridApiPro} from "@mui/x-data-grid-pro/models/gridApiPro";
+import {ApiVersion} from "@qrunio/qqq-frontend-core/lib/controllers/QControllerV1";
+import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
+import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QTableSection} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableSection";
+import {QTableVariant} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableVariant";
+import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
+import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCriteriaOperator";
+import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterCriteria";
+import {QFilterOrderBy} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterOrderBy";
+import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
 import {QCancelButton, QSaveButton} from "qqq/components/buttons/DefaultButtons";
@@ -49,26 +52,29 @@ import {QFilterCriteriaWithId} from "qqq/components/query/CustomFilterPanel";
 import FieldListMenu from "qqq/components/query/FieldListMenu";
 import {validateCriteria} from "qqq/components/query/FilterCriteriaRow";
 import QuickFilter, {quickFilterButtonStyles} from "qqq/components/query/QuickFilter";
+import QuickSavedViews from "qqq/components/query/QuickSavedViews";
+import {UseSavedViewsResult} from "qqq/components/query/useSavedViews";
 import XIcon from "qqq/components/query/XIcon";
+import RecordQueryView from "qqq/models/query/RecordQueryView";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import React, {forwardRef, useContext, useImperativeHandle, useReducer, useState} from "react";
 
+const borderGray = colors.grayLines.main;
+
 interface BasicAndAdvancedQueryControlsProps
 {
    metaData: QInstance;
    tableMetaData: QTableMetaData;
-
+   apiVersion: ApiVersion;
+   tableVariant?: QTableVariant;
    savedViewsComponent: JSX.Element;
    columnMenuComponent: JSX.Element;
-
    quickFilterFieldNames: string[];
    setQuickFilterFieldNames: (names: string[]) => void;
-
    queryFilter: QQueryFilter;
    setQueryFilter: (queryFilter: QQueryFilter) => void;
-
    gridApiRef: React.MutableRefObject<GridApiPro>;
 
    /////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,17 +84,18 @@ interface BasicAndAdvancedQueryControlsProps
    queryFilterJSON: string;
 
    queryScreenUsage: QueryScreenUsage;
-
    allowVariables?: boolean;
-
    mode: string;
    setMode: (mode: string) => void;
-
    omitExposedJoins?: string[];
+
+   useSavedViewsResult?: UseSavedViewsResult;
+   viewOnChangeCallback?: (selectedSavedViewId: number) => Promise<void>;
+   currentSavedView: QRecord;
+   activeView?: RecordQueryView;
 }
 
 let debounceTimeout: string | number | NodeJS.Timeout;
-
 
 /*******************************************************************************
  ** function to generate an element that says how a filter is sorted.
@@ -118,7 +125,7 @@ export function getCurrentSortIndicator(queryFilter: QQueryFilter, tableMetaData
  *******************************************************************************/
 const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryControlsProps, ref) =>
 {
-   const {metaData, tableMetaData, savedViewsComponent, columnMenuComponent, quickFilterFieldNames, setQuickFilterFieldNames, setQueryFilter, queryFilter, gridApiRef, queryFilterJSON, mode, setMode, queryScreenUsage} = props;
+   const {metaData, tableMetaData, apiVersion, tableVariant, savedViewsComponent, columnMenuComponent, quickFilterFieldNames, setQuickFilterFieldNames, setQueryFilter, queryFilter, gridApiRef, queryFilterJSON, mode, setMode, queryScreenUsage, useSavedViewsResult, viewOnChangeCallback, currentSavedView, activeView} = props;
 
    /////////////////////
    // state variables //
@@ -617,8 +624,6 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
       </>;
    }
 
-   const borderGray = colors.grayLines.main;
-
    const sortMenuComponent = (
       <FieldListMenu
          idPrefix="sort"
@@ -641,6 +646,9 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
 
    return (
       <Box pb={mode == "advanced" ? "0.25rem" : "0"}>
+
+         { /* Zeroth row:  Quick Views */}
+         <QuickSavedViews metaData={metaData} tableMetaData={tableMetaData} apiVersion={apiVersion} queryScreenUsage={queryScreenUsage} currentSavedView={currentSavedView} tableVariant={tableVariant} viewOnChangeCallback={viewOnChangeCallback} activeView={activeView} useSavedViewsResult={useSavedViewsResult} />
 
          {/* First row:  Saved Views button (with Columns button in the middle of it), then space-between, then basic|advanced toggle */}
          <Box display="flex" justifyContent="space-between" pt={"0.5rem"} pb={"0.5rem"}>
