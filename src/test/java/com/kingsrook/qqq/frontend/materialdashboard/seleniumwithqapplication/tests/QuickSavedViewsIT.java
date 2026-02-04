@@ -119,8 +119,8 @@ public class QuickSavedViewsIT extends QBaseSeleniumWithQApplicationTest
       ))).getRecords();
 
       new InsertAction().execute(new InsertInput(QuickSavedView.TABLE_NAME).withRecordEntities(List.of(
-         new QuickSavedView().withSavedViewId(insertedViews.get(0).getValueInteger("id")).withDoCount(false).withSortOrder(2),
-         new QuickSavedView().withSavedViewId(insertedViews.get(1).getValueInteger("id")).withDoCount(true).withSortOrder(1)
+         new QuickSavedView().withLabel("Empty View").withSavedViewId(insertedViews.get(0).getValueInteger("id")).withDoCount(false).withSortOrder(2),
+         new QuickSavedView().withLabel("Simple View").withSavedViewId(insertedViews.get(1).getValueInteger("id")).withDoCount(true).withSortOrder(1)
       )));
    }
 
