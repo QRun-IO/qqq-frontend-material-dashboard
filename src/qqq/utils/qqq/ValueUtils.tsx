@@ -552,15 +552,17 @@ class ValueUtils
    }
 
    /*******************************************************************************
-    **
+    * run toLocaleString on a number (e.g., to commafy), but return a default if
+    * it's null or undefined.  The default defaults to empty string, but can be
+    * overridden.
     *******************************************************************************/
-   public static safeToLocaleString(n: Number): string
+   public static safeToLocaleString(n: Number, defaultIfNullOrUndefined: string = ""): string
    {
       if (n != null && n != undefined)
       {
          return (n.toLocaleString());
       }
-      return ("");
+      return (defaultIfNullOrUndefined);
    }
 
 }
