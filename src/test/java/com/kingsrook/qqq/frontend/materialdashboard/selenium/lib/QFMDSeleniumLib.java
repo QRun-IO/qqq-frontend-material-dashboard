@@ -163,6 +163,15 @@ public class QFMDSeleniumLib
    }
 
 
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForViewScreenFieldValueToNotExist(String fieldLabel, String value)
+   {
+      qSeleniumLib.waitForSelectorContainingToNotExist(".MuiGrid-item", fieldLabel + ": " + value);
+   }
+
+
 
    /***************************************************************************
     *
