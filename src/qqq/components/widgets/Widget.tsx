@@ -19,16 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {CSSProperties} from "@mui/system/CSSProperties";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
 import {Box, InputLabel} from "@mui/material";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
 import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
 import Typography from "@mui/material/Typography";
+import {CSSProperties} from "@mui/system/CSSProperties";
+import {Collapsible} from "@qrunio/qqq-frontend-core/lib/model/metaData/Collapsible";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
 import parse from "html-react-parser";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
@@ -39,6 +41,7 @@ import HtmlUtils from "qqq/utils/HtmlUtils";
 import {resolveAssetUrl} from "qqq/utils/PathUtils";
 import React, {useContext, useEffect, useState} from "react";
 import {NavigateFunction, useNavigate} from "react-router-dom";
+
 
 export interface WidgetData
 {
@@ -457,8 +460,26 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
 
    const {helpHelpActive} = useContext(QContext);
 
+   const isCollapsible = props.widgetMetaData?.collapsible?.isCollapsible as boolean;
+   const collapsibleOpenStateLSKey = `qqq.widget.collapsibleOpenState.${props.widgetMetaData?.name}`;
+   const [collapsibleStateIsOpen, setCollapsibleStateIsOpen] = useState(getInitialCollapsibleOpenState(collapsibleOpenStateLSKey, props.widgetMetaData?.collapsible));
+
+
+   /***************************************************************************
+    * Render a *Label* Component - e.g., a button or other kind of control that
+    * should appear in the widget's label box.
+    ***************************************************************************/
    function renderComponent(component: LabelComponent, componentIndex: number)
    {
+      if(!collapsibleStateIsOpen)
+      {
+         ////////////////////////////////////////////////////////////////////////
+         // if the widget is not open, then don't render any components on the //
+         // bar (other than the ^/v icon button, which isn't a LabelComponent  //
+         ////////////////////////////////////////////////////////////////////////
+         return <></>
+      }
+
       if (component && component.render)
       {
          return component.render({navigate: navigate, widgetProps: props, dropdownData: dropdownData, componentIndex: componentIndex, reloadFunction: doReload});
@@ -658,6 +679,45 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
 
    let localLabelAdditionalElementsRight = [...props.labelAdditionalElementsRight];
 
+   /***************************************************************************
+    * event handler for clicks on the label-bar (to toggle its open state, if
+    * allowed)
+    ***************************************************************************/
+   const toggleCollapsibleLabelBarClick = (event: React.SyntheticEvent) =>
+   {
+      if(!isCollapsible)
+      {
+         return;
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      // if the widget is open, then ignore clicks on elements OTHER than the bar or the label (H6) //
+      // (e.g., add new, or export, etc - those should NOT close the widget.)                       //
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      if(collapsibleStateIsOpen)
+      {
+         //@ts-ignore className and tagName - we only want to proceed if they are present
+         if(!event.target?.className?.includes("widgetLabelBox") && !event.target?.tagName?.toLowerCase?.()?.match(/^h.$/))
+         {
+            return;
+         }
+      }
+
+      toggleCollapsibleOpenStateHandler();
+   }
+
+
+   /***************************************************************************
+    * flip the isOpen state for the widget, and write to local storage.
+    ***************************************************************************/
+   const toggleCollapsibleOpenStateHandler = () =>
+   {
+      const newValue = !collapsibleStateIsOpen;
+      setCollapsibleStateIsOpen(newValue);
+      localStorage.setItem(collapsibleOpenStateLSKey, newValue.toString());
+   };
+
+
    const hasPermission = props.widgetData?.hasPermission === undefined || props.widgetData?.hasPermission === true;
 
    const isSet = (v: any): boolean =>
@@ -698,7 +758,10 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
    }
 
    let labelElement = (
-      <Typography sx={{cursor: "default", pl: "auto", fontWeight: 600}} variant={isParentWidget && (props.widgetData.isLabelPageTitle || usingLabelAsTitle) ? "h3" : "h6"} display="inline">
+      <Typography
+         sx={{cursor: (isCollapsible ? "pointer" : "default"), pl: "auto", fontWeight: 500, pt: (isCollapsible ? "0.25rem" : "unset")}}
+         variant={isParentWidget && (props.widgetData.isLabelPageTitle || usingLabelAsTitle) ? "h3" : "h6"}
+         display="inline">
          {labelToUse}
       </Typography>
    );
@@ -733,12 +796,14 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
 
    const isTable = props.widgetMetaData.type == "table";
 
+   const moreHeaderProps = isCollapsible ? {sx: {cursor: "pointer"}, onClick: (event: React.SyntheticEvent) => toggleCollapsibleLabelBarClick(event)} : {}
+
    const errorLoading = props.widgetData?.errorLoading !== undefined && props.widgetData?.errorLoading === true;
    const widgetContent =
       <Box sx={{width: "100%", height: "100%", minHeight: props.widgetMetaData?.minHeight ? props.widgetMetaData?.minHeight : "initial"}}>
          {
             needLabelBox &&
-            <Box display="flex" justifyContent="space-between" alignItems="flex-start" sx={{width: "100%", ...props.labelBoxAdditionalSx}} minHeight={"2.5rem"} className="widgetLabelBox">
+            <Box display="flex" justifyContent="space-between" alignItems="flex-start" sx={{width: "100%", ...props.labelBoxAdditionalSx}} minHeight={"2.5rem"} className="widgetLabelBox" {...moreHeaderProps}>
                <Box display="flex" flexDirection="column">
                   <Box display="flex" alignItems="baseline">
                      {
@@ -789,7 +854,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                            })
                         )
                      }
-                     {localLabelAdditionalElementsLeft}
+                     {localLabelAdditionalElementsLeft.filter((element) => collapsibleStateIsOpen)}
                   </Box>
                   <Box key="sublabelContainer" display="flex">
                      {
@@ -797,7 +862,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                      }
                   </Box>
                </Box>
-               <Box>
+               <Box display="flex">
                   {
                      hasPermission && (
                         labelComponentsRight.map((component, i) =>
@@ -806,7 +871,16 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                         })
                      )
                   }
-                  {localLabelAdditionalElementsRight}
+                  {localLabelAdditionalElementsRight.filter((element) => collapsibleStateIsOpen)}
+                  {
+                     ////////////////////////////////////////////////////////////////////////
+                     // show the expand/collapse icon button, if the widget is collapsible //
+                     ////////////////////////////////////////////////////////////////////////
+                     isCollapsible &&
+                     <IconButton onClick={() => toggleCollapsibleOpenStateHandler()} sx={{top: "-0.5rem", mr: "-1.25rem"}}>
+                        <Icon fontSize="large">{collapsibleStateIsOpen ? "expand_less" : "expand_more"}</Icon>
+                     </IconButton>
+                  }
                </Box>
             </Box>
          }
@@ -819,35 +893,41 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
             */
          }
          {
-            errorLoading ? (
-               <Box pb={3} sx={{display: "flex", justifyContent: "center", alignItems: "flex-start"}}>
-                  <Icon color="error">error</Icon>
-                  <Typography sx={{paddingLeft: "4px", textTransform: "revert"}} variant="button">An error occurred loading widget content.</Typography>
-               </Box>
-            ) : (
-               hasPermission && props.widgetData?.dropdownNeedsSelectedText ? (
-                  <Box pb={3} sx={{width: "100%", textAlign: "right"}}>
-                     <Typography variant="body2">
-                        {props.widgetData?.dropdownNeedsSelectedText}
-                     </Typography>
-                  </Box>
-               ) : (
-                  hasPermission ? (
-                     props.children
+            collapsibleStateIsOpen &&
+            <Box>
+               {
+                  errorLoading ? (
+                     <Box pb={3} sx={{display: "flex", justifyContent: "center", alignItems: "flex-start"}}>
+                        <Icon color="error">error</Icon>
+                        <Typography sx={{paddingLeft: "4px", textTransform: "revert"}} variant="button">An error occurred loading widget content.</Typography>
+                     </Box>
                   ) : (
-                     <Box mt={2} mb={5} sx={{display: "flex", justifyContent: "center"}}><Typography variant="body2">You do not have permission to view this data.</Typography></Box>
+                     hasPermission && props.widgetData?.dropdownNeedsSelectedText ? (
+                        <Box pb={3} sx={{width: "100%", textAlign: "right"}}>
+                           <Typography variant="body2">
+                              {props.widgetData?.dropdownNeedsSelectedText}
+                           </Typography>
+                        </Box>
+                     ) : (
+                        hasPermission ? (
+                           props.children
+                        ) : (
+                           <Box mt={2} mb={5} sx={{display: "flex", justifyContent: "center"}}><Typography variant="body2">You do not have permission to view this data.</Typography></Box>
+                        )
+                     )
                   )
-               )
-            )
-         }
-         {
-            !errorLoading && props?.footerHTML && (
-               <Box mt={isTable ? "36px" : 1} ml={isTable ? 0 : 3} mr={isTable ? 0 : 3} mb={isTable ? "-12px" : 2} sx={{fontWeight: 300, color: "#7b809a", display: "flex", alignContent: "flex-end", fontSize: "14px"}}>{parse(props.footerHTML)}</Box>
-            )
+               }
+               {
+                  !errorLoading && props?.footerHTML && (
+                     <Box mt={isTable ? "36px" : 1} ml={isTable ? 0 : 3} mr={isTable ? 0 : 3} mb={isTable ? "-12px" : 2} sx={{fontWeight: 300, color: "#7b809a", display: "flex", alignContent: "flex-end", fontSize: "14px"}}>{parse(props.footerHTML)}</Box>
+                  )
+               }
+            </Box>
          }
       </Box>;
 
    const padding = props.omitPadding ? "auto" : "24px 16px";
+   const paddingBottomOverride = collapsibleStateIsOpen ? {} : {"pb": "0 !important"};
 
    ///////////////////////////////////////////////////
    // try to make tables fill their entire "parent" //
@@ -859,10 +939,36 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
    }
 
    return props.widgetMetaData?.isCard
-      ? <Card sx={{marginTop: props.widgetMetaData?.icon ? 2 : 0, width: "100%", p: padding}} className="widget inCard">
+      ? <Card sx={{marginTop: props.widgetMetaData?.icon ? 2 : 0, width: "100%", p: padding, ...paddingBottomOverride}} className="widget inCard">
          {widgetContent}
       </Card>
       : <span style={{width: "100%", padding: padding, marginBottom: noCardMarginBottom, ...props.additionalCSS}} className="widget noCard">{widgetContent}</span>;
 }
 
 export default Widget;
+
+
+/***************************************************************************
+ * for a collapsible widget, determine whether it should be open by default,
+ * First by looking in localStorage, then going back to the meta-data.
+ ***************************************************************************/
+const getInitialCollapsibleOpenState = (collapsibleOpenStateLSKey: string, collapsible?: Collapsible) : boolean =>
+{
+   if(collapsible && collapsible.isCollapsible)
+   {
+      const lsValue = localStorage.getItem(collapsibleOpenStateLSKey);
+      if(lsValue != undefined)
+      {
+         return (lsValue == "true");
+      }
+      else
+      {
+         return (collapsible.initiallyOpen === true);
+      }
+   }
+   else
+   {
+      return true;
+   }
+}
+
