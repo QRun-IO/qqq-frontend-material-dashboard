@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {detectBasePath, resolveAssetUrl} from "./PathUtils";
+import {detectBasePath, resolveAssetUrl, clearCachedBasePath} from "./PathUtils";
 
 /**
  * Helper to create a mock script element with a given src.
@@ -78,6 +78,7 @@ describe("detectBasePath", () =>
       // Clean up DOM before each test
       setupScripts([]);
       setupBaseTag(null);
+      clearCachedBasePath();
    });
 
    afterEach(() =>
@@ -85,6 +86,7 @@ describe("detectBasePath", () =>
       // Clean up DOM after each test
       setupScripts([]);
       setupBaseTag(null);
+      clearCachedBasePath();
    });
 
    describe("Strategy 1: Script tag detection", () =>
@@ -193,15 +195,15 @@ describe("detectBasePath", () =>
          expect(detectBasePath()).toBe("/");
       });
 
-      it("should prefer script tag over base tag", () =>
+      it("should prefer base tag over script tag", () =>
       {
          setupScripts([
             "http://example.com/from-script/static/js/main.js"
          ]);
          setupBaseTag("/from-base-tag/");
 
-         // Script tag (Strategy 1) takes precedence
-         expect(detectBasePath()).toBe("/from-script");
+         // Base tag (Strategy 1) takes precedence
+         expect(detectBasePath()).toBe("/from-base-tag");
       });
    });
 
@@ -321,12 +323,14 @@ describe("resolveAssetUrl", () =>
    {
       setupScripts([]);
       setupBaseTag(null);
+      clearCachedBasePath();
    });
 
    afterEach(() =>
    {
       setupScripts([]);
       setupBaseTag(null);
+      clearCachedBasePath();
    });
 
    describe("with root base path", () =>

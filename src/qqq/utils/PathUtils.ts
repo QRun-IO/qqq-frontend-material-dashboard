@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+let cachedBasePath: string | null = null
+
 /**
  * Detects the base path where the SPA is running at RUNTIME.
  * Works for any base path: /, /admin, /my-app, /client/portal, etc.
@@ -32,6 +34,16 @@
  */
 export function detectBasePath(): string
 {
+   /////////////////////////////////////////////////////////////////
+   // Strategy 0: If the base path was previously determined,     //
+   // reuse that result.  this might help prevent issues if React //
+   // injects code-splitting chunks after the initial page load   //
+   /////////////////////////////////////////////////////////////////
+   if (cachedBasePath !== null)
+   {
+      return cachedBasePath;
+   }
+
    //////////////////////////////////////////////////////////////
    // Strategy 1: Check for HTML <base> tag                    //
    // If the HTML has <base href="/my-app/">, use that.        //
@@ -44,7 +56,8 @@ export function detectBasePath(): string
       const href = baseTag.getAttribute("href");
       if (href && href !== "/")
       {
-         return href.endsWith("/") ? href.slice(0, -1) : href;
+         cachedBasePath = href.endsWith("/") ? href.slice(0, -1) : href;
+         return cachedBasePath;
       }
    }
 
@@ -66,13 +79,15 @@ export function detectBasePath(): string
          const match = src.match(/^https?:\/\/[^\/]+([\/\w-]*?)\/static\/js\//);
          if (match)
          {
-            return match[1] || "/";
+            cachedBasePath = match[1] || "/";
+            return cachedBasePath;
          }
       }
    }
 
    // Default to root
-   return "/";
+   cachedBasePath = "/";
+   return cachedBasePath;
 }
 
 /**
@@ -140,4 +155,14 @@ export function resolveAssetUrl(url: string | null | undefined): string
    return url;
 }
 
+
+/**
+ * Clears the cached base path, forcing detection to run again next time it's needed.
+ *
+ * Not expected to be needed in normal use cases, but can be useful for testing.
+ */
+export function clearCachedBasePath()
+{
+   cachedBasePath = null;
+}
 
