@@ -41,6 +41,7 @@ import BaseLayout from "qqq/layouts/BaseLayout";
 import Client from "qqq/utils/qqq/Client";
 import React, {useContext, useEffect, useState} from "react";
 import {Link, useLocation} from "react-router-dom";
+import HelpContent from "../../components/misc/HelpContent";
 
 const qController = Client.getInstance();
 
@@ -221,6 +222,21 @@ function AppHome({app}: Props): JSX.Element
       return reports.find(r => r.name === reportName && r.hasPermission);
    };
 
+   /*******************************************************************************
+    ** get an element (or empty) to use as help content for an app
+    *******************************************************************************/
+   const getHelp = (app: QAppMetaData, slotName: string) => 
+   {
+      const helpRoles = ["VIEW_SCREEN", "READ_SCREENS", "ALL_SCREENS"];
+      const formattedHelpContent = <HelpContent helpContents={app?.helpContent?.get(slotName)} roles={helpRoles} helpContentKey={`app:${app.name};slot:${slotName}`} />;
+
+      return formattedHelpContent && (
+         <Box fontSize={"0.875rem"} color={colors.blueGray.main}>
+            {formattedHelpContent}
+         </Box>
+      );
+   };
+
    const widgetCount = widgets ? widgets.length : 0;
    const sectionCount = app.sections ? app.sections.length : 0;
 
@@ -233,9 +249,12 @@ function AppHome({app}: Props): JSX.Element
          <BaseLayout>
             {
                showAppLabelOnHomeScreen &&
-               <Typography textTransform="capitalize" variant="h3">
-                  {app.label}
-               </Typography>
+               <Box>
+                  <Typography textTransform="capitalize" variant="h3">
+                     {app.label}
+                  </Typography>
+                  <Box pl={0}>{getHelp(app, "header")}</Box>
+               </Box>
             }
             <Grid container spacing={3}>
                <Grid item xs={12} lg={12}>
@@ -284,9 +303,12 @@ function AppHome({app}: Props): JSX.Element
       <BaseLayout>
          {
             showAppLabelOnHomeScreen &&
-            <Typography textTransform="capitalize" variant="h3">
-               {app.label}
-            </Typography>
+            <Box>
+               <Typography textTransform="capitalize" variant="h3">
+                  {app.label}
+               </Typography>
+               <Box pl={0}>{getHelp(app, "header")}</Box>
+            </Box>
          }
          <Box>
             {app.widgets && app.widgets.length > 0 && (
