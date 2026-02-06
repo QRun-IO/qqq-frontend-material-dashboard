@@ -89,7 +89,7 @@ describe("detectBasePath", () =>
       clearCachedBasePath();
    });
 
-   describe("Strategy 1: Script tag detection", () =>
+   describe("Strategy 2: Script tag detection", () =>
    {
       it("should detect base path from script tag with base path /admin", () =>
       {
@@ -158,9 +158,31 @@ describe("detectBasePath", () =>
 
          expect(detectBasePath()).toBe("/admin");
       });
+
+      it("should use memoize its result", () =>
+      {
+         setupScripts([
+            "https://cdn.example.com/vendor.js",  // No /static/js/, should be skipped
+            "http://example.com/admin/static/js/main.js"
+         ]);
+
+         expect(detectBasePath()).toBe("/admin");
+
+         // rewrite the script tags to simulate a different path
+         setupScripts([
+            "http://example.com/users/static/js/main.js"
+         ]);
+
+         // still get the previous response (root path shouldn't change after initial SPA load)
+         expect(detectBasePath()).toBe("/admin");
+
+         // but, if we clear the cached value, then we do get the new response
+         clearCachedBasePath();
+         expect(detectBasePath()).toBe("/users");
+      });
    });
 
-   describe("Strategy 2: Base tag detection", () =>
+   describe("Strategy 1: Base tag detection", () =>
    {
       it("should detect base path from <base> tag when no scripts match", () =>
       {
