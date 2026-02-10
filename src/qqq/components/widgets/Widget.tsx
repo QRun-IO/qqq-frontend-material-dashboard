@@ -106,7 +106,7 @@ interface LabelComponentRenderArgs
 
 export class LabelComponent
 {
-   render = (args: LabelComponentRenderArgs): JSX.Element =>
+   render = (args: LabelComponentRenderArgs): JSX.Element => 
    {
       return (<div>Unsupported component type</div>);
    };
@@ -141,7 +141,7 @@ export class HeaderIcon extends LabelComponent
    }
 
 
-   render = (args: LabelComponentRenderArgs): JSX.Element =>
+   render = (args: LabelComponentRenderArgs): JSX.Element => 
    {
       const styles: any = {
          width: "1.75rem",
@@ -159,7 +159,7 @@ export class HeaderIcon extends LabelComponent
 
       if (this.iconPath)
       {
-         return (<Box sx={{textAlign: "center", ...styles}}><img src={resolveAssetUrl(this.iconPath)} width="16" height="16" onError={(e: any) =>
+         return (<Box sx={{textAlign: "center", ...styles}}><img src={resolveAssetUrl(this.iconPath)} width="16" height="16" onError={(e: any) => 
          {
             e.target.style.display = "none";
          }} /></Box>);
@@ -224,7 +224,7 @@ HeaderToggleComponent.defaultProps = {
 
 export function HeaderToggleComponent({label, getValue, onClickCallback, disabled, disabledTooltip}: HeaderToggleComponentProps): JSX.Element
 {
-   const onClick = () =>
+   const onClick = () => 
    {
       onClickCallback();
    };
@@ -265,12 +265,12 @@ export class AddNewRecordButton extends LabelComponent
       this.addNewRecordCallback = addNewRecordCallback;
    }
 
-   openEditForm = (navigate: any, table: QTableMetaData, id: any = null, defaultValues: any, disabledFields: any) =>
+   openEditForm = (navigate: any, table: QTableMetaData, id: any = null, defaultValues: any, disabledFields: any) => 
    {
       navigate(`#/createChild=${table.name}/defaultValues=${JSON.stringify(defaultValues)}/disabledFields=${JSON.stringify(disabledFields)}`);
    };
 
-   render = (args: LabelComponentRenderArgs): JSX.Element =>
+   render = (args: LabelComponentRenderArgs): JSX.Element => 
    {
       return (
          <Typography variant="body2" p={2} pr={0} display="inline" position="relative" top="-0.5rem">
@@ -304,7 +304,7 @@ export class Dropdown extends LabelComponent
       this.onChangeCallback = onChangeCallback;
    }
 
-   render = (args: LabelComponentRenderArgs): JSX.Element =>
+   render = (args: LabelComponentRenderArgs): JSX.Element => 
    {
       const label = `Select ${this.label}`;
       let defaultValue = null;
@@ -421,7 +421,7 @@ export class ReloadControl extends LabelComponent
       this.callback = callback;
    }
 
-   render = (args: LabelComponentRenderArgs): JSX.Element =>
+   render = (args: LabelComponentRenderArgs): JSX.Element => 
    {
       return (<Typography key={1} variant="body2" py={0} px={0} display="inline" position="relative" top="-0.25rem">
          <Tooltip title="Refresh">
@@ -471,7 +471,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
       }
    }
 
-   useEffect(() =>
+   useEffect(() => 
    {
       ////////////////////////////////////////////////////////////////////////////////
       // for initial render, put left-components from props into the state variable //
@@ -489,7 +489,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
       setLabelComponentsLeft(stateLabelComponentsLeft);
    }, []);
 
-   useEffect(() =>
+   useEffect(() => 
    {
       /////////////////////////////////////////////////////////////////////////////////
       // for initial render, put right-components from props into the state variable //
@@ -516,7 +516,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
       }
    }
 
-   useEffect(() =>
+   useEffect(() => 
    {
       ///////////////////////////////////////////////////////////////////////////////////
       // if we've seen a change in the dropdown data, then update the right-components //
@@ -525,7 +525,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
       if (props.widgetData && props.widgetData.dropdownDataList)
       {
          const updatedStateLabelComponentsRight = JSON.parse(JSON.stringify(labelComponentsRight)) as LabelComponent[];
-         props.widgetData.dropdownDataList?.map((dropdownData: any, index: number) =>
+         props.widgetData.dropdownDataList?.map((dropdownData: any, index: number) => 
          {
             // console.log(`${props.widgetMetaData.name} building a Dropdown, data is: ${dropdownData}`);
             let defaultValue = null;
@@ -542,13 +542,13 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
       }
    }, [dropdownDataJSON]);
 
-   const doReload = () =>
+   const doReload = () => 
    {
       setReloading(true);
       reloadWidget(dropdownData);
    };
 
-   useEffect(() =>
+   useEffect(() => 
    {
       setReloading(false);
    }, [props.widgetData]);
@@ -601,7 +601,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
       }
    }
 
-   const reloadWidget = (dropdownData: any[]) =>
+   const reloadWidget = (dropdownData: any[]) => 
    {
       let params = "";
       for (let i = 0; i < dropdownData.length; i++)
@@ -627,7 +627,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
       }
    };
 
-   const onExportClick = () =>
+   const onExportClick = () => 
    {
       if (props.widgetData?.csvData)
       {
@@ -660,7 +660,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
 
    const hasPermission = props.widgetData?.hasPermission === undefined || props.widgetData?.hasPermission === true;
 
-   const isSet = (v: any): boolean =>
+   const isSet = (v: any): boolean => 
    {
       return (v !== null && v !== undefined);
    };
@@ -783,7 +783,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                      }
                      {
                         hasPermission && (
-                           labelComponentsLeft.map((component, i) =>
+                           labelComponentsLeft.map((component, i) => 
                            {
                               return (<React.Fragment key={i}>{renderComponent(component, i)}</React.Fragment>);
                            })
@@ -800,7 +800,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                <Box>
                   {
                      hasPermission && (
-                        labelComponentsRight.map((component, i) =>
+                        labelComponentsRight.map((component, i) => 
                         {
                            return (<span key={i}>{renderComponent(component, i)}</span>);
                         })
@@ -847,7 +847,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
          }
       </Box>;
 
-   const padding = props.omitPadding ? "auto" : "24px 16px";
+   const padding = props.omitPadding ? "0px" : "24px 16px";
 
    ///////////////////////////////////////////////////
    // try to make tables fill their entire "parent" //
