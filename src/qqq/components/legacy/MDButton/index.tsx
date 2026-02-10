@@ -72,6 +72,7 @@ const MDButton: FC<Props> = forwardRef(
             {...rest}
             ref={ref}
             data-qqq-id={dataQqqId}
+            data-button-variant={variant}
             ownerState={{color, variant, size, circular, iconOnly, darkMode}}
          >
             {children}

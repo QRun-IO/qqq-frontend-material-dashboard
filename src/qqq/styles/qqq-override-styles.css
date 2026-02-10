@@ -1053,7 +1053,8 @@ input[type="search"]::-webkit-search-results-decoration
    color: var(--qqq-primary-color, #0062FF) !important;
 }
 
-.MuiButton-textPrimary
+/* use qqq-primary-color for button text - UNLESS the button variant is gradient or contained (which are colored background) */
+.MuiButton-textPrimary:not([data-button-variant="gradient"]):not([data-button-variant="contained"])
 {
    color: var(--qqq-primary-color, #0062FF) !important;
 }
