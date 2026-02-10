@@ -507,7 +507,11 @@ export default function App({authenticationMetaData}: Props)
 
             const gravatarBase = "https://www.gravatar.com/avatar/";
             const hash = Md5.hashStr(loggedInUser?.email || "user");
-            const profilePicture = `${gravatarBase}${hash}`;
+            let profilePicture = `${gravatarBase}${hash}`;
+            if(metaData?.branding?.gravatarDefault)
+            {
+               profilePicture += `?d=${metaData?.branding?.gravatarDefault}`;
+            }
             const profileRoutes = {
                type: "collapse",
                name: loggedInUser?.name ?? "Anonymous",
