@@ -19,18 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
-import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCriteriaOperator";
-import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterCriteria";
 import {Tooltip} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import TextField from "@mui/material/TextField";
+import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
+import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCriteriaOperator";
+import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterCriteria";
 import QContext from "QContext";
+import colors from "qqq/assets/theme/base/colors";
 import {QFilterCriteriaWithId} from "qqq/components/query/CustomFilterPanel";
 import {getDefaultCriteriaValue, getOperatorOptions, getValueModeRequiredCount, OperatorOption, validateCriteria} from "qqq/components/query/FilterCriteriaRow";
 import FilterCriteriaRowValues from "qqq/components/query/FilterCriteriaRowValues";
@@ -67,13 +68,23 @@ export const quickFilterButtonStyles = {
    fontSize: "0.75rem",
    fontWeight: 600,
    color: "#757575",
+   borderColor: colors.grayLines.main + " !important",
    textTransform: "none",
    borderRadius: "2rem",
    border: "1px solid #757575",
    minWidth: "3.5rem",
    minHeight: "auto",
-   padding: "0.375rem 0.625rem", whiteSpace: "nowrap",
-   marginBottom: "0.5rem"
+   padding: "0.375rem 0.625rem",
+   whiteSpace: "nowrap",
+   boxShadow: "none",
+   marginBottom: "0.5rem",
+   marginRight: "0.5rem",
+   "&:hover": {
+      opacity: "unset",
+      background: "unset",
+      boxShadow: "unset",
+      filter: "unset"
+   }
 };
 
 /*******************************************************************************
@@ -459,10 +470,14 @@ export default function QuickFilter({tableMetaData, fullFieldName, fieldMetaData
    const tooltipEnterDelay = 500;
 
    let buttonAdditionalStyles: any = {};
+   let buttonVariant: "outlined" | "contained" | "text" = "outlined";
+   let buttonColorName: "secondary" | "primary" = "secondary";
    let buttonContent = <span>{tableForField?.name != tableMetaData.name ? `${tableForField.label}: ` : ""}{fieldMetaData.label}</span>;
    let buttonClassName = "filterNotActive";
    if (criteriaIsValid)
    {
+      buttonVariant = "contained";
+      buttonColorName = "primary";
       buttonAdditionalStyles.backgroundColor = accentColor + " !important";
       buttonAdditionalStyles.borderColor = accentColor + " !important";
       buttonAdditionalStyles.color = "white !important";
@@ -489,10 +504,12 @@ export default function QuickFilter({tableMetaData, fullFieldName, fieldMetaData
       };
 
    let button = fieldMetaData && <Button
+      variant={buttonVariant}
+      color={buttonColorName}
       id={`quickFilter.${fullFieldName}`}
       className={buttonClassName}
       {...mouseEvents}
-      sx={{...quickFilterButtonStyles, ...buttonAdditionalStyles, mr: "0.5rem"}}
+      sx={{...quickFilterButtonStyles, ...buttonAdditionalStyles}}
       onClick={tooComplex ? noop : handleOpenMenu}
       disabled={tooComplex}
    >{buttonContent}</Button>;
