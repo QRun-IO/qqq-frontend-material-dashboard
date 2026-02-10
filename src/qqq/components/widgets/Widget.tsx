@@ -926,7 +926,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
          }
       </Box>;
 
-   const padding = props.omitPadding ? "auto" : "24px 16px";
+   const padding = props.omitPadding ? "0px" : "24px 16px";
    const paddingBottomOverride = collapsibleStateIsOpen ? {} : {"pb": "0 !important"};
 
    ///////////////////////////////////////////////////
