@@ -250,6 +250,7 @@ export default function App({authenticationMetaData}: Props)
                   dropdown: true,
                   icon: <Icon fontSize="medium">{app.iconName}</Icon>,
                   collapse: childList,
+                  ["data-qqq-sidenav-item-type"]: "top-level-parent-app"
                });
             }
          }
@@ -513,6 +514,7 @@ export default function App({authenticationMetaData}: Props)
                key: "username",
                noCollapse: true,
                icon: <Avatar src={profilePicture} alt="{loggedInUser?.name}" />,
+               ["data-qqq-sidenav-item-type"]: "user-profile"
             };
             setProfileRoutes(profileRoutes);
 
