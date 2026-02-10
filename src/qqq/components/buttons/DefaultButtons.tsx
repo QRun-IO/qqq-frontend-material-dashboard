@@ -120,7 +120,7 @@ export function QActionsMenuButton({isOpen, onClickHandler}: QActionsMenuButtonP
       <Box width={standardWidth} ml={1}>
          <MDButton
             qqqId="actions-menu"
-            variant={isOpen ? "contained" : "outlined"}
+            variant={"outlined"}
             color="dark"
             onClick={onClickHandler}
             startIcon={<Icon>games</Icon>}
