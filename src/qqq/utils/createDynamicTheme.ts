@@ -226,6 +226,17 @@ function buildPalette(theme: QThemeMetaData): ThemeOptions["palette"]
          primary: textPrimary,
          secondary: textSecondary,
       },
+      gradients: {
+         ...colors.gradients,
+         primary: {
+            main: "color-mix(in srgb, var(--qqq-primary-color, #D81B60) 65%, white)",
+            state: "var(--qqq-primary-color, #D81B60)",
+         },
+         info: {
+            main: "color-mix(in srgb, var(--qqq-info-color, #0062FF) 65%, white)",
+            state: "var(--qqq-info-color, #0062FF)",
+         },
+      }
    } as ThemeOptions["palette"];
 }
 
