@@ -119,7 +119,6 @@ export const DEFAULT_THEME: QThemeMetaData = {
    typographyCaptionTextTransform: "none",
 
    // Sizing
-   borderRadius: "4px",
    density: "normal",
 
    // Branded Header Bar (disabled by default)
@@ -347,8 +346,9 @@ export function injectThemeVariables(theme?: QThemeMetaData): void
       "typographyCaptionLetterSpacing",
       "typographyCaptionTextTransform",
 
-      // Sizing
-      "borderRadius",
+      // Sizing - Border Radius
+      "borderRadiusGlobal",
+      "borderRadiusScale",
       "density",
 
       // Asset paths

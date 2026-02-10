@@ -96,13 +96,57 @@ const DENSITY_SPACING: Record<string, number> = {
 };
 
 /*******************************************************************************
- ** Parse a border radius string (e.g., "8px") to a number.
+ ** Original border-radius defaults per component, matching the values from
+ ** the static component override files in assets/theme/components/.
+ ** These are the "native" values before any theming was applied.
  *******************************************************************************/
-function parseBorderRadius(value: string | undefined): number
+const COMPONENT_DEFAULT_BORDER_RADIUS: Record<string, number> = {
+   button: 8,           // borderRadius.lg
+   card: 12,            // borderRadius.xl
+   chip: 12,            // borderRadius.xl
+   dialog: 8,           // borderRadius.lg
+   outlinedInput: 6,    // borderRadius.md
+   linearProgress: 6,   // borderRadius.md
+   menuPaper: 6,        // borderRadius.md
+   paperRounded: 12,    // borderRadius.xl
+   popoverPaper: 6,     // borderRadius.md
+   tooltip: 6,          // borderRadius.md
+};
+
+/*******************************************************************************
+ ** Default for MUI's shape.borderRadius (used by components we don't
+ ** explicitly override).
+ *******************************************************************************/
+const DEFAULT_SHAPE_BORDER_RADIUS = 6; // borderRadius.md
+
+/*******************************************************************************
+ ** Parse a border radius string (e.g., "8px") to a number.
+ ** Returns null if the value is missing or unparseable, allowing fallback logic.
+ *******************************************************************************/
+function parseBorderRadius(value: string | undefined): number | null
 {
-   if (!value) return 4;
+   if (!value) return null;
    const parsed = parseInt(value, 10);
-   return isNaN(parsed) ? 4 : parsed;
+   return isNaN(parsed) ? null : parsed;
+}
+
+/*******************************************************************************
+ ** Resolve the border-radius for a specific component using the three-tier
+ ** priority system:
+ **   1. Per-component override (e.g., borderRadiusCard) - absolute, always wins
+ **   2. Global override (borderRadiusGlobal) - uniform value for all components
+ **   3. Component default x scale factor - proportional scaling of original values
+ *******************************************************************************/
+function resolveComponentBorderRadius(
+   componentOverride: number | null,
+   globalOverride: number | null,
+   componentDefault: number,
+   scale: number,
+): number
+{
+   if (componentOverride !== null) return componentOverride;
+   if (globalOverride !== null) return globalOverride;
+   return Math.round(componentDefault * scale);
 }
 
 /*******************************************************************************
@@ -330,7 +374,26 @@ function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial
  *******************************************************************************/
 function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): ThemeOptions["components"]
 {
-   const borderRadius = parseBorderRadius(theme.borderRadius);
+   /////////////////////////////////////////////////////////////////////////////
+   // Border radius resolution: per-component ?? global ?? (default * scale) //
+   /////////////////////////////////////////////////////////////////////////////
+   const borderRadiusGlobal = parseBorderRadius(theme.borderRadiusGlobal);
+   const borderRadiusScale = theme.borderRadiusScale ?? 1.0;
+
+   const resolveBorderRadius = (component: string, override: number | null) =>
+      resolveComponentBorderRadius(override, borderRadiusGlobal, COMPONENT_DEFAULT_BORDER_RADIUS[component], borderRadiusScale);
+
+   const borderRadiusButton = resolveBorderRadius("button", parseBorderRadius(theme.borderRadiusButton));
+   const borderRadiusCard = resolveBorderRadius("card", parseBorderRadius(theme.borderRadiusCard));
+   const borderRadiusChip = resolveBorderRadius("chip", parseBorderRadius(theme.borderRadiusChip));
+   const borderRadiusDialog = resolveBorderRadius("dialog", parseBorderRadius(theme.borderRadiusDialog));
+   const borderRadiusOutlinedInput = resolveBorderRadius("outlinedInput", parseBorderRadius(theme.borderRadiusOutlinedInput));
+   const borderRadiusLinearProgress = resolveBorderRadius("linearProgress", parseBorderRadius(theme.borderRadiusLinearProgress));
+   const borderRadiusMenuPaper = resolveBorderRadius("menuPaper", parseBorderRadius(theme.borderRadiusMenuPaper));
+   const borderRadiusPaperRounded = resolveBorderRadius("paperRounded", parseBorderRadius(theme.borderRadiusPaperRounded));
+   const borderRadiusPopoverPaper = resolveBorderRadius("popoverPaper", parseBorderRadius(theme.borderRadiusPopoverPaper));
+   const borderRadiusTooltip = resolveBorderRadius("tooltip", parseBorderRadius(theme.borderRadiusTooltip));
+
    const density = theme.density || "normal";
    const spacingUnit = DENSITY_SPACING[density] || 8;
 
@@ -436,7 +499,7 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiButton: {
          styleOverrides: {
             root: {
-               borderRadius: `${borderRadius}px`,
+               borderRadius: `${borderRadiusButton}px`,
                padding: `${spacingUnit}px ${spacingUnit * 2}px`,
             },
             containedPrimary: {
@@ -461,7 +524,7 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiCard: {
          styleOverrides: {
             root: {
-               borderRadius: `${borderRadius}px`,
+               borderRadius: `${borderRadiusCard}px`,
             },
          },
       },
@@ -478,7 +541,7 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiChip: {
          styleOverrides: {
             root: {
-               borderRadius: `${borderRadius / 2}px`,
+               borderRadius: `${borderRadiusChip}px`,
             },
             colorPrimary: {
                backgroundColor: primaryColor,
@@ -488,7 +551,7 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiDialog: {
          styleOverrides: {
             paper: {
-               borderRadius: `${borderRadius}px`,
+               borderRadius: `${borderRadiusDialog}px`,
             },
          },
       },
@@ -509,7 +572,7 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiOutlinedInput: {
          styleOverrides: {
             root: {
-               borderRadius: `${borderRadius}px`,
+               borderRadius: `${borderRadiusOutlinedInput}px`,
                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                   borderColor: primaryColor,
                },
@@ -539,10 +602,10 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiLinearProgress: {
          styleOverrides: {
             root: {
-               borderRadius: `${borderRadius / 2}px`,
+               borderRadius: `${borderRadiusLinearProgress}px`,
             },
             bar: {
-               borderRadius: `${borderRadius / 2}px`,
+               borderRadius: `${borderRadiusLinearProgress}px`,
             },
             colorPrimary: {
                backgroundColor: `${primaryColor}30`,
@@ -555,7 +618,7 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiMenu: {
          styleOverrides: {
             paper: {
-               borderRadius: `${borderRadius}px`,
+               borderRadius: `${borderRadiusMenuPaper}px`,
             },
          },
       },
@@ -573,14 +636,14 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
                }
                : {},
             rounded: {
-               borderRadius: `${borderRadius}px`,
+               borderRadius: `${borderRadiusPaperRounded}px`,
             },
          },
       },
       MuiPopover: {
          styleOverrides: {
             paper: {
-               borderRadius: `${borderRadius}px`,
+               borderRadius: `${borderRadiusPopoverPaper}px`,
             },
          },
       },
@@ -640,7 +703,7 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiTooltip: {
          styleOverrides: {
             tooltip: {
-               borderRadius: `${borderRadius / 2}px`,
+               borderRadius: `${borderRadiusTooltip}px`,
                padding: `${spacingUnit / 2}px ${spacingUnit}px`,
             },
          },
@@ -689,7 +752,12 @@ export function createDynamicTheme(themeMetaData?: QThemeMetaData): Theme
       typography: buildTypography(mergedTheme),
       spacing: spacingUnit,
       shape: {
-         borderRadius: parseBorderRadius(mergedTheme.borderRadius),
+         borderRadius: resolveComponentBorderRadius(
+            null,
+            parseBorderRadius(mergedTheme.borderRadiusGlobal),
+            DEFAULT_SHAPE_BORDER_RADIUS,
+            mergedTheme.borderRadiusScale ?? 1.0,
+         ),
       },
       boxShadows: {...boxShadows},
       borders: {...borders},
