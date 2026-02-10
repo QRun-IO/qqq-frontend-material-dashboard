@@ -637,11 +637,12 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
          styleOverrides: {
             root: hasExplicitTheme
                ? {
-                  /////////////////////////////////////////////////////////////////////
-                  // Only apply surfaceColor when a theme is explicitly provided.   //
-                  // Exclude AppBar - it handles its own background.                //
-                  /////////////////////////////////////////////////////////////////////
-                  "&:not(.MuiAppBar-root)": {
+                  //////////////////////////////////////////////////////////////////////////////////
+                  // Only apply surfaceColor when a theme is explicitly provided.                 //
+                  // Exclude AppBar - it handles its own background.                              //
+                  // Exclude Alerts - they are designed to have a red/yellow/green/etc background //
+                  //////////////////////////////////////////////////////////////////////////////////
+                  "&:not(.MuiAppBar-root):not(.MuiAlert-root)": {
                      backgroundColor: surfaceColor,
                   },
                }

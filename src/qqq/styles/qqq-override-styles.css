@@ -985,10 +985,10 @@ input[type="search"]::-webkit-search-results-decoration
 
 /*****************************************************************************
  ** Paper/Card theming - uses CSS variables from QThemeMetaData
- ** Excludes AppBar (navbar), Drawer (sidebar), Menu, and Popover
+ ** Excludes AppBar (navbar), Drawer (sidebar), Menu, Popover, Alerts
  ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
-.qqq-themed .MuiPaper-root:not(.MuiAppBar-root):not(.MuiDrawer-paper):not(.MuiMenu-paper):not(.MuiPopover-paper),
+.qqq-themed .MuiPaper-root:not(.MuiAppBar-root):not(.MuiDrawer-paper):not(.MuiMenu-paper):not(.MuiPopover-paper):not(.MuiAlert-root),
 .qqq-themed .MuiCard-root
 {
    background-color: var(--qqq-surface-color, #ffffff) !important;
