@@ -42,7 +42,7 @@ export const DEFAULT_THEME: QThemeMetaData = {
    fontFamily: "\"SF Pro Display\", \"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
    headerFontFamily: "\"SF Pro Display\", \"Roboto\", \"Helvetica\", \"Arial\", sans-serif",
    monoFontFamily: "\"Roboto Mono\", \"Courier New\", monospace",
-   fontSizeBase: "14px",
+   fontSizeBase: "20px",
    fontWeightLight: 300,
    fontWeightRegular: 400,
    fontWeightMedium: 600,
