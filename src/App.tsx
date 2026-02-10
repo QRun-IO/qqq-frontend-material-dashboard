@@ -495,6 +495,10 @@ export default function App({authenticationMetaData}: Props)
                {
                   setAccentColor(metaData.branding.accentColor);
                }
+               if (metaData.branding.accentColorLight)
+               {
+                  setAccentColorLight(metaData.branding.accentColorLight);
+               }
             }
 
             ///////////////////////////////////////////////
