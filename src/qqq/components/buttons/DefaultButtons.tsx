@@ -88,7 +88,7 @@ export function QDeleteButton({onClickHandler, disabled}: QDeleteButtonProps): J
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton qqqId="delete" variant="gradient" color="primary" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>delete</Icon>} disabled={disabled}>
+         <MDButton qqqId="delete" variant="contained" color="error" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>delete</Icon>} disabled={disabled}>
             Delete
          </MDButton>
       </Box>
