@@ -684,7 +684,7 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiTabs: {
          styleOverrides: {
             indicator: {
-               backgroundColor: primaryColor,
+               borderBottomColor: primaryColor,
             },
          },
       },
