@@ -31,6 +31,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
@@ -238,6 +239,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    const [showEditChildForm, setShowEditChildForm] = useState(null as any);
    const [showAudit, setShowAudit] = useState(false);
    const [showShareModal, setShowShareModal] = useState(false);
+   const [collapsibleSectionOpenStates, setCollapsibleSectionOpenStates] = useState({} as Record<string, boolean>)
 
    const [isDeleteSubmitting, setIsDeleteSubmitting] = useState(false);
 
@@ -570,6 +572,21 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       return genericProcesses;
    }
 
+
+   /***************************************************************************
+    * for a given section (in this table), make a key to use for local-storage
+    * of the section's collapsible state.
+    ***************************************************************************/
+   function makeCollapsibleSectionOpenStateLocalStorageKey(tableName: string, sectionName: string)
+   {
+      return `qqq.recordView.collapsibleSectionOpenStates.${tableName}.${sectionName}`;
+   }
+
+
+   ////////////////////////////////////////////////////////////////////////
+   // as part of mounting the component, the first time we render, start //
+   // an async load of data, then populate state after awaiting for it   //
+   ////////////////////////////////////////////////////////////////////////
    if (!asyncLoadInited)
    {
       setAsyncLoadInited(true);
@@ -704,6 +721,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          ////////////////////////////////////////////////////
          const sectionFieldElements = new Map();
          const nonT1TableSections = [];
+         const initialCollapsibleOpenStates: Record<string, boolean> = {};
          for (let i = 0; i < tableSections.length; i++)
          {
             let section = tableSections[i];
@@ -718,54 +736,53 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                continue;
             }
 
-            if (section.widgetName)
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // if a section has collapsible metaData that says it IS collapsible, then figure out what the initial open state should be //
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            if(section.collapsible && section.collapsible.isCollapsible)
             {
-               const widgetMetaData = metaData.widgets.get(section.widgetName);
-
-               ////////////////////////////////////////////////////////////////////////////
-               // for a section with a widget name, call the dashboard widgets component //
-               ////////////////////////////////////////////////////////////////////////////
-               sectionFieldElements.set(section.name,
-                  <Grid id={section.name} key={section.name} item lg={widgetMetaData.gridColumns ? widgetMetaData.gridColumns : 12} xs={12} sx={{display: "flex", alignItems: "stretch", flexGrow: 1, scrollMarginTop: "100px"}}>
-                     <Box width="100%" flexGrow={1} alignItems="stretch">
-                        <DashboardWidgets key={section.name} tableName={tableMetaData.name} widgetMetaDataList={[widgetMetaData]} record={record} entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)} omitWrappingGridContainer={true} screen="recordView"  />
-                     </Box>
-                  </Grid>
-               );
-            }
-            else if (section.fieldNames)
-            {
-               ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-               // for a section with field names, render the field values.                                               //
-               // for the T1 section, the "wrapper" will come out below - but for other sections, produce a wrapper too. //
-               ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-               const fields = renderSectionOfFields(section.name, section.fieldNames, tableMetaData, helpHelpActive, record, undefined, undefined, tableVariant);
-
-               if (section.tier === "T1")
+               ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+               // try to read a previous value from local storage.  if it doesn't exist, use the value in the meta-data //
+               ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+               const lsValue = localStorage.getItem(makeCollapsibleSectionOpenStateLocalStorageKey(tableMetaData.name, section.name));
+               if(lsValue != undefined)
                {
-                  sectionFieldElements.set(section.name, fields);
+                  initialCollapsibleOpenStates[section.name] = (lsValue == "true");
                }
                else
                {
-                  sectionFieldElements.set(section.name,
-                     <Grid id={section.name} key={section.name} item lg={section.gridColumns ?? 12} xs={12} sx={{display: "flex", alignItems: "stretch", scrollMarginTop: "100px"}}>
-                        <Box width="100%">
-                           <Card id={section.name} sx={{overflow: "visible", scrollMarginTop: "100px", height: "100%"}}>
-                              <Typography variant="h6" p={3} pb={1}>
-                                 {section.label}
-                              </Typography>
-                              {getSectionHelp(section)}
-                              <Box p={3} pt={0} flexDirection="column">
-                                 {fields}
-                              </Box>
-                           </Card>
-                        </Box>
-                     </Grid>
-                  );
+                  initialCollapsibleOpenStates[section.name] = (section.collapsible.initiallyOpen === true);
                }
             }
             else
             {
+               /////////////////////////////////////////////////
+               // if not collapsible, set open state to true. //
+               /////////////////////////////////////////////////
+               initialCollapsibleOpenStates[section.name] = true;
+            }
+
+            if (section.widgetName)
+            {
+               ////////////////////////////////////////////////////////////////////////////
+               // for a section with a widget name, call the dashboard widgets component //
+               ////////////////////////////////////////////////////////////////////////////
+               const widgetMetaData = metaData.widgets.get(section.widgetName);
+               sectionFieldElements.set(section.name, <DashboardWidgets key={section.name} tableName={tableMetaData.name} widgetMetaDataList={[widgetMetaData]} record={record} entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)} omitWrappingGridContainer={true} screen="recordView" />);
+            }
+            else if (section.fieldNames)
+            {
+               //////////////////////////////////////////////////////////////
+               // for a section with field names, render the field values. //
+               //////////////////////////////////////////////////////////////
+               const fields = renderSectionOfFields(section.name, section.fieldNames, tableMetaData, helpHelpActive, record, undefined, undefined, tableVariant);
+               sectionFieldElements.set(section.name, fields);
+            }
+            else
+            {
+               ////////////////////////////////////////////////////////////////////
+               // else we don't know what goes in the widget, so, assume nothing //
+               ////////////////////////////////////////////////////////////////////
                continue;
             }
 
@@ -780,9 +797,15 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                nonT1TableSections.push(tableSections[i]);
             }
          }
+
          setSectionFieldElements(sectionFieldElements);
          setNonT1TableSections(nonT1TableSections);
+         setCollapsibleSectionOpenStates(initialCollapsibleOpenStates);
 
+         //////////////////////////////////////////////////////////////////////////////////////////
+         // read values from location.state - to display alerts - then, clear those state values //
+         // this is an upgrade over where states like this used to be stored in the URL!         //
+         //////////////////////////////////////////////////////////////////////////////////////////
          if (location.state)
          {
             let state: any = location.state;
@@ -859,9 +882,9 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    }
 
 
-   ///////////////////////////////////////////////
-   // populate the RecordViewMenuActions object //
-   ///////////////////////////////////////////////
+   //////////////////////////////////////////////////////////////////////////////////////////
+   // populate the RecordViewMenuActions object - basically callbacks for the menu to use. //
+   //////////////////////////////////////////////////////////////////////////////////////////
    const recordViewMenuActions: RecordViewMenuActions =
       {
          new: () => gotoCreate(),
@@ -928,6 +951,11 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          }
       };
 
+   /////////////////////////////////////////////////////////////////////////////////////////////////
+   // build an object to help track what's shown in the actions menu.                             //
+   // we tried just passing (new ItemsShownInMenu()) as the prop, but that didn't seem to work... //
+   /////////////////////////////////////////////////////////////////////////////////////////////////
+   const itemsShownInActionsMenu = new ItemsShownInMenu();
 
 
    /*******************************************************************************
@@ -1080,11 +1108,17 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       }
    };
 
-   /////////////////////////////////////////////////////////////////////////////////////////////////
-   // built an object to help track what's shown in the actions menu.                             //
-   // we tried just passing (new ItemsShownInMenu()) as the prop, but that didn't seem to work... //
-   /////////////////////////////////////////////////////////////////////////////////////////////////
-   const itemsShownInActionsMenu = new ItemsShownInMenu();
+
+   /***************************************************************************
+    * handle clicking a section header, to toggle it opened or closed.
+    * write the updated value to local storage.
+    ***************************************************************************/
+   function toggleCollapsibleSectionOpenState(sectionName: string): void
+   {
+      const newValue = !collapsibleSectionOpenStates[sectionName];
+      setCollapsibleSectionOpenStates((prevState) => ({...prevState, [sectionName]: newValue}));
+      localStorage.setItem(makeCollapsibleSectionOpenStateLocalStorageKey(tableMetaData.name, sectionName), newValue.toString());
+   }
 
    return (
       <BaseLayout>
@@ -1175,15 +1209,87 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                        </Grid>
                                     </Grid>
                                     <Grid container spacing={3} pb={4}>
-                                       {nonT1TableSections.length > 0 ? nonT1TableSections.map(({
-                                          iconName, label, name, fieldNames, tier,
-                                       }: any) => (
-                                          <React.Fragment key={name}>
-                                             {sectionFieldElements.get(name)}
-                                          </React.Fragment>
-                                       )) : null}
+                                       {nonT1TableSections.length > 0 ? nonT1TableSections.map((section: QTableSection) =>
+                                       {
+                                          ///////////////////////////////////////////////
+                                          // render all sections after the T1 section. //
+                                          ///////////////////////////////////////////////
+                                          const open = collapsibleSectionOpenStates[section.name];
+
+                                          ////////////////////////////////////////////////////////////////////////////
+                                          // if the section is a widget, hand off to the DashboardWidgets component //
+                                          ////////////////////////////////////////////////////////////////////////////
+                                          if (section.widgetName)
+                                          {
+                                             const widgetMetaData = metaData.widgets.get(section.widgetName);
+                                             if(section.collapsible)
+                                             {
+                                                ///////////////////////////////////////////////////////////////////////////////////
+                                                // if the section has collapsible meta-data, then put that meta-data in the      //
+                                                // widget meta data. this would overwrite the widget's own collapsible meta-data //
+                                                // (which is intentional - the section is more important in this case.           //
+                                                ///////////////////////////////////////////////////////////////////////////////////
+                                                widgetMetaData.collapsible = section.collapsible;
+                                             }
+
+                                             return (
+                                                <Grid id={section.name} key={section.name} item lg={widgetMetaData.gridColumns ? widgetMetaData.gridColumns : 12} xs={12} sx={{display: "flex", alignItems: "stretch", flexGrow: 1, scrollMarginTop: "100px"}}>
+                                                   <Box width="100%" flexGrow={1} alignItems="stretch">
+                                                      <DashboardWidgets
+                                                         key={section.name}
+                                                         tableName={tableMetaData.name}
+                                                         widgetMetaDataList={[widgetMetaData]}
+                                                         record={record}
+                                                         entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)}
+                                                         omitWrappingGridContainer={true}
+                                                         screen="recordView" />
+                                                   </Box>
+                                                </Grid>
+                                             )
+                                          }
+
+                                          /////////////////////////////////////////////////////////////////////////////////////////////
+                                          // else - not a widget - so render a grid item, with a card, containing the fields         //
+                                          // if the section is collapsible, add props to it for a finger cursor and on-click handler //
+                                          /////////////////////////////////////////////////////////////////////////////////////////////
+                                          const moreHeaderProps = section.collapsible?.isCollapsible ? {sx: {cursor: "pointer"}, onClick: () => toggleCollapsibleSectionOpenState(section.name)} : {}
+
+                                          return (
+                                             <React.Fragment key={section.name}>
+                                                <Grid id={section.name} key={section.name} item lg={section.gridColumns ?? 12} xs={12} sx={{display: "flex", alignItems: "stretch", scrollMarginTop: "100px"}}>
+                                                   <Box width="100%">
+                                                      <Card id={section.name} sx={{overflow: "visible", scrollMarginTop: "100px", height: open ? "100%" : "auto"}}>
+                                                         <Box display="flex" justifyContent="space-between" alignItems="center" pb={open ? 0 : 1.5} {...moreHeaderProps}>
+                                                            <Typography variant="h6" p={3} pb={1}>
+                                                               {section.label}
+                                                            </Typography>
+                                                            {
+                                                               section.collapsible?.isCollapsible &&
+                                                               <Box p="0.75rem 0.25rem 0">
+                                                                  <IconButton onClick={() => toggleCollapsibleSectionOpenState(section.name)}>
+                                                                     <Icon fontSize="large">{open ? "expand_less" : "expand_more"}</Icon>
+                                                                  </IconButton>
+                                                               </Box>
+                                                            }
+                                                         </Box>
+                                                         <Box style={{display: open  ? "block" : "none"}}>
+                                                            {getSectionHelp(section)}
+                                                            <Box p={3} pt={0} flexDirection="column">
+                                                               {sectionFieldElements.get(section.name)}
+                                                            </Box>
+                                                         </Box>
+                                                      </Card>
+                                                   </Box>
+                                                </Grid>
+                                             </React.Fragment>
+                                          )
+                                       }
+                                       ) : null}
                                     </Grid>
                                     {
+                                       ///////////////////////////////////////////////////////////////////////
+                                       // sticky bottom button bar w/ delete & edit buttons (if applicable) //
+                                       ///////////////////////////////////////////////////////////////////////
                                        tableMetaData && record && ((table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission) || (table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission)) &&
                                        <Box component="div" p={3} className={"stickyBottomButtonBar"}>
                                           <Grid container justifyContent="flex-end" spacing={3}>

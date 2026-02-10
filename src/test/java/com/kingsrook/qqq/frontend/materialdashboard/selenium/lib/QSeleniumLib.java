@@ -829,4 +829,29 @@ public class QSeleniumLib
       }
    }
 
+
+
+   /***************************************************************************
+    * using the ./.. xpath repeatedly, get an ancestor of an element.
+    ***************************************************************************/
+   public WebElement getAncestor(WebElement element, int level)
+   {
+      for(int i = 0; i < level; i++)
+      {
+         element = element.findElement(QSeleniumLib.PARENT);
+      }
+
+      return element;
+   }
+
+
+
+   /***************************************************************************
+    * get the direct parent of an element.
+    ***************************************************************************/
+   public WebElement getParent(WebElement element)
+   {
+      return getAncestor(element, 1);
+   }
+
 }
