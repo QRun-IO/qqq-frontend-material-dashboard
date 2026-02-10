@@ -388,7 +388,7 @@ export default function ShareModal({open, onClose, tableMetaData, record}: Share
                <Box pb={3} display="flex" flexDirection="column">
                   {/* row for adding a new share */}
                   <Box display="flex" flexDirection="row" alignItems="center">
-                     <Box width="550px" pr={2} mb={-1.5}>
+                     <Box width="550px" pr={2}>
                         <DynamicSelect
                            fieldPossibleValueProps={{possibleValueSourceName: shareableTableMetaData.audiencePossibleValueSourceName, initialDisplayValue: selectedAudienceOption?.label}}
                            fieldLabel="User or Group" // todo should come from shareableTableMetaData
@@ -437,7 +437,7 @@ export default function ShareModal({open, onClose, tableMetaData, record}: Share
                                        */}
                                     </Box>
                                     <Box pr="1rem">
-                                       <Button sx={{...iconButtonSX, ...redIconButton}} onClick={() => removeShare(share.shareId)}><Icon>clear</Icon></Button>
+                                       <Button sx={{...iconButtonSX, ...redIconButton}} onClick={() => removeShare(share.shareId)}><Icon color="error">clear</Icon></Button>
                                     </Box>
                                  </Box>
                               ))
