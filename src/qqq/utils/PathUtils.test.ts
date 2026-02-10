@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {detectBasePath, resolveAssetUrl} from "./PathUtils";
+import {detectBasePath, resolveAssetUrl, clearCachedBasePath} from "./PathUtils";
 
 /**
  * Helper to create a mock script element with a given src.
@@ -78,6 +78,7 @@ describe("detectBasePath", () =>
       // Clean up DOM before each test
       setupScripts([]);
       setupBaseTag(null);
+      clearCachedBasePath();
    });
 
    afterEach(() =>
@@ -85,9 +86,10 @@ describe("detectBasePath", () =>
       // Clean up DOM after each test
       setupScripts([]);
       setupBaseTag(null);
+      clearCachedBasePath();
    });
 
-   describe("Strategy 1: Script tag detection", () =>
+   describe("Strategy 2: Script tag detection", () =>
    {
       it("should detect base path from script tag with base path /admin", () =>
       {
@@ -156,9 +158,31 @@ describe("detectBasePath", () =>
 
          expect(detectBasePath()).toBe("/admin");
       });
+
+      it("should use memoize its result", () =>
+      {
+         setupScripts([
+            "https://cdn.example.com/vendor.js",  // No /static/js/, should be skipped
+            "http://example.com/admin/static/js/main.js"
+         ]);
+
+         expect(detectBasePath()).toBe("/admin");
+
+         // rewrite the script tags to simulate a different path
+         setupScripts([
+            "http://example.com/users/static/js/main.js"
+         ]);
+
+         // still get the previous response (root path shouldn't change after initial SPA load)
+         expect(detectBasePath()).toBe("/admin");
+
+         // but, if we clear the cached value, then we do get the new response
+         clearCachedBasePath();
+         expect(detectBasePath()).toBe("/users");
+      });
    });
 
-   describe("Strategy 2: Base tag detection", () =>
+   describe("Strategy 1: Base tag detection", () =>
    {
       it("should detect base path from <base> tag when no scripts match", () =>
       {
@@ -193,15 +217,15 @@ describe("detectBasePath", () =>
          expect(detectBasePath()).toBe("/");
       });
 
-      it("should prefer script tag over base tag", () =>
+      it("should prefer base tag over script tag", () =>
       {
          setupScripts([
             "http://example.com/from-script/static/js/main.js"
          ]);
          setupBaseTag("/from-base-tag/");
 
-         // Script tag (Strategy 1) takes precedence
-         expect(detectBasePath()).toBe("/from-script");
+         // Base tag (Strategy 1) takes precedence
+         expect(detectBasePath()).toBe("/from-base-tag");
       });
    });
 
@@ -321,12 +345,14 @@ describe("resolveAssetUrl", () =>
    {
       setupScripts([]);
       setupBaseTag(null);
+      clearCachedBasePath();
    });
 
    afterEach(() =>
    {
       setupScripts([]);
       setupBaseTag(null);
+      clearCachedBasePath();
    });
 
    describe("with root base path", () =>
