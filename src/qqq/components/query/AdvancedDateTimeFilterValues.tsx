@@ -34,6 +34,7 @@ import {SelectChangeEvent} from "@mui/material/Select/Select";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import React, {ReactNode, useState} from "react";
 import {QCancelButton, QSaveButton} from "qqq/components/buttons/DefaultButtons";
 
@@ -205,7 +206,7 @@ function AdvancedDateTimeFilterValues({type, expression, onSave, forcedOpen}: Pr
    return (
       <Box>
          <Tooltip title={`Define a custom ${type == QFieldType.DATE ? "date" : "date-time"} condition`}>
-            <Icon onClick={openDialog} fontSize="small" color="info" sx={{mx: 0.25, cursor: "pointer", position: "relative", top: "2px"}}>settings</Icon>
+            <Icon onClick={openDialog} fontSize="small" color={preferredColorNameInfoOrPrimary()} sx={{mx: 0.25, cursor: "pointer", position: "relative", top: "2px"}}>settings</Icon>
          </Tooltip>
          {
             isOpen &&

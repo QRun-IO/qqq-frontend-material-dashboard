@@ -20,6 +20,7 @@
  */
 
 import Box from "@mui/material/Box";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {createContext, FC, forwardRef, ReactNode, useContext, useMemo} from "react";
 import MDPaginationItemRoot from "qqq/components/legacy/MDPagination/MDPaginationItemRoot";
 
@@ -96,7 +97,7 @@ const MDPagination: FC<Props | any> = forwardRef(
 MDPagination.defaultProps = {
    item: false,
    variant: "gradient",
-   color: "info",
+   color: preferredColorNameInfoOrPrimary(),
    size: "medium",
    active: false,
 };

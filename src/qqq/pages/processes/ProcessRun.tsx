@@ -51,6 +51,8 @@ import {Form, Formik} from "formik";
 import parse from "html-react-parser";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
+import linearGradient from "qqq/assets/theme/functions/linearGradient";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {QAlternateButton, QCancelButton, QSubmitButton} from "qqq/components/buttons/DefaultButtons";
 import QDynamicForm from "qqq/components/forms/DynamicForm";
 import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
@@ -79,7 +81,6 @@ import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import * as Yup from "yup";
-
 
 interface Props
 {
@@ -2213,7 +2214,12 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                      {
                         !isWidget && processMetaData?.stepFlow == "LINEAR" && (
                            <Box mx={2} mt={-3} sx={{"& .MuiStepper-horizontal": {minHeight: "5rem"}}}>
-                              <Stepper activeStep={activeStepIndex} alternativeLabel>
+                              <Stepper activeStep={activeStepIndex} alternativeLabel sx={(theme: Theme) =>
+                              {
+                                 return {
+                                    background: linearGradient(theme.palette.gradients[preferredColorNameInfoOrPrimary()].main, theme.palette.gradients[preferredColorNameInfoOrPrimary()].state)
+                                 }
+                              }}>
                                  {steps.map((step) => (
                                     <Step key={step.name}>
                                        <StepLabel>{step.label}</StepLabel>

@@ -40,6 +40,7 @@ import {QFilterCriteriaWithId} from "qqq/components/query/CustomFilterPanel";
 import {EvaluatedExpression} from "qqq/components/query/EvaluatedExpression";
 import {makeTextField} from "qqq/components/query/FilterCriteriaRowValues";
 import React, {SyntheticEvent, useReducer, useState} from "react";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 
 
 export type Expression = NowWithOffsetExpression | ThisOrLastPeriodExpression | NowExpression | FilterVariableExpression;
@@ -240,7 +241,7 @@ export default function CriteriaDateField({valueIndex, label, idPrefix, field, c
          (!isExpression || currentExpression?.type != "FilterVariableExpression") && (
             <><Box>
                <Tooltip title={`Choose a common relative ${field.type == QFieldType.DATE ? "date" : "date-time"} expression`} placement="bottom">
-                  <Icon fontSize="small" color="info" sx={{mx: 0.25, cursor: "pointer", position: "relative", top: "2px"}} onClick={openRelativeDateTimeMenu}>date_range</Icon>
+                  <Icon fontSize="small" color={preferredColorNameInfoOrPrimary()} sx={{mx: 0.25, cursor: "pointer", position: "relative", top: "2px"}} onClick={openRelativeDateTimeMenu}>date_range</Icon>
                </Tooltip>
                <Menu
                   open={relativeDateTimeOpen}

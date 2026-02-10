@@ -23,6 +23,7 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import Icon from "@mui/material/Icon";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {ReactNode} from "react";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import {sanitizeId} from "qqq/utils/qqqIdUtils";
@@ -67,7 +68,7 @@ function ProcessLinkCard({
                   borderRadius: "10px",
                   backgroundColor: isDisabled
                      ? "var(--qqq-secondary-color, #7b809a)"
-                     : "var(--qqq-info-color, #0062FF)"
+                     : `var(--qqq-${color}-color, #0062FF)`
                }}
                data-qqq-id={`${generatedId}-icon`}
             >
@@ -111,7 +112,7 @@ function ProcessLinkCard({
 }
 
 ProcessLinkCard.defaultProps = {
-   color: "info",
+   color: preferredColorNameInfoOrPrimary(),
    isReport: false,
    percentage: {
       color: "success",

@@ -21,6 +21,7 @@
 
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import React from "react";
 import {Link} from "react-router-dom";
 import MDButton from "qqq/components/legacy/MDButton";
@@ -42,7 +43,7 @@ export function QCreateNewButton({tablePath}: QCreateNewButtonProps): JSX.Elemen
    return (
       <Box display="inline-block" ml={standardML} mr={0} width={standardWidth}>
          <Link to={`${tablePath}/create`}>
-            <MDButton qqqId="create-new" variant="gradient" color="info" fullWidth startIcon={<Icon>add</Icon>}>
+            <MDButton qqqId="create-new" variant="gradient" color={preferredColorNameInfoOrPrimary()} fullWidth startIcon={<Icon>add</Icon>}>
                Create New
             </MDButton>
          </Link>
@@ -67,7 +68,7 @@ export function QSaveButton({label, iconName, onClickHandler, disabled}: QSaveBu
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton qqqId="save" type="submit" variant="gradient" color="info" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled}>
+         <MDButton qqqId="save" type="submit" variant="gradient" color={preferredColorNameInfoOrPrimary()} size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled}>
             {label}
          </MDButton>
       </Box>

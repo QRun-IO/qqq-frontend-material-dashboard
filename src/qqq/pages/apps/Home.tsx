@@ -32,6 +32,7 @@ import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import QContext from "QContext";
+import {preferredColorNameInfoOrPrimary, preferredInfoOrPrimaryColorVarExpression} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import ProcessLinkCard from "qqq/components/processes/ProcessLinkCard";
 import DashboardWidgets from "qqq/components/widgets/DashboardWidgets";
@@ -256,7 +257,7 @@ function AppHome({app}: Props): JSX.Element
                                           alignItems="center"
                                           width="4rem"
                                           height="4rem"
-                                          sx={{borderRadius: "10px", backgroundColor: "var(--qqq-info-color, #0062FF)"}}
+                                          sx={{borderRadius: "10px", backgroundColor: preferredInfoOrPrimaryColorVarExpression()}}
                                           data-qqq-id={`app-card-${sanitizeId(childApp.name)}-icon`}
                                        >
                                           <Icon fontSize="medium" color="inherit">
@@ -332,11 +333,13 @@ function AppHome({app}: Props): JSX.Element
                                                       {hasProcessPermission(processName) ?
                                                          <Link to={process.name}>
                                                             <ProcessLinkCard
+                                                               color={preferredColorNameInfoOrPrimary()}
                                                                icon={process.iconName || app.iconName}
                                                                title={process.label}
                                                             />
                                                          </Link> :
                                                          <ProcessLinkCard
+                                                            color={preferredColorNameInfoOrPrimary()}
                                                             icon={process.iconName || app.iconName}
                                                             title={process.label}
                                                             isDisabled={true}
@@ -374,12 +377,14 @@ function AppHome({app}: Props): JSX.Element
                                                          <Link to={report.name}>
                                                             <ProcessLinkCard
                                                                icon={report.iconName || app.iconName}
+                                                               color={preferredColorNameInfoOrPrimary()}
                                                                title={report.label}
                                                                isReport={true}
                                                             />
                                                          </Link> :
                                                          <ProcessLinkCard
                                                             icon={report.iconName || app.iconName}
+                                                            color={preferredColorNameInfoOrPrimary()}
                                                             title={report.label}
                                                             isReport={true}
                                                             isDisabled={true}
@@ -426,8 +431,8 @@ function AppHome({app}: Props): JSX.Element
                                                                <MiniStatisticsCard
                                                                   title={{fontWeight: "bold", text: table.label}}
                                                                   count={count}
-                                                                  percentage={{color: "info", text: percentage}}
-                                                                  icon={{color: "info", component: <Icon>{table.iconName || app.iconName}</Icon>}}
+                                                                  percentage={{color: preferredColorNameInfoOrPrimary(), text: percentage}}
+                                                                  icon={{color: preferredColorNameInfoOrPrimary(), component: <Icon>{table.iconName || app.iconName}</Icon>}}
                                                                />
                                                             </Box>
                                                          </Link> :
@@ -435,8 +440,8 @@ function AppHome({app}: Props): JSX.Element
                                                             <MiniStatisticsCard
                                                                title={{fontWeight: "bold", text: table.label}}
                                                                count={count}
-                                                               percentage={{color: "info", text: percentage}}
-                                                               icon={{color: "info", component: <Icon>{table.iconName || app.iconName}</Icon>}}
+                                                               percentage={{color: preferredColorNameInfoOrPrimary(), text: percentage}}
+                                                               icon={{color: preferredColorNameInfoOrPrimary(), component: <Icon>{table.iconName || app.iconName}</Icon>}}
                                                                isDisabled={true}
                                                             />
                                                          </Box>

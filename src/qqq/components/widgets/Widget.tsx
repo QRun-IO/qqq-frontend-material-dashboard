@@ -31,6 +31,7 @@ import Tooltip from "@mui/material/Tooltip/Tooltip";
 import Typography from "@mui/material/Typography";
 import parse from "html-react-parser";
 import QContext from "QContext";
+import {preferredInfoOrPrimaryColorVarExpression} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
 import WidgetDropdownMenu, {DropdownOption} from "qqq/components/widgets/components/WidgetDropdownMenu";
 import {WidgetUtils} from "qqq/components/widgets/WidgetUtils";
@@ -750,7 +751,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                                  width: "64px",
                                  height: "64px",
                                  borderRadius: "8px",
-                                 background: "var(--qqq-info-color, #0062FF)",
+                                 background: preferredInfoOrPrimaryColorVarExpression(),
                                  color: "#ffffff",
                                  float: "left"
                               }}
@@ -768,7 +769,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                                  width: "64px",
                                  height: "64px",
                                  borderRadius: "8px",
-                                 background: "var(--qqq-info-color, #0062FF)",
+                                 background: preferredInfoOrPrimaryColorVarExpression(),
                                  color: "#ffffff",
                                  float: "left"
                               }}

@@ -51,6 +51,7 @@ import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {QueryJoin} from "@qrunio/qqq-frontend-core/lib/model/query/QueryJoin";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import AuditBody from "qqq/components/audits/AuditBody";
 import {QActionsMenuButton, QCancelButton, QDeleteButton, QEditButton, standardWidth} from "qqq/components/buttons/DefaultButtons";
@@ -921,7 +922,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          return (<Box width={standardWidth} mr={2}>
             <Tooltip title={disabledTooltipText}>
                <span>
-                  <MDButton id="shareButton" type="button" color="info" size="small" onClick={() => openShareModal()} fullWidth startIcon={<Icon>group_add</Icon>} disabled={shareDisabled}>
+                  <MDButton id="shareButton" type="button" color={preferredColorNameInfoOrPrimary()} size="small" onClick={() => openShareModal()} fullWidth startIcon={<Icon>group_add</Icon>} disabled={shareDisabled}>
                      Share
                   </MDButton>
                </span>

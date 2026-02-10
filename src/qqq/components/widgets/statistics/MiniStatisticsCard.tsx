@@ -23,6 +23,7 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
+import {preferredInfoOrPrimaryColorVarExpression} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {ReactNode} from "react";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import {useMaterialUIController} from "qqq/context";
@@ -118,7 +119,7 @@ function MiniStatisticsCard({
                            borderRadius: "10px",
                            backgroundColor: isDisabled
                               ? "var(--qqq-secondary-color, #7b809a)"
-                              : "var(--qqq-info-color, #0062FF)"
+                              : preferredInfoOrPrimaryColorVarExpression()
                         }}
                         data-qqq-id={generatedId ? `${generatedId}-icon` : undefined}
                      >

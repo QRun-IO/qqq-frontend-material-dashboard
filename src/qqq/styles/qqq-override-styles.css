@@ -19,6 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+:root
+{
+   /* see full explanation in preferInfoColorToPrimaryColor.ts - but the quick version is:
+   If this value is 1, then components that maybe should have always been built with
+   color="primary" will instead use color="info" (which may be preferred - e.g., in the
+   default theme, info=blue, primary=pink, so info was preferred...).
+   Override this at the application level to use your primary color in more places (e.g.,
+   create-new button, save button, process stepper, etc).
+    */
+   --qqq-prefer-info-color-to-primary-color: 1;
+}
+
 .MuiDrawer-docked .MuiPaper-elevation
 {
    white-space: normal;
