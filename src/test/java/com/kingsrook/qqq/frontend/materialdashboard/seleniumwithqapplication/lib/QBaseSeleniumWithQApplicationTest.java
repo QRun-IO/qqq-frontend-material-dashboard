@@ -237,8 +237,11 @@ public class QBaseSeleniumWithQApplicationTest
     *       // qSeleniumLib.waitForSelectorContaining...
     *    }
     * </pre>
+    *
+    * @param qInstance the qInstance to customize
+    * @return true if customizeQInstance method was found and executed, false otherwise
     ***************************************************************************/
-   protected void customizeQInstanceViaTestMethodTagSpecifyingCustomizeQInstanceMethodName(QInstance qInstance) throws QException
+   protected boolean customizeQInstanceViaTestMethodTagSpecifyingCustomizeQInstanceMethodName(QInstance qInstance) throws QException
    {
       Optional<String> customizeQInstanceTag = testInfo.getTags().stream().filter(s -> s.matches("^customizeQInstance.*")).findFirst();
       if(customizeQInstanceTag.isPresent())
@@ -247,6 +250,7 @@ public class QBaseSeleniumWithQApplicationTest
          {
             Method method = getClass().getMethod(customizeQInstanceTag.get(), QInstance.class);
             method.invoke(this, qInstance);
+            return true;
          }
          catch(NoSuchMethodException e)
          {
@@ -257,6 +261,7 @@ public class QBaseSeleniumWithQApplicationTest
             throw (new QException("Error in customizeQInstanceViaTestMethodTagSpecifyingDoMethodName", e));
          }
       }
+      return false;
    }
 
 
@@ -271,8 +276,9 @@ public class QBaseSeleniumWithQApplicationTest
     * "setupTestData"), which takes no parameters.
     *
     * @see #customizeQInstanceViaTestMethodTagSpecifyingCustomizeQInstanceMethodName(QInstance)
+    * @return true if setupTestData method was found and executed, false otherwise
     ***************************************************************************/
-   protected void setupTestDataViaTestMethodTagSpecifyingSetupTestDataMethodName() throws QException
+   protected boolean setupTestDataViaTestMethodTagSpecifyingSetupTestDataMethodName() throws QException
    {
       Optional<String> setupTestDataTag = testInfo.getTags().stream().filter(s -> s.matches("^setupTestData.*")).findFirst();
       if(setupTestDataTag.isPresent())
@@ -281,6 +287,7 @@ public class QBaseSeleniumWithQApplicationTest
          {
             Method method = getClass().getMethod(setupTestDataTag.get());
             method.invoke(this);
+            return true;
          }
          catch(NoSuchMethodException e)
          {
@@ -291,6 +298,8 @@ public class QBaseSeleniumWithQApplicationTest
             throw (new QException("Error in setupTestDataViaTestMethodTagSpecifyingSetupTestDataMethodName", e));
          }
       }
+
+      return false;
    }
 
 
