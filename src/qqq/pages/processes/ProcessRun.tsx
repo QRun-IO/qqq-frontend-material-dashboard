@@ -1818,44 +1818,41 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
 
       (async () =>
       {
+         const formData = new FormData();
          const urlSearchParams = new URLSearchParams(location.search);
-         let queryStringPairsForInit = [];
          if (urlSearchParams.get("recordIds"))
          {
-            const recordIdsFromQueryString = urlSearchParams.get("recordIds").split(",");
-            const encodedRecordIds = recordIdsFromQueryString.map(r => encodeURIComponent(r)).join(",");
-            queryStringPairsForInit.push("recordsParam=recordIds");
-            queryStringPairsForInit.push(`recordIds=${encodedRecordIds}`);
+            formData.append("recordsParam", "recordIds");
+            formData.append("recordIds", urlSearchParams.get("recordIds"));
          }
          else if (urlSearchParams.get("filterJSON"))
          {
-            queryStringPairsForInit.push("recordsParam=filterJSON");
-            queryStringPairsForInit.push(`filterJSON=${encodeURIComponent(urlSearchParams.get("filterJSON"))}`);
+            formData.append("recordsParam", "filterJSON");
+            formData.append("filterJSON", urlSearchParams.get("filterJSON"));
          }
          // todo once saved filters exist
          //else if(urlSearchParams.get("filterId")) {
-         //   queryStringPairsForInit.push("recordsParam=filterId");
-         //   queryStringPairsForInit.push(`filterId=${urlSearchParams.get("filterId")}`);
+         //   formData.append("recordsParam", "filterId");
+         //   formData.append(`filterId", filterId);
          // }
          else if (recordIds)
          {
             if (recordIds instanceof QQueryFilter)
             {
-               queryStringPairsForInit.push("recordsParam=filterJSON");
-               queryStringPairsForInit.push(`filterJSON=${encodeURIComponent(JSON.stringify(recordIds))}`);
+               formData.append("recordsParam", "filterJSON");
+               formData.append("filterJSON", JSON.stringify(recordIds));
             }
             else if (typeof recordIds === "object" && recordIds.length)
             {
-               const encodedRecordIds = recordIds.map(r => encodeURIComponent(r)).join(",");
-               queryStringPairsForInit.push("recordsParam=recordIds");
-               queryStringPairsForInit.push(`recordIds=${encodedRecordIds}`);
+               formData.append("recordsParam", "recordIds");
+               formData.append("recordIds", recordIds.join(","));
             }
          }
 
          if (tableVariantLocalStorageKey && localStorage.getItem(tableVariantLocalStorageKey))
          {
             let tableVariant = JSON.parse(localStorage.getItem(tableVariantLocalStorageKey));
-            queryStringPairsForInit.push(`tableVariant=${encodeURIComponent(JSON.stringify(tableVariant))}`);
+            formData.append("tableVariant", JSON.stringify(tableVariant));
          }
 
          try
@@ -1917,18 +1914,18 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
          {
             for (let key in defaultProcessValues)
             {
-               queryStringPairsForInit.push(`${key}=${encodeURIComponent(defaultProcessValues[key])}`);
+               formData.append(key, defaultProcessValues[key]);
             }
          }
 
          if (tableMetaData)
          {
-            queryStringPairsForInit.push(`tableName=${encodeURIComponent(tableMetaData.name)}`);
+            formData.append("tableName", tableMetaData.name);
          }
 
          try
          {
-            const processResponse = await qController.processInit(processName, queryStringPairsForInit.join("&"));
+            const processResponse = await qController.processInit(processName, formData);
             setProcessUUID(processResponse.processUUID);
             setLastProcessResponse(processResponse);
          }
