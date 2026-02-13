@@ -48,6 +48,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.menus.items.QMenuItemSubMen
 import com.kingsrook.qqq.backend.core.model.metadata.tables.QTableMetaData;
 import com.kingsrook.qqq.frontend.materialdashboard.junit.TestUtils;
 import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.lib.QBaseSeleniumWithQApplicationTest;
+import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata.PersonBasicETLProcessMetaDataProducer;
 import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata.PersonNoopProcessMetaDataProducer;
 import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata.PersonTableProducer;
 import org.junit.jupiter.api.Tag;
@@ -133,10 +134,11 @@ public class RecordViewMenusIT extends QBaseSeleniumWithQApplicationTest
       QMenuAdjuster.addLast(menu, new QMenuItemBuiltIn(QMenuItemBuiltIn.DefaultOptions.COPY));
 
       //////////////////////////////////////////////////////////////////////////////////////////////////////////
-      // put the no-op process as the very first thing, with a divider below it (so we add them out-of-order) //
+      // put processes as the very first thing, with a divider below it (so we add them out-of-order) //
       //////////////////////////////////////////////////////////////////////////////////////////////////////////
       QMenuAdjuster.addFirst(menu, new QMenuItemDivider());
       QMenuAdjuster.addFirst(menu, new QMenuItemRunProcess(PersonNoopProcessMetaDataProducer.NAME));
+      QMenuAdjuster.addFirst(menu, new QMenuItemRunProcess(PersonBasicETLProcessMetaDataProducer.NAME));
 
       table.withMenu(menu);
    }
