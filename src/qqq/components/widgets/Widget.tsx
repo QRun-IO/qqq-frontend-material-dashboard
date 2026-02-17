@@ -738,6 +738,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
       needLabelBox ||= isSet(props.widgetData?.icon);
       needLabelBox ||= isSet(props.widgetData?.label);
       needLabelBox ||= isSet(props.widgetMetaData?.label);
+      needLabelBox ||= isCollapsible;
    }
 
    //////////////////////////////////////////////////////////////////////////////////////////
