@@ -20,8 +20,6 @@
  */
 
 import {createTheme, Theme, ThemeOptions} from "@mui/material";
-// eslint-disable-next-line import/no-unresolved
-import {QThemeMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QThemeMetaData";
 import borders from "qqq/assets/theme/base/borders";
 import boxShadows from "qqq/assets/theme/base/boxShadows";
 import breakpoints from "qqq/assets/theme/base/breakpoints";
@@ -84,6 +82,7 @@ import hexToRgb from "qqq/assets/theme/functions/hexToRgb";
 import linearGradient from "qqq/assets/theme/functions/linearGradient";
 import pxToRem from "qqq/assets/theme/functions/pxToRem";
 import rgba from "qqq/assets/theme/functions/rgba";
+import {MaterialDashboardThemeMetaData} from "qqq/models/metadata/MaterialDashboardThemeMetaData";
 import {DEFAULT_THEME} from "./themeUtils";
 
 /*******************************************************************************
@@ -152,12 +151,12 @@ function resolveComponentBorderRadius(
 /*******************************************************************************
  ** Merge provided theme with defaults, filtering out undefined values.
  *******************************************************************************/
-function mergeWithDefaults(theme?: QThemeMetaData): QThemeMetaData
+function mergeWithDefaults(theme?: MaterialDashboardThemeMetaData): MaterialDashboardThemeMetaData
 {
-   const definedValues: Partial<QThemeMetaData> = {};
+   const definedValues: Partial<MaterialDashboardThemeMetaData> = {};
    if (theme)
    {
-      for (const key of Object.keys(theme) as (keyof QThemeMetaData)[])
+      for (const key of Object.keys(theme) as (keyof MaterialDashboardThemeMetaData)[])
       {
          if (theme[key] !== undefined)
          {
@@ -165,17 +164,17 @@ function mergeWithDefaults(theme?: QThemeMetaData): QThemeMetaData
          }
       }
    }
-   return {...DEFAULT_THEME, ...definedValues} as QThemeMetaData;
+   return {...DEFAULT_THEME, ...definedValues} as MaterialDashboardThemeMetaData;
 }
 
 /*******************************************************************************
- ** Build MUI palette from QThemeMetaData.
+ ** Build MUI palette from MaterialDashboardThemeMetaData.
  ** Extends the base colors with dynamic theme values.
  **
  ** Uses type assertion because this project extends MUI's palette with custom
  ** properties like 'focus' that aren't in the standard PaletteOptions type.
  *******************************************************************************/
-function buildPalette(theme: QThemeMetaData): ThemeOptions["palette"]
+function buildPalette(theme: MaterialDashboardThemeMetaData): ThemeOptions["palette"]
 {
    /////////////////////////////////////////////////////////////////////////////
    // Start with all existing colors from the base colors file               //
@@ -241,11 +240,11 @@ function buildPalette(theme: QThemeMetaData): ThemeOptions["palette"]
 }
 
 /*******************************************************************************
- ** Build MUI typography from QThemeMetaData.
+ ** Build MUI typography from MaterialDashboardThemeMetaData.
  ** Merges with base typography to preserve custom properties like size/lineHeight
  ** that are used by the component override files.
  *******************************************************************************/
-function buildTypography(theme: QThemeMetaData): ThemeOptions["typography"]
+function buildTypography(theme: MaterialDashboardThemeMetaData): ThemeOptions["typography"]
 {
    const fontFamily = theme.fontFamily || "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif";
 
@@ -374,7 +373,7 @@ function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial
 }
 
 /*******************************************************************************
- ** Build MUI component overrides from QThemeMetaData.
+ ** Build MUI component overrides from MaterialDashboardThemeMetaData.
  **
  ** Strategy: Import all 55 component override files as base styling, then apply
  ** dynamic theme values on top. This preserves the detailed styling work while
@@ -383,27 +382,27 @@ function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial
  ** @param theme - merged theme metadata with defaults
  ** @param hasExplicitTheme - true if backend provided theme, false for unthemed apps
  *******************************************************************************/
-function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): ThemeOptions["components"]
+function buildComponents(theme: MaterialDashboardThemeMetaData, hasExplicitTheme: boolean): ThemeOptions["components"]
 {
    /////////////////////////////////////////////////////////////////////////////
    // Border radius resolution: per-component ?? global ?? (default * scale) //
    /////////////////////////////////////////////////////////////////////////////
-   const borderRadiusGlobal = parseBorderRadius(theme.borderRadius/*Global*/);
-   const borderRadiusScale = /*theme.borderRadiusScale ??*/ 1.0;
+   const borderRadiusGlobal = parseBorderRadius(theme.borderRadiusGlobal);
+   const borderRadiusScale = theme.borderRadiusScale ?? 1.0;
 
    const resolveBorderRadius = (component: string, override: number | null) =>
       resolveComponentBorderRadius(override, borderRadiusGlobal, COMPONENT_DEFAULT_BORDER_RADIUS[component], borderRadiusScale);
 
-   const borderRadiusButton = resolveBorderRadius("button", parseBorderRadius(theme.borderRadius/*Button*/));
-   const borderRadiusCard = resolveBorderRadius("card", parseBorderRadius(theme.borderRadius/*Card*/));
-   const borderRadiusChip = resolveBorderRadius("chip", parseBorderRadius(theme.borderRadius/*Chip*/));
-   const borderRadiusDialog = resolveBorderRadius("dialog", parseBorderRadius(theme.borderRadius/*Dialog*/));
-   const borderRadiusOutlinedInput = resolveBorderRadius("outlinedInput", parseBorderRadius(theme.borderRadius/*OutlinedInput*/));
-   const borderRadiusLinearProgress = resolveBorderRadius("linearProgress", parseBorderRadius(theme.borderRadius/*LinearProgress*/));
-   const borderRadiusMenuPaper = resolveBorderRadius("menuPaper", parseBorderRadius(theme.borderRadius/*MenuPaper*/));
-   const borderRadiusPaperRounded = resolveBorderRadius("paperRounded", parseBorderRadius(theme.borderRadius/*PaperRounded*/));
-   const borderRadiusPopoverPaper = resolveBorderRadius("popoverPaper", parseBorderRadius(theme.borderRadius/*PopoverPaper*/));
-   const borderRadiusTooltip = resolveBorderRadius("tooltip", parseBorderRadius(theme.borderRadius/*Tooltip*/));
+   const borderRadiusButton = resolveBorderRadius("button", parseBorderRadius(theme.borderRadiusButton));
+   const borderRadiusCard = resolveBorderRadius("card", parseBorderRadius(theme.borderRadiusCard));
+   const borderRadiusChip = resolveBorderRadius("chip", parseBorderRadius(theme.borderRadiusChip));
+   const borderRadiusDialog = resolveBorderRadius("dialog", parseBorderRadius(theme.borderRadiusDialog));
+   const borderRadiusOutlinedInput = resolveBorderRadius("outlinedInput", parseBorderRadius(theme.borderRadiusOutlinedInput));
+   const borderRadiusLinearProgress = resolveBorderRadius("linearProgress", parseBorderRadius(theme.borderRadiusLinearProgress));
+   const borderRadiusMenuPaper = resolveBorderRadius("menuPaper", parseBorderRadius(theme.borderRadiusMenuPaper));
+   const borderRadiusPaperRounded = resolveBorderRadius("paperRounded", parseBorderRadius(theme.borderRadiusPaperRounded));
+   const borderRadiusPopoverPaper = resolveBorderRadius("popoverPaper", parseBorderRadius(theme.borderRadiusPopoverPaper));
+   const borderRadiusTooltip = resolveBorderRadius("tooltip", parseBorderRadius(theme.borderRadiusTooltip));
 
    const density = theme.density || "normal";
    const spacingUnit = DENSITY_SPACING[density] || 8;
@@ -416,10 +415,10 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
    const borderColor = theme.borderColor || "rgba(0, 0, 0, 0.12)";
    const dividerColor = theme.dividerColor || "rgba(0, 0, 0, 0.12)";
 
-   /////////////////////////////////////////////////////////////////////////////
-   // Base components from the 55 static files - preserves all detailed        //
-   // styling like shadows, transitions, sizes, etc.                           //
-   /////////////////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////////
+   // Base components from the 55 static files - preserves all detailed //
+   // styling like shadows, transitions, sizes, etc.                    //
+   ///////////////////////////////////////////////////////////////////////
    const baseComponents: ThemeOptions["components"] = {
       MuiCssBaseline: {
          styleOverrides: {
@@ -488,10 +487,10 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       MuiDialogActions: {...dialogActions},
    };
 
-   /////////////////////////////////////////////////////////////////////////////
-   // Dynamic overrides - theme-specific values that override the base         //
-   // These are the properties that should change based on QThemeMetaData      //
-   /////////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////////////////////
+   // Dynamic overrides - theme-specific values that override the base                    //
+   // These are the properties that should change based on MaterialDashboardThemeMetaData //
+   /////////////////////////////////////////////////////////////////////////////////////////
    const dynamicOverrides: ThemeOptions["components"] = {
       MuiCssBaseline: {
          styleOverrides: {
@@ -729,9 +728,9 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
       },
    };
 
-   /////////////////////////////////////////////////////////////////////////////
-   // Merge base components with dynamic overrides                             //
-   /////////////////////////////////////////////////////////////////////////////
+   //////////////////////////////////////////////////
+   // Merge base components with dynamic overrides //
+   //////////////////////////////////////////////////
    return deepMerge(
       baseComponents as Record<string, unknown>,
       dynamicOverrides as Record<string, unknown>
@@ -739,18 +738,18 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
 }
 
 /*******************************************************************************
- ** Create a complete MUI theme from QThemeMetaData.
+ ** Create a complete MUI theme from MaterialDashboardThemeMetaData.
  **
  ** This is the core of the MUI-first theming approach. Instead of injecting
  ** CSS variables and having MUI read them, we build the theme object directly
- ** from the QThemeMetaData values.
+ ** from the MaterialDashboardThemeMetaData values.
  **
  ** The theme is built in three parts:
  ** 1. palette - colors for primary, secondary, error, etc.
  ** 2. typography - font families, sizes, weights for all variants
  ** 3. components - style overrides for MUI components
  *******************************************************************************/
-export function createDynamicTheme(themeMetaData?: QThemeMetaData): Theme
+export function createDynamicTheme(themeMetaData?: MaterialDashboardThemeMetaData): Theme
 {
    const mergedTheme = mergeWithDefaults(themeMetaData);
    const hasExplicitTheme = themeMetaData != null;
@@ -766,9 +765,9 @@ export function createDynamicTheme(themeMetaData?: QThemeMetaData): Theme
       shape: {
          borderRadius: resolveComponentBorderRadius(
             null,
-            parseBorderRadius(mergedTheme.borderRadius/*Global*/),
+            parseBorderRadius(mergedTheme.borderRadiusGlobal),
             DEFAULT_SHAPE_BORDER_RADIUS,
-            /*mergedTheme.borderRadiusScale ??*/ 1.0,
+            mergedTheme.borderRadiusScale ?? 1.0,
          ),
       },
       boxShadows: {...boxShadows},
@@ -790,7 +789,7 @@ export function createDynamicTheme(themeMetaData?: QThemeMetaData): Theme
  ** Export the merged theme data for use by island CSS variable injection.
  ** This allows components like sidebar and branded header to access theme values.
  *******************************************************************************/
-export function getMergedTheme(themeMetaData?: QThemeMetaData): QThemeMetaData
+export function getMergedTheme(themeMetaData?: MaterialDashboardThemeMetaData): MaterialDashboardThemeMetaData
 {
    return mergeWithDefaults(themeMetaData);
 }

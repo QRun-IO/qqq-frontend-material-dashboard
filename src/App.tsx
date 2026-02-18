@@ -23,7 +23,7 @@ import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import Icon from "@mui/material/Icon";
-import {ThemeProvider} from "@mui/material/styles";
+import {Theme, ThemeProvider} from "@mui/material/styles";
 import {LicenseInfo} from "@mui/x-license-pro";
 import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
 import {QAppNodeType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAppNodeType";
@@ -33,16 +33,16 @@ import {QBrandingMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QB
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-// eslint-disable-next-line import/no-unresolved
 import CommandMenu from "CommandMenu";
 import QContext from "QContext";
 import useAnonymousAuthenticationModule from "qqq/authorization/anonymous/useAnonymousAuthenticationModule";
 import useAuth0AuthenticationModule from "qqq/authorization/auth0/useAuth0AuthenticationModule";
 import useOAuth2AuthenticationModule from "qqq/authorization/oauth2/useOAuth2AuthenticationModule";
+import BrandedHeaderBar from "qqq/components/horseshoe/BrandedHeaderBar";
 import Sidenav from "qqq/components/horseshoe/sidenav/SideNav";
-import theme from "qqq/components/legacy/Theme";
 import {getBanner, getBannerClassName, getBannerStyles, makeBannerContent} from "qqq/components/misc/Banners";
 import {setMiniSidenav, useMaterialUIController} from "qqq/context";
+import {MaterialDashboardThemeMetaData} from "qqq/models/metadata/MaterialDashboardThemeMetaData";
 import AppHome from "qqq/pages/apps/Home";
 import NoApps from "qqq/pages/apps/NoApps";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
@@ -54,11 +54,13 @@ import RecordQuery from "qqq/pages/records/query/RecordQuery";
 import RecordDeveloperView from "qqq/pages/records/view/RecordDeveloperView";
 import RecordView from "qqq/pages/records/view/RecordView";
 import RecordViewByUniqueKey from "qqq/pages/records/view/RecordViewByUniqueKey";
+import {createDynamicTheme} from "qqq/utils/createDynamicTheme";
 import GoogleAnalyticsUtils, {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {injectIslandVariables} from "qqq/utils/injectIslandVariables";
 import {detectBasePath, resolveAssetUrl} from "qqq/utils/PathUtils";
 import Client from "qqq/utils/qqq/Client";
 import ProcessUtils from "qqq/utils/qqq/ProcessUtils";
-import React, {JSXElementConstructor, Key, ReactElement, useEffect, useState,} from "react";
+import React, {JSXElementConstructor, Key, ReactElement, useEffect, useMemo, useState,} from "react";
 import {useCookies} from "react-cookie";
 import {Navigate, Route, Routes, useLocation, useParams, useSearchParams,} from "react-router-dom";
 import {Md5} from "ts-md5/dist/md5";
@@ -72,13 +74,14 @@ interface Props
    authenticationMetaData: QAuthenticationMetaData;
 }
 
-export default function App({authenticationMetaData}: Props) 
+export default function App({authenticationMetaData}: Props)
 {
    const [, , removeCookie] = useCookies([SESSION_UUID_COOKIE_NAME]);
    const [loadingToken, setLoadingToken] = useState(false);
    const [isFullyAuthenticated, setIsFullyAuthenticated] = useState(false);
    const [profileRoutes, setProfileRoutes] = useState({});
    const [branding, setBranding] = useState({} as QBrandingMetaData);
+   const [themeMetaData, setThemeMetaData] = useState(null as MaterialDashboardThemeMetaData | null);
    const [metaData, setMetaData] = useState({} as QInstance);
    const [needLicenseKey, setNeedLicenseKey] = useState(true);
    const [loggedInUser, setLoggedInUser] = useState({} as { name?: string, email?: string });
@@ -97,7 +100,7 @@ export default function App({authenticationMetaData}: Props)
    /////////////////////////////////////////////////
    // deal with making sure user is authenticated //
    /////////////////////////////////////////////////
-   useEffect(() => 
+   useEffect(() =>
    {
       if (loadingToken)
       {
@@ -105,7 +108,7 @@ export default function App({authenticationMetaData}: Props)
       }
       setLoadingToken(true);
 
-      (async () => 
+      (async () =>
       {
          if (authenticationMetaData.type === "AUTH_0")
          {
@@ -130,7 +133,7 @@ export default function App({authenticationMetaData}: Props)
 
    if (needLicenseKey)
    {
-      (async () => 
+      (async () =>
       {
          const metaData: QInstance = await qController.loadMetaData();
          LicenseInfo.setLicenseKey(metaData.environmentValues?.get("MATERIAL_UI_LICENSE_KEY") || process.env.REACT_APP_MATERIAL_UI_LICENSE_KEY);
@@ -175,7 +178,7 @@ export default function App({authenticationMetaData}: Props)
    ////////////////////////////////////////////
    // load qqq meta data to make more routes //
    ////////////////////////////////////////////
-   useEffect(() => 
+   useEffect(() =>
    {
       if (!needToLoadRoutes || !isFullyAuthenticated)
       {
@@ -183,7 +186,7 @@ export default function App({authenticationMetaData}: Props)
       }
       setNeedToLoadRoutes(false);
 
-      (async () => 
+      (async () =>
       {
          function addAppToSideNavList(app: QAppTreeNode, appList: any[], parentPath: string, depth: number)
          {
@@ -202,7 +205,7 @@ export default function App({authenticationMetaData}: Props)
             const childList: any[] = [];
             if (app.children && !app.hideChildrenFromNavigation)
             {
-               app.children.forEach((child: QAppTreeNode) => 
+               app.children.forEach((child: QAppTreeNode) =>
                {
                   addAppToSideNavList(child, childList, path, depth + 1);
                });
@@ -259,7 +262,7 @@ export default function App({authenticationMetaData}: Props)
             {
                if (app.children)
                {
-                  app.children.forEach((child: QAppTreeNode) => 
+                  app.children.forEach((child: QAppTreeNode) =>
                   {
                      addAppToAppRoutesList(metaData, child, routeList, path, depth + 1);
                   });
@@ -361,7 +364,7 @@ export default function App({authenticationMetaData}: Props)
                });
 
                const processesForTable = ProcessUtils.getProcessesForTable(metaData, table.name, true);
-               processesForTable.forEach((process) => 
+               processesForTable.forEach((process) =>
                {
                   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                   // paths to open modal process under its owning table.                                                                           //
@@ -436,7 +439,7 @@ export default function App({authenticationMetaData}: Props)
                }
 
                const reportsForTable = ProcessUtils.getReportsForTable(metaData, table.name, true);
-               reportsForTable.forEach((report) => 
+               reportsForTable.forEach((report) =>
                {
                   // todo - do we need some table/report routes here, that would go to RecordQuery and/or RecordView
                   routeList.push({
@@ -494,6 +497,15 @@ export default function App({authenticationMetaData}: Props)
                {
                   setAccentColorLight(metaData.branding.accentColorLight);
                }
+            }
+
+            ////////////////////////////////////////////
+            // Set theme metadata for dynamic theming //
+            ////////////////////////////////////////////
+            const themeMetaDataObject = metaData.supplementalInstanceMetaData?.get("com.kingsrook.qqq.frontend.materialdashboard.model.metadata.MaterialDashboardThemeMetaData");
+            if (themeMetaDataObject)
+            {
+               setThemeMetaData(new MaterialDashboardThemeMetaData(themeMetaDataObject));
             }
 
             const gravatarBase = "https://www.gravatar.com/avatar/";
@@ -584,7 +596,7 @@ export default function App({authenticationMetaData}: Props)
    ///////////////////////////////////////////////////////////////
    // write routes to manage redirects specified by the backend //
    ///////////////////////////////////////////////////////////////
-   const getRedirectRoutes = (redirects: Map<string, string>): any => 
+   const getRedirectRoutes = (redirects: Map<string, string>): any =>
    {
       const rs = [] as any[];
 
@@ -599,7 +611,7 @@ export default function App({authenticationMetaData}: Props)
    ///////////////////////////////////////////////////
    // Open sidenav when mouse enter on mini sidenav //
    ///////////////////////////////////////////////////
-   const handleOnMouseEnter = () => 
+   const handleOnMouseEnter = () =>
    {
       if (miniSidenav && !onMouseEnter)
       {
@@ -611,7 +623,7 @@ export default function App({authenticationMetaData}: Props)
    /////////////////////////////////////////////////
    // Close sidenav when mouse leave mini sidenav //
    /////////////////////////////////////////////////
-   const handleOnMouseLeave = () => 
+   const handleOnMouseLeave = () =>
    {
       if (onMouseEnter)
       {
@@ -620,7 +632,7 @@ export default function App({authenticationMetaData}: Props)
       }
    };
 
-   useEffect(() => 
+   useEffect(() =>
    {
       document.body.setAttribute("dir", direction);
    }, [direction]);
@@ -628,7 +640,7 @@ export default function App({authenticationMetaData}: Props)
    //////////////////////////////////////////////////////
    // Setting page scroll to 0 when changing the route //
    //////////////////////////////////////////////////////
-   useEffect(() => 
+   useEffect(() =>
    {
       document.documentElement.scrollTop = 0;
       document.scrollingElement.scrollTop = 0;
@@ -643,7 +655,7 @@ export default function App({authenticationMetaData}: Props)
          route: string;
          component: ReactElement<any, string | JSXElementConstructor<any>>;
          key: Key;
-      }) => 
+      }) =>
       {
          if (route.collapse)
          {
@@ -659,6 +671,24 @@ export default function App({authenticationMetaData}: Props)
       },
    );
 
+   /////////////////////////////////////////////////////////////////////////////
+   // Create dynamic MUI theme from themeMetaData                            //
+   // Theme is rebuilt when themeMetaData changes (from backend)             //
+   /////////////////////////////////////////////////////////////////////////////
+   const dynamicTheme: Theme = useMemo(() =>
+   {
+      return createDynamicTheme(themeMetaData || undefined);
+   }, [themeMetaData]);
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Inject CSS variables for island components (sidebar, header, DataGrid) //
+   // These components can't use MUI palette, so they need CSS variables      //
+   /////////////////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      injectIslandVariables(themeMetaData || undefined);
+   }, [themeMetaData]);
+
    const [pageHeader, setPageHeader] = useState("" as string | JSX.Element);
    const [accentColor, setAccentColor] = useState("#0062FF");
    const [accentColorLight, setAccentColorLight] = useState("#C0D6F7");
@@ -670,7 +700,7 @@ export default function App({authenticationMetaData}: Props)
    const [helpHelpActive] = useState(queryParams.has("helpHelp"));
    const [userId, setUserId] = useState(loggedInUser?.email);
 
-   useEffect(() => 
+   useEffect(() =>
    {
       setUserId(loggedInUser?.email);
    }, [loggedInUser]);
@@ -793,10 +823,11 @@ export default function App({authenticationMetaData}: Props)
             pathToLabelMap: pathToLabelMap,
             branding: branding
          }}>
-            <ThemeProvider theme={theme}>
+            <ThemeProvider theme={dynamicTheme}>
                <CssBaseline />
                <CommandMenu metaData={metaData} />
                {banner()}
+               <BrandedHeaderBar theme={themeMetaData} />
                <Sidenav
                   color={sidenavColor}
                   icon={resolveAssetUrl(branding.icon)}

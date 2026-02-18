@@ -6,22 +6,22 @@ This document explains the QQQ pluggable theming system for AI assistants and de
 
 QQQ uses a **backend-driven theming model**:
 
-1. **Java Backend**: Define theme in `QThemeMetaData` object
-2. **Frontend Core**: TypeScript `QThemeMetaData` interface mirrors Java class
+1. **Java Backend**: Define theme in `MaterialDashboardThemeMetaData` object
+2. **Frontend Model**: TypeScript `MaterialDashboardThemeMetaData` interface mirrors Java class
 3. **Frontend Dashboard**: `themeUtils.ts` injects CSS custom properties at runtime
 
-Theme data flows: `QThemeMetaData.java` → `/metaData` API → `QThemeMetaData.ts` → CSS variables (`--qqq-*`)
+Theme data flows: `MaterialDashboardThemeMetaData.java` → `/metaData` API → `MaterialDashboardThemeMetaData.ts` → CSS variables (`--qqq-*`)
 
 ## Configuring a Theme (Java Backend)
 
-Create a `QThemeMetaData` instance using fluent setters:
+Create a `MaterialDashboardThemeMetaData` instance using fluent setters:
 
 ```java
-QThemeMetaData theme = new QThemeMetaData()
+MaterialDashboardThemeMetaData theme = new MaterialDashboardThemeMetaData()
    .withPrimaryColor("#1976D2")
    .withSidebarBackgroundColor("#1E1E2D");
 
-qInstance.setTheme(theme);
+qInstance.add(theme);
 ```
 
 All properties are optional. Omitted properties use frontend defaults.
@@ -251,7 +251,7 @@ The fallback value (after comma) is used if the variable is undefined.
 
 ## Theme Application Flow
 
-1. Backend serves `QThemeMetaData` via `/metaData` endpoint
+1. Backend serves `MaterialDashboardThemeMetaData` via `/metaData` endpoint
 2. Frontend receives theme in `QInstance.theme`
 3. `themeUtils.ts` calls `injectThemeVariables(theme)`
 4. Function sets CSS custom properties on `:root`
@@ -264,7 +264,7 @@ The fallback value (after comma) is used if the variable is undefined.
 
 **Minimal** - Override only what differs from defaults:
 ```java
-new QThemeMetaData()
+new MaterialDashboardThemeMetaData()
    .withPrimaryColor("#E91E63")
    .withBrandedHeaderEnabled(true);
 ```
@@ -286,10 +286,10 @@ For dark themes, invert the typical light/dark relationships:
 
 ## File Locations
 
-| Repository | Key Files |
-|------------|-----------|
-| qqq-backend-core | `QThemeMetaData.java` |
-| qqq-frontend-core | `QThemeMetaData.ts` |
+| Repository                      | Key Files |
+|---------------------------------|-----------|
+| qqq-backend-core                | `MaterialDashboardThemeMetaData.java` |
+| qqq-frontend-material-dashboard | `MaterialDashboardThemeMetaData.ts` |
 | qqq-frontend-material-dashboard | `themeUtils.ts`, `qqq-override-styles.css` |
 
 ---

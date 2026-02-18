@@ -30,6 +30,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import {QActionsMenuButton} from "qqq/components/buttons/DefaultButtons";
+import {generateMenuItemId} from "qqq/utils/qqqIdUtils";
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 
@@ -78,19 +79,19 @@ export default function QueryScreenActionMenu({metaData, tableMetaData, tablePro
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    if (tableMetaData.capabilities.has(Capability.TABLE_INSERT) && tableMetaData.insertPermission && metaData.processes.has(`${tableMetaData.name}.bulkInsert`))
    {
-      menuItems.push(<MenuItem key="bulkLoad" onClick={() => runSomething(bulkLoadClicked)}><ListItemIcon><Icon>library_add</Icon></ListItemIcon>Bulk Load</MenuItem>);
+      menuItems.push(<MenuItem key="bulkLoad" data-qqq-id={generateMenuItemId(undefined, "Bulk Load")} onClick={() => runSomething(bulkLoadClicked)}><ListItemIcon><Icon>library_add</Icon></ListItemIcon>Bulk Load</MenuItem>);
    }
    if (tableMetaData.capabilities.has(Capability.TABLE_UPDATE) && tableMetaData.editPermission && metaData.processes.has(`${tableMetaData.name}.bulkEdit`))
    {
-      menuItems.push(<MenuItem key="bulkEdit" onClick={() => runSomething(bulkEditClicked)}><ListItemIcon><Icon>edit</Icon></ListItemIcon>Bulk Edit</MenuItem>);
+      menuItems.push(<MenuItem key="bulkEdit" data-qqq-id={generateMenuItemId(undefined, "Bulk Edit")} onClick={() => runSomething(bulkEditClicked)}><ListItemIcon><Icon>edit</Icon></ListItemIcon>Bulk Edit</MenuItem>);
    }
    if (tableMetaData.capabilities.has(Capability.TABLE_UPDATE) && tableMetaData.editPermission && metaData.processes.has(`${tableMetaData.name}.bulkEditWithFile`))
    {
-      menuItems.push(<MenuItem key="bulkEditWithFile" onClick={() => runSomething(bulkEditWithFileClicked)}><ListItemIcon><Icon>edit_note</Icon></ListItemIcon>Bulk Edit With File</MenuItem>);
+      menuItems.push(<MenuItem key="bulkEditWithFile" data-qqq-id={generateMenuItemId(undefined, "Bulk Edit With File")} onClick={() => runSomething(bulkEditWithFileClicked)}><ListItemIcon><Icon>edit_note</Icon></ListItemIcon>Bulk Edit With File</MenuItem>);
    }
    if (tableMetaData.capabilities.has(Capability.TABLE_DELETE) && tableMetaData.deletePermission && metaData.processes.has(`${tableMetaData.name}.bulkDelete`))
    {
-      menuItems.push(<MenuItem key="bulkDelete" onClick={() => runSomething(bulkDeleteClicked)}><ListItemIcon><Icon>delete</Icon></ListItemIcon>Bulk Delete</MenuItem>);
+      menuItems.push(<MenuItem key="bulkDelete" data-qqq-id={generateMenuItemId(undefined, "Bulk Delete")} onClick={() => runSomething(bulkDeleteClicked)}><ListItemIcon><Icon>delete</Icon></ListItemIcon>Bulk Delete</MenuItem>);
    }
 
    menuItems.push(<Divider key="divider1" />);
@@ -98,7 +99,7 @@ export default function QueryScreenActionMenu({metaData, tableMetaData, tablePro
    tableProcesses.sort((a, b) => a.label.localeCompare(b.label));
    tableProcesses.map((process) =>
    {
-      menuItems.push(<MenuItem key={process.name} onClick={() => runSomething(() => processClicked(process))}><ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>{process.label}</MenuItem>);
+      menuItems.push(<MenuItem key={process.name} data-qqq-id={generateMenuItemId(undefined, process.label)} onClick={() => runSomething(() => processClicked(process))}><ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>{process.label}</MenuItem>);
    });
 
    menuItems.push(<Divider key="divider2" />);
@@ -117,7 +118,7 @@ export default function QueryScreenActionMenu({metaData, tableMetaData, tablePro
             const process = metaData?.processes.get(processName);
             if (process)
             {
-               menuItems.push(<MenuItem key={process.name} onClick={() => runSomething(() => processClicked(process))}><ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>{process.label}</MenuItem>);
+               menuItems.push(<MenuItem key={process.name} data-qqq-id={generateMenuItemId(undefined, process.label)} onClick={() => runSomething(() => processClicked(process))}><ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>{process.label}</MenuItem>);
             }
          }
       }
@@ -131,18 +132,18 @@ export default function QueryScreenActionMenu({metaData, tableMetaData, tablePro
       if (runRecordScriptProcess)
       {
          const process = runRecordScriptProcess;
-         menuItems.push(<MenuItem key={process.name} onClick={() => runSomething(() => processClicked(process))}><ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>{process.label}</MenuItem>);
+         menuItems.push(<MenuItem key={process.name} data-qqq-id={generateMenuItemId(undefined, process.label)} onClick={() => runSomething(() => processClicked(process))}><ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>{process.label}</MenuItem>);
       }
    }
 
    ////////////////////////////////////////
    // todo - any conditions around this? //
    ////////////////////////////////////////
-   menuItems.push(<MenuItem key="developerMode" onClick={() => navigate(`${metaData.getTablePathByName(tableMetaData.name)}/dev`)}><ListItemIcon><Icon>code</Icon></ListItemIcon>Developer Mode</MenuItem>);
+   menuItems.push(<MenuItem key="developerMode" data-qqq-id={generateMenuItemId(undefined, "Developer Mode")} onClick={() => navigate(`${metaData.getTablePathByName(tableMetaData.name)}/dev`)}><ListItemIcon><Icon>code</Icon></ListItemIcon>Developer Mode</MenuItem>);
 
    if (menuItems.length === 0)
    {
-      menuItems.push(<MenuItem key="notAvaialableNow" disabled><ListItemIcon><Icon>block</Icon></ListItemIcon><i>No actions available</i></MenuItem>);
+      menuItems.push(<MenuItem key="notAvaialableNow" data-qqq-id={generateMenuItemId(undefined, "No Actions Available")} disabled><ListItemIcon><Icon>block</Icon></ListItemIcon><i>No actions available</i></MenuItem>);
    }
 
    ////////////////////////////////////////////////////////////////////////////////

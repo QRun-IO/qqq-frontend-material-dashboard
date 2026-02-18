@@ -907,7 +907,7 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
- ** Sidebar theming - uses CSS variables from QThemeMetaData
+ ** Sidebar theming - uses CSS variables from MaterialDashboardThemeMetaData
  ** NOT scoped to .qqq-themed because sidebar needs consistent styling
  ** regardless of theme presence (uses fallback colors when no theme)
  *****************************************************************************/
@@ -959,7 +959,7 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
- ** Input field theming - uses CSS variables from QThemeMetaData
+ ** Input field theming - uses CSS variables from MaterialDashboardThemeMetaData
  ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
 .qqq-themed input.MuiInputBase-input,
@@ -986,7 +986,7 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
- ** Link theming - uses CSS variables from QThemeMetaData
+ ** Link theming - uses CSS variables from MaterialDashboardThemeMetaData
  ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
 .qqq-themed a:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root),
@@ -996,7 +996,7 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
- ** Paper/Card theming - uses CSS variables from QThemeMetaData
+ ** Paper/Card theming - uses CSS variables from MaterialDashboardThemeMetaData
  ** Excludes AppBar (navbar), Drawer (sidebar), Menu, Popover, Alerts
  ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
@@ -1007,7 +1007,7 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
- ** Menu theming - uses CSS variables from QThemeMetaData
+ ** Menu theming - uses CSS variables from MaterialDashboardThemeMetaData
  ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
 .qqq-themed .MuiMenu-paper,
@@ -1027,7 +1027,7 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
- ** Typography theming - uses CSS variables from QThemeMetaData
+ ** Typography theming - uses CSS variables from MaterialDashboardThemeMetaData
  ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
 .qqq-themed .MuiTypography-body1
@@ -1041,7 +1041,7 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
- ** Button theming - uses CSS variables from QThemeMetaData
+ ** Button theming - uses CSS variables from MaterialDashboardThemeMetaData
  ** NOT scoped to .qqq-themed to match develop behavior (applies to all apps)
  *****************************************************************************/
 .MuiButton-root
@@ -1072,7 +1072,7 @@ input[type="search"]::-webkit-search-results-decoration
 }
 
 /*****************************************************************************
- ** DataGrid theming - uses CSS variables from QThemeMetaData
+ ** DataGrid theming - uses CSS variables from MaterialDashboardThemeMetaData
  ** Scoped to .qqq-themed to avoid affecting unthemed apps
  *****************************************************************************/
 .qqq-themed .MuiDataGrid-columnHeaders,
@@ -1126,3 +1126,4 @@ input[type="search"]::-webkit-search-results-decoration
    height: 100% !important;
    border: none;
 }
+

@@ -2159,7 +2159,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
       mainCardStyles.minHeight = `calc(100vh - ${isModal ? 150 : 400}px)`;
       if (!processError && (qJobRunning || activeStep === null) && !isModal && !isWidget)
       {
-         mainCardStyles.background = "#FFFFFF";
+         mainCardStyles.background = "var(--qqq-surface-color, #FFFFFF)";
          mainCardStyles.boxShadow = "none";
       }
 

@@ -271,7 +271,7 @@ const BulkLoadFileMappingForm = forwardRef(({processValues, tableMetaData, metaD
             }}
          />
          {
-            noMappedFieldsError && <Box color={colors.error.main} textAlign="right">{noMappedFieldsError}</Box>
+            noMappedFieldsError && <Box color="var(--qqq-error-color, #F44335)" textAlign="right">{noMappedFieldsError}</Box>
          }
       </Box>
 

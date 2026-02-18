@@ -81,21 +81,21 @@ This document outlines the architecture changes needed to support pluggable them
 Runtime-swappable themes via CSS variables injected from backend metadata.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         QQQ Backend                              │
-│  QThemeMetaData: palette, typography, spacing, icons, shadows   │
-└─────────────────────────┬───────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         QQQ Backend                                             │
+│  MaterialDashboardThemeMetaData: palette, typography, spacing, icons, shadows   │
+└─────────────────────────┬───────────────────────────────────────────────────────┘
                           │ /metaData endpoint (expanded)
                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    qqq-frontend-core                             │
-│  + QThemeMetaData class with full design token structure        │
-│  + ThemeUtils for CSS variable generation                       │
+│                    qqq-frontend-core                            │
+│  + MaterialDashboardThemeMetaData comes along in the QInstance  │
+│  as supplementalMetaData                                        │
 └─────────────────────────┬───────────────────────────────────────┘
                           │
                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              qqq-frontend-material-dashboard                     │
+│              qqq-frontend-material-dashboard                    │
 │  ThemeProvider injects CSS variables to :root                   │
 │  All components consume var(--qqq-color-primary) etc.           │
 │  MUI theme reads from CSS variables                             │
@@ -131,8 +131,7 @@ Separate npm packages per theme, selected at build time.
 ### 1. Design Token Schema
 
 ```typescript
-// qqq-frontend-core: src/model/metaData/QThemeMetaData.ts
-export interface QThemeMetaData {
+export interface MaterialDashboardThemeMetaData{
    name: string;
 
    palette: {
@@ -214,7 +213,7 @@ interface TypographyVariant {
 
 ```typescript
 // qqq-frontend-dashboard: src/qqq/theme/ThemeInjector.ts
-export function injectThemeVariables(theme: QThemeMetaData): void {
+export function injectThemeVariables(theme: MaterialDashboardThemeMetaData): void {
    const root = document.documentElement;
 
    // Colors

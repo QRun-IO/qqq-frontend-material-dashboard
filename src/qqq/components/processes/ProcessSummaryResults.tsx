@@ -95,7 +95,7 @@ function ProcessSummaryResults({
          <Grid container>
             <Grid item xs={0} lg={2} />
             <Grid item xs={12} lg={8}>
-               <Box border="1px solid rgb(70%, 70%, 70%)" borderRadius="10px" p={2} mt={2}>
+               <Box border="1px solid var(--qqq-border-color, rgb(70%, 70%, 70%))" borderRadius="10px" p={2} mt={2}>
                   <Box mx={2} mt={-5} p={1} sx={{width: "fit-content", borderRadius: ".25em", backgroundColor: headerColor}} width="initial" color="#FFFFFF">
                      <Box display="flex" alignItems="center" color="white">
                         {process.iconName && <Icon fontSize="medium" sx={{mr: 1}}>{process.iconName}</Icon>}

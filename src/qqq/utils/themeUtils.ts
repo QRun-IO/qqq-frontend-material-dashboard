@@ -19,13 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// eslint-disable-next-line import/no-unresolved
-import {QThemeMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QThemeMetaData";
+import {MaterialDashboardThemeMetaData} from "qqq/models/metadata/MaterialDashboardThemeMetaData";
 
 /*******************************************************************************
  ** Default theme values matching the current QQQ color scheme.
  *******************************************************************************/
-export const DEFAULT_THEME: QThemeMetaData = {
+export const DEFAULT_THEME: MaterialDashboardThemeMetaData = {
    // Color palette
    primaryColor: "#0062FF",
    secondaryColor: "#7b809a",
@@ -155,7 +154,7 @@ export const DEFAULT_THEME: QThemeMetaData = {
 
    // Icons
    iconStyle: "filled",
-} as QThemeMetaData;
+};
 
 /*******************************************************************************
  ** CSS variable prefix for QQQ theme variables.
@@ -232,7 +231,7 @@ function darkenColor(hex: string, percent: number): string
  ** Inject theme values as CSS custom properties on the :root element.
  ** Merges provided theme with defaults - only defined values override.
  *******************************************************************************/
-export function injectThemeVariables(theme?: QThemeMetaData): void
+export function injectThemeVariables(theme?: MaterialDashboardThemeMetaData): void
 {
    const root = document.documentElement;
 
@@ -240,10 +239,10 @@ export function injectThemeVariables(theme?: QThemeMetaData): void
    // Filter out undefined values from theme before merging with defaults     //
    // This prevents undefined values from overwriting default values          //
    /////////////////////////////////////////////////////////////////////////////
-   const definedThemeValues: Partial<QThemeMetaData> = {};
+   const definedThemeValues: Partial<MaterialDashboardThemeMetaData> = {};
    if (theme)
    {
-      for (const key of Object.keys(theme) as (keyof QThemeMetaData)[])
+      for (const key of Object.keys(theme) as (keyof MaterialDashboardThemeMetaData)[])
       {
          if (theme[key] !== undefined)
          {
@@ -253,7 +252,7 @@ export function injectThemeVariables(theme?: QThemeMetaData): void
    }
    const mergedTheme = {...DEFAULT_THEME, ...definedThemeValues};
 
-   const themeProperties: (keyof QThemeMetaData)[] = [
+   const themeProperties: (keyof MaterialDashboardThemeMetaData)[] = [
       // Color palette
       "primaryColor",
       "secondaryColor",
@@ -347,9 +346,8 @@ export function injectThemeVariables(theme?: QThemeMetaData): void
       "typographyCaptionTextTransform",
 
       // Sizing - Border Radius
-      "borderRadius",
-      // "borderRadiusGlobal",
-      // "borderRadiusScale",
+      "borderRadiusGlobal",
+      "borderRadiusScale",
       "density",
 
       // Asset paths

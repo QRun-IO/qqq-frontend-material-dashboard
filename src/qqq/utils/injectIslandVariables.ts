@@ -19,8 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// eslint-disable-next-line import/no-unresolved
-import {QThemeMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QThemeMetaData";
+import {MaterialDashboardThemeMetaData} from "qqq/models/metadata/MaterialDashboardThemeMetaData";
 import {DEFAULT_THEME} from "./themeUtils";
 
 /*******************************************************************************
@@ -39,7 +38,7 @@ const CSS_VAR_PREFIX = "--qqq-";
  ** Unlike MUI components (which get colors from theme.palette), these islands
  ** need CSS variables to be styled consistently with the rest of the app.
  *******************************************************************************/
-export function injectIslandVariables(theme?: QThemeMetaData): void
+export function injectIslandVariables(theme?: MaterialDashboardThemeMetaData): void
 {
    const root = document.documentElement;
 
@@ -61,10 +60,10 @@ export function injectIslandVariables(theme?: QThemeMetaData): void
    /////////////////////////////////////////////////////////////////////////////
    // Merge with defaults, filtering out undefined values                     //
    /////////////////////////////////////////////////////////////////////////////
-   const definedValues: Partial<QThemeMetaData> = {};
+   const definedValues: Partial<MaterialDashboardThemeMetaData> = {};
    if (theme)
    {
-      for (const key of Object.keys(theme) as (keyof QThemeMetaData)[])
+      for (const key of Object.keys(theme) as (keyof MaterialDashboardThemeMetaData)[])
       {
          if (theme[key] !== undefined)
          {
@@ -72,7 +71,7 @@ export function injectIslandVariables(theme?: QThemeMetaData): void
          }
       }
    }
-   const mergedTheme = {...DEFAULT_THEME, ...definedValues} as QThemeMetaData;
+   const mergedTheme = {...DEFAULT_THEME, ...definedValues} as MaterialDashboardThemeMetaData;
 
    /////////////////////////////////////////////////////////////////////////////
    // Sidebar variables                                                       //
@@ -126,8 +125,7 @@ export function injectIslandVariables(theme?: QThemeMetaData): void
    setVar(root, "border-color", mergedTheme.borderColor);
    setVar(root, "card-border-color", mergedTheme.cardBorderColor);
    setVar(root, "divider-color", mergedTheme.dividerColor);
-   setVar(root, "border-radius", mergedTheme.borderRadius);
-   /* todo wip? setVar(root, "border-radius-global", mergedTheme.borderRadiusGlobal); */
+   setVar(root, "border-radius-global", mergedTheme.borderRadiusGlobal);
    setVar(root, "error-color", mergedTheme.errorColor);
    setVar(root, "warning-color", mergedTheme.warningColor);
    setVar(root, "success-color", mergedTheme.successColor);

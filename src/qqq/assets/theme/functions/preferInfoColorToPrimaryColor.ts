@@ -19,8 +19,8 @@
  * some elements from "info" to "primary", then here's what I've come up with
  * as an approach:
  *
- * 1. Define a CSS variable on `:root` (could or should come through the
- * QThemeMetaData?) called `--qqq-prefer-info-color-to-primary-color`.
+ * 1. Define a CSS variable on `:root`called `--qqq-prefer-info-color-to-primary-color`.
+ *   (which flows from MaterialDashboardThemeMetaData.preferInfoColorToPrimaryColor)
  *   - If this variable is 1, then places that /should/ have used "primary"
  *     all along would instead still use "info".  We'd set that to 1 to
  *     maintain backward-compatibility (e.g., so the create-new button would
@@ -28,9 +28,9 @@
  *   - But then, an app can override that value to `0`, to say "no no, don't
  *     prefer info - instead, use primary where it would have made sense
  *     (but you just didn't want that fuchsia color)".  So an app could set
- *     `--qqq-prefer-info-color-to-primary-color: 0` in their custom CSS
- *     (or if we expose it as a top-level value in QThemeMetaData) so its
- *     create new button would be primary (e.g., teal as mentioned above),
+ *     MaterialDashboardThemeMetaData.preferInfoColorToPrimaryColor to false,
+ *     or set `--qqq-prefer-info-color-to-primary-color: 0` in their custom CSS
+ *     so its create new button would be primary (e.g., teal as mentioned above),
  *     not info-blue.
  *
  * 2. Define a family of functions (e.g., this file) that, based on that css

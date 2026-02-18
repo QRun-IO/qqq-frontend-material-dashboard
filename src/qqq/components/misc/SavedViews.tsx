@@ -526,6 +526,7 @@ function SavedViews({useSavedViewsResult, metaData, tableMetaData, currentSavedV
                   color={buttonColorName}
                   data-button-state={buttonState}
                   onClick={openSavedViewsMenu}
+                  data-qqq-id="button-views"
                   sx={{
                      borderRadius: "0.75rem",
                      textTransform: "none",
