@@ -18,6 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {Icon, Typography} from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Divider from "@mui/material/Divider";
+import Grid from "@mui/material/Grid";
 import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
 import {QAppMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAppMetaData";
 import {QAppNodeType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAppNodeType";
@@ -26,12 +31,8 @@ import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QPr
 import {QReportMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QReportMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
-import {Icon, Typography} from "@mui/material";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import Divider from "@mui/material/Divider";
-import Grid from "@mui/material/Grid";
 import QContext from "QContext";
+import colors from "qqq/assets/theme/base/colors";
 import {preferredColorNameInfoOrPrimary, preferredInfoOrPrimaryColorVarExpression} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import ProcessLinkCard from "qqq/components/processes/ProcessLinkCard";
@@ -42,6 +43,7 @@ import Client from "qqq/utils/qqq/Client";
 import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import React, {useContext, useEffect, useState} from "react";
 import {Link, useLocation} from "react-router-dom";
+import HelpContent from "../../components/misc/HelpContent";
 
 const qController = Client.getInstance();
 
@@ -79,7 +81,7 @@ function AppHome({app}: Props): JSX.Element
    const mdbMetaData = app?.supplementalAppMetaData?.get("materialDashboard");
    let showAppLabelOnHomeScreen = true;
    let includeTableCountsOnHomeScreen = true;
-   if(mdbMetaData)
+   if (mdbMetaData)
    {
       showAppLabelOnHomeScreen = mdbMetaData.showAppLabelOnHomeScreen;
       includeTableCountsOnHomeScreen = mdbMetaData.includeTableCountsOnHomeScreen;
@@ -133,7 +135,7 @@ function AppHome({app}: Props): JSX.Element
       const tableCountTexts = new Map<string, string>();
       newTables.forEach((table) =>
       {
-         if(includeTableCountsOnHomeScreen)
+         if (includeTableCountsOnHomeScreen)
          {
             tableCounts.set(table.name, {isLoading: true, value: null});
             setTimeout(async () =>
@@ -222,33 +224,51 @@ function AppHome({app}: Props): JSX.Element
       return reports.find(r => r.name === reportName && r.hasPermission);
    };
 
+   /*******************************************************************************
+    ** get an element (or empty) to use as help content for an app
+    *******************************************************************************/
+   const getHelp = (app: QAppMetaData, slotName: string) =>
+   {
+      const helpRoles = ["VIEW_SCREEN", "READ_SCREENS", "ALL_SCREENS"];
+      const formattedHelpContent = <HelpContent helpContents={app?.helpContent?.get(slotName)} roles={helpRoles} helpContentKey={`app:${app.name};slot:${slotName}`} />;
+
+      return formattedHelpContent && (
+         <Box fontSize={"0.875rem"} color={colors.blueGray.main}>
+            {formattedHelpContent}
+         </Box>
+      );
+   };
+
    const widgetCount = widgets ? widgets.length : 0;
    const sectionCount = app.sections ? app.sections.length : 0;
 
    //////////////////////////////////////////////////////////////////////////////////////////////////////
    // if our app has no widgets or sections, but it does have child apps, then return those child apps //
    //////////////////////////////////////////////////////////////////////////////////////////////////////
-   if(widgetCount == 0 && sectionCount == 0 && childApps && childApps.length > 0)
+   if (widgetCount == 0 && sectionCount == 0 && childApps && childApps.length > 0)
    {
       return (
          <BaseLayout>
             {
                showAppLabelOnHomeScreen &&
-               <Typography textTransform="capitalize" variant="h3" data-qqq-id={`app-header-${sanitizeId(app.name)}`}>
-                  {app.label}
-               </Typography>
+               <Box>
+                  <Typography textTransform="capitalize" variant="h3">
+                     {app.label}
+                  </Typography>
+                  <Box pl={0}>{getHelp(app, "header")}</Box>
+               </Box>
             }
             <Grid container spacing={3}>
                <Grid item xs={12} lg={12}>
-                  <Card sx={{overflow: "visible"}} data-qqq-id="app-section-child-apps">
+                  <Card sx={{overflow: "visible"}}>
                      <Box p={3} display="flex" alignItems="center" gap=".5rem">
-                        <Typography variant="h5" data-qqq-id="section-header-apps">Apps</Typography>
+                        <Typography variant="h5">Apps</Typography>
                      </Box>
                      <Grid container spacing={3} padding={3} pt={0}>
                         {childApps.map((childApp) => (
                            <Grid key={childApp.name} item xs={12} lg={3}>
                               <Link to={childApp.name}>
-                                 <Card data-qqq-id={`app-card-${sanitizeId(childApp.name)}`}>
+                                 <Card>
                                     <Box display="flex" alignItems="center" p={2}>
                                        <Box
                                           color={"#FFFFFF"}
@@ -286,13 +306,16 @@ function AppHome({app}: Props): JSX.Element
       <BaseLayout>
          {
             showAppLabelOnHomeScreen &&
-            <Typography textTransform="capitalize" variant="h3" data-qqq-id={`app-header-${sanitizeId(app.name)}`}>
-               {app.label}
-            </Typography>
+            <Box>
+               <Typography textTransform="capitalize" variant="h3">
+                  {app.label}
+               </Typography>
+               <Box pl={0}>{getHelp(app, "header")}</Box>
+            </Box>
          }
-         <Box data-qqq-id={`app-home-${sanitizeId(app.name)}`}>
+         <Box>
             {app.widgets && app.widgets.length > 0 && (
-               <Box pb={app.sections ? 2.375 : 4} pt={"0.5rem"} data-qqq-id="app-widgets-container">
+               <Box pb={app.sections ? 2.375 : 4} pt={"0.5rem"}>
                   <DashboardWidgets widgetMetaDataList={widgets} />
                </Box>
             )}
@@ -302,22 +325,22 @@ function AppHome({app}: Props): JSX.Element
                      <Grid item xs={12} lg={12}>
                         {app.sections.map((section) => (
                            <Box key={section.name} mb={3}>
-                              <Card sx={{overflow: "visible"}} data-qqq-id={`app-section-${sanitizeId(section.name)}`}>
+                              <Card sx={{overflow: "visible"}}>
                                  <Box p={3} display="flex" alignItems="center" gap=".5rem">
                                     {
                                        section.icon &&
                                        (
-                                          section.icon.path && <img src={section.icon.path} alt={section.label} data-qqq-id={`section-icon-${sanitizeId(section.name)}`} />
+                                          section.icon.path && <img src={section.icon.path} alt={section.label} />
                                        )
                                     }
-                                    <Typography variant="h5" data-qqq-id={`section-header-${sanitizeId(section.name)}`}>
+                                    <Typography variant="h5">
                                        {section.label}
                                     </Typography>
                                  </Box>
                                  {
                                     section.processes ? (
                                        <Box p={3} pl={3} pt={0} pb={1}>
-                                          <MDTypography variant="h6" data-qqq-id={`section-subheader-${sanitizeId(section.name)}-actions`}>Actions</MDTypography>
+                                          <MDTypography variant="h6">Actions</MDTypography>
                                        </Box>
                                     ) : null
                                  }
@@ -360,7 +383,7 @@ function AppHome({app}: Props): JSX.Element
                                  {
                                     section.reports ? (
                                        <Box p={3} pl={3} pt={0} pb={1}>
-                                          <MDTypography variant="h6" data-qqq-id={`section-subheader-${sanitizeId(section.name)}-reports`}>Reports</MDTypography>
+                                          <MDTypography variant="h6">Reports</MDTypography>
                                        </Box>
                                     ) : null
                                  }
@@ -403,9 +426,42 @@ function AppHome({app}: Props): JSX.Element
                                     ) : null
                                  }
                                  {
+                                    section.apps ? (
+                                       <Box p={3} pl={3} pb={1} pt={0}>
+                                          <MDTypography variant="h6">Apps</MDTypography>
+                                       </Box>
+                                    ) : null
+                                 }
+                                 {
+                                    section.apps && qInstance ? (
+                                       <Grid container spacing={3} padding={3} paddingBottom={0} paddingTop={0}>
+                                          {
+                                             section.apps.map((app) =>
+                                             {
+                                                var qAppMetaData = qInstance.apps.get(app);
+                                                return (
+                                                   <Grid key={qAppMetaData.name} item xs={12} md={12} lg={tileSizeLg}>
+                                                      <Link to={qAppMetaData.name}>
+                                                         <Box className="big-icon" mb={3}>
+                                                            <MiniStatisticsCard
+                                                               count={""}
+                                                               percentage={{color: "info", text: ""}}
+                                                               title={{fontWeight: "bold", text: qAppMetaData.label}}
+                                                               icon={{color: "info", component: <Icon>{qAppMetaData.iconName}</Icon>}}
+                                                            />
+                                                         </Box>
+                                                      </Link>
+                                                   </Grid>
+                                                );
+                                             })
+                                          }
+                                       </Grid>
+                                    ) : null
+                                 }
+                                 {
                                     section.tables ? (
                                        <Box p={3} pl={3} pb={1} pt={0}>
-                                          <MDTypography variant="h6" data-qqq-id={`section-subheader-${sanitizeId(section.name)}-data`}>Data</MDTypography>
+                                          <MDTypography variant="h6">Data</MDTypography>
                                        </Box>
                                     ) : null
                                  }
@@ -418,7 +474,7 @@ function AppHome({app}: Props): JSX.Element
                                                 let table = app.childMap.get(tableName);
                                                 let count = "";
                                                 let percentage = "";
-                                                if(includeTableCountsOnHomeScreen)
+                                                if (includeTableCountsOnHomeScreen)
                                                 {
                                                    count = !tableCounts.has(table.name) || tableCounts.get(table.name).isLoading ? "..." : (tableCountNumbers.get(table.name));
                                                    percentage = !tableCounts.has(table.name) || tableCounts.get(table.name).isLoading ? "" : (tableCountTexts.get(table.name));

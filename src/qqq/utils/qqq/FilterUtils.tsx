@@ -25,6 +25,7 @@ import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {FilterVariableExpression} from "@qrunio/qqq-frontend-core/lib/model/query/FilterVariableExpression";
 import {NowExpression} from "@qrunio/qqq-frontend-core/lib/model/query/NowExpression";
 import {NowWithOffsetExpression} from "@qrunio/qqq-frontend-core/lib/model/query/NowWithOffsetExpression";
@@ -33,9 +34,11 @@ import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilter
 import {QFilterOrderBy} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterOrderBy";
 import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
 import {ThisOrLastPeriodExpression} from "@qrunio/qqq-frontend-core/lib/model/query/ThisOrLastPeriodExpression";
+import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
 import {validateCriteria} from "qqq/components/query/FilterCriteriaRow";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
+import {GetDisplayValuesFunction} from "qqq/utils/usePossibleValueLabels";
 
 /*******************************************************************************
  ** Utility class for working with QQQ Filters
@@ -99,9 +102,14 @@ class FilterUtils
 
 
    /*******************************************************************************
-    **
+    *
+    * The `getDisplayValues` parameter is an optional function from the
+    * usePossibleValueLabels hook - which is encouraged to be given, to avoid
+    * unnecessary backend calls (as it internally caches possible value lookups).
+    * If it is not given, the functionality remains the same - but the same backend
+    * call can be made multiple times.
     *******************************************************************************/
-   public static async cleanupValuesInFilerFromQueryString(qController: QController, tableMetaData: QTableMetaData, queryFilter: QQueryFilter)
+   public static async cleanupValuesInFilerFromQueryString(qController: QController, tableMetaData: QTableMetaData, queryFilter: QQueryFilter, getDisplayValues?: GetDisplayValuesFunction)
    {
       for (let i = 0; i < queryFilter?.criteria?.length; i++)
       {
@@ -139,7 +147,33 @@ class FilterUtils
                }
                else
                {
-                  values = await qController.possibleValues(fieldTable.name, null, field.name, "", values, undefined, undefined, "filter");
+                  if(getDisplayValues)
+                  {
+                     ///////////////////////////////////////////////////////////////////////////////////
+                     // if we have a getDisplayValues function-from the hook, use it to look up the   //
+                     // labels note - we must convert q QFieldMetaData (field) to a                   //
+                     // DynamicFormFieldDefinition (dynamicField) and add possible value props to it. //
+                     ///////////////////////////////////////////////////////////////////////////////////
+                     const dynamicField = DynamicFormUtils.getDynamicField(field);
+                     DynamicFormUtils.addPossibleValuePropsToSingleField(dynamicField, field, tableMetaData.name, null, null);
+
+                     const displayValuesMap = await getDisplayValues(dynamicField, values);
+
+                     //////////////////////////////////////////////////////////////////////////////////////
+                     // this function returns an array of display values (labels) - but the code below   //
+                     // expects an array of possible values (objects with id & label) - so convert them. //
+                     //////////////////////////////////////////////////////////////////////////////////////
+                     const possibleValuesArray: QPossibleValue[] = [];
+                     for (let value of values)
+                     {
+                        possibleValuesArray.push(new QPossibleValue({id: value, label: displayValuesMap[value] ?? value}));
+                     }
+                     values = possibleValuesArray;
+                  }
+                  else
+                  {
+                     values = await qController.possibleValues(fieldTable.name, null, field.name, "", values, undefined, undefined, "filter");
+                  }
                }
             }
 
@@ -605,9 +639,9 @@ class FilterUtils
       {
          return (
             <Box display="inline" whiteSpace="nowrap" color="#FFFFFF" mb={"0.5rem"}>
-               <Box display="inline" p="0.125rem" pl="0.5rem" sx={{background: "var(--qqq-info-color, #0062FF)"}} borderRadius="0.5rem 0 0 0.5rem">{fieldLabel} </Box>
-               <Box display="inline" p="0.125rem" sx={{background: "var(--qqq-grey-600, #757575)"}} borderRadius={valuesString ? "0" : "0 0.5rem 0.5rem 0"}> {FilterUtils.operatorToHumanString(criteria, field)} </Box>
-               {valuesString && <Box display="inline" p="0.125rem" pr="0.5rem" sx={{background: "var(--qqq-success-color, #4CAF50)"}} borderRadius="0 0.5rem 0.5rem 0"> {valuesString}</Box>}
+               <Box display="inline" p="0.125rem" pl="0.5rem" sx={{background: "#0062FF"}} borderRadius="0.5rem 0 0 0.5rem">{fieldLabel} </Box>
+               <Box display="inline" p="0.125rem" sx={{background: "#757575"}} borderRadius={valuesString ? "0" : "0 0.5rem 0.5rem 0"}> {FilterUtils.operatorToHumanString(criteria, field)} </Box>
+               {valuesString && <Box display="inline" p="0.125rem" pr="0.5rem" sx={{background: "#009971"}} borderRadius="0 0.5rem 0.5rem 0"> {valuesString}</Box>}
                &nbsp;
             </Box>
          );

@@ -144,6 +144,15 @@ public class QFMDSeleniumLib
    }
 
 
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForAlertToNotExist(String message)
+   {
+      qSeleniumLib.waitForSelectorContainingToNotExist(".MuiAlert-root", message);
+   }
+
+
 
    /***************************************************************************
     *
@@ -151,6 +160,15 @@ public class QFMDSeleniumLib
    public void waitForViewScreenFieldValue(String fieldLabel, String value)
    {
       qSeleniumLib.waitForSelectorContaining(".MuiGrid-item", fieldLabel + ": " + value);
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForViewScreenFieldValueToNotExist(String fieldLabel, String value)
+   {
+      qSeleniumLib.waitForSelectorContainingToNotExist(".MuiGrid-item", fieldLabel + ": " + value);
    }
 
 
@@ -166,6 +184,21 @@ public class QFMDSeleniumLib
       qSeleniumLib.waitForSelector(".MuiDrawer-paperAnchorLeft .MuiDivider-root").click();
    }
 
+
+
+   /***************************************************************************
+    * bring up the dot menu - type something in, then select an option by name
+    ***************************************************************************/
+   public void dotMenu(String searchText, String nameOfItemToSelect)
+   {
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      // this button is maybe more reliable than sending dot to some nothing-selected element? //
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      qSeleniumLib.waitForSelectorContaining("header button", "search").click();
+      qSeleniumLib.waitForSelector("div[cmdk-root] input").click();
+      qSeleniumLib.waitForSelector("div[cmdk-root] input").sendKeys(searchText);
+      qSeleniumLib.waitForSelector("div[cmdk-item][data-value=\"" + nameOfItemToSelect + "\"]").click();
+   }
 
 
    /***************************************************************************
@@ -194,5 +227,45 @@ public class QFMDSeleniumLib
    public void waitForQueryScreenPaginationValues(Integer from, Integer to, Integer of)
    {
       qSeleniumLib.waitForSelectorContaining(".MuiTablePagination-displayedRows", "Showing " + from + " to " + to + " of " + of);
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void clickCancelButton()
+   {
+      qSeleniumLib.waitForSelectorContaining("button", "Cancel").click();
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void closeAlert()
+   {
+      qSeleniumLib.waitForSelector(".MuiAlert-root button").click();
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForDataGridContent(String expectedText)
+   {
+      qSeleniumLib.waitForSelectorContaining(".MuiDataGrid-cell", expectedText);
+   }
+
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public void waitForDataGridContentToNotExist(String expectedText)
+   {
+      qSeleniumLib.waitForSelectorContainingToNotExist(".MuiDataGrid-cell", expectedText);
    }
 }

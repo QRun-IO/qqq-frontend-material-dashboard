@@ -59,7 +59,7 @@ import Widget, {HeaderIcon, LabelComponent, WIDGET_DROPDOWN_SELECTION_LOCAL_STOR
 import WidgetBlock from "qqq/components/widgets/WidgetBlock";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
 import Client from "qqq/utils/qqq/Client";
-import React, {useCallback, useContext, useEffect, useReducer, useState} from "react";
+import React, {useCallback, useContext, useEffect, useMemo, useReducer, useState} from "react";
 import TableWidget from "./tables/TableWidget";
 import RowBuilderWidget from "./misc/RowBuilderWidget";
 
@@ -136,6 +136,22 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
       localStorage.setItem(selectedTabKey, String(newValue));
    };
 
+   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // so, the useEffect below that loads the widgets - it originally always had [widgetMetaDataList] as its deps.    //
+   // but, when RecordView was changed to have collapsible sections, the widgets there stopped being "pre rendered"  //
+   // into a state variable, and instead were rendered dynamically.  But, that meant that every re-render of the     //
+   // page (most obviously on scroll (why does it re-render on scroll?)) would cause the widgets to re-fetch their   //
+   // data, as this array was a different reference.  So, we need to make sure that the useEffect only runs when the //
+   // *contents* of the array change.  So, we use useMemo to create a new string version of the widgetMetaDataList,  //
+   // and only urn the effect if the contents change.                                                                //
+   // However - this had the effect of causing dashboards that have dropdown controls up top to not reload *their*   //
+   // data when the dropdowns change.  It does seem like there's a root issue, where those changing values are what  //
+   // should be a dep for this effect, but I'm not sure how to fix that yet.  So, for now, we're just going to make  //
+   // sure that we keep the dep the same as before for all use-cases (screens) other than "recordView"               //
+   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   const widgetMetaDataListJSONString = useMemo(() => JSON.stringify(widgetMetaDataList), [widgetMetaDataList]);
+   const loadWidgetsUseEffectDeps = screen == "recordView" ? [widgetMetaDataListJSONString] : [widgetMetaDataList];
+
    useEffect(() =>
    {
       if (initialWidgetDataList && initialWidgetDataList.length > 0)
@@ -183,7 +199,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             forceUpdate();
          })();
       }
-   }, [widgetMetaDataList]);
+   }, loadWidgetsUseEffectDeps);
 
    const reloadWidget = async (index: number, data: string) =>
    {
@@ -459,13 +475,13 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
     * helper component for when a widget is NotLoaded (whether that's because
     * it's still loading, or because it had an error loading).
     ***************************************************************************/
-   const NotLoaded = ({widgetMetaData, widgetIndex, skeleton}: {widgetMetaData: QWidgetMetaData, widgetIndex: number, skeleton?: JSX.Element}) : JSX.Element =>
+   const NotLoaded = ({widgetMetaData, widgetIndex, skeleton}: { widgetMetaData: QWidgetMetaData, widgetIndex: number, skeleton?: JSX.Element }): JSX.Element =>
    {
-      if(errorsLoading[widgetIndex])
+      if (errorsLoading[widgetIndex])
       {
          let message = "Error Loading";
          let e = errorsLoading[widgetIndex];
-         if(e.hasOwnProperty("message"))
+         if (e.hasOwnProperty("message"))
          {
             message = "Error: " + e.message;
          }
@@ -480,16 +496,15 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             skeleton ? skeleton : <Skeleton></Skeleton>
          }
       </Widget>);
-   }
+   };
 
    const rowBuilderOnSaveCallback = useCallback((values: Record<string, any>) =>
    {
-      if(actionCallback)
+      if (actionCallback)
       {
-         actionCallback(values)
+         actionCallback(values);
       }
    }, []);
-
 
 
    const renderWidget = (widgetMetaData: QWidgetMetaData, i: number): JSX.Element =>
@@ -848,9 +863,9 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                   widgetData && widgetData[i] &&
                   <FilterAndColumnsSetupWidget isEditable={false} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={convertQRecordValuesFromMapToObject(record)} onSaveCallback={(values: { [name: string]: any }) =>
                   {
-                     if(actionCallback)
+                     if (actionCallback)
                      {
-                        actionCallback(values)
+                        actionCallback(values);
                      }
                   }} />
                )
@@ -875,9 +890,9 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
                   (widgetData && widgetData[i]) ?
                      <CronUIWidget screen={screen} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={convertQRecordValuesFromMapToObject(record)} recordDisplayValueMap={record.displayValues} onSaveCallback={(values: { [name: string]: any }) =>
                      {
-                        if(actionCallback)
+                        if (actionCallback)
                         {
-                           actionCallback(values)
+                           actionCallback(values);
                         }
                      }} /> : <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
                )

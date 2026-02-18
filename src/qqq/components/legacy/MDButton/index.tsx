@@ -23,7 +23,6 @@ import {ButtonProps} from "@mui/material";
 import {FC, forwardRef, ReactNode} from "react";
 import MDButtonRoot from "qqq/components/legacy/MDButton/MDButtonRoot";
 import {useMaterialUIController} from "qqq/context";
-import {generateButtonId} from "qqq/utils/qqqIdUtils";
 
 // Declaring props types for MDButton
 export interface Props extends Omit<ButtonProps, "color" | "variant"> {
@@ -43,7 +42,6 @@ export interface Props extends Omit<ButtonProps, "color" | "variant"> {
   circular?: boolean;
   iconOnly?: boolean;
   children?: ReactNode;
-  qqqId?: string;
   [key: string]: any;
 }
 
@@ -53,25 +51,11 @@ const MDButton: FC<Props> = forwardRef(
       const [controller] = useMaterialUIController();
       const {darkMode} = controller;
 
-      // Extract icon name from startIcon if present (for icon-only buttons)
-      let iconName: string | undefined;
-      if (rest.startIcon && typeof rest.startIcon === "object")
-      {
-         const iconProps = (rest.startIcon as any).props;
-         if (iconProps?.children)
-         {
-            iconName = String(iconProps.children);
-         }
-      }
-
-      // Generate data-qqq-id for CSS targeting
-      const dataQqqId = generateButtonId(qqqId, children, iconName);
-
       return (
          <MDButtonRoot
             {...rest}
             ref={ref}
-            data-qqq-id={dataQqqId}
+            data-qqq-id={qqqId}
             data-button-variant={variant}
             ownerState={{color, variant, size, circular, iconOnly, darkMode}}
          >

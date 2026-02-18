@@ -35,14 +35,8 @@ import QContext from "QContext";
 import QDynamicForm from "qqq/components/forms/DynamicForm";
 import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
 import MDButton from "qqq/components/legacy/MDButton";
+import theme from "qqq/components/legacy/Theme";
 import DashboardWidgets from "qqq/components/widgets/DashboardWidgets";
-import {createDynamicTheme} from "qqq/utils/createDynamicTheme";
-
-/////////////////////////////////////////////////////////////////////////////
-// Static theme instance for bridge components that don't have access to    //
-// runtime theme metadata from the main app. Uses default theme values.     //
-/////////////////////////////////////////////////////////////////////////////
-const bridgeTheme = createDynamicTheme();
 import {MaterialUIControllerProvider} from "qqq/context";
 import Client from "qqq/utils/qqq/Client";
 import React, {ReactElement, ReactNode, useContext, useEffect, useState} from "react";
@@ -174,7 +168,7 @@ function QFMDBridgeForm({fields, record, handleChange, handleSubmit, helpRoles, 
    return (
       <QContext.Provider value={mergedContext}>
          <MaterialUIControllerProvider>
-            <ThemeProvider theme={bridgeTheme}>
+            <ThemeProvider theme={theme}>
                <Formik initialValues={initialValues} validationSchema={Yup.object().shape(formValidations)} onSubmit={handleSubmit}>
                   {({values, errors, touched}) =>
                   {
@@ -274,7 +268,7 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
    return (<BrowserRouter>
       <MaterialUIControllerProvider>
-         <ThemeProvider theme={bridgeTheme}>
+         <ThemeProvider theme={theme}>
             <QContext.Provider value={{
                ...(qContextProp ?? qContext),
                setTableMetaData: (tableMetaData: QTableMetaData) => setTableMetaData(tableMetaData),
@@ -394,7 +388,7 @@ function QFMDBridgeButton({label, onClick, extra}: QFMDBridgeButtonProps): JSX.E
 {
    return (
       <MaterialUIControllerProvider>
-         <ThemeProvider theme={bridgeTheme}>
+         <ThemeProvider theme={theme}>
             <MDButton {...extra} onClick={onClick} fullWidth>{label}</MDButton>
          </ThemeProvider>
       </MaterialUIControllerProvider>

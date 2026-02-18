@@ -23,9 +23,13 @@ package com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.li
 
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import com.kingsrook.qqq.backend.core.context.CapturedContext;
 import com.kingsrook.qqq.backend.core.context.QContext;
 import com.kingsrook.qqq.backend.core.exceptions.QException;
@@ -95,6 +99,12 @@ public class QBaseSeleniumWithQApplicationTest
          chromeOptions.addArguments("--headless=new");
       }
 
+      //////////////////////////////////////////////////////////////////////////////////////
+      // before chrome is started, check if we can connect to the base URL.  If not, fail //
+      // the test early with a more helpful error message than you might otherwise get    //
+      //////////////////////////////////////////////////////////////////////////////////////
+      assertBaseUrlHostAndPortIsConnectable();
+
       WebDriverManager.chromedriver().setup();
    }
 
@@ -138,6 +148,44 @@ public class QBaseSeleniumWithQApplicationTest
 
 
 
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   protected static void assertBaseUrlHostAndPortIsConnectable()
+   {
+      String baseUrl = new QSeleniumLib(null).getBaseUrl();
+      String  host;
+      Integer port;
+
+      try
+      {
+         host = baseUrl.substring(baseUrl.indexOf("//") + 2).replaceAll("[:/].*", "");
+         port = Integer.parseInt(baseUrl.substring(baseUrl.lastIndexOf(":") + 1).replaceAll("/.*", ""));
+      }
+      catch(Exception e)
+      {
+         fail("Failed to parse hostname or port from baseUrl [" + baseUrl + "]", e);
+         return;
+      }
+
+      try(Socket ignored = new Socket(host, port))
+      {
+         //////////////////////
+         // test can proceed //
+         //////////////////////
+         System.out.println("Connection to [" + host + ":" + port + "] successful.  Continuing with test.");
+      }
+      catch (IOException e)
+      {
+         ////////////////
+         // fail early //
+         ////////////////
+         fail("Could not connect to [" + host + ":" + port + "].  Is a material-dashboard server running?", e);
+      }
+   }
+
+
+
    /*******************************************************************************
     **
     *******************************************************************************/
@@ -160,6 +208,99 @@ public class QBaseSeleniumWithQApplicationTest
       //////////////////
    }
 
+
+
+   /***************************************************************************
+    * To allow each test method to have different qInstance customization (which
+    * must be set up in the BeforeEach part of the JUnit flow - not within the @Test)
+    * while keeping that setup ("given") code closer to the test method itself
+    * and not having a big switch in the @BeforeEach method, this method
+    * allows @Test methods to have a @Tag, with a value of "customizeQInstance..."
+    * - where that tag value is assumed to be a method name (must start with
+    * "customizeQInstance"), which takes a QInstance parameter
+    *
+    * <p>The full pattern here being (with a call to this method in customizeQInstance):
+    *
+    * <pre>
+    *    public void customizeQInstanceForTestFooBar(QInstance qInstance)
+    *    {
+    *       // customize the qInstance for this test here.
+    *       // qInstance.with...
+    *    }
+    *
+    *    &commat;Test
+    *    &commat;Tag("customizeQInstanceForTestFooBar")
+    *    public void testFooBar()
+    *    {
+    *       // run the test here.
+    *       // qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain...
+    *       // qSeleniumLib.waitForSelectorContaining...
+    *    }
+    * </pre>
+    *
+    * @param qInstance the qInstance to customize
+    * @return true if customizeQInstance method was found and executed, false otherwise
+    ***************************************************************************/
+   protected boolean customizeQInstanceViaTestMethodTagSpecifyingCustomizeQInstanceMethodName(QInstance qInstance) throws QException
+   {
+      Optional<String> customizeQInstanceTag = testInfo.getTags().stream().filter(s -> s.matches("^customizeQInstance.*")).findFirst();
+      if(customizeQInstanceTag.isPresent())
+      {
+         try
+         {
+            Method method = getClass().getMethod(customizeQInstanceTag.get(), QInstance.class);
+            method.invoke(this, qInstance);
+            return true;
+         }
+         catch(NoSuchMethodException e)
+         {
+            fail("Missing method: [public void " + customizeQInstanceTag.get() + "(QInstance)] specified in @Tag(\"customizeQInstance...\") for [" + testInfo.getDisplayName() + "]");
+         }
+         catch(Exception e)
+         {
+            throw (new QException("Error in customizeQInstanceViaTestMethodTagSpecifyingDoMethodName", e));
+         }
+      }
+      return false;
+   }
+
+
+
+   /***************************************************************************
+    * To allow each test method to have different test data (which
+    * must be set up in the BeforeEach part of the JUnit flow - not within the @Test)
+    * while keeping that setup ("given") code closer to the test method itself
+    * and not having a big switch in the @BeforeEach method, this method
+    * allows @Test methods to have a @Tag, with a value of "setupTestData..."
+    * - where that tag value is assumed to be a method name (must start with
+    * "setupTestData"), which takes no parameters.
+    *
+    * @see #customizeQInstanceViaTestMethodTagSpecifyingCustomizeQInstanceMethodName(QInstance)
+    * @return true if setupTestData method was found and executed, false otherwise
+    ***************************************************************************/
+   protected boolean setupTestDataViaTestMethodTagSpecifyingSetupTestDataMethodName() throws QException
+   {
+      Optional<String> setupTestDataTag = testInfo.getTags().stream().filter(s -> s.matches("^setupTestData.*")).findFirst();
+      if(setupTestDataTag.isPresent())
+      {
+         try
+         {
+            Method method = getClass().getMethod(setupTestDataTag.get());
+            method.invoke(this);
+            return true;
+         }
+         catch(NoSuchMethodException e)
+         {
+            fail("Missing method: [public void " + setupTestDataTag.get() + "()] specified in @Tag(\"setupTestData...\") for [" + testInfo.getDisplayName() + "]");
+         }
+         catch(Exception e)
+         {
+            throw (new QException("Error in setupTestDataViaTestMethodTagSpecifyingSetupTestDataMethodName", e));
+         }
+      }
+
+      return false;
+   }
 
 
    /***************************************************************************

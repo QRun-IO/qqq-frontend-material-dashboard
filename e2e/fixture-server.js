@@ -11,7 +11,7 @@ const PORT = process.env.FIXTURE_PORT || 8001;
 const FIXTURES_DIR = path.join(__dirname, '..', 'src', 'test', 'resources', 'fixtures');
 
 // Determine which metaData fixture to serve based on env var
-const FIXTURE_NAME = process.env.THEME_FIXTURE || 'withFullCustomTheme';
+const FIXTURE_NAME = process.env.THEME_FIXTURE || 'index';
 
 function loadFixture(relativePath) {
    const fixturePath = path.join(FIXTURES_DIR, relativePath);

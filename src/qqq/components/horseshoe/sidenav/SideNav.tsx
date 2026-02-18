@@ -34,7 +34,6 @@ import sidenavLogoLabel from "qqq/components/horseshoe/sidenav/styles/SideNav";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import {getBannerClassName, getBannerStyles, getBanner, makeBannerContent} from "qqq/components/misc/Banners";
 import {setMiniSidenav, setTransparentSidenav, setWhiteSidenav, useMaterialUIController,} from "qqq/context";
-import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import {ReactNode, useEffect, useReducer, useState} from "react";
 import {NavLink, useLocation} from "react-router-dom";
 
@@ -334,9 +333,8 @@ function Sidenav({color, icon, logo, appName, branding, routes, logout, ...rest}
          {...rest}
          variant="permanent"
          ownerState={{transparentSidenav, whiteSidenav, miniSidenav, darkMode}}
-         data-qqq-id="sidenav-root"
       >
-         <Box pt={3} mr={1} pb={0} px={4} textAlign="center" data-qqq-id="sidenav-logo-area">
+         <Box pt={3} mr={1} pb={0} px={4} textAlign="center">
             <Box
                display={{xs: "block", xl: "none"}}
                position="absolute"
@@ -374,14 +372,14 @@ function Sidenav({color, icon, logo, appName, branding, routes, logout, ...rest}
                (darkMode && !transparentSidenav && whiteSidenav)
             }
          />
-         <List data-qqq-id="sidenav-menu-list">{renderRoutes}</List>
+         <List>{renderRoutes}</List>
          <Divider
             light={
                (!darkMode && !whiteSidenav && !transparentSidenav) ||
                (darkMode && !transparentSidenav && whiteSidenav)
             }
          />
-         <Button onClick={logout} data-qqq-id="sidenav-logout-button">Log Out</Button>
+         <Button onClick={logout}>Log Out</Button>
       </SidenavRoot>
    );
 }

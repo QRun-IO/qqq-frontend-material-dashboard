@@ -19,6 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import Icon from "@mui/material/Icon";
+import {ThemeProvider} from "@mui/material/styles";
+import {LicenseInfo} from "@mui/x-license-pro";
 import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
 import {QAppNodeType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAppNodeType";
 import {QAppTreeNode} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAppTreeNode";
@@ -28,24 +34,14 @@ import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance"
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 // eslint-disable-next-line import/no-unresolved
-import {QThemeMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QThemeMetaData";
-import {Theme} from "@mui/material";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Icon from "@mui/material/Icon";
-import {ThemeProvider} from "@mui/material/styles";
-import {LicenseInfo} from "@mui/x-license-pro";
 import CommandMenu from "CommandMenu";
 import QContext from "QContext";
 import useAnonymousAuthenticationModule from "qqq/authorization/anonymous/useAnonymousAuthenticationModule";
 import useAuth0AuthenticationModule from "qqq/authorization/auth0/useAuth0AuthenticationModule";
 import useOAuth2AuthenticationModule from "qqq/authorization/oauth2/useOAuth2AuthenticationModule";
-import BrandedHeaderBar from "qqq/components/horseshoe/BrandedHeaderBar";
 import Sidenav from "qqq/components/horseshoe/sidenav/SideNav";
-import {createDynamicTheme} from "qqq/utils/createDynamicTheme";
-import {injectIslandVariables} from "qqq/utils/injectIslandVariables";
-import {getBannerClassName, getBannerStyles, getBanner, makeBannerContent} from "qqq/components/misc/Banners";
+import theme from "qqq/components/legacy/Theme";
+import {getBanner, getBannerClassName, getBannerStyles, makeBannerContent} from "qqq/components/misc/Banners";
 import {setMiniSidenav, useMaterialUIController} from "qqq/context";
 import AppHome from "qqq/pages/apps/Home";
 import NoApps from "qqq/pages/apps/NoApps";
@@ -53,18 +49,18 @@ import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ReportRun from "qqq/pages/processes/ReportRun";
 import EntityCreate from "qqq/pages/records/create/RecordCreate";
 import TableDeveloperView from "qqq/pages/records/developer/TableDeveloperView";
-import {resolveAssetUrl, detectBasePath} from "qqq/utils/PathUtils";
 import EntityEdit from "qqq/pages/records/edit/RecordEdit";
 import RecordQuery from "qqq/pages/records/query/RecordQuery";
 import RecordDeveloperView from "qqq/pages/records/view/RecordDeveloperView";
 import RecordView from "qqq/pages/records/view/RecordView";
 import RecordViewByUniqueKey from "qqq/pages/records/view/RecordViewByUniqueKey";
 import GoogleAnalyticsUtils, {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {detectBasePath, resolveAssetUrl} from "qqq/utils/PathUtils";
 import Client from "qqq/utils/qqq/Client";
 import ProcessUtils from "qqq/utils/qqq/ProcessUtils";
-import React, {JSXElementConstructor, Key, ReactElement, useEffect, useMemo, useState,} from "react";
+import React, {JSXElementConstructor, Key, ReactElement, useEffect, useState,} from "react";
 import {useCookies} from "react-cookie";
-import {Navigate, Route, Routes, useLocation, useSearchParams,} from "react-router-dom";
+import {Navigate, Route, Routes, useLocation, useParams, useSearchParams,} from "react-router-dom";
 import {Md5} from "ts-md5/dist/md5";
 
 
@@ -76,14 +72,13 @@ interface Props
    authenticationMetaData: QAuthenticationMetaData;
 }
 
-export default function App({authenticationMetaData}: Props)
+export default function App({authenticationMetaData}: Props) 
 {
    const [, , removeCookie] = useCookies([SESSION_UUID_COOKIE_NAME]);
    const [loadingToken, setLoadingToken] = useState(false);
    const [isFullyAuthenticated, setIsFullyAuthenticated] = useState(false);
    const [profileRoutes, setProfileRoutes] = useState({});
    const [branding, setBranding] = useState({} as QBrandingMetaData);
-   const [themeMetaData, setThemeMetaData] = useState(null as QThemeMetaData | null);
    const [metaData, setMetaData] = useState({} as QInstance);
    const [needLicenseKey, setNeedLicenseKey] = useState(true);
    const [loggedInUser, setLoggedInUser] = useState({} as { name?: string, email?: string });
@@ -102,7 +97,7 @@ export default function App({authenticationMetaData}: Props)
    /////////////////////////////////////////////////
    // deal with making sure user is authenticated //
    /////////////////////////////////////////////////
-   useEffect(() =>
+   useEffect(() => 
    {
       if (loadingToken)
       {
@@ -110,7 +105,7 @@ export default function App({authenticationMetaData}: Props)
       }
       setLoadingToken(true);
 
-      (async () =>
+      (async () => 
       {
          if (authenticationMetaData.type === "AUTH_0")
          {
@@ -135,7 +130,7 @@ export default function App({authenticationMetaData}: Props)
 
    if (needLicenseKey)
    {
-      (async () =>
+      (async () => 
       {
          const metaData: QInstance = await qController.loadMetaData();
          LicenseInfo.setLicenseKey(metaData.environmentValues?.get("MATERIAL_UI_LICENSE_KEY") || process.env.REACT_APP_MATERIAL_UI_LICENSE_KEY);
@@ -180,7 +175,7 @@ export default function App({authenticationMetaData}: Props)
    ////////////////////////////////////////////
    // load qqq meta data to make more routes //
    ////////////////////////////////////////////
-   useEffect(() =>
+   useEffect(() => 
    {
       if (!needToLoadRoutes || !isFullyAuthenticated)
       {
@@ -188,7 +183,7 @@ export default function App({authenticationMetaData}: Props)
       }
       setNeedToLoadRoutes(false);
 
-      (async () =>
+      (async () => 
       {
          function addAppToSideNavList(app: QAppTreeNode, appList: any[], parentPath: string, depth: number)
          {
@@ -205,9 +200,9 @@ export default function App({authenticationMetaData}: Props)
             }
 
             const childList: any[] = [];
-            if (app.children)
+            if (app.children && !app.hideChildrenFromNavigation)
             {
-               app.children.forEach((child: QAppTreeNode) =>
+               app.children.forEach((child: QAppTreeNode) => 
                {
                   addAppToSideNavList(child, childList, path, depth + 1);
                });
@@ -264,7 +259,7 @@ export default function App({authenticationMetaData}: Props)
             {
                if (app.children)
                {
-                  app.children.forEach((child: QAppTreeNode) =>
+                  app.children.forEach((child: QAppTreeNode) => 
                   {
                      addAppToAppRoutesList(metaData, child, routeList, path, depth + 1);
                   });
@@ -366,7 +361,7 @@ export default function App({authenticationMetaData}: Props)
                });
 
                const processesForTable = ProcessUtils.getProcessesForTable(metaData, table.name, true);
-               processesForTable.forEach((process) =>
+               processesForTable.forEach((process) => 
                {
                   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                   // paths to open modal process under its owning table.                                                                           //
@@ -441,7 +436,7 @@ export default function App({authenticationMetaData}: Props)
                }
 
                const reportsForTable = ProcessUtils.getReportsForTable(metaData, table.name, true);
-               reportsForTable.forEach((report) =>
+               reportsForTable.forEach((report) => 
                {
                   // todo - do we need some table/report routes here, that would go to RecordQuery and/or RecordView
                   routeList.push({
@@ -499,14 +494,6 @@ export default function App({authenticationMetaData}: Props)
                {
                   setAccentColorLight(metaData.branding.accentColorLight);
                }
-            }
-
-            ///////////////////////////////////////////////
-            // Set theme metadata for dynamic theming    //
-            ///////////////////////////////////////////////
-            if (metaData.theme)
-            {
-               setThemeMetaData(metaData.theme);
             }
 
             const gravatarBase = "https://www.gravatar.com/avatar/";
@@ -594,10 +581,25 @@ export default function App({authenticationMetaData}: Props)
       })();
    }, [needToLoadRoutes, isFullyAuthenticated]);
 
+   ///////////////////////////////////////////////////////////////
+   // write routes to manage redirects specified by the backend //
+   ///////////////////////////////////////////////////////////////
+   const getRedirectRoutes = (redirects: Map<string, string>): any => 
+   {
+      const rs = [] as any[];
+
+      for (let from of redirects.keys())
+      {
+         rs.push(<Route key={from} path={from} element={<RedirectRoute to={redirects.get(from)} />} />);
+      }
+
+      return (rs);
+   };
+
    ///////////////////////////////////////////////////
    // Open sidenav when mouse enter on mini sidenav //
    ///////////////////////////////////////////////////
-   const handleOnMouseEnter = () =>
+   const handleOnMouseEnter = () => 
    {
       if (miniSidenav && !onMouseEnter)
       {
@@ -609,7 +611,7 @@ export default function App({authenticationMetaData}: Props)
    /////////////////////////////////////////////////
    // Close sidenav when mouse leave mini sidenav //
    /////////////////////////////////////////////////
-   const handleOnMouseLeave = () =>
+   const handleOnMouseLeave = () => 
    {
       if (onMouseEnter)
       {
@@ -618,7 +620,7 @@ export default function App({authenticationMetaData}: Props)
       }
    };
 
-   useEffect(() =>
+   useEffect(() => 
    {
       document.body.setAttribute("dir", direction);
    }, [direction]);
@@ -626,7 +628,7 @@ export default function App({authenticationMetaData}: Props)
    //////////////////////////////////////////////////////
    // Setting page scroll to 0 when changing the route //
    //////////////////////////////////////////////////////
-   useEffect(() =>
+   useEffect(() => 
    {
       document.documentElement.scrollTop = 0;
       document.scrollingElement.scrollTop = 0;
@@ -641,7 +643,7 @@ export default function App({authenticationMetaData}: Props)
          route: string;
          component: ReactElement<any, string | JSXElementConstructor<any>>;
          key: Key;
-      }) =>
+      }) => 
       {
          if (route.collapse)
          {
@@ -657,24 +659,6 @@ export default function App({authenticationMetaData}: Props)
       },
    );
 
-   /////////////////////////////////////////////////////////////////////////////
-   // Create dynamic MUI theme from themeMetaData                            //
-   // Theme is rebuilt when themeMetaData changes (from backend)             //
-   /////////////////////////////////////////////////////////////////////////////
-   const dynamicTheme: Theme = useMemo(() =>
-   {
-      return createDynamicTheme(themeMetaData || undefined);
-   }, [themeMetaData]);
-
-   /////////////////////////////////////////////////////////////////////////////
-   // Inject CSS variables for island components (sidebar, header, DataGrid) //
-   // These components can't use MUI palette, so they need CSS variables      //
-   /////////////////////////////////////////////////////////////////////////////
-   useEffect(() =>
-   {
-      injectIslandVariables(themeMetaData || undefined);
-   }, [themeMetaData]);
-
    const [pageHeader, setPageHeader] = useState("" as string | JSX.Element);
    const [accentColor, setAccentColor] = useState("#0062FF");
    const [accentColorLight, setAccentColorLight] = useState("#C0D6F7");
@@ -686,7 +670,7 @@ export default function App({authenticationMetaData}: Props)
    const [helpHelpActive] = useState(queryParams.has("helpHelp"));
    const [userId, setUserId] = useState(loggedInUser?.email);
 
-   useEffect(() =>
+   useEffect(() => 
    {
       setUserId(loggedInUser?.email);
    }, [loggedInUser]);
@@ -724,7 +708,7 @@ export default function App({authenticationMetaData}: Props)
          return (null);
       }
 
-      return (<Box className={getBannerClassName(banner)} sx={{display: "flex", justifyContent: "center", padding: "0.5rem", position: "sticky", top: "0", zIndex: 1, ...getBannerStyles(banner)}}>
+      return (<Box className={getBannerClassName(banner)} sx={{display: "flex", justifyContent: "center", padding: "0.5rem", position: "sticky", top: "0", zIndex: 1000, ...getBannerStyles(banner)}}>
          {makeBannerContent(banner)}
       </Box>);
    }
@@ -735,7 +719,7 @@ export default function App({authenticationMetaData}: Props)
     ***************************************************************************/
    function pushModalOnStack(modalIdentifier: string): void
    {
-      if(modalStack.length > 0 && modalStack[modalStack.length] == modalIdentifier)
+      if (modalStack.length > 0 && modalStack[modalStack.length] == modalIdentifier)
       {
          console.warn(`Pushing a new modal on the QContext modalStack that is a duplicate of the current top-of-stack [${modalIdentifier}]`)
       }
@@ -749,7 +733,7 @@ export default function App({authenticationMetaData}: Props)
     ***************************************************************************/
    function popModalOffStack(modalIdentifier: string): void
    {
-      if(modalStack.length > 0 && modalStack[modalStack.length - 1] != modalIdentifier)
+      if (modalStack.length > 0 && modalStack[modalStack.length - 1] != modalIdentifier)
       {
          console.warn(`Request to pop a modal [${modalIdentifier}] off the QContext modalStack that is not currently on top [${modalStack[modalStack.length - 1]}]`)
          return;
@@ -765,6 +749,19 @@ export default function App({authenticationMetaData}: Props)
    function clearModalStack(): void
    {
       setModalStack([]);
+   }
+
+
+   /***************************************************************************
+    * handle routes that need to redirect to another path.
+    *
+    * Uses `replace` so that the browser history doesn't get updated with a new entry.
+    ***************************************************************************/
+   function RedirectRoute({to}: { to: string })
+   {
+      const params = useParams();
+      const wildcardPath = params["*"] || "";
+      return <Navigate to={`${to}/${wildcardPath}`} replace />;
    }
 
 
@@ -796,11 +793,10 @@ export default function App({authenticationMetaData}: Props)
             pathToLabelMap: pathToLabelMap,
             branding: branding
          }}>
-            <ThemeProvider theme={dynamicTheme}>
+            <ThemeProvider theme={theme}>
                <CssBaseline />
                <CommandMenu metaData={metaData} />
                {banner()}
-               <BrandedHeaderBar theme={themeMetaData} />
                <Sidenav
                   color={sidenavColor}
                   icon={resolveAssetUrl(branding.icon)}
@@ -814,6 +810,7 @@ export default function App({authenticationMetaData}: Props)
                />
                <Routes>
                   <Route path="*" element={<Navigate to={defaultRoute} />} />
+                  {metaData?.redirects && getRedirectRoutes(metaData.redirects)}
                   {appRoutes && getRoutes(appRoutes)}
                   {profileRoutes && getRoutes([profileRoutes])}
                </Routes>

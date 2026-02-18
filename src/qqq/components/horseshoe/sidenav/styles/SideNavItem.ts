@@ -23,11 +23,12 @@ import {Theme} from "@mui/material/styles";
 
 function item(theme: Theme | any, ownerState: any)
 {
-   const {palette, borders, transitions} = theme;
-   const {active, color} = ownerState;
+   const {palette, borders, functions, transitions} = theme;
+   const {active, color, transparentSidenav, whiteSidenav, darkMode} = ownerState;
 
-   const {transparent} = palette;
+   const {transparent, white, grey} = palette;
    const {borderRadius} = borders;
+   const {rgba} = functions;
 
    return {
       pl: 3,
@@ -38,16 +39,25 @@ function item(theme: Theme | any, ownerState: any)
       cursor: "pointer",
       backgroundColor: () =>
       {
-         if (active === "isParent")
+         let backgroundValue = transparent.main;
+
+         if (
+            (active === "isParent" && !transparentSidenav && !whiteSidenav) ||
+            (active === "isParent" && transparentSidenav && darkMode)
+         )
+         {
+            backgroundValue = rgba(white.main, 0.2);
+         }
+         else if (active === "isParent" && transparentSidenav)
          {
             return "var(--qqq-sidebar-selected-background-color, rgba(255, 255, 255, 0.2))";
          }
          else if (active)
          {
-            return palette[color].main;
+            backgroundValue = palette[color].main;
          }
 
-         return transparent.main;
+         return backgroundValue;
       },
       transition: transitions.create("background-color", {
          easing: transitions.easing.easeInOut,
@@ -62,9 +72,10 @@ function item(theme: Theme | any, ownerState: any)
 
 function itemContent(theme: Theme, ownerState: any)
 {
-   const {typography, transitions, functions} = theme;
-   const {miniSidenav, active} = ownerState;
+   const {palette, typography, transitions, functions} = theme;
+   const {miniSidenav, name, active, transparentSidenav, whiteSidenav, darkMode} = ownerState;
 
+   const {white, dark} = palette;
    const {size, fontWeightRegular, fontWeightLight} = typography;
    const {pxToRem} = functions;
 
@@ -107,11 +118,13 @@ function itemContent(theme: Theme, ownerState: any)
 
 function itemArrow(theme: Theme, ownerState: any)
 {
-   const {typography, transitions, breakpoints, functions} = theme;
-   const {noCollapse, transparentSidenav, miniSidenav, open, active} = ownerState;
+   const {palette, typography, transitions, breakpoints, functions} = theme;
+   const {noCollapse, transparentSidenav, whiteSidenav, miniSidenav, open, active, darkMode} =
+      ownerState;
 
+   const {white, dark} = palette;
    const {size} = typography;
-   const {pxToRem} = functions;
+   const {pxToRem, rgba} = functions;
 
    return {
       fontSize: `${size.lg} !important`,

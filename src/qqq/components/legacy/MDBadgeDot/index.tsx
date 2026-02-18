@@ -91,12 +91,12 @@ const MDBadgeDot: FC<Props> = forwardRef(
       ];
 
       const colorValues = {
-         "primary": "var(--qqq-primary-color, #e91e63)",
+         "primary": "#e91e63",
          "secondary": "#7b809a",
          "info": accentColor,
-         "success": "var(--qqq-success-color, #4CAF50)",
-         "warning": "var(--qqq-warning-color, #fb8c00)",
-         "error": "var(--qqq-error-color, #F44335)",
+         "success": "#4CAF50",
+         "warning": "#fb8c00",
+         "error": "#F44335",
          "light": "#f0f2f5",
          "dark": "#344767",
          "custom1": "#8c28c2",

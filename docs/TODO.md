@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-01-14
 
-## Active Tasks
+## In Progress
 
 ### Issue #128: Visual Regressions - READY FOR REVIEW
 

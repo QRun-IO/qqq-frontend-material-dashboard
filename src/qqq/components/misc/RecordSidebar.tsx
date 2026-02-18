@@ -29,7 +29,6 @@ import {Theme} from "@mui/material/styles";
 import React from "react";
 import {HashLink} from "react-router-hash-link";
 import MDTypography from "qqq/components/legacy/MDTypography";
-import {sanitizeId} from "qqq/utils/qqqIdUtils";
 
 interface Props
 {
@@ -83,7 +82,7 @@ function QRecordSidebar({tableSections, widgetMetaDataList, sectionVisibility, s
 
 
    return (
-      <Card sx={{borderRadius: "0.75rem", position: "sticky", top: stickyTop, overflow: "hidden", maxHeight: "calc(100vh - 2rem)"}} data-qqq-id="record-sidebar">
+      <Card sx={{borderRadius: "0.75rem", position: "sticky", top: stickyTop, overflow: "hidden", maxHeight: "calc(100vh - 2rem)"}}>
          <Box component="ul" display="flex" flexDirection={{xs: "row", md: "column"}} flexWrap={{xs: "wrap", md: "nowrap"}} p={2} m={0} sx={{listStyle: "none", overflow: "auto", height: "100%"}}>
             {
                /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,7 +91,7 @@ function QRecordSidebar({tableSections, widgetMetaDataList, sectionVisibility, s
                /////////////////////////////////////////////////////////////////////////////////////////////////////////
                sidebarEntries ? sidebarEntries.map((entry: SidebarEntry, key: number) => (
 
-                  <Box key={`section-link-${entry.name}`} className={`sidebar-section ${sectionVisibility[entry.name] === false ? "is-hidden" : "is-visible"}`} onClick={() => document.getElementById(entry.name)?.scrollIntoView()} sx={{cursor: "pointer"}} width={{xs: "50%", md: "100%"}} data-qqq-id={`sidebar-item-${sanitizeId(entry.name)}`}>
+                  <Box key={`section-link-${entry.name}`} className={`sidebar-section ${sectionVisibility[entry.name] === false ? "is-hidden" : "is-visible"}`} onClick={() => document.getElementById(entry.name)?.scrollIntoView()} sx={{cursor: "pointer"}} width={{xs: "50%", md: "100%"}} >
                      <Box key={`section-${entry.name}`} component="li" pt={0.5} pb={0.5}>
                         <MDTypography
                            variant="button"

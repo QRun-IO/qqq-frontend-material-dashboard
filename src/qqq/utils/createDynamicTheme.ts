@@ -388,22 +388,22 @@ function buildComponents(theme: QThemeMetaData, hasExplicitTheme: boolean): Them
    /////////////////////////////////////////////////////////////////////////////
    // Border radius resolution: per-component ?? global ?? (default * scale) //
    /////////////////////////////////////////////////////////////////////////////
-   const borderRadiusGlobal = parseBorderRadius(theme.borderRadiusGlobal);
-   const borderRadiusScale = theme.borderRadiusScale ?? 1.0;
+   const borderRadiusGlobal = parseBorderRadius(theme.borderRadius/*Global*/);
+   const borderRadiusScale = /*theme.borderRadiusScale ??*/ 1.0;
 
    const resolveBorderRadius = (component: string, override: number | null) =>
       resolveComponentBorderRadius(override, borderRadiusGlobal, COMPONENT_DEFAULT_BORDER_RADIUS[component], borderRadiusScale);
 
-   const borderRadiusButton = resolveBorderRadius("button", parseBorderRadius(theme.borderRadiusButton));
-   const borderRadiusCard = resolveBorderRadius("card", parseBorderRadius(theme.borderRadiusCard));
-   const borderRadiusChip = resolveBorderRadius("chip", parseBorderRadius(theme.borderRadiusChip));
-   const borderRadiusDialog = resolveBorderRadius("dialog", parseBorderRadius(theme.borderRadiusDialog));
-   const borderRadiusOutlinedInput = resolveBorderRadius("outlinedInput", parseBorderRadius(theme.borderRadiusOutlinedInput));
-   const borderRadiusLinearProgress = resolveBorderRadius("linearProgress", parseBorderRadius(theme.borderRadiusLinearProgress));
-   const borderRadiusMenuPaper = resolveBorderRadius("menuPaper", parseBorderRadius(theme.borderRadiusMenuPaper));
-   const borderRadiusPaperRounded = resolveBorderRadius("paperRounded", parseBorderRadius(theme.borderRadiusPaperRounded));
-   const borderRadiusPopoverPaper = resolveBorderRadius("popoverPaper", parseBorderRadius(theme.borderRadiusPopoverPaper));
-   const borderRadiusTooltip = resolveBorderRadius("tooltip", parseBorderRadius(theme.borderRadiusTooltip));
+   const borderRadiusButton = resolveBorderRadius("button", parseBorderRadius(theme.borderRadius/*Button*/));
+   const borderRadiusCard = resolveBorderRadius("card", parseBorderRadius(theme.borderRadius/*Card*/));
+   const borderRadiusChip = resolveBorderRadius("chip", parseBorderRadius(theme.borderRadius/*Chip*/));
+   const borderRadiusDialog = resolveBorderRadius("dialog", parseBorderRadius(theme.borderRadius/*Dialog*/));
+   const borderRadiusOutlinedInput = resolveBorderRadius("outlinedInput", parseBorderRadius(theme.borderRadius/*OutlinedInput*/));
+   const borderRadiusLinearProgress = resolveBorderRadius("linearProgress", parseBorderRadius(theme.borderRadius/*LinearProgress*/));
+   const borderRadiusMenuPaper = resolveBorderRadius("menuPaper", parseBorderRadius(theme.borderRadius/*MenuPaper*/));
+   const borderRadiusPaperRounded = resolveBorderRadius("paperRounded", parseBorderRadius(theme.borderRadius/*PaperRounded*/));
+   const borderRadiusPopoverPaper = resolveBorderRadius("popoverPaper", parseBorderRadius(theme.borderRadius/*PopoverPaper*/));
+   const borderRadiusTooltip = resolveBorderRadius("tooltip", parseBorderRadius(theme.borderRadius/*Tooltip*/));
 
    const density = theme.density || "normal";
    const spacingUnit = DENSITY_SPACING[density] || 8;
@@ -766,9 +766,9 @@ export function createDynamicTheme(themeMetaData?: QThemeMetaData): Theme
       shape: {
          borderRadius: resolveComponentBorderRadius(
             null,
-            parseBorderRadius(mergedTheme.borderRadiusGlobal),
+            parseBorderRadius(mergedTheme.borderRadius/*Global*/),
             DEFAULT_SHAPE_BORDER_RADIUS,
-            mergedTheme.borderRadiusScale ?? 1.0,
+            /*mergedTheme.borderRadiusScale ??*/ 1.0,
          ),
       },
       boxShadows: {...boxShadows},

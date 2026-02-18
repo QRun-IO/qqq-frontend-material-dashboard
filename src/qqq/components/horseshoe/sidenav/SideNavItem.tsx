@@ -28,7 +28,6 @@ import {Theme} from "@mui/material/styles";
 import {ReactNode} from "react";
 import {item, itemArrow, itemContent} from "qqq/components/horseshoe/sidenav/styles/SideNavItem";
 import {useMaterialUIController} from "qqq/context";
-import {generateNavItemId} from "qqq/utils/qqqIdUtils";
 
 // Declaring props types for SideNavCollapse
 interface Props {
@@ -46,15 +45,11 @@ function SideNavItem({color, name, active, nested, children, open, ...rest}: Pro
    const [controller] = useMaterialUIController();
    const {miniSidenav, transparentSidenav, whiteSidenav, darkMode} = controller;
 
-   // Generate data-qqq-id for CSS targeting
-   const dataQqqId = generateNavItemId(undefined, name);
-
    return (
       <>
          <ListItem
             {...rest}
             component="li"
-            data-qqq-id={dataQqqId}
             sx={(theme) => item(theme, {active, color, transparentSidenav, whiteSidenav, darkMode})}
          >
             <Box

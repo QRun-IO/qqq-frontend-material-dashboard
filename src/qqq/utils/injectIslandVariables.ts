@@ -126,7 +126,8 @@ export function injectIslandVariables(theme?: QThemeMetaData): void
    setVar(root, "border-color", mergedTheme.borderColor);
    setVar(root, "card-border-color", mergedTheme.cardBorderColor);
    setVar(root, "divider-color", mergedTheme.dividerColor);
-   setVar(root, "border-radius-global", mergedTheme.borderRadiusGlobal);
+   setVar(root, "border-radius", mergedTheme.borderRadius);
+   /* todo wip? setVar(root, "border-radius-global", mergedTheme.borderRadiusGlobal); */
    setVar(root, "error-color", mergedTheme.errorColor);
    setVar(root, "warning-color", mergedTheme.warningColor);
    setVar(root, "success-color", mergedTheme.successColor);

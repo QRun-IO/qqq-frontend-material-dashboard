@@ -24,7 +24,6 @@ import Button from "@mui/material/Button/Button";
 import Icon from "@mui/material/Icon";
 import MenuItem from "@mui/material/MenuItem";
 import React, {useEffect, useRef, useState} from "react";
-import {generateButtonId, generateMenuItemId} from "qqq/utils/qqqIdUtils";
 
 
 interface Props
@@ -96,7 +95,7 @@ function MenuButton({label, iconName, options, disabled, callback}: Props)
    const menuItems: JSX.Element[] = []
    options.map((option, index) =>
    {
-      menuItems.push(<MenuItem key={index} data-qqq-id={generateMenuItemId(undefined, option)} onClick={e => menuItemClicked(e, index)}>
+      menuItems.push(<MenuItem key={index} onClick={e => menuItemClicked(e, index)}>
          {option}
       </MenuItem>);
    })
@@ -106,7 +105,6 @@ function MenuButton({label, iconName, options, disabled, callback}: Props)
          <Button
             ref={anchorRef}
             id="composition-button"
-            data-qqq-id={generateButtonId(undefined, label)}
             aria-controls={open ? "composition-menu" : undefined}
             aria-expanded={open ? "true" : undefined}
             aria-haspopup="true"

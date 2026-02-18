@@ -26,7 +26,7 @@ function collapseItem(theme: Theme, ownerState: any)
    const {palette, transitions, breakpoints, boxShadows, borders, functions} = theme;
    const {active, transparentSidenav, whiteSidenav, darkMode} = ownerState;
 
-   const {white, transparent, grey} = palette;
+   const {white, transparent, dark, grey} = palette;
    const {md} = boxShadows;
    const {borderRadius} = borders;
    const {pxToRem, rgba} = functions;
@@ -86,8 +86,10 @@ function collapseItem(theme: Theme, ownerState: any)
 
 function collapseIconBox(theme: Theme, ownerState: any)
 {
-   const {transitions, borders, functions} = theme;
+   const {palette, transitions, borders, functions} = theme;
+   const {transparentSidenav, whiteSidenav, darkMode} = ownerState;
 
+   const {white, dark} = palette;
    const {borderRadius} = borders;
    const {pxToRem} = functions;
 
@@ -144,11 +146,13 @@ function collapseText(theme: any, ownerState: any)
 
 function collapseArrow(theme: Theme, ownerState: any)
 {
-   const {typography, transitions, breakpoints, functions} = theme;
-   const {noCollapse, miniSidenav, transparentSidenav, open, active} = ownerState;
+   const {palette, typography, transitions, breakpoints, functions} = theme;
+   const {noCollapse, transparentSidenav, whiteSidenav, miniSidenav, open, active, darkMode} =
+    ownerState;
 
+   const {white, dark} = palette;
    const {size} = typography;
-   const {pxToRem} = functions;
+   const {pxToRem, rgba} = functions;
 
    return {
       fontSize: `${size.lg} !important`,

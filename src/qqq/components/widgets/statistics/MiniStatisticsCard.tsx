@@ -27,7 +27,6 @@ import {preferredInfoOrPrimaryColorVarExpression} from "qqq/assets/theme/functio
 import {ReactNode} from "react";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import {useMaterialUIController} from "qqq/context";
-import {sanitizeId} from "qqq/utils/qqqIdUtils";
 
 
 // Decalaring props types for MiniStatisticsCard
@@ -48,7 +47,6 @@ interface Props {
   };
   direction?: "right" | "left";
   isDisabled?: boolean;
-  qqqId?: string;
   [key: string]: any;
 }
 
@@ -66,10 +64,8 @@ function MiniStatisticsCard({
    const [controller] = useMaterialUIController();
    const {darkMode} = controller;
 
-   const generatedId = qqqId ? `table-card-${sanitizeId(qqqId)}` : (title?.text ? `table-card-${sanitizeId(title.text)}` : undefined);
-
    return (
-      <Card sx={{overflow: "hidden"}} data-qqq-id={generatedId}>
+      <Card sx={{overflow: "hidden"}}>
          <Box
             sx={({palette: {background}}: { palette: any }) => ({
                background: darkMode && background.card,
@@ -121,7 +117,7 @@ function MiniStatisticsCard({
                               ? "var(--qqq-secondary-color, #7b809a)"
                               : preferredInfoOrPrimaryColorVarExpression()
                         }}
-                        data-qqq-id={generatedId ? `${generatedId}-icon` : undefined}
+                        data-qqq-id={qqqId ? `${qqqId}-icon` : undefined}
                      >
                         <Icon fontSize="medium" color="inherit">
                            {icon.component}
@@ -148,7 +144,6 @@ MiniStatisticsCard.defaultProps = {
    },
    direction: "right",
    isDisabled: false,
-   qqqId: undefined,
 };
 
 export default MiniStatisticsCard;

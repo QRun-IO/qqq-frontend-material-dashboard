@@ -29,12 +29,10 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
-import ListItemIcon from "@mui/material/ListItemIcon";
+import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
 import {SxProps} from "@mui/system";
@@ -42,7 +40,9 @@ import {QException} from "@qrunio/qqq-frontend-core/lib/exceptions/QException";
 import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
 import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
+import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
+import {QMenu} from "@qrunio/qqq-frontend-core/lib/model/metaData/QMenu";
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QTableSection} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableSection";
@@ -61,10 +61,11 @@ import {GotoRecordButton} from "qqq/components/misc/GotoRecordDialog";
 import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
 import QRecordSidebar from "qqq/components/misc/RecordSidebar";
 import ShareModal from "qqq/components/sharing/ShareModal";
+import {FieldValueAsWidget} from "qqq/components/view/FieldValueAsWidget";
+import {ItemsShownInMenu, RecordViewAdditionalMenus, RecordViewMenuItem} from "qqq/components/view/RecordViewMenus";
 import DashboardWidgets from "qqq/components/widgets/DashboardWidgets";
 import BaseLayout from "qqq/layouts/BaseLayout";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
-import {FieldValueAsWidget} from "qqq/pages/records/view/FieldValueAsWidget";
 import HistoryUtils from "qqq/utils/HistoryUtils";
 import HtmlUtils from "qqq/utils/HtmlUtils";
 import Client from "qqq/utils/qqq/Client";
@@ -89,6 +90,28 @@ RecordView.defaultProps =
       record: null,
       launchProcess: null,
    };
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// define an object that is passed into the components of RecordViewMenu.tsx for getting data from //
+// this component, and for making callbacks into this component to perform actions from menus.     //
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+export interface RecordViewMenuActions
+{
+   new: () => void;
+   copy: () => void;
+   edit: () => void;
+   developerMode: () => void;
+   audit: (closeMenu?: () => void) => void;
+   delete: (closeMenu?: () => void) => void;
+   runProcess: (processName: string) => void;
+   downloadFileFromField: (fieldName: string, closeMenu?: () => void) => void;
+
+   getMetaData: () => QInstance;
+   getTableProcesses: () => QProcessMetaData[];
+   getGenericProcesses: () => QProcessMetaData[];
+}
+
 
 const TABLE_VARIANT_LOCAL_STORAGE_KEY_ROOT = "qqq.tableVariant";
 
@@ -206,7 +229,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    const [t1SectionElement, setT1SectionElement] = useState(null as JSX.Element);
    const [nonT1TableSections, setNonT1TableSections] = useState([] as QTableSection[]);
    const [allTableProcesses, setAllTableProcesses] = useState([] as QProcessMetaData[]);
-   const [actionsMenu, setActionsMenu] = useState(null);
+   const [actionsMenuAnchorElement, setActionsMenuAnchorElement] = useState(null);
    const [notFoundMessage, setNotFoundMessage] = useState(null as string);
    const [errorMessage, setErrorMessage] = useState(null as string);
    const [successMessage, setSuccessMessage] = useState(null as string);
@@ -218,11 +241,14 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    const [showEditChildForm, setShowEditChildForm] = useState(null as any);
    const [showAudit, setShowAudit] = useState(false);
    const [showShareModal, setShowShareModal] = useState(false);
+   const [collapsibleSectionOpenStates, setCollapsibleSectionOpenStates] = useState({} as Record<string, boolean>)
 
    const [isDeleteSubmitting, setIsDeleteSubmitting] = useState(false);
 
-   const openActionsMenu = (event: any) => setActionsMenu(event.currentTarget);
-   const closeActionsMenu = () => setActionsMenu(null);
+   const [actionMenu, setActionMenu] = useState(null as QMenu);
+
+   const openActionsMenu = (event: any) => setActionsMenuAnchorElement(event.currentTarget);
+   const closeActionsMenu = () => setActionsMenuAnchorElement(null);
 
    const {accentColor, setPageHeader, tableMetaData, setTableMetaData, tableProcesses, setTableProcesses, dotMenuOpen, keyboardHelpOpen, modalStack, helpHelpActive, recordAnalytics, userId: currentUserId} = useContext(QContext);
 
@@ -443,6 +469,67 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    }, [location.pathname, location.hash]);
 
 
+   /***************************************************************************
+    * For when the backend didn't specify an action menu on the table, define
+    * the default version of that menu.
+    *
+    * This object is intended to match QMenuDefaultViewScreenActionsMenu in QQQ.
+    ***************************************************************************/
+   function buildDefaultActionMenu(): QMenu
+   {
+      return new QMenu(
+         {
+            label: "Actions",
+            icon: {name: "game"},
+            slot: "VIEW_SCREEN_ACTIONS",
+            items: [
+               {
+                  itemType: "SUB_LIST", values: {
+                     items: [
+                        {itemType: "BUILT_IN", values: {option: "NEW"}},
+                        {itemType: "BUILT_IN", values: {option: "COPY"}},
+                        {itemType: "BUILT_IN", values: {option: "EDIT"}},
+                        {itemType: "BUILT_IN", values: {option: "DELETE"}}
+                     ]
+                  }
+               },
+               {itemType: "DIVIDER"},
+               {itemType: "BUILT_IN", values: {option: "THIS_TABLE_PROCESS_LIST"}},
+               {itemType: "DIVIDER"},
+               {
+                  itemType: "SUB_LIST", values: {
+                     items: [
+                        {itemType: "BUILT_IN", values: {option: "ALL_TABLES_PROCESS_LIST"}},
+                        {itemType: "BUILT_IN", values: {option: "DEVELOPER_MODE"}},
+                        {itemType: "BUILT_IN", values: {option: "AUDIT"}}
+                     ]
+                  }
+               }
+            ]
+         }
+      );
+   }
+
+
+   /////////////////////////////////////////////////////////////////////////////////////////////
+   // when the tableMetaData changes, grab the action menu out of it (or build a default one) //
+   /////////////////////////////////////////////////////////////////////////////////////////////
+   useEffect(() =>
+   {
+      let actionMenu: QMenu = null;
+      if (metaData && tableMetaData)
+      {
+         actionMenu = (tableMetaData.menus ?? []).find(m => m.slot == "VIEW_SCREEN_ACTIONS");
+
+         if (!actionMenu)
+         {
+            actionMenu = buildDefaultActionMenu();
+         }
+      }
+      setActionMenu(actionMenu);
+   }, [metaData, tableMetaData]);
+
+
    /*******************************************************************************
     ** get an element (or empty) to use as help content for a section
     *******************************************************************************/
@@ -487,6 +574,21 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       return genericProcesses;
    }
 
+
+   /***************************************************************************
+    * for a given section (in this table), make a key to use for local-storage
+    * of the section's collapsible state.
+    ***************************************************************************/
+   function makeCollapsibleSectionOpenStateLocalStorageKey(tableName: string, sectionName: string)
+   {
+      return `qqq.recordView.collapsibleSectionOpenStates.${tableName}.${sectionName}`;
+   }
+
+
+   ////////////////////////////////////////////////////////////////////////
+   // as part of mounting the component, the first time we render, start //
+   // an async load of data, then populate state after awaiting for it   //
+   ////////////////////////////////////////////////////////////////////////
    if (!asyncLoadInited)
    {
       setAsyncLoadInited(true);
@@ -621,6 +723,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          ////////////////////////////////////////////////////
          const sectionFieldElements = new Map();
          const nonT1TableSections = [];
+         const initialCollapsibleOpenStates: Record<string, boolean> = {};
          for (let i = 0; i < tableSections.length; i++)
          {
             let section = tableSections[i];
@@ -635,54 +738,53 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                continue;
             }
 
-            if (section.widgetName)
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // if a section has collapsible metaData that says it IS collapsible, then figure out what the initial open state should be //
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            if(section.collapsible && section.collapsible.isCollapsible)
             {
-               const widgetMetaData = metaData.widgets.get(section.widgetName);
-
-               ////////////////////////////////////////////////////////////////////////////
-               // for a section with a widget name, call the dashboard widgets component //
-               ////////////////////////////////////////////////////////////////////////////
-               sectionFieldElements.set(section.name,
-                  <Grid id={section.name} key={section.name} item lg={widgetMetaData.gridColumns ? widgetMetaData.gridColumns : 12} xs={12} sx={{display: "flex", alignItems: "stretch", flexGrow: 1, scrollMarginTop: "100px"}}>
-                     <Box width="100%" flexGrow={1} alignItems="stretch">
-                        <DashboardWidgets key={section.name} tableName={tableMetaData.name} widgetMetaDataList={[widgetMetaData]} record={record} entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)} omitWrappingGridContainer={true} screen="recordView"  />
-                     </Box>
-                  </Grid>
-               );
-            }
-            else if (section.fieldNames)
-            {
-               ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-               // for a section with field names, render the field values.                                               //
-               // for the T1 section, the "wrapper" will come out below - but for other sections, produce a wrapper too. //
-               ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-               const fields = renderSectionOfFields(section.name, section.fieldNames, tableMetaData, helpHelpActive, record, undefined, undefined, tableVariant);
-
-               if (section.tier === "T1")
+               ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+               // try to read a previous value from local storage.  if it doesn't exist, use the value in the meta-data //
+               ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+               const lsValue = localStorage.getItem(makeCollapsibleSectionOpenStateLocalStorageKey(tableMetaData.name, section.name));
+               if(lsValue != undefined)
                {
-                  sectionFieldElements.set(section.name, fields);
+                  initialCollapsibleOpenStates[section.name] = (lsValue == "true");
                }
                else
                {
-                  sectionFieldElements.set(section.name,
-                     <Grid id={section.name} key={section.name} item lg={section.gridColumns ?? 12} xs={12} sx={{display: "flex", alignItems: "stretch", scrollMarginTop: "100px"}}>
-                        <Box width="100%">
-                           <Card id={section.name} sx={{overflow: "visible", scrollMarginTop: "100px", height: "100%"}} data-qqq-id={`record-section-${sanitizeId(section.name)}`}>
-                              <Typography variant="h6" p={3} pb={1} data-qqq-id={`section-header-${sanitizeId(section.name)}`}>
-                                 {section.label}
-                              </Typography>
-                              {getSectionHelp(section)}
-                              <Box p={3} pt={0} flexDirection="column">
-                                 {fields}
-                              </Box>
-                           </Card>
-                        </Box>
-                     </Grid>
-                  );
+                  initialCollapsibleOpenStates[section.name] = (section.collapsible.initiallyOpen === true);
                }
             }
             else
             {
+               /////////////////////////////////////////////////
+               // if not collapsible, set open state to true. //
+               /////////////////////////////////////////////////
+               initialCollapsibleOpenStates[section.name] = true;
+            }
+
+            if (section.widgetName)
+            {
+               ////////////////////////////////////////////////////////////////////////////
+               // for a section with a widget name, call the dashboard widgets component //
+               ////////////////////////////////////////////////////////////////////////////
+               const widgetMetaData = metaData.widgets.get(section.widgetName);
+               sectionFieldElements.set(section.name, <DashboardWidgets key={section.name} tableName={tableMetaData.name} widgetMetaDataList={[widgetMetaData]} record={record} entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)} omitWrappingGridContainer={true} screen="recordView" />);
+            }
+            else if (section.fieldNames)
+            {
+               //////////////////////////////////////////////////////////////
+               // for a section with field names, render the field values. //
+               //////////////////////////////////////////////////////////////
+               const fields = renderSectionOfFields(section.name, section.fieldNames, tableMetaData, helpHelpActive, record, undefined, undefined, tableVariant);
+               sectionFieldElements.set(section.name, fields);
+            }
+            else
+            {
+               ////////////////////////////////////////////////////////////////////
+               // else we don't know what goes in the widget, so, assume nothing //
+               ////////////////////////////////////////////////////////////////////
                continue;
             }
 
@@ -697,9 +799,15 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                nonT1TableSections.push(tableSections[i]);
             }
          }
+
          setSectionFieldElements(sectionFieldElements);
          setNonT1TableSections(nonT1TableSections);
+         setCollapsibleSectionOpenStates(initialCollapsibleOpenStates);
 
+         //////////////////////////////////////////////////////////////////////////////////////////
+         // read values from location.state - to display alerts - then, clear those state values //
+         // this is an upgrade over where states like this used to be stored in the URL!         //
+         //////////////////////////////////////////////////////////////////////////////////////////
          if (location.state)
          {
             let state: any = location.state;
@@ -770,107 +878,86 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       })();
    };
 
-   function handleRevealIconClick(fieldName: string)
-   {
-      adornmentFieldsMap.set(fieldName, !adornmentFieldsMap.get(fieldName));
-      setAdornmentFieldsMap(adornmentFieldsMap);
-      setReloadCounter(reloadCounter + 1);
-   }
-
    function processClicked(process: QProcessMetaData)
    {
       openModalProcess(process);
    }
 
-   let hasEditOrDelete = (table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission) || (table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission);
 
-
-   const renderActionsMenu = (
-      <Menu
-         anchorEl={actionsMenu}
-         anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-         }}
-         transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-         }}
-         open={Boolean(actionsMenu)}
-         onClose={closeActionsMenu}
-         keepMounted
-         data-qqq-id="record-view-actions-menu"
-      >
+   //////////////////////////////////////////////////////////////////////////////////////////
+   // populate the RecordViewMenuActions object - basically callbacks for the menu to use. //
+   //////////////////////////////////////////////////////////////////////////////////////////
+   const recordViewMenuActions: RecordViewMenuActions =
+      {
+         new: () => gotoCreate(),
+         copy: () => navigate("copy"),
+         edit: () => navigate("edit"),
+         delete: (closeMenu?: () => void) =>
          {
-            table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission &&
-            <MenuItem onClick={() => gotoCreate()} data-qqq-id="menu-item-new">
-               <ListItemIcon><Icon>add</Icon></ListItemIcon>
-               New
-            </MenuItem>
-         }
+            closeMenu?.();
+            handleClickDeleteButton();
+         },
+         developerMode: () => navigate("dev"),
+         audit: (closeMenu?: () => void) =>
          {
-            table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission &&
-            <MenuItem onClick={() => navigate("copy")} data-qqq-id="menu-item-copy">
-               <ListItemIcon><Icon>copy</Icon></ListItemIcon>
-               Copy
-            </MenuItem>
-         }
+            closeMenu?.();
+            navigate("#audit");
+         },
+         runProcess: (processName: string) =>
          {
-            table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission &&
-            <MenuItem onClick={() => navigate("edit")} data-qqq-id="menu-item-edit">
-               <ListItemIcon><Icon>edit</Icon></ListItemIcon>
-               Edit
-            </MenuItem>
-         }
-         {
-            table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission &&
-            <MenuItem
-               onClick={() =>
-               {
-                  setActionsMenu(null);
-                  handleClickDeleteButton();
-               }}
-               data-qqq-id="menu-item-delete"
-            >
-               <ListItemIcon><Icon>delete</Icon></ListItemIcon>
-               Delete
-            </MenuItem>
-         }
-         {tableProcesses?.length > 0 && hasEditOrDelete && <Divider />}
-         {tableProcesses?.map((process) => (
-            <MenuItem key={process.name} onClick={() => processClicked(process)} data-qqq-id={`menu-item-${sanitizeId(process.name)}`}>
-               <ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>
-               {process.label}
-            </MenuItem>
-         ))}
-         {(tableProcesses?.length > 0 || hasEditOrDelete) && <Divider />}
-         {
-            getGenericProcesses(metaData).map((process) =>
-               (
-                  process &&
-                  <MenuItem key={process.name} onClick={() => processClicked(process)} data-qqq-id={`menu-item-${sanitizeId(process.name)}`}>
-                     <ListItemIcon><Icon>{process.iconName ?? "arrow_forward"}</Icon></ListItemIcon>
-                     {process.label}
-                  </MenuItem>
-               ))
-         }
-         <MenuItem onClick={() => navigate("dev")} data-qqq-id="menu-item-developer-mode">
-            <ListItemIcon><Icon>code</Icon></ListItemIcon>
-            Developer Mode
-         </MenuItem>
-         {
-            metaData && metaData.tables.has("audit") &&
-            <MenuItem onClick={() =>
+            const process = metaData?.processes?.get(processName);
+            if (process)
             {
-               setActionsMenu(null);
-               navigate("#audit");
-            }} data-qqq-id="menu-item-audit">
-               <ListItemIcon><Icon>checklist</Icon></ListItemIcon>
-               Audit
-            </MenuItem>
+               processClicked(process);
+            }
+            else
+            {
+               console.log("No process found for name: [" + processName + "]");
+            }
+         },
+         downloadFileFromField: (fieldName: string, closeMenu?: () => void) =>
+         {
+            ////////////////////////////////////////////////////////////
+            // todo can or should this share more with BlobComponent? //
+            ////////////////////////////////////////////////////////////
+            const fieldValue = record?.values?.get(fieldName);
+            if (fieldName && fieldValue)
+            {
+               const field = tableMetaData.fields.get(fieldName);
+               const url = ValueUtils.getUrlFromBlobOrFileDownloadField(fieldValue, tableVariant, field, record, fieldName);
+
+               if (field.type == QFieldType.BLOB)
+               {
+                  const fileName = record?.displayValues?.get(fieldName) ?? fieldName;
+                  HtmlUtils.downloadUrlViaIFrame(field, url, fileName);
+               }
+               else
+               {
+                  window.open(url);
+               }
+            }
+
+            closeMenu?.();
+         },
+         getMetaData: () =>
+         {
+            return metaData;
+         },
+         getTableProcesses: () =>
+         {
+            return tableProcesses;
+         },
+         getGenericProcesses: () =>
+         {
+            return getGenericProcesses(metaData);
          }
-      </Menu>
-   );
+      };
+
+   /////////////////////////////////////////////////////////////////////////////////////////////////
+   // build an object to help track what's shown in the actions menu.                             //
+   // we tried just passing (new ItemsShownInMenu()) as the prop, but that didn't seem to work... //
+   /////////////////////////////////////////////////////////////////////////////////////////////////
+   const itemsShownInActionsMenu = new ItemsShownInMenu();
 
 
    /*******************************************************************************
@@ -1023,11 +1110,21 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       }
    };
 
-   const tableNameForId = tableMetaData ? sanitizeId(tableMetaData.name) : "";
+
+   /***************************************************************************
+    * handle clicking a section header, to toggle it opened or closed.
+    * write the updated value to local storage.
+    ***************************************************************************/
+   function toggleCollapsibleSectionOpenState(sectionName: string): void
+   {
+      const newValue = !collapsibleSectionOpenStates[sectionName];
+      setCollapsibleSectionOpenStates((prevState) => ({...prevState, [sectionName]: newValue}));
+      localStorage.setItem(makeCollapsibleSectionOpenStateLocalStorageKey(tableMetaData.name, sectionName), newValue.toString());
+   }
 
    return (
       <BaseLayout>
-         <Box className="recordView" data-qqq-id={`record-view-${tableNameForId}`}>
+         <Box className="recordView">
             <Grid container>
                <Grid item xs={12}>
                   <Box mb={3}>
@@ -1076,9 +1173,9 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
 
                                     <Grid container spacing={3}>
                                        <Grid item xs={12} mb={3}>
-                                          <Card id={t1SectionName} sx={{scrollMarginTop: "100px", minHeight: "88px"}} data-qqq-id={`record-view-header-${tableNameForId}`}>
+                                          <Card id={t1SectionName} sx={{scrollMarginTop: "100px", minHeight: "88px"}}>
                                              <Box display="flex" p={3} pb={1}>
-                                                <Box mr={1.5} data-qqq-id={`record-view-avatar-${tableNameForId}`}>
+                                                <Box mr={1.5}>
                                                    <Avatar sx={{bgcolor: accentColor}}>
                                                       <Icon>
                                                          {tableMetaData?.iconName}
@@ -1086,15 +1183,26 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                                    </Avatar>
                                                 </Box>
                                                 <Box display="flex" justifyContent="space-between" width="100%" alignItems="flex-start" flexWrap={{xs: "wrap", md: "nowrap"}}>
-                                                   <Typography variant="h5" mb="0.5rem" data-qqq-id={`record-view-title-${tableNameForId}`}>
+                                                   <Typography variant="h5" mb="0.5rem">
                                                       {tableMetaData && record ? `Viewing ${tableMetaData?.label}: ${record?.recordLabel || ""}` : ""}
                                                    </Typography>
                                                    <Box display="flex" ml="auto">
                                                       <GotoRecordButton metaData={metaData} tableMetaData={tableMetaData} />
                                                       {renderShareButton()}
-                                                      <QActionsMenuButton isOpen={actionsMenu} onClickHandler={openActionsMenu} />
+                                                      {metaData && tableMetaData && <RecordViewAdditionalMenus tableMetaData={tableMetaData} record={record} actions={recordViewMenuActions} />}
+                                                      {metaData && tableMetaData && <QActionsMenuButton isOpen={actionsMenuAnchorElement} onClickHandler={openActionsMenu} />}
                                                    </Box>
-                                                   {renderActionsMenu}
+                                                   <Menu
+                                                      anchorEl={actionsMenuAnchorElement}
+                                                      anchorOrigin={{vertical: "bottom", horizontal: "right",}}
+                                                      transformOrigin={{vertical: "top", horizontal: "right",}}
+                                                      open={Boolean(actionsMenuAnchorElement)}
+                                                      onClose={closeActionsMenu}
+                                                      keepMounted
+                                                      data-qqq-id="record-view-actions-menu"
+                                                   >
+                                                      {actionMenu?.items.map((item, index) => (<RecordViewMenuItem key={index} tableMetaData={tableMetaData} menuItem={item} record={record} actions={recordViewMenuActions} closeMenu={closeActionsMenu} itemsShown={itemsShownInActionsMenu} />))}
+                                                   </Menu>
                                                 </Box>
                                              </Box>
                                              {t1Section && getSectionHelp(t1Section)}
@@ -1103,17 +1211,89 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                        </Grid>
                                     </Grid>
                                     <Grid container spacing={3} pb={4}>
-                                       {nonT1TableSections.length > 0 ? nonT1TableSections.map(({
-                                          iconName, label, name, fieldNames, tier,
-                                       }: any) => (
-                                          <React.Fragment key={name}>
-                                             {sectionFieldElements.get(name)}
-                                          </React.Fragment>
-                                       )) : null}
+                                       {nonT1TableSections.length > 0 ? nonT1TableSections.map((section: QTableSection) =>
+                                       {
+                                          ///////////////////////////////////////////////
+                                          // render all sections after the T1 section. //
+                                          ///////////////////////////////////////////////
+                                          const open = collapsibleSectionOpenStates[section.name];
+
+                                          ////////////////////////////////////////////////////////////////////////////
+                                          // if the section is a widget, hand off to the DashboardWidgets component //
+                                          ////////////////////////////////////////////////////////////////////////////
+                                          if (section.widgetName)
+                                          {
+                                             const widgetMetaData = metaData.widgets.get(section.widgetName);
+                                             if(section.collapsible)
+                                             {
+                                                ///////////////////////////////////////////////////////////////////////////////////
+                                                // if the section has collapsible meta-data, then put that meta-data in the      //
+                                                // widget meta data. this would overwrite the widget's own collapsible meta-data //
+                                                // (which is intentional - the section is more important in this case.           //
+                                                ///////////////////////////////////////////////////////////////////////////////////
+                                                widgetMetaData.collapsible = section.collapsible;
+                                             }
+
+                                             return (
+                                                <Grid id={section.name} key={section.name} item lg={widgetMetaData.gridColumns ? widgetMetaData.gridColumns : 12} xs={12} sx={{display: "flex", alignItems: "stretch", flexGrow: 1, scrollMarginTop: "100px"}}>
+                                                   <Box width="100%" flexGrow={1} alignItems="stretch">
+                                                      <DashboardWidgets
+                                                         key={section.name}
+                                                         tableName={tableMetaData.name}
+                                                         widgetMetaDataList={[widgetMetaData]}
+                                                         record={record}
+                                                         entityPrimaryKey={record.values.get(tableMetaData.primaryKeyField)}
+                                                         omitWrappingGridContainer={true}
+                                                         screen="recordView" />
+                                                   </Box>
+                                                </Grid>
+                                             )
+                                          }
+
+                                          /////////////////////////////////////////////////////////////////////////////////////////////
+                                          // else - not a widget - so render a grid item, with a card, containing the fields         //
+                                          // if the section is collapsible, add props to it for a finger cursor and on-click handler //
+                                          /////////////////////////////////////////////////////////////////////////////////////////////
+                                          const moreHeaderProps = section.collapsible?.isCollapsible ? {sx: {cursor: "pointer"}, onClick: () => toggleCollapsibleSectionOpenState(section.name)} : {}
+
+                                          return (
+                                             <React.Fragment key={section.name}>
+                                                <Grid id={section.name} key={section.name} item lg={section.gridColumns ?? 12} xs={12} sx={{display: "flex", alignItems: "stretch", scrollMarginTop: "100px"}}>
+                                                   <Box width="100%">
+                                                      <Card id={section.name} sx={{overflow: "visible", scrollMarginTop: "100px", height: open ? "100%" : "auto"}}>
+                                                         <Box display="flex" justifyContent="space-between" alignItems="center" pb={open ? 0 : 1.5} {...moreHeaderProps}>
+                                                            <Typography variant="h6" p={3} pb={1}>
+                                                               {section.label}
+                                                            </Typography>
+                                                            {
+                                                               section.collapsible?.isCollapsible &&
+                                                               <Box p="0.75rem 0.25rem 0">
+                                                                  <IconButton onClick={() => toggleCollapsibleSectionOpenState(section.name)}>
+                                                                     <Icon fontSize="large">{open ? "expand_less" : "expand_more"}</Icon>
+                                                                  </IconButton>
+                                                               </Box>
+                                                            }
+                                                         </Box>
+                                                         <Box style={{display: open  ? "block" : "none"}}>
+                                                            {getSectionHelp(section)}
+                                                            <Box p={3} pt={0} flexDirection="column">
+                                                               {sectionFieldElements.get(section.name)}
+                                                            </Box>
+                                                         </Box>
+                                                      </Card>
+                                                   </Box>
+                                                </Grid>
+                                             </React.Fragment>
+                                          )
+                                       }
+                                       ) : null}
                                     </Grid>
                                     {
+                                       ///////////////////////////////////////////////////////////////////////
+                                       // sticky bottom button bar w/ delete & edit buttons (if applicable) //
+                                       ///////////////////////////////////////////////////////////////////////
                                        tableMetaData && record && ((table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission) || (table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission)) &&
-                                       <Box component="div" p={3} className={"stickyBottomButtonBar"} data-qqq-id={`record-view-button-bar-${tableNameForId}`}>
+                                       <Box component="div" p={3} className={"stickyBottomButtonBar"}>
                                           <Grid container justifyContent="flex-end" spacing={3}>
                                              {
                                                 table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission && <QDeleteButton onClickHandler={handleClickDeleteButton} />
@@ -1134,17 +1314,16 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                  onClose={handleDeleteConfirmClose}
                                  aria-labelledby="alert-dialog-title"
                                  aria-describedby="alert-dialog-description"
-                                 data-qqq-id="delete-confirmation-dialog"
                               >
-                                 <DialogTitle id="alert-dialog-title" data-qqq-id="delete-confirmation-title">Confirm Deletion</DialogTitle>
+                                 <DialogTitle id="alert-dialog-title">Confirm Deletion</DialogTitle>
                                  <DialogContent>
-                                    <DialogContentText id="alert-dialog-description" data-qqq-id="delete-confirmation-text">
+                                    <DialogContentText id="alert-dialog-description">
                                        Are you sure you want to delete this record?
                                     </DialogContentText>
                                  </DialogContent>
-                                 <DialogActions data-qqq-id="delete-confirmation-actions">
-                                    <Button onClick={handleDeleteConfirmClose} data-qqq-id="button-delete-no">No</Button>
-                                    <Button onClick={handleDelete} autoFocus disabled={isDeleteSubmitting} data-qqq-id="button-delete-yes">
+                                 <DialogActions>
+                                    <Button onClick={handleDeleteConfirmClose}>No</Button>
+                                    <Button onClick={handleDelete} autoFocus disabled={isDeleteSubmitting}>
                                        Yes
                                     </Button>
                                  </DialogActions>

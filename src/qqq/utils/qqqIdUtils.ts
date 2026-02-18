@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {Children, isValidElement, ReactNode} from "react";
+import {isValidElement, ReactNode} from "react";
 
 /*******************************************************************************
  ** Sanitize a string for use as a data-qqq-id attribute value.

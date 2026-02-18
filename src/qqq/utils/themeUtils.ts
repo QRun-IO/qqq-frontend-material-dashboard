@@ -347,8 +347,9 @@ export function injectThemeVariables(theme?: QThemeMetaData): void
       "typographyCaptionTextTransform",
 
       // Sizing - Border Radius
-      "borderRadiusGlobal",
-      "borderRadiusScale",
+      "borderRadius",
+      // "borderRadiusGlobal",
+      // "borderRadiusScale",
       "density",
 
       // Asset paths

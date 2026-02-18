@@ -64,6 +64,7 @@ import {validateCriteria} from "qqq/components/query/FilterCriteriaRow";
 import QueryScreenActionMenu from "qqq/components/query/QueryScreenActionMenu";
 import SelectionSubsetDialog from "qqq/components/query/SelectionSubsetDialog";
 import TableVariantDialog from "qqq/components/query/TableVariantDialog";
+import useSavedViews from "qqq/components/query/useSavedViews";
 import CustomWidthTooltip from "qqq/components/tooltips/CustomWidthTooltip";
 import BaseLayout from "qqq/layouts/BaseLayout";
 import {LoadingState} from "qqq/models/LoadingState";
@@ -466,6 +467,8 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    // page context references //
    /////////////////////////////
    const {accentColor, accentColorLight, setPageHeader, recordAnalytics, dotMenuOpen, keyboardHelpOpen, modalStack} = useContext(QContext);
+
+   const useSavedViewsResult = useSavedViews({qController, metaData, tableMetaData});
 
    //////////////////////
    // ole' faithful... //
@@ -3022,7 +3025,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    let savedViewsComponent = null;
    if (metaData && metaData.processes.has("querySavedView"))
    {
-      savedViewsComponent = (<SavedViews qController={qController} metaData={metaData} tableMetaData={tableMetaData} view={view} viewAsJson={viewAsJson} currentSavedView={currentSavedView} tableDefaultView={tableDefaultView} viewOnChangeCallback={handleSavedViewChange} loadingSavedView={loadingSavedView} queryScreenUsage={usage} />);
+      savedViewsComponent = (<SavedViews useSavedViewsResult={useSavedViewsResult} metaData={metaData} tableMetaData={tableMetaData} view={view} viewAsJson={viewAsJson} currentSavedView={currentSavedView} tableDefaultView={tableDefaultView} viewOnChangeCallback={handleSavedViewChange} loadingSavedView={loadingSavedView} queryScreenUsage={usage} />);
    }
 
 
@@ -3245,6 +3248,8 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                      ref={basicAndAdvancedQueryControlsRef}
                      metaData={metaData}
                      tableMetaData={tableMetaData}
+                     apiVersion={apiVersion}
+                     tableVariant={tableVariant}
                      queryFilter={queryFilter}
                      queryFilterJSON={JSON.stringify(queryFilter)}
                      setQueryFilter={doSetQueryFilter}
@@ -3258,6 +3263,10 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                      savedViewsComponent={savedViewsComponent}
                      columnMenuComponent={buildColumnMenu()}
                      omitExposedJoins={omitExposedJoins}
+                     useSavedViewsResult={useSavedViewsResult}
+                     viewOnChangeCallback={handleSavedViewChange}
+                     currentSavedView={currentSavedView}
+                     activeView={view}
                   />
                }
 
@@ -3323,7 +3332,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                         getRowId={(row) => row.__rowIndex}
                         selectionModel={rowSelectionModel}
                         hideFooterSelectedRowCount={true}
-                        sx={{border: 0, height: `calc(100vh - ${spaceAboveGrid + spaceBelowGrid}px - var(--qqq-branded-header-height, 0px))`}}
+                        sx={{border: 0, height: `calc(100vh - ${spaceAboveGrid + spaceBelowGrid}px)`}}
                      />
                   </Box>
                </Card>

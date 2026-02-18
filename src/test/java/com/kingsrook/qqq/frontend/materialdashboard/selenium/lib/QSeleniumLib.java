@@ -388,6 +388,38 @@ public class QSeleniumLib
    /*******************************************************************************
     **
     *******************************************************************************/
+   public void waitForSelectorTextMatchingRegexToNotExist(String cssSelector, String textMatches)
+   {
+      LOG.debug("Waiting for non-existence of element matching selector [" + cssSelector + "] matching regex [" + textMatches + "]");
+      long start = System.currentTimeMillis();
+
+      do
+      {
+         List<WebElement> elements = driver.findElements(By.cssSelector(cssSelector));
+         if(elements.isEmpty())
+         {
+            LOG.debug("Found non-existence of element(s) matching selector [" + cssSelector + "]");
+            return;
+         }
+
+         if(elements.stream().noneMatch(e -> e.getText().toLowerCase().matches(textMatches.toLowerCase())))
+         {
+            LOG.debug("Found non-existence of element(s) matching selector [" + cssSelector + "] matches regex [" + textMatches + "]");
+            return;
+         }
+
+         sleepABit();
+      }
+      while(start + (1000 * WAIT_SECONDS) > System.currentTimeMillis());
+
+      fail("Failed for non-existence of element matching selector [" + cssSelector + "] matching regex [" + textMatches + "] after [" + WAIT_SECONDS + "] seconds.");
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
    public void waitForNumberOfWindowsToBe(int number)
    {
       LOG.debug("Waiting for number of windows (tabs) to be [" + number + "]");
@@ -731,13 +763,20 @@ public class QSeleniumLib
 
 
    /*******************************************************************************
-    **
+    * to help assert about files being downloaded by tests, this method loads the
+    * chrome://downloads/ page, then tries to grab text from the page representing
+    * the latest downloaded file.
+    *
+    * <p>Note that the selectors used in this method may need updated over time
+    * as chrome changes the html of the downloads page...</p>
+    *
+    * @return (at the time of this writing) - downloaded filename, newline, "From https://localhost:3001"
     *******************************************************************************/
    public String getLatestChromeDownloadedFileInfo()
    {
       driver.get("chrome://downloads/");
       JavascriptExecutor js      = (JavascriptExecutor) driver;
-      WebElement         element = (WebElement) js.executeScript("return document.querySelector('downloads-manager').shadowRoot.querySelector('#mainContainer > iron-list > downloads-item').shadowRoot.querySelector('#content')");
+      WebElement         element = (WebElement) js.executeScript("return document.querySelector('downloads-manager').shadowRoot.querySelector('downloads-item').shadowRoot.querySelector('#content')");
       return (element.getText());
    }
 
@@ -788,6 +827,31 @@ public class QSeleniumLib
             System.out.println(logEntry.toJson());
          }
       }
+   }
+
+
+
+   /***************************************************************************
+    * using the ./.. xpath repeatedly, get an ancestor of an element.
+    ***************************************************************************/
+   public WebElement getAncestor(WebElement element, int level)
+   {
+      for(int i = 0; i < level; i++)
+      {
+         element = element.findElement(QSeleniumLib.PARENT);
+      }
+
+      return element;
+   }
+
+
+
+   /***************************************************************************
+    * get the direct parent of an element.
+    ***************************************************************************/
+   public WebElement getParent(WebElement element)
+   {
+      return getAncestor(element, 1);
    }
 
 }
