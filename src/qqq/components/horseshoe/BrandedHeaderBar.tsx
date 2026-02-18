@@ -19,19 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QThemeMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QThemeMetaData";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import {MaterialDashboardThemeMetaData} from "qqq/models/metadata/MaterialDashboardThemeMetaData";
 import React from "react";
 
 interface Props
 {
-   theme?: QThemeMetaData | null;
+   theme?: MaterialDashboardThemeMetaData | null;
 }
 
 /*******************************************************************************
  ** BrandedHeaderBar - renders a branded header bar when enabled via theme.
- ** Uses CSS variables injected from QThemeMetaData for styling.
+ ** Uses CSS variables injected from MaterialDashboardThemeMetaData for styling.
  *******************************************************************************/
 export default function BrandedHeaderBar({theme}: Props): JSX.Element | null
 {
