@@ -59,7 +59,7 @@
          "infoColor": "#0055FF",
          "fontFamily": "\"Arial\", sans-serif",
          "headerFontFamily": "\"Georgia\", serif",
-         "borderRadius": "12px",
+         "borderRadiusGlobal": "12px",
          "density": "normal",
          "iconStyle": "filled"
       }

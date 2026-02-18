@@ -25,9 +25,7 @@ package com.kingsrook.qqq.frontend.materialdashboard.selenium.tests;
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.QBaseSeleniumTest;
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.javalin.QSeleniumJavalin;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebElement;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -228,7 +226,7 @@ public class ThemeIT extends QBaseSeleniumTest
 
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Test App");
 
-      String borderRadius = getCssVariable("--qqq-border-radius");
+      String borderRadius = getCssVariable("--qqq-border-radius-global");
       assertThat(borderRadius).isEqualTo("12px");
    }
 
@@ -309,19 +307,19 @@ public class ThemeIT extends QBaseSeleniumTest
    @Test
    void testDefaultThemeWhenNotProvided()
    {
-      //////////////////////////////////////////////////////////////////////
-      // Use the standard index.json which has no theme property           //
-      //////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////
+      // Use the standard index.json which has no theme property //
+      /////////////////////////////////////////////////////////////
       metaDataFixture = "metaData/index.json";
       qSeleniumJavalin.clearRoutes();
       addJavalinRoutes(qSeleniumJavalin);
 
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Greetings App");
 
-      //////////////////////////////////////////////////////////////////////
-      // CSS variables should NOT be injected for unthemed apps            //
-      // CSS fallback values handle default styling                        //
-      //////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////
+      // CSS variables should NOT be injected for unthemed apps //
+      // CSS fallback values handle default styling             //
+      ////////////////////////////////////////////////////////////
       String primaryColor = getCssVariable("--qqq-primary-color");
       assertThat(primaryColor).isEmpty();
    }
@@ -491,27 +489,27 @@ public class ThemeIT extends QBaseSeleniumTest
 
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Full Theme Test App");
 
-      //////////////////////////////////////////////////////////////////////////
-      // H1 typography                                                          //
-      //////////////////////////////////////////////////////////////////////////
+      ///////////////////
+      // H1 typography //
+      ///////////////////
       assertThat(getCssVariable("--qqq-typography-h1-font-size")).isEqualTo("3rem");
       assertThat(getCssVariable("--qqq-typography-h1-font-weight")).isEqualTo("700");
       assertThat(getCssVariable("--qqq-typography-h1-line-height")).isEqualTo("1.2");
       assertThat(getCssVariable("--qqq-typography-h1-letter-spacing")).isEqualTo("-0.02em");
       assertThat(getCssVariable("--qqq-typography-h1-text-transform")).isEqualTo("none");
 
-      //////////////////////////////////////////////////////////////////////////
-      // H2 typography                                                          //
-      //////////////////////////////////////////////////////////////////////////
+      ///////////////////
+      // H2 typography //
+      ///////////////////
       assertThat(getCssVariable("--qqq-typography-h2-font-size")).isEqualTo("2.5rem");
       assertThat(getCssVariable("--qqq-typography-h2-font-weight")).isEqualTo("600");
       assertThat(getCssVariable("--qqq-typography-h2-line-height")).isEqualTo("1.3");
       assertThat(getCssVariable("--qqq-typography-h2-letter-spacing")).isEqualTo("-0.01em");
       assertThat(getCssVariable("--qqq-typography-h2-text-transform")).isEqualTo("none");
 
-      //////////////////////////////////////////////////////////////////////////
-      // H3 typography                                                          //
-      //////////////////////////////////////////////////////////////////////////
+      ///////////////////
+      // H3 typography //
+      ///////////////////
       assertThat(getCssVariable("--qqq-typography-h3-font-size")).isEqualTo("2rem");
       assertThat(getCssVariable("--qqq-typography-h3-font-weight")).isEqualTo("600");
       assertThat(getCssVariable("--qqq-typography-h3-line-height")).isEqualTo("1.4");
@@ -534,27 +532,27 @@ public class ThemeIT extends QBaseSeleniumTest
 
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Full Theme Test App");
 
-      //////////////////////////////////////////////////////////////////////////
-      // H4 typography                                                          //
-      //////////////////////////////////////////////////////////////////////////
+      ///////////////////
+      // H4 typography //
+      ///////////////////
       assertThat(getCssVariable("--qqq-typography-h4-font-size")).isEqualTo("1.5rem");
       assertThat(getCssVariable("--qqq-typography-h4-font-weight")).isEqualTo("500");
       assertThat(getCssVariable("--qqq-typography-h4-line-height")).isEqualTo("1.4");
       assertThat(getCssVariable("--qqq-typography-h4-letter-spacing")).isEqualTo("0");
       assertThat(getCssVariable("--qqq-typography-h4-text-transform")).isEqualTo("none");
 
-      //////////////////////////////////////////////////////////////////////////
-      // H5 typography                                                          //
-      //////////////////////////////////////////////////////////////////////////
+      ///////////////////
+      // H5 typography //
+      ///////////////////
       assertThat(getCssVariable("--qqq-typography-h5-font-size")).isEqualTo("1.25rem");
       assertThat(getCssVariable("--qqq-typography-h5-font-weight")).isEqualTo("500");
       assertThat(getCssVariable("--qqq-typography-h5-line-height")).isEqualTo("1.5");
       assertThat(getCssVariable("--qqq-typography-h5-letter-spacing")).isEqualTo("0");
       assertThat(getCssVariable("--qqq-typography-h5-text-transform")).isEqualTo("none");
 
-      //////////////////////////////////////////////////////////////////////////
-      // H6 typography                                                          //
-      //////////////////////////////////////////////////////////////////////////
+      ///////////////////
+      // H6 typography //
+      ///////////////////
       assertThat(getCssVariable("--qqq-typography-h6-font-size")).isEqualTo("1rem");
       assertThat(getCssVariable("--qqq-typography-h6-font-weight")).isEqualTo("500");
       assertThat(getCssVariable("--qqq-typography-h6-line-height")).isEqualTo("1.5");
@@ -577,27 +575,27 @@ public class ThemeIT extends QBaseSeleniumTest
 
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Full Theme Test App");
 
-      //////////////////////////////////////////////////////////////////////////
-      // Body1 typography                                                       //
-      //////////////////////////////////////////////////////////////////////////
+      //////////////////////
+      // Body1 typography //
+      //////////////////////
       assertThat(getCssVariable("--qqq-typography-body1-font-size")).isEqualTo("1rem");
       assertThat(getCssVariable("--qqq-typography-body1-font-weight")).isEqualTo("400");
       assertThat(getCssVariable("--qqq-typography-body1-line-height")).isEqualTo("1.6");
       assertThat(getCssVariable("--qqq-typography-body1-letter-spacing")).isEqualTo("0");
       assertThat(getCssVariable("--qqq-typography-body1-text-transform")).isEqualTo("none");
 
-      //////////////////////////////////////////////////////////////////////////
-      // Body2 typography                                                       //
-      //////////////////////////////////////////////////////////////////////////
+      //////////////////////
+      // Body2 typography //
+      //////////////////////
       assertThat(getCssVariable("--qqq-typography-body2-font-size")).isEqualTo("0.875rem");
       assertThat(getCssVariable("--qqq-typography-body2-font-weight")).isEqualTo("400");
       assertThat(getCssVariable("--qqq-typography-body2-line-height")).isEqualTo("1.5");
       assertThat(getCssVariable("--qqq-typography-body2-letter-spacing")).isEqualTo("0");
       assertThat(getCssVariable("--qqq-typography-body2-text-transform")).isEqualTo("none");
 
-      //////////////////////////////////////////////////////////////////////////
-      // Caption typography                                                     //
-      //////////////////////////////////////////////////////////////////////////
+      ////////////////////////
+      // Caption typography //
+      ////////////////////////
       assertThat(getCssVariable("--qqq-typography-caption-font-size")).isEqualTo("0.75rem");
       assertThat(getCssVariable("--qqq-typography-caption-font-weight")).isEqualTo("400");
       assertThat(getCssVariable("--qqq-typography-caption-line-height")).isEqualTo("1.4");
@@ -799,9 +797,9 @@ public class ThemeIT extends QBaseSeleniumTest
 
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Full Theme Test App");
 
-      //////////////////////////////////////////////////////////////////////////
-      // Core colors                                                            //
-      //////////////////////////////////////////////////////////////////////////
+      /////////////////
+      // Core colors //
+      /////////////////
       assertThat(getCssVariable("--qqq-primary-color")).isEqualToIgnoringCase("#E91E63");
       assertThat(getCssVariable("--qqq-secondary-color")).isEqualToIgnoringCase("#9C27B0");
       assertThat(getCssVariable("--qqq-background-color")).isEqualToIgnoringCase("#ECEFF1");
@@ -813,27 +811,27 @@ public class ThemeIT extends QBaseSeleniumTest
       assertThat(getCssVariable("--qqq-success-color")).isEqualToIgnoringCase("#00C853");
       assertThat(getCssVariable("--qqq-info-color")).isEqualToIgnoringCase("#2962FF");
 
-      //////////////////////////////////////////////////////////////////////////
-      // Font families                                                          //
-      //////////////////////////////////////////////////////////////////////////
+      ///////////////////
+      // Font families //
+      ///////////////////
       assertThat(getCssVariable("--qqq-font-family")).contains("Inter");
       assertThat(getCssVariable("--qqq-header-font-family")).contains("Poppins");
       assertThat(getCssVariable("--qqq-mono-font-family")).contains("JetBrains Mono");
 
-      //////////////////////////////////////////////////////////////////////////
-      // Border radius and density                                              //
-      //////////////////////////////////////////////////////////////////////////
-      assertThat(getCssVariable("--qqq-border-radius")).isEqualTo("12px");
+      ///////////////////////////////
+      // Border radius and density //
+      ///////////////////////////////
+      assertThat(getCssVariable("--qqq-border-radius-global")).isEqualTo("12px");
       assertThat(getCssVariable("--qqq-density")).isEqualTo("normal");
 
-      //////////////////////////////////////////////////////////////////////////
-      // Icon style                                                             //
-      //////////////////////////////////////////////////////////////////////////
+      ////////////////
+      // Icon style //
+      ////////////////
       assertThat(getCssVariable("--qqq-icon-style")).isEqualTo("rounded");
 
-      //////////////////////////////////////////////////////////////////////////
-      // Verify custom CSS was injected                                         //
-      //////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////
+      // Verify custom CSS was injected //
+      ////////////////////////////////////
       assertThat(styleElementExists("qqq-custom-theme-css")).isTrue();
       String cssContent = getStyleElementContent("qqq-custom-theme-css");
       assertThat(cssContent).contains(".qqq-full-theme-test-marker");
@@ -847,9 +845,9 @@ public class ThemeIT extends QBaseSeleniumTest
    @Test
    void testPartialThemeConfiguration()
    {
-      //////////////////////////////////////////////////////////////////////////
-      // Use the standard custom theme which only has a subset of properties    //
-      //////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////
+      // Use the standard custom theme which only has a subset of properties //
+      /////////////////////////////////////////////////////////////////////////
       metaDataFixture = "metaData/withCustomTheme.json";
       qSeleniumJavalin.clearRoutes();
       addJavalinRoutes(qSeleniumJavalin);
@@ -857,15 +855,15 @@ public class ThemeIT extends QBaseSeleniumTest
 
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Test App");
 
-      //////////////////////////////////////////////////////////////////////////
-      // These were explicitly set in the fixture                               //
-      //////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////
+      // These were explicitly set in the fixture //
+      //////////////////////////////////////////////
       assertThat(getCssVariable("--qqq-primary-color")).isEqualToIgnoringCase("#FF5500");
       assertThat(getCssVariable("--qqq-secondary-color")).isEqualToIgnoringCase("#00AA55");
 
-      //////////////////////////////////////////////////////////////////////////
-      // Verify defaults are used for unset sidebar properties                  //
-      //////////////////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////
+      // Verify defaults are used for unset sidebar properties //
+      ///////////////////////////////////////////////////////////
       String sidebarBg = getCssVariable("--qqq-sidebar-background-color");
       assertThat(sidebarBg).isNotEmpty();
    }
@@ -885,13 +883,13 @@ public class ThemeIT extends QBaseSeleniumTest
 
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/", "Greetings App");
 
-      //////////////////////////////////////////////////////////////////////////
-      // CSS variables should NOT be injected for unthemed apps                //
-      // CSS fallback values handle default styling                            //
-      //////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////
+      // CSS variables should NOT be injected for unthemed apps //
+      // CSS fallback values handle default styling             //
+      ////////////////////////////////////////////////////////////
       assertThat(getCssVariable("--qqq-primary-color")).isEmpty();
       assertThat(getCssVariable("--qqq-density")).isEmpty();
       assertThat(getCssVariable("--qqq-icon-style")).isEmpty();
-      assertThat(getCssVariable("--qqq-border-radius")).isEmpty();
+      assertThat(getCssVariable("--qqq-border-radius-global")).isEmpty();
    }
 }

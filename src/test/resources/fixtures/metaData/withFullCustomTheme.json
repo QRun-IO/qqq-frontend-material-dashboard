@@ -133,7 +133,7 @@
          "typographyCaptionLetterSpacing": "0.03em",
          "typographyCaptionTextTransform": "none",
 
-         "borderRadius": "12px",
+         "borderRadiusGlobal": "12px",
          "density": "normal",
 
          "logoPath": "/custom-logo.png",
