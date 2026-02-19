@@ -39,6 +39,8 @@ public class MaterialDashboardInstanceMetaData implements QSupplementalInstanceM
 
    private Integer queryScreenCopyFullQueryColumnValuesLimit = 100_000;
 
+   private MaterialDashboardTableMetaData.RecordViewActionsPlacement recordViewActionsPlacement = MaterialDashboardTableMetaData.RecordViewActionsPlacement.IN_IDENTITY_SECTION;
+
 
 
    /*******************************************************************************
@@ -151,6 +153,37 @@ public class MaterialDashboardInstanceMetaData implements QSupplementalInstanceM
    public MaterialDashboardInstanceMetaData withQueryScreenCopyFullQueryColumnValuesLimit(Integer queryScreenCopyFullQueryColumnValuesLimit)
    {
       this.queryScreenCopyFullQueryColumnValuesLimit = queryScreenCopyFullQueryColumnValuesLimit;
+      return (this);
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for recordViewActionsPlacement
+    *******************************************************************************/
+   public MaterialDashboardTableMetaData.RecordViewActionsPlacement getRecordViewActionsPlacement()
+   {
+      return (this.recordViewActionsPlacement);
+   }
+
+
+
+   /*******************************************************************************
+    ** Setter for recordViewActionsPlacement
+    *******************************************************************************/
+   public void setRecordViewActionsPlacement(MaterialDashboardTableMetaData.RecordViewActionsPlacement recordViewActionsPlacement)
+   {
+      this.recordViewActionsPlacement = recordViewActionsPlacement;
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for recordViewActionsPlacement
+    *******************************************************************************/
+   public MaterialDashboardInstanceMetaData withRecordViewActionsPlacement(MaterialDashboardTableMetaData.RecordViewActionsPlacement recordViewActionsPlacement)
+   {
+      this.recordViewActionsPlacement = recordViewActionsPlacement;
       return (this);
    }
 

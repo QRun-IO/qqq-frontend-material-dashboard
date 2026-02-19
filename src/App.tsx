@@ -58,7 +58,7 @@ import GoogleAnalyticsUtils, {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUti
 import {detectBasePath, resolveAssetUrl} from "qqq/utils/PathUtils";
 import Client from "qqq/utils/qqq/Client";
 import ProcessUtils from "qqq/utils/qqq/ProcessUtils";
-import React, {JSXElementConstructor, Key, ReactElement, useEffect, useState,} from "react";
+import React, {JSXElementConstructor, Key, ReactElement, ReactNode, useEffect, useState,} from "react";
 import {useCookies} from "react-cookie";
 import {Navigate, Route, Routes, useLocation, useParams, useSearchParams,} from "react-router-dom";
 import {Md5} from "ts-md5/dist/md5";
@@ -650,6 +650,7 @@ export default function App({authenticationMetaData}: Props)
    );
 
    const [pageHeader, setPageHeader] = useState("" as string | JSX.Element);
+   const [pageHeaderRightContent, setPageHeaderRightContent] = useState(null as ReactNode);
    const [accentColor, setAccentColor] = useState("#0062FF");
    const [accentColorLight, setAccentColorLight] = useState("#C0D6F7");
    const [tableMetaData, setTableMetaData] = useState(null);
@@ -760,6 +761,7 @@ export default function App({authenticationMetaData}: Props)
       appRoutes && (
          <QContext.Provider value={{
             pageHeader: pageHeader,
+            pageHeaderRightContent: pageHeaderRightContent,
             accentColor: accentColor,
             accentColorLight: accentColorLight,
             tableMetaData: tableMetaData,
@@ -770,6 +772,7 @@ export default function App({authenticationMetaData}: Props)
             helpHelpActive: helpHelpActive,
             userId: userId,
             setPageHeader: (header: string | JSX.Element) => setPageHeader(header),
+            setPageHeaderRightContent: (content: ReactNode) => setPageHeaderRightContent(content),
             setAccentColor: (accentColor: string) => setAccentColor(accentColor),
             setAccentColorLight: (accentColorLight: string) => setAccentColorLight(accentColorLight),
             setTableMetaData: (tableMetaData: QTableMetaData) => setTableMetaData(tableMetaData),
