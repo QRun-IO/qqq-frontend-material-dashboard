@@ -20,7 +20,7 @@
  */
 
 import {MaterialDashboardThemeMetaData} from "qqq/models/metadata/MaterialDashboardThemeMetaData";
-import {DEFAULT_THEME} from "./themeUtils";
+import {DEFAULT_THEME, DENSITY_SPACING, injectCustomCss, injectIconFonts} from "./themeUtils";
 
 /*******************************************************************************
  ** CSS variable prefix for QQQ island variables.
@@ -260,84 +260,3 @@ function setVar(element: HTMLElement, name: string, value: string | number | boo
    }
 }
 
-/*******************************************************************************
- ** Density spacing multipliers.
- *******************************************************************************/
-const DENSITY_SPACING: Record<string, { base: number; small: string; medium: string; large: string }> = {
-   compact: {base: 6, small: "0.25rem", medium: "0.5rem", large: "0.75rem"},
-   normal: {base: 8, small: "0.5rem", medium: "1rem", large: "1.5rem"},
-   comfortable: {base: 10, small: "0.75rem", medium: "1.25rem", large: "2rem"},
-};
-
-/*******************************************************************************
- ** Default font CDN URLs.
- *******************************************************************************/
-const DEFAULT_ICON_FONT_URL = "https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp";
-const DEFAULT_FONT_URL = "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap";
-
-/*******************************************************************************
- ** Inject font stylesheets.
- *******************************************************************************/
-function injectIconFonts(): void
-{
-   const iconFontLinkId = "qqq-icon-font";
-   const fontLinkId = "qqq-font";
-
-   if (!document.getElementById(fontLinkId))
-   {
-      const fontLink = document.createElement("link");
-      fontLink.id = fontLinkId;
-      fontLink.rel = "stylesheet";
-      fontLink.href = DEFAULT_FONT_URL;
-      document.head.appendChild(fontLink);
-   }
-
-   if (!document.getElementById(iconFontLinkId))
-   {
-      const iconLink = document.createElement("link");
-      iconLink.id = iconFontLinkId;
-      iconLink.rel = "stylesheet";
-      iconLink.href = DEFAULT_ICON_FONT_URL;
-      document.head.appendChild(iconLink);
-   }
-}
-
-/*******************************************************************************
- ** Inject custom CSS into the document head.
- *******************************************************************************/
-function injectCustomCss(css: string): void
-{
-   const existingStyle = document.getElementById("qqq-custom-theme-css");
-   if (existingStyle)
-   {
-      existingStyle.textContent = css;
-   }
-   else
-   {
-      const style = document.createElement("style");
-      style.id = "qqq-custom-theme-css";
-      style.textContent = css;
-      document.head.appendChild(style);
-   }
-}
-
-/*******************************************************************************
- ** Map icon style name to MUI Icon baseClassName.
- *******************************************************************************/
-const ICON_STYLE_TO_CLASS: Record<string, string> = {
-   filled: "material-icons",
-   outlined: "material-icons-outlined",
-   rounded: "material-icons-round",
-   sharp: "material-icons-sharp",
-   "two-tone": "material-icons-two-tone",
-};
-
-/*******************************************************************************
- ** Get the MUI Icon baseClassName for the current theme's iconStyle.
- *******************************************************************************/
-export function getIconBaseClassName(): string
-{
-   const iconStyle = getComputedStyle(document.documentElement)
-      .getPropertyValue("--qqq-icon-style").trim() || "filled";
-   return ICON_STYLE_TO_CLASS[iconStyle] || ICON_STYLE_TO_CLASS.filled;
-}

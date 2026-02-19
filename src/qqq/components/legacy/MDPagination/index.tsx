@@ -55,6 +55,11 @@ const MDPagination: FC<Props | any> = forwardRef(
       const context: any = useContext(Context);
       const paginationSize = context ? context.size : undefined;
 
+      if(!color)
+      {
+         color = preferredColorNameInfoOrPrimary();
+      }
+
       const providerValue = useMemo(
          () => ({
             variant,
@@ -97,7 +102,6 @@ const MDPagination: FC<Props | any> = forwardRef(
 MDPagination.defaultProps = {
    item: false,
    variant: "gradient",
-   color: preferredColorNameInfoOrPrimary(),
    size: "medium",
    active: false,
 };

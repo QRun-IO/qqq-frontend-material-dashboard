@@ -145,7 +145,7 @@ class MaterialDashboardThemeMetaDataTest extends BaseTest
 
       assertThat(collectingLogger.getCollectedMessages()).hasSize(1);
       assertThat(collectingLogger.getCollectedMessages().get(0).getMessage())
-         .contains("Invalid theme color value");
+         .contains("Unexpected theme color value - a hex format is preferred");
    }
 
 
@@ -604,6 +604,6 @@ class MaterialDashboardThemeMetaDataTest extends BaseTest
 
       assertThat(collectingLogger.getCollectedMessages()).hasSize(3);
       assertThat(collectingLogger.getCollectedMessages().get(0).getMessage())
-         .contains("Invalid theme color value");
+         .contains("Unexpected theme color value - a hex format is preferred");
    }
 }

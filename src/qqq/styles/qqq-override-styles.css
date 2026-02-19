@@ -1044,29 +1044,29 @@ input[type="search"]::-webkit-search-results-decoration
  ** Button theming - uses CSS variables from MaterialDashboardThemeMetaData
  ** NOT scoped to .qqq-themed to match develop behavior (applies to all apps)
  *****************************************************************************/
-.MuiButton-root
+.qqq-themed .MuiButton-root
 {
    font-weight: var(--qqq-typography-button-font-weight, 500) !important;
 }
 
-.MuiButton-containedPrimary
+.qqq-themed .MuiButton-containedPrimary
 {
    background-color: var(--qqq-primary-color, #0062FF) !important;
 }
 
-.MuiButton-containedSecondary
+.qqq-themed .MuiButton-containedSecondary
 {
    background-color: var(--qqq-secondary-color, #7b809a) !important;
 }
 
-.MuiButton-outlinedPrimary
+.qqq-themed .MuiButton-outlinedPrimary
 {
    border-color: var(--qqq-primary-color, #0062FF) !important;
    color: var(--qqq-primary-color, #0062FF) !important;
 }
 
 /* use qqq-primary-color for button text - UNLESS the button variant is gradient or contained (which are colored background) */
-.MuiButton-textPrimary:not([data-button-variant="gradient"]):not([data-button-variant="contained"])
+.qqq-themed .MuiButton-textPrimary:not([data-button-variant="gradient"]):not([data-button-variant="contained"])
 {
    color: var(--qqq-primary-color, #0062FF) !important;
 }

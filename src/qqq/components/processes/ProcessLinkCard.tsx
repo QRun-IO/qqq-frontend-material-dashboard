@@ -48,6 +48,11 @@ function ProcessLinkCard({
    color, isReport, title, percentage, icon, isDisabled, qqqId
 }: Props): JSX.Element
 {
+   if(!color)
+   {
+      color = preferredColorNameInfoOrPrimary();
+   }
+
    return (
       <Card>
          <Box display="flex" justifyContent="space-between" pt={3} px={2} title={isDisabled ? `You do not have permission to access this ${isReport ? "report" : "process"}` : ""}>
@@ -108,7 +113,6 @@ function ProcessLinkCard({
 }
 
 ProcessLinkCard.defaultProps = {
-   color: preferredColorNameInfoOrPrimary(),
    isReport: false,
    percentage: {
       color: "success",

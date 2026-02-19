@@ -176,7 +176,7 @@ function toKebabCase(str: string): string
 /*******************************************************************************
  ** Density spacing multipliers for compact/normal/comfortable modes.
  *******************************************************************************/
-const DENSITY_SPACING: Record<string, { base: number; small: string; medium: string; large: string }> = {
+export const DENSITY_SPACING: Record<string, { base: number; small: string; medium: string; large: string }> = {
    compact: {base: 6, small: "0.25rem", medium: "0.5rem", large: "0.75rem"},
    normal: {base: 8, small: "0.5rem", medium: "1rem", large: "1.5rem"},
    comfortable: {base: 10, small: "0.75rem", medium: "1.25rem", large: "2rem"},
@@ -185,14 +185,41 @@ const DENSITY_SPACING: Record<string, { base: number; small: string; medium: str
 /*******************************************************************************
  ** Convert a hex color to RGB components.
  *******************************************************************************/
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null
+export function hexToRgb(hex: string): { r: number; g: number; b: number } | null
 {
-   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-   return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-   } : null;
+   const normalized = hex.trim().replace(/^#/, "");
+   if (!/^[a-f\d]+$/i.test(normalized))
+   {
+      return null;
+   }
+
+   let rHex: string;
+   let gHex: string;
+   let bHex: string;
+
+   if (normalized.length === 3)
+   {
+      rHex = normalized[0] + normalized[0];
+      gHex = normalized[1] + normalized[1];
+      bHex = normalized[2] + normalized[2];
+   }
+   else if (normalized.length === 6 || normalized.length === 8)
+   {
+      // For 8-digit hex (#RRGGBBAA), ignore alpha and use RGB only.
+      rHex = normalized.slice(0, 2);
+      gHex = normalized.slice(2, 4);
+      bHex = normalized.slice(4, 6);
+   }
+   else
+   {
+      return null;
+   }
+
+   return {
+      r: parseInt(rHex, 16),
+      g: parseInt(gHex, 16),
+      b: parseInt(bHex, 16),
+   };
 }
 
 /*******************************************************************************
@@ -230,6 +257,9 @@ function darkenColor(hex: string, percent: number): string
 /*******************************************************************************
  ** Inject theme values as CSS custom properties on the :root element.
  ** Merges provided theme with defaults - only defined values override.
+ *
+ * Note:  this function isn't being used in the initial app-defined-theme
+ * rollout - see injectIslandVariables which is used instead at this time.
  *******************************************************************************/
 export function injectThemeVariables(theme?: MaterialDashboardThemeMetaData): void
 {
@@ -479,40 +509,9 @@ export function injectThemeVariables(theme?: MaterialDashboardThemeMetaData): vo
 }
 
 /*******************************************************************************
- ** Map icon style name to MUI Icon baseClassName.
- *******************************************************************************/
-const ICON_STYLE_TO_CLASS: Record<string, string> = {
-   filled: "material-icons",
-   outlined: "material-icons-outlined",
-   rounded: "material-icons-round",
-   sharp: "material-icons-sharp",
-   "two-tone": "material-icons-two-tone",
-};
-
-/*******************************************************************************
- ** Get the MUI Icon baseClassName for the current theme's iconStyle.
- *******************************************************************************/
-export function getIconBaseClassName(): string
-{
-   const iconStyle = getComputedStyle(document.documentElement)
-      .getPropertyValue("--qqq-icon-style").trim() || "filled";
-   return ICON_STYLE_TO_CLASS[iconStyle] || ICON_STYLE_TO_CLASS.filled;
-}
-
-/*******************************************************************************
- ** Retrieve a CSS variable value with an optional fallback.
- *******************************************************************************/
-export function getThemeVariable(name: string, fallback?: string): string
-{
-   const cssVarName = name.startsWith(CSS_VAR_PREFIX) ? name : `${CSS_VAR_PREFIX}${toKebabCase(name)}`;
-   const value = getComputedStyle(document.documentElement).getPropertyValue(cssVarName).trim();
-   return value || fallback || "";
-}
-
-/*******************************************************************************
  ** Inject custom CSS into the document head.
  *******************************************************************************/
-function injectCustomCss(css: string): void
+export function injectCustomCss(css: string): void
 {
    const existingStyle = document.getElementById("qqq-custom-theme-css");
    if (existingStyle)
@@ -542,7 +541,7 @@ const DEFAULT_FONT_URL = "https://fonts.googleapis.com/css?family=Roboto:300,400
  ** Inject icon font stylesheets dynamically based on theme configuration.
  ** This replaces the hardcoded CDN links in index.html with dynamic injection.
  *******************************************************************************/
-function injectIconFonts(iconStyle?: string): void
+export function injectIconFonts(iconStyle?: string): void
 {
    const iconFontLinkId = "qqq-icon-font";
    const fontLinkId = "qqq-font";

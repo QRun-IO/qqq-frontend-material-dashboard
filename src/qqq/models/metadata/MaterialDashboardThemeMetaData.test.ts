@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {expect} from "@playwright/test";
+import {describe, it, expect} from "@jest/globals";
 import {MaterialDashboardThemeMetaData} from "./MaterialDashboardThemeMetaData";
 
 describe("MaterialDashboardThemeMetaData", () =>

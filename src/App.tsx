@@ -68,6 +68,7 @@ import {Md5} from "ts-md5/dist/md5";
 
 const qController = Client.getInstance();
 export const SESSION_UUID_COOKIE_NAME = "sessionUUID";
+const MATERIAL_DASHBOARD_THEME_META_DATA_NAME = "com.kingsrook.qqq.frontend.materialdashboard.model.metadata.MaterialDashboardThemeMetaData";
 
 interface Props
 {
@@ -502,7 +503,7 @@ export default function App({authenticationMetaData}: Props)
             ////////////////////////////////////////////
             // Set theme metadata for dynamic theming //
             ////////////////////////////////////////////
-            const themeMetaDataObject = metaData.supplementalInstanceMetaData?.get("com.kingsrook.qqq.frontend.materialdashboard.model.metadata.MaterialDashboardThemeMetaData");
+            const themeMetaDataObject = metaData.supplementalInstanceMetaData?.get(MATERIAL_DASHBOARD_THEME_META_DATA_NAME);
             if (themeMetaDataObject)
             {
                setThemeMetaData(new MaterialDashboardThemeMetaData(themeMetaDataObject));

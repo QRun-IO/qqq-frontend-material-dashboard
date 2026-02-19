@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import {colorsMatch} from "../utils/color-helpers";
 
 /**
  * STRICT Theme Verification Tests for QQQ MaterialDashboardThemeMetaData
@@ -58,78 +59,6 @@ const THEME = {
    dividerColor: '#CFD8DC',
    borderColor: '#B0BEC5',
 };
-
-// Helper to convert hex to RGB
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-   return result
-      ? {
-         r: parseInt(result[1], 16),
-         g: parseInt(result[2], 16),
-         b: parseInt(result[3], 16),
-      }
-      : { r: 0, g: 0, b: 0 };
-}
-
-// Helper to parse rgb/rgba string
-function parseRgb(rgbString: string): { r: number; g: number; b: number; a?: number } | null {
-   // Handle rgb(r, g, b) and rgba(r, g, b, a)
-   const rgbMatch = rgbString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-   if (rgbMatch) {
-      return {
-         r: parseInt(rgbMatch[1]),
-         g: parseInt(rgbMatch[2]),
-         b: parseInt(rgbMatch[3]),
-         a: rgbMatch[4] ? parseFloat(rgbMatch[4]) : undefined
-      };
-   }
-   return null;
-}
-
-// Helper to parse rgba from expected value (could be hex or rgba string)
-function parseExpectedColor(color: string): { r: number; g: number; b: number; a?: number } | null {
-   // If it's already rgba format
-   if (color.startsWith('rgba')) {
-      return parseRgb(color);
-   }
-   // If it's hex
-   if (color.startsWith('#')) {
-      const rgb = hexToRgb(color);
-      return { ...rgb, a: undefined };
-   }
-   return null;
-}
-
-// Helper to check if colors match (with tolerance)
-function colorsMatch(actual: string, expected: string, tolerance = 2): boolean {
-   // Handle hex-to-hex comparison (case insensitive)
-   if (actual.startsWith('#') && expected.startsWith('#')) {
-      return actual.toLowerCase() === expected.toLowerCase();
-   }
-
-   // Parse actual color (could be rgb, rgba, or hex)
-   let actualRgb = parseRgb(actual);
-   if (!actualRgb && actual.startsWith('#')) {
-      const hex = hexToRgb(actual);
-      actualRgb = { ...hex, a: undefined };
-   }
-
-   const expectedRgb = parseExpectedColor(expected);
-   if (!actualRgb || !expectedRgb) return false;
-
-   const rgbMatch = (
-      Math.abs(actualRgb.r - expectedRgb.r) <= tolerance &&
-      Math.abs(actualRgb.g - expectedRgb.g) <= tolerance &&
-      Math.abs(actualRgb.b - expectedRgb.b) <= tolerance
-   );
-
-   // If both have alpha, compare alpha too
-   if (actualRgb.a !== undefined && expectedRgb.a !== undefined) {
-      return rgbMatch && Math.abs(actualRgb.a - expectedRgb.a) <= 0.05;
-   }
-
-   return rgbMatch;
-}
 
 // Helper to format assertion message
 function colorMismatch(property: string, expected: string, actual: string): string {

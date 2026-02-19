@@ -320,7 +320,7 @@ public class MaterialDashboardThemeMetaData implements QSupplementalInstanceMeta
    {
       if(value != null && !HEX_COLOR_PATTERN.matcher(value).matches())
       {
-         LOG.warn("Invalid theme color value, expected hex format (#RGB, #RRGGBB, or #RRGGBBAA)", logPair("field", fieldName), logPair("value", value));
+         LOG.warn("Unexpected theme color value - a hex format is preferred (#RGB, #RRGGBB, or #RRGGBBAA)", logPair("field", fieldName), logPair("value", value));
       }
    }
 

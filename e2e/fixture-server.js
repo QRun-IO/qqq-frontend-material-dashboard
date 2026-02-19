@@ -123,7 +123,7 @@ const server = http.createServer((req, res) => {
    }
 
    // /processes/{processName}/init - process init
-   const processInitMatch = pathname.match(/^\/processes\/(\w+)\/init$/);
+   const processInitMatch = pathname.match(/^\/processes\/([\w.\-]+)\/init$/);
    if (processInitMatch) {
       const processName = processInitMatch[1];
       const data = loadFixture(`processes/${processName}/init.json`);

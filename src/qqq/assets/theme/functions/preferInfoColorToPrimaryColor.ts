@@ -61,7 +61,7 @@
  * and set that css var to 0.
  ***************************************************************************/
 function preferInfoColorToPrimaryColor(): boolean {
-   return getComputedStyle(document.body).getPropertyValue('--qqq-prefer-info-color-to-primary-color') == "1";
+   return getComputedStyle(document.body).getPropertyValue('--qqq-prefer-info-color-to-primary-color').trim() === "1";
 }
 
 /***************************************************************************

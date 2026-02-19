@@ -83,16 +83,7 @@ import linearGradient from "qqq/assets/theme/functions/linearGradient";
 import pxToRem from "qqq/assets/theme/functions/pxToRem";
 import rgba from "qqq/assets/theme/functions/rgba";
 import {MaterialDashboardThemeMetaData} from "qqq/models/metadata/MaterialDashboardThemeMetaData";
-import {DEFAULT_THEME} from "./themeUtils";
-
-/*******************************************************************************
- ** Density spacing multipliers for compact/normal/comfortable modes.
- *******************************************************************************/
-const DENSITY_SPACING: Record<string, number> = {
-   compact: 6,
-   normal: 8,
-   comfortable: 10,
-};
+import {DEFAULT_THEME, DENSITY_SPACING} from "./themeUtils";
 
 /*******************************************************************************
  ** Original border-radius defaults per component, matching the values from
@@ -176,11 +167,11 @@ function mergeWithDefaults(theme?: MaterialDashboardThemeMetaData): MaterialDash
  *******************************************************************************/
 function buildPalette(theme: MaterialDashboardThemeMetaData): ThemeOptions["palette"]
 {
-   /////////////////////////////////////////////////////////////////////////////
-   // Start with all existing colors from the base colors file               //
-   // Then override with dynamic theme values where provided                  //
-   /////////////////////////////////////////////////////////////////////////////
-   const primaryColor = theme.primaryColor || colors.info.main;
+   //////////////////////////////////////////////////////////////
+   // Start with all existing colors from the base colors file //
+   // Then override with dynamic theme values where provided   //
+   //////////////////////////////////////////////////////////////
+   const primaryColor = theme.primaryColor || colors.primary.main;
    const secondaryColor = theme.secondaryColor || colors.secondary.main;
    const errorColor = theme.errorColor || colors.error.main;
    const warningColor = theme.warningColor || colors.warning.main;
@@ -405,7 +396,7 @@ function buildComponents(theme: MaterialDashboardThemeMetaData, hasExplicitTheme
    const borderRadiusTooltip = resolveBorderRadius("tooltip", parseBorderRadius(theme.borderRadiusTooltip));
 
    const density = theme.density || "normal";
-   const spacingUnit = DENSITY_SPACING[density] || 8;
+   const spacingUnit = DENSITY_SPACING[density].base || 8;
 
    const primaryColor = theme.primaryColor || "#0062FF";
    const textPrimary = theme.textPrimary || "#212121";
@@ -755,7 +746,7 @@ export function createDynamicTheme(themeMetaData?: MaterialDashboardThemeMetaDat
    const hasExplicitTheme = themeMetaData != null;
 
    const density = mergedTheme.density || "normal";
-   const spacingUnit = DENSITY_SPACING[density] || 8;
+   const spacingUnit = DENSITY_SPACING[density].base || 8;
 
    const themeOptions: ThemeOptions = {
       breakpoints: {...breakpoints},
@@ -785,11 +776,3 @@ export function createDynamicTheme(themeMetaData?: MaterialDashboardThemeMetaDat
    return createTheme(themeOptions);
 }
 
-/*******************************************************************************
- ** Export the merged theme data for use by island CSS variable injection.
- ** This allows components like sidebar and branded header to access theme values.
- *******************************************************************************/
-export function getMergedTheme(themeMetaData?: MaterialDashboardThemeMetaData): MaterialDashboardThemeMetaData
-{
-   return mergeWithDefaults(themeMetaData);
-}

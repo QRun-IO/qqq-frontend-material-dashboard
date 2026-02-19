@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import {colorsMatch, hexToRgb, isTransparentOrNearlyTransparent, parseRgb} from "../utils/color-helpers";
 
 /**
  * STRICT Visual Regression Tests for UNTHEMED Apps (Issue #128)
@@ -53,71 +54,6 @@ const DEFAULT_THEME = {
    fontFamily: '"SF Pro Display", "Roboto", "Helvetica", "Arial", sans-serif',
 };
 
-// Helper to convert hex to RGB
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-   return result
-      ? {
-         r: parseInt(result[1], 16),
-         g: parseInt(result[2], 16),
-         b: parseInt(result[3], 16),
-      }
-      : { r: 0, g: 0, b: 0 };
-}
-
-// Helper to parse rgb/rgba string
-function parseRgb(rgbString: string): { r: number; g: number; b: number; a?: number } | null {
-   const rgbMatch = rgbString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-   if (rgbMatch) {
-      return {
-         r: parseInt(rgbMatch[1]),
-         g: parseInt(rgbMatch[2]),
-         b: parseInt(rgbMatch[3]),
-         a: rgbMatch[4] ? parseFloat(rgbMatch[4]) : undefined
-      };
-   }
-   return null;
-}
-
-// Helper to check if colors match (with tolerance)
-function colorsMatch(actual: string, expected: string, tolerance = 5): boolean {
-   if (actual.startsWith('#') && expected.startsWith('#')) {
-      return actual.toLowerCase() === expected.toLowerCase();
-   }
-
-   let actualRgb = parseRgb(actual);
-   if (!actualRgb && actual.startsWith('#')) {
-      const hex = hexToRgb(actual);
-      actualRgb = { ...hex, a: undefined };
-   }
-
-   let expectedRgb = parseRgb(expected);
-   if (!expectedRgb && expected.startsWith('#')) {
-      const hex = hexToRgb(expected);
-      expectedRgb = { ...hex, a: undefined };
-   }
-
-   if (!actualRgb || !expectedRgb) return false;
-
-   return (
-      Math.abs(actualRgb.r - expectedRgb.r) <= tolerance &&
-      Math.abs(actualRgb.g - expectedRgb.g) <= tolerance &&
-      Math.abs(actualRgb.b - expectedRgb.b) <= tolerance
-   );
-}
-
-// Helper to check if color is transparent or nearly transparent
-function isTransparentOrNearlyTransparent(color: string): boolean {
-   if (color === 'transparent' || color === 'rgba(0, 0, 0, 0)') {
-      return true;
-   }
-   const rgb = parseRgb(color);
-   if (rgb && rgb.a !== undefined && rgb.a < 0.1) {
-      return true;
-   }
-   return false;
-}
-
 // Helper to check if color is NOT white (surfaceColor)
 function isNotWhite(color: string): boolean {
    // Check if transparent
@@ -129,6 +65,9 @@ function isNotWhite(color: string): boolean {
    if (!actualRgb) {
       if (color.startsWith('#')) {
          const hex = hexToRgb(color);
+         if (!hex) {
+            return true;
+         }
          return !(hex.r > 250 && hex.g > 250 && hex.b > 250);
       }
       return true;
@@ -233,7 +172,7 @@ test.describe('Unthemed App - Sidebar Colors', () => {
       });
       expect(result.found, `Sidebar text not found: ${result.debug}`).toBe(true);
       expect(
-         colorsMatch(result.value, DEFAULT_THEME.sidebarTextColor),
+         colorsMatch(result.value, DEFAULT_THEME.sidebarTextColor, 5),
          `Sidebar text color: expected ${DEFAULT_THEME.sidebarTextColor}, got ${result.value}`
       ).toBe(true);
    });
@@ -246,7 +185,7 @@ test.describe('Unthemed App - Sidebar Colors', () => {
       });
       expect(result.found, `Sidebar icon not found: ${result.debug}`).toBe(true);
       expect(
-         colorsMatch(result.value, DEFAULT_THEME.sidebarIconColor),
+         colorsMatch(result.value, DEFAULT_THEME.sidebarIconColor, 5),
          `Sidebar icon color: expected ${DEFAULT_THEME.sidebarIconColor}, got ${result.value}`
       ).toBe(true);
    });
@@ -339,7 +278,7 @@ test.describe('Unthemed App - Cards Use Surface Color', () => {
       });
       expect(result.found, `Card not found: ${result.debug}`).toBe(true);
       expect(
-         colorsMatch(result.value, DEFAULT_THEME.surfaceColor),
+         colorsMatch(result.value, DEFAULT_THEME.surfaceColor, 5),
          `Card background: expected ${DEFAULT_THEME.surfaceColor}, got ${result.value}`
       ).toBe(true);
    });
