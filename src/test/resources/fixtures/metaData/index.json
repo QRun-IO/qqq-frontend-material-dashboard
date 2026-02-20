@@ -1,848 +1,859 @@
 {
-   "tables": {
-      "carrier": {
-         "name": "carrier",
-         "label": "Carrier",
-         "isHidden": false,
-         "iconName": "local_shipping",
-         "deletePermission": true,
-         "editPermission": true,
-         "insertPermission": true,
-         "readPermission": true,
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "TABLE_UPDATE",
-            "TABLE_INSERT",
-            "TABLE_DELETE"
-         ]
+  "tables": {
+    "carrier": {
+      "name": "carrier",
+      "label": "Carrier",
+      "isHidden": false,
+      "iconName": "local_shipping",
+      "deletePermission": true,
+      "editPermission": true,
+      "insertPermission": true,
+      "readPermission": true,
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "TABLE_UPDATE",
+        "TABLE_INSERT",
+        "TABLE_DELETE"
+      ]
+    },
+    "person": {
+      "name": "person",
+      "label": "Person",
+      "isHidden": false,
+      "iconName": "person",
+      "deletePermission": true,
+      "editPermission": true,
+      "insertPermission": true,
+      "readPermission": true,
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "TABLE_UPDATE",
+        "TABLE_INSERT",
+        "TABLE_DELETE"
+      ]
+    },
+    "city": {
+      "name": "city",
+      "label": "Cities",
+      "isHidden": true,
+      "iconName": "location_city",
+      "deletePermission": true,
+      "editPermission": true,
+      "insertPermission": true,
+      "readPermission": true,
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "TABLE_UPDATE",
+        "TABLE_INSERT",
+        "TABLE_DELETE"
+      ]
+    },
+    "audit": {
+      "name": "audit",
+      "label": "Audits",
+      "isHidden": true,
+      "iconName": "location_city",
+      "deletePermission": false,
+      "editPermission": false,
+      "insertPermission": false,
+      "readPermission": true,
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY"
+      ]
+    },
+    "script": {
+      "name": "script",
+      "label": "Script",
+      "isHidden": false,
+      "iconName": "data_object",
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "TABLE_INSERT",
+        "TABLE_DELETE",
+        "TABLE_UPDATE"
+      ],
+      "readPermission": true,
+      "insertPermission": true,
+      "editPermission": true,
+      "deletePermission": true
+    },
+    "scriptLog": {
+      "name": "scriptLog",
+      "label": "Script Log",
+      "isHidden": false,
+      "iconName": "receipt_long",
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "TABLE_INSERT",
+        "TABLE_DELETE",
+        "TABLE_UPDATE"
+      ],
+      "readPermission": true,
+      "insertPermission": true,
+      "editPermission": true,
+      "deletePermission": true
+    },
+    "scriptType": {
+      "name": "scriptType",
+      "label": "Script Type",
+      "isHidden": false,
+      "iconName": "tune",
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "TABLE_INSERT",
+        "TABLE_DELETE",
+        "TABLE_UPDATE"
+      ],
+      "readPermission": true,
+      "insertPermission": true,
+      "editPermission": true,
+      "deletePermission": true
+    },
+    "scriptRevision": {
+      "name": "scriptRevision",
+      "label": "Script Revision",
+      "isHidden": false,
+      "iconName": "history_edu",
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "TABLE_UPDATE"
+      ],
+      "readPermission": true,
+      "insertPermission": true,
+      "editPermission": true,
+      "deletePermission": true
+    },
+    "scriptLogLine": {
+      "name": "scriptLogLine",
+      "label": "Script Log Line",
+      "isHidden": false,
+      "iconName": "reorder",
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "TABLE_INSERT",
+        "TABLE_DELETE",
+        "TABLE_UPDATE"
+      ],
+      "readPermission": true,
+      "insertPermission": true,
+      "editPermission": true,
+      "deletePermission": true
+    },
+    "dataBag": {
+      "name": "dataBag",
+      "label": "Data Bag",
+      "isHidden": false,
+      "iconName": "local_mall",
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "TABLE_INSERT",
+        "TABLE_DELETE",
+        "TABLE_UPDATE"
+      ],
+      "readPermission": true,
+      "insertPermission": true,
+      "editPermission": true,
+      "deletePermission": true
+    },
+    "dataBagVersion": {
+      "name": "dataBagVersion",
+      "label": "Data Bag Version",
+      "isHidden": false,
+      "iconName": "work_history",
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY"
+      ],
+      "readPermission": true,
+      "insertPermission": true,
+      "editPermission": true,
+      "deletePermission": true
+    },
+    "savedReport": {
+      "name": "savedReport",
+      "label": "Saved Report",
+      "isHidden": false,
+      "iconName": "article",
+      "capabilities": [
+        "TABLE_COUNT",
+        "TABLE_GET",
+        "TABLE_QUERY",
+        "QUERY_STATS",
+        "TABLE_UPDATE",
+        "TABLE_INSERT",
+        "TABLE_DELETE"
+      ],
+      "readPermission": true,
+      "insertPermission": true,
+      "editPermission": true,
+      "deletePermission": true,
+      "usesVariants": false
+    }
+  },
+  "processes": {
+    "greet": {
+      "name": "greet",
+      "label": "Greet People",
+      "tableName": "person",
+      "isHidden": true,
+      "iconName": "emoji_people",
+      "hasPermission": true
+    },
+    "greetInteractive": {
+      "name": "greetInteractive",
+      "label": "Greet Interactive",
+      "tableName": "person",
+      "isHidden": false,
+      "iconName": "waving_hand",
+      "hasPermission": true
+    },
+    "clonePeople": {
+      "name": "clonePeople",
+      "label": "Clone People",
+      "tableName": "person",
+      "isHidden": false,
+      "iconName": "content_copy",
+      "hasPermission": true
+    },
+    "simpleSleep": {
+      "name": "simpleSleep",
+      "label": "Simple Sleep",
+      "isHidden": true,
+      "hasPermission": true
+    },
+    "sleepInteractive": {
+      "name": "sleepInteractive",
+      "label": "Sleep Interactive",
+      "isHidden": false,
+      "hasPermission": true
+    },
+    "querySavedView": {
+      "name": "querySavedView",
+      "label": "Query Saved View",
+      "isHidden": false,
+      "hasPermission": true
+    },
+    "storeSavedView": {
+      "name": "storeSavedView",
+      "label": "Store Saved View",
+      "isHidden": false,
+      "hasPermission": true
+    },
+    "deleteSavedView": {
+      "name": "deleteSavedView",
+      "label": "Delete Saved View",
+      "isHidden": false,
+      "hasPermission": true
+    },
+    "carrier.bulkInsert": {
+      "name": "carrier.bulkInsert",
+      "label": "Carrier Bulk Insert",
+      "tableName": "carrier",
+      "isHidden": true
+    },
+    "carrier.bulkEdit": {
+      "name": "carrier.bulkEdit",
+      "label": "Carrier Bulk Edit",
+      "tableName": "carrier",
+      "isHidden": true
+    },
+    "carrier.bulkDelete": {
+      "name": "carrier.bulkDelete",
+      "label": "Carrier Bulk Delete",
+      "tableName": "carrier",
+      "isHidden": true
+    },
+    "person.bulkInsert": {
+      "name": "person.bulkInsert",
+      "label": "Person Bulk Insert",
+      "tableName": "person",
+      "isHidden": true
+    },
+    "person.bulkEdit": {
+      "name": "person.bulkEdit",
+      "label": "Person Bulk Edit",
+      "tableName": "person",
+      "isHidden": true
+    },
+    "person.bulkDelete": {
+      "name": "person.bulkDelete",
+      "label": "Person Bulk Delete",
+      "tableName": "person",
+      "isHidden": true
+    },
+    "city.bulkInsert": {
+      "name": "city.bulkInsert",
+      "label": "Cities Bulk Insert",
+      "tableName": "city",
+      "isHidden": true
+    },
+    "city.bulkEdit": {
+      "name": "city.bulkEdit",
+      "label": "Cities Bulk Edit",
+      "tableName": "city",
+      "isHidden": true
+    },
+    "city.bulkDelete": {
+      "name": "city.bulkDelete",
+      "label": "Cities Bulk Delete",
+      "tableName": "city",
+      "isHidden": true
+    },
+    "simpleThrow": {
+      "name": "simpleThrow",
+      "label": "Simple Throw",
+      "isHidden": true,
+      "hasPermission": true
+    }
+  },
+  "apps": {
+    "greetingsApp": {
+      "name": "greetingsApp",
+      "label": "Greetings App",
+      "iconName": "emoji_people",
+      "widgets": [
+        "SampleTableWidget"
+      ],
+      "children": [
+        {
+          "type": "PROCESS",
+          "name": "greet",
+          "label": "Greet People",
+          "iconName": "emoji_people"
+        },
+        {
+          "type": "TABLE",
+          "name": "person",
+          "label": "Person",
+          "iconName": "person"
+        },
+        {
+          "type": "TABLE",
+          "name": "city",
+          "label": "Cities",
+          "iconName": "location_city"
+        },
+        {
+          "type": "PROCESS",
+          "name": "greetInteractive",
+          "label": "Greet Interactive",
+          "iconName": "waving_hand"
+        }
+      ],
+      "childMap": {
+        "greetInteractive": {
+          "type": "PROCESS",
+          "name": "greetInteractive",
+          "label": "Greet Interactive",
+          "iconName": "waving_hand"
+        },
+        "city": {
+          "type": "TABLE",
+          "name": "city",
+          "label": "Cities",
+          "iconName": "location_city"
+        },
+        "person": {
+          "type": "TABLE",
+          "name": "person",
+          "label": "Person",
+          "iconName": "person"
+        },
+        "greet": {
+          "type": "PROCESS",
+          "name": "greet",
+          "label": "Greet People",
+          "iconName": "emoji_people"
+        }
       },
-      "person": {
-         "name": "person",
-         "label": "Person",
-         "isHidden": false,
-         "iconName": "person",
-         "deletePermission": true,
-         "editPermission": true,
-         "insertPermission": true,
-         "readPermission": true,
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "TABLE_UPDATE",
-            "TABLE_INSERT",
-            "TABLE_DELETE"
-         ]
+      "sections": [
+        {
+          "name": "greetingsApp",
+          "label": "Greetings App",
+          "icon": {
+            "name": "badge"
+          },
+          "tables": [
+            "person",
+            "city"
+          ],
+          "processes": [
+            "greet",
+            "greetInteractive"
+          ]
+        }
+      ]
+    },
+    "peopleApp": {
+      "name": "peopleApp",
+      "label": "People App",
+      "iconName": "person",
+      "widgets": [],
+      "children": [
+        {
+          "type": "APP",
+          "name": "greetingsApp",
+          "label": "Greetings App",
+          "iconName": "emoji_people"
+        },
+        {
+          "type": "PROCESS",
+          "name": "clonePeople",
+          "label": "Clone People",
+          "iconName": "content_copy"
+        }
+      ],
+      "childMap": {
+        "greetingsApp": {
+          "type": "APP",
+          "name": "greetingsApp",
+          "label": "Greetings App",
+          "iconName": "emoji_people"
+        },
+        "clonePeople": {
+          "type": "PROCESS",
+          "name": "clonePeople",
+          "label": "Clone People",
+          "iconName": "content_copy"
+        }
       },
-      "city": {
-         "name": "city",
-         "label": "Cities",
-         "isHidden": true,
-         "iconName": "location_city",
-         "deletePermission": true,
-         "editPermission": true,
-         "insertPermission": true,
-         "readPermission": true,
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "TABLE_UPDATE",
-            "TABLE_INSERT",
-            "TABLE_DELETE"
-         ]
+      "sections": [
+        {
+          "name": "peopleApp",
+          "label": "People App",
+          "icon": {
+            "name": "badge"
+          },
+          "processes": [
+            "clonePeople"
+          ]
+        }
+      ]
+    },
+    "userCustomizations": {
+      "name": "userCustomizations",
+      "label": "User Customizations",
+      "iconName": "article",
+      "widgets": [],
+      "children": [
+        {
+          "type": "TABLE",
+          "name": "savedReport",
+          "label": "Saved Report",
+          "iconName": "article"
+        }
+      ],
+      "childMap": {
+        "savedReport": {
+          "type": "TABLE",
+          "name": "savedReport",
+          "label": "Saved Report",
+          "iconName": "article"
+        }
       },
-      "audit": {
-         "name": "audit",
-         "label": "Audits",
-         "isHidden": true,
-         "iconName": "location_city",
-         "deletePermission": false,
-         "editPermission": false,
-         "insertPermission": false,
-         "readPermission": true,
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY"
-         ]
+      "sections": [
+        {
+          "name": "userCustomizations",
+          "label": "User Customizations",
+          "icon": {
+            "name": "badge"
+          },
+          "tables": [
+            "savedReport"
+          ]
+        }
+      ]
+    },
+    "miscellaneous": {
+      "name": "miscellaneous",
+      "label": "Miscellaneous",
+      "iconName": "stars",
+      "widgets": [],
+      "children": [
+        {
+          "type": "TABLE",
+          "name": "carrier",
+          "label": "Carrier",
+          "iconName": "local_shipping"
+        },
+        {
+          "type": "PROCESS",
+          "name": "simpleSleep",
+          "label": "Simple Sleep"
+        },
+        {
+          "type": "PROCESS",
+          "name": "sleepInteractive",
+          "label": "Sleep Interactive"
+        },
+        {
+          "type": "PROCESS",
+          "name": "simpleThrow",
+          "label": "Simple Throw"
+        }
+      ],
+      "childMap": {
+        "carrier": {
+          "type": "TABLE",
+          "name": "carrier",
+          "label": "Carrier",
+          "iconName": "local_shipping"
+        },
+        "simpleSleep": {
+          "type": "PROCESS",
+          "name": "simpleSleep",
+          "label": "Simple Sleep"
+        },
+        "simpleThrow": {
+          "type": "PROCESS",
+          "name": "simpleThrow",
+          "label": "Simple Throw"
+        },
+        "sleepInteractive": {
+          "type": "PROCESS",
+          "name": "sleepInteractive",
+          "label": "Sleep Interactive"
+        }
       },
-      "script": {
-         "name": "script",
-         "label": "Script",
-         "isHidden": false,
-         "iconName": "data_object",
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "TABLE_INSERT",
-            "TABLE_DELETE",
-            "TABLE_UPDATE"
-         ],
-         "readPermission": true,
-         "insertPermission": true,
-         "editPermission": true,
-         "deletePermission": true
+      "sections": [
+        {
+          "name": "miscellaneous",
+          "label": "Miscellaneous",
+          "icon": {
+            "name": "badge"
+          },
+          "tables": [
+            "carrier"
+          ],
+          "processes": [
+            "simpleSleep",
+            "sleepInteractive",
+            "simpleThrow"
+          ]
+        }
+      ]
+    },
+    "developer": {
+      "name": "developer",
+      "label": "Developer",
+      "iconName": "data_object",
+      "widgets": [],
+      "children": [
+        {
+          "type": "TABLE",
+          "name": "scriptType",
+          "label": "Script Type",
+          "iconName": "tune"
+        },
+        {
+          "type": "TABLE",
+          "name": "script",
+          "label": "Script",
+          "iconName": "data_object"
+        },
+        {
+          "type": "TABLE",
+          "name": "scriptRevision",
+          "label": "Script Revision",
+          "iconName": "history_edu"
+        },
+        {
+          "type": "TABLE",
+          "name": "scriptLog",
+          "label": "Script Log",
+          "iconName": "receipt_long"
+        },
+        {
+          "type": "TABLE",
+          "name": "scriptLogLine",
+          "label": "Script Log Line",
+          "iconName": "reorder"
+        },
+        {
+          "type": "TABLE",
+          "name": "dataBag",
+          "label": "Data Bag",
+          "iconName": "local_mall"
+        },
+        {
+          "type": "TABLE",
+          "name": "dataBagVersion",
+          "label": "Data Bag Version",
+          "iconName": "work_history"
+        }
+      ],
+      "childMap": {
+        "scriptType": {
+          "type": "TABLE",
+          "name": "scriptType",
+          "label": "Script Type",
+          "iconName": "tune"
+        },
+        "dataBagVersion": {
+          "type": "TABLE",
+          "name": "dataBagVersion",
+          "label": "Data Bag Version",
+          "iconName": "work_history"
+        },
+        "dataBag": {
+          "type": "TABLE",
+          "name": "dataBag",
+          "label": "Data Bag",
+          "iconName": "local_mall"
+        },
+        "scriptLog": {
+          "type": "TABLE",
+          "name": "scriptLog",
+          "label": "Script Log",
+          "iconName": "receipt_long"
+        },
+        "scriptLogLine": {
+          "type": "TABLE",
+          "name": "scriptLogLine",
+          "label": "Script Log Line",
+          "iconName": "reorder"
+        },
+        "script": {
+          "type": "TABLE",
+          "name": "script",
+          "label": "Script",
+          "iconName": "data_object"
+        },
+        "scriptRevision": {
+          "type": "TABLE",
+          "name": "scriptRevision",
+          "label": "Script Revision",
+          "iconName": "history_edu"
+        }
       },
-      "scriptLog": {
-         "name": "scriptLog",
-         "label": "Script Log",
-         "isHidden": false,
-         "iconName": "receipt_long",
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "TABLE_INSERT",
-            "TABLE_DELETE",
-            "TABLE_UPDATE"
-         ],
-         "readPermission": true,
-         "insertPermission": true,
-         "editPermission": true,
-         "deletePermission": true
-      },
-      "scriptType": {
-         "name": "scriptType",
-         "label": "Script Type",
-         "isHidden": false,
-         "iconName": "tune",
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "TABLE_INSERT",
-            "TABLE_DELETE",
-            "TABLE_UPDATE"
-         ],
-         "readPermission": true,
-         "insertPermission": true,
-         "editPermission": true,
-         "deletePermission": true
-      },
-      "scriptRevision": {
-         "name": "scriptRevision",
-         "label": "Script Revision",
-         "isHidden": false,
-         "iconName": "history_edu",
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "TABLE_UPDATE"
-         ],
-         "readPermission": true,
-         "insertPermission": true,
-         "editPermission": true,
-         "deletePermission": true
-      },
-      "scriptLogLine": {
-         "name": "scriptLogLine",
-         "label": "Script Log Line",
-         "isHidden": false,
-         "iconName": "reorder",
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "TABLE_INSERT",
-            "TABLE_DELETE",
-            "TABLE_UPDATE"
-         ],
-         "readPermission": true,
-         "insertPermission": true,
-         "editPermission": true,
-         "deletePermission": true
-      },
-      "dataBag": {
-         "name": "dataBag",
-         "label": "Data Bag",
-         "isHidden": false,
-         "iconName": "local_mall",
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "TABLE_INSERT",
-            "TABLE_DELETE",
-            "TABLE_UPDATE"
-         ],
-         "readPermission": true,
-         "insertPermission": true,
-         "editPermission": true,
-         "deletePermission": true
-      },
-      "dataBagVersion": {
-         "name": "dataBagVersion",
-         "label": "Data Bag Version",
-         "isHidden": false,
-         "iconName": "work_history",
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY"
-         ],
-         "readPermission": true,
-         "insertPermission": true,
-         "editPermission": true,
-         "deletePermission": true
-      },
-      "savedReport": {
-         "name": "savedReport",
-         "label": "Saved Report",
-         "isHidden": false,
-         "iconName": "article",
-         "capabilities": [
-            "TABLE_COUNT",
-            "TABLE_GET",
-            "TABLE_QUERY",
-            "QUERY_STATS",
-            "TABLE_UPDATE",
-            "TABLE_INSERT",
-            "TABLE_DELETE"
-         ],
-         "readPermission": true,
-         "insertPermission": true,
-         "editPermission": true,
-         "deletePermission": true,
-         "usesVariants": false
-      }
-   },
-   "processes": {
-      "greet": {
-         "name": "greet",
-         "label": "Greet People",
-         "tableName": "person",
-         "isHidden": true,
-         "iconName": "emoji_people"
-      },
-      "greetInteractive": {
-         "name": "greetInteractive",
-         "label": "Greet Interactive",
-         "tableName": "person",
-         "isHidden": false,
-         "iconName": "waving_hand"
-      },
-      "clonePeople": {
-         "name": "clonePeople",
-         "label": "Clone People",
-         "tableName": "person",
-         "isHidden": false,
-         "iconName": "content_copy"
-      },
-      "simpleSleep": {
-         "name": "simpleSleep",
-         "label": "Simple Sleep",
-         "isHidden": true
-      },
-      "sleepInteractive": {
-         "name": "sleepInteractive",
-         "label": "Sleep Interactive",
-         "isHidden": false
-      },
-      "querySavedView": {
-         "name": "querySavedView",
-         "label": "Query Saved View",
-         "isHidden": false,
-         "hasPermission": true
-      },
-      "storeSavedView": {
-         "name": "storeSavedView",
-         "label": "Store Saved View",
-         "isHidden": false,
-         "hasPermission": true
-      },
-      "deleteSavedView": {
-         "name": "deleteSavedView",
-         "label": "Delete Saved View",
-         "isHidden": false,
-         "hasPermission": true
-      },
-      "carrier.bulkInsert": {
-         "name": "carrier.bulkInsert",
-         "label": "Carrier Bulk Insert",
-         "tableName": "carrier",
-         "isHidden": true
-      },
-      "carrier.bulkEdit": {
-         "name": "carrier.bulkEdit",
-         "label": "Carrier Bulk Edit",
-         "tableName": "carrier",
-         "isHidden": true
-      },
-      "carrier.bulkDelete": {
-         "name": "carrier.bulkDelete",
-         "label": "Carrier Bulk Delete",
-         "tableName": "carrier",
-         "isHidden": true
-      },
-      "person.bulkInsert": {
-         "name": "person.bulkInsert",
-         "label": "Person Bulk Insert",
-         "tableName": "person",
-         "isHidden": true
-      },
-      "person.bulkEdit": {
-         "name": "person.bulkEdit",
-         "label": "Person Bulk Edit",
-         "tableName": "person",
-         "isHidden": true
-      },
-      "person.bulkDelete": {
-         "name": "person.bulkDelete",
-         "label": "Person Bulk Delete",
-         "tableName": "person",
-         "isHidden": true
-      },
-      "city.bulkInsert": {
-         "name": "city.bulkInsert",
-         "label": "Cities Bulk Insert",
-         "tableName": "city",
-         "isHidden": true
-      },
-      "city.bulkEdit": {
-         "name": "city.bulkEdit",
-         "label": "Cities Bulk Edit",
-         "tableName": "city",
-         "isHidden": true
-      },
-      "city.bulkDelete": {
-         "name": "city.bulkDelete",
-         "label": "Cities Bulk Delete",
-         "tableName": "city",
-         "isHidden": true
-      }
-   },
-   "apps": {
-      "greetingsApp": {
-         "name": "greetingsApp",
-         "label": "Greetings App",
-         "iconName": "emoji_people",
-         "widgets": [
-            "SampleTableWidget"
-         ],
-         "children": [
+      "sections": [
+        {
+          "name": "scripts",
+          "label": "Scripts",
+          "tables": [
+            "scriptType",
+            "script",
+            "scriptRevision",
+            "scriptLog",
+            "scriptLogLine"
+          ]
+        },
+        {
+          "name": "dataBags",
+          "label": "Data Bags",
+          "tables": [
+            "dataBag",
+            "dataBagVersion"
+          ]
+        }
+      ]
+    }
+  },
+  "appTree": [
+    {
+      "type": "APP",
+      "name": "peopleApp",
+      "label": "People App",
+      "children": [
+        {
+          "type": "APP",
+          "name": "greetingsApp",
+          "label": "Greetings App",
+          "children": [
             {
-               "type": "PROCESS",
-               "name": "greet",
-               "label": "Greet People",
-               "iconName": "emoji_people"
+              "type": "PROCESS",
+              "name": "greet",
+              "label": "Greet People",
+              "iconName": "emoji_people"
             },
             {
-               "type": "TABLE",
-               "name": "person",
-               "label": "Person",
-               "iconName": "person"
+              "type": "TABLE",
+              "name": "person",
+              "label": "Person",
+              "iconName": "person"
             },
             {
-               "type": "TABLE",
-               "name": "city",
-               "label": "Cities",
-               "iconName": "location_city"
+              "type": "TABLE",
+              "name": "city",
+              "label": "Cities",
+              "iconName": "location_city"
             },
             {
-               "type": "PROCESS",
-               "name": "greetInteractive",
-               "label": "Greet Interactive",
-               "iconName": "waving_hand"
+              "type": "PROCESS",
+              "name": "greetInteractive",
+              "label": "Greet Interactive",
+              "iconName": "waving_hand"
             }
-         ],
-         "childMap": {
-            "greetInteractive": {
-               "type": "PROCESS",
-               "name": "greetInteractive",
-               "label": "Greet Interactive",
-               "iconName": "waving_hand"
-            },
-            "city": {
-               "type": "TABLE",
-               "name": "city",
-               "label": "Cities",
-               "iconName": "location_city"
-            },
-            "person": {
-               "type": "TABLE",
-               "name": "person",
-               "label": "Person",
-               "iconName": "person"
-            },
-            "greet": {
-               "type": "PROCESS",
-               "name": "greet",
-               "label": "Greet People",
-               "iconName": "emoji_people"
-            }
-         },
-         "sections": [
-            {
-               "name": "greetingsApp",
-               "label": "Greetings App",
-               "icon": {
-                  "name": "badge"
-               },
-               "tables": [
-                  "person",
-                  "city"
-               ],
-               "processes": [
-                  "greet",
-                  "greetInteractive"
-               ]
-            }
-         ]
-      },
-      "peopleApp": {
-         "name": "peopleApp",
-         "label": "People App",
-         "iconName": "person",
-         "widgets": [],
-         "children": [
-            {
-               "type": "APP",
-               "name": "greetingsApp",
-               "label": "Greetings App",
-               "iconName": "emoji_people"
-            },
-            {
-               "type": "PROCESS",
-               "name": "clonePeople",
-               "label": "Clone People",
-               "iconName": "content_copy"
-            }
-         ],
-         "childMap": {
-            "greetingsApp": {
-               "type": "APP",
-               "name": "greetingsApp",
-               "label": "Greetings App",
-               "iconName": "emoji_people"
-            },
-            "clonePeople": {
-               "type": "PROCESS",
-               "name": "clonePeople",
-               "label": "Clone People",
-               "iconName": "content_copy"
-            }
-         },
-         "sections": [
-            {
-               "name": "peopleApp",
-               "label": "People App",
-               "icon": {
-                  "name": "badge"
-               },
-               "processes": [
-                  "clonePeople"
-               ]
-            }
-         ]
-      },
-      "userCustomizations": {
-         "name": "userCustomizations",
-         "label": "User Customizations",
-         "iconName": "article",
-         "widgets": [],
-         "children": [
-            {
-               "type": "TABLE",
-               "name": "savedReport",
-               "label": "Saved Report",
-               "iconName": "article"
-            }
-         ],
-         "childMap": {
-            "savedReport": {
-               "type": "TABLE",
-               "name": "savedReport",
-               "label": "Saved Report",
-               "iconName": "article"
-            }
-         },
-         "sections": [
-            {
-               "name": "userCustomizations",
-               "label": "User Customizations",
-               "icon": {
-                  "name": "badge"
-               },
-               "tables": [
-                  "savedReport"
-               ]
-            }
-         ]
-      },
-      "miscellaneous": {
-         "name": "miscellaneous",
-         "label": "Miscellaneous",
-         "iconName": "stars",
-         "widgets": [],
-         "children": [
-            {
-               "type": "TABLE",
-               "name": "carrier",
-               "label": "Carrier",
-               "iconName": "local_shipping"
-            },
-            {
-               "type": "PROCESS",
-               "name": "simpleSleep",
-               "label": "Simple Sleep"
-            },
-            {
-               "type": "PROCESS",
-               "name": "sleepInteractive",
-               "label": "Sleep Interactive"
-            },
-            {
-               "type": "PROCESS",
-               "name": "simpleThrow",
-               "label": "Simple Throw"
-            }
-         ],
-         "childMap": {
-            "carrier": {
-               "type": "TABLE",
-               "name": "carrier",
-               "label": "Carrier",
-               "iconName": "local_shipping"
-            },
-            "simpleSleep": {
-               "type": "PROCESS",
-               "name": "simpleSleep",
-               "label": "Simple Sleep"
-            },
-            "simpleThrow": {
-               "type": "PROCESS",
-               "name": "simpleThrow",
-               "label": "Simple Throw"
-            },
-            "sleepInteractive": {
-               "type": "PROCESS",
-               "name": "sleepInteractive",
-               "label": "Sleep Interactive"
-            }
-         },
-         "sections": [
-            {
-               "name": "miscellaneous",
-               "label": "Miscellaneous",
-               "icon": {
-                  "name": "badge"
-               },
-               "tables": [
-                  "carrier"
-               ],
-               "processes": [
-                  "simpleSleep",
-                  "sleepInteractive",
-                  "simpleThrow"
-               ]
-            }
-         ]
-      },
-      "developer": {
-         "name": "developer",
-         "label": "Developer",
-         "iconName": "data_object",
-         "widgets": [],
-         "children": [
-            {
-               "type": "TABLE",
-               "name": "scriptType",
-               "label": "Script Type",
-               "iconName": "tune"
-            },
-            {
-               "type": "TABLE",
-               "name": "script",
-               "label": "Script",
-               "iconName": "data_object"
-            },
-            {
-               "type": "TABLE",
-               "name": "scriptRevision",
-               "label": "Script Revision",
-               "iconName": "history_edu"
-            },
-            {
-               "type": "TABLE",
-               "name": "scriptLog",
-               "label": "Script Log",
-               "iconName": "receipt_long"
-            },
-            {
-               "type": "TABLE",
-               "name": "scriptLogLine",
-               "label": "Script Log Line",
-               "iconName": "reorder"
-            },
-            {
-               "type": "TABLE",
-               "name": "dataBag",
-               "label": "Data Bag",
-               "iconName": "local_mall"
-            },
-            {
-               "type": "TABLE",
-               "name": "dataBagVersion",
-               "label": "Data Bag Version",
-               "iconName": "work_history"
-            }
-         ],
-         "childMap": {
-            "scriptType": {
-               "type": "TABLE",
-               "name": "scriptType",
-               "label": "Script Type",
-               "iconName": "tune"
-            },
-            "dataBagVersion": {
-               "type": "TABLE",
-               "name": "dataBagVersion",
-               "label": "Data Bag Version",
-               "iconName": "work_history"
-            },
-            "dataBag": {
-               "type": "TABLE",
-               "name": "dataBag",
-               "label": "Data Bag",
-               "iconName": "local_mall"
-            },
-            "scriptLog": {
-               "type": "TABLE",
-               "name": "scriptLog",
-               "label": "Script Log",
-               "iconName": "receipt_long"
-            },
-            "scriptLogLine": {
-               "type": "TABLE",
-               "name": "scriptLogLine",
-               "label": "Script Log Line",
-               "iconName": "reorder"
-            },
-            "script": {
-               "type": "TABLE",
-               "name": "script",
-               "label": "Script",
-               "iconName": "data_object"
-            },
-            "scriptRevision": {
-               "type": "TABLE",
-               "name": "scriptRevision",
-               "label": "Script Revision",
-               "iconName": "history_edu"
-            }
-         },
-         "sections": [
-            {
-               "name": "scripts",
-               "label": "Scripts",
-               "tables": [
-                  "scriptType",
-                  "script",
-                  "scriptRevision",
-                  "scriptLog",
-                  "scriptLogLine"
-               ]
-            },
-            {
-               "name": "dataBags",
-               "label": "Data Bags",
-               "tables": [
-                  "dataBag",
-                  "dataBagVersion"
-               ]
-            }
-         ]
-      }
-   },
-   "appTree": [
-      {
-         "type": "APP",
-         "name": "peopleApp",
-         "label": "People App",
-         "children": [
-            {
-               "type": "APP",
-               "name": "greetingsApp",
-               "label": "Greetings App",
-               "children": [
-                  {
-                     "type": "PROCESS",
-                     "name": "greet",
-                     "label": "Greet People",
-                     "iconName": "emoji_people"
-                  },
-                  {
-                     "type": "TABLE",
-                     "name": "person",
-                     "label": "Person",
-                     "iconName": "person"
-                  },
-                  {
-                     "type": "TABLE",
-                     "name": "city",
-                     "label": "Cities",
-                     "iconName": "location_city"
-                  },
-                  {
-                     "type": "PROCESS",
-                     "name": "greetInteractive",
-                     "label": "Greet Interactive",
-                     "iconName": "waving_hand"
-                  }
-               ],
-               "iconName": "emoji_people"
-            },
-            {
-               "type": "PROCESS",
-               "name": "clonePeople",
-               "label": "Clone People",
-               "iconName": "content_copy"
-            }
-         ],
-         "iconName": "person"
-      },
-      {
-         "type": "APP",
-         "name": "miscellaneous",
-         "label": "Miscellaneous",
-         "children": [
-            {
-               "type": "TABLE",
-               "name": "carrier",
-               "label": "Carrier",
-               "iconName": "local_shipping"
-            },
-            {
-               "type": "PROCESS",
-               "name": "simpleSleep",
-               "label": "Simple Sleep"
-            },
-            {
-               "type": "PROCESS",
-               "name": "sleepInteractive",
-               "label": "Sleep Interactive"
-            },
-            {
-               "type": "PROCESS",
-               "name": "simpleThrow",
-               "label": "Simple Throw"
-            }
-         ],
-         "iconName": "stars"
-      },
-      {
-         "type": "APP",
-         "name": "developer",
-         "label": "Developer",
-         "children": [
-            {
-               "type": "TABLE",
-               "name": "scriptType",
-               "label": "Script Type",
-               "iconName": "tune"
-            },
-            {
-               "type": "TABLE",
-               "name": "script",
-               "label": "Script",
-               "iconName": "data_object"
-            },
-            {
-               "type": "TABLE",
-               "name": "scriptRevision",
-               "label": "Script Revision",
-               "iconName": "history_edu"
-            },
-            {
-               "type": "TABLE",
-               "name": "scriptLog",
-               "label": "Script Log",
-               "iconName": "receipt_long"
-            },
-            {
-               "type": "TABLE",
-               "name": "scriptLogLine",
-               "label": "Script Log Line",
-               "iconName": "reorder"
-            },
-            {
-               "type": "TABLE",
-               "name": "dataBag",
-               "label": "Data Bag",
-               "iconName": "local_mall"
-            },
-            {
-               "type": "TABLE",
-               "name": "dataBagVersion",
-               "label": "Data Bag Version",
-               "iconName": "work_history"
-            }
-         ],
-         "iconName": "data_object"
-      },
-      {
-         "type": "APP",
-         "name": "userCustomizations",
-         "label": "User Customizations",
-         "children": [
-            {
-               "type": "TABLE",
-               "name": "savedReport",
-               "label": "Saved Report",
-               "iconName": "article"
-            }
-         ],
-         "iconName": "data_object"
-      }
-   ],
-   "branding": {
-      "logo": "/kr-logo.png",
-      "icon": "/kr-icon.png"
-   },
-   "widgets": {
-      "SampleTableWidget": {
-         "name": "SampleTableWidget",
-         "label": "Sample Table Widget",
-         "type": "table",
-         "showExportButton": true
-      },
-      "scriptViewer": {
-         "name": "scriptViewer",
-         "label": "Contents",
-         "type": "scriptViewer",
-         "isCard": true,
-         "storeDropdownSelections": false,
-         "hasPermission": true
-      },
-      "reportSetupWidget": {
-         "name": "reportSetupWidget",
-         "label": "Filters and Columns",
-         "type": "filterAndColumnsSetup",
-         "isCard": true,
-         "storeDropdownSelections": false,
-         "showReloadButton": true,
-         "showExportButton": false,
-         "defaultValues": {},
-         "hasPermission": true
-      },
-      "pivotTableSetupWidget": {
-         "name": "pivotTableSetupWidget",
-         "label": "Pivot Table",
-         "type": "pivotTableSetup",
-         "isCard": true,
-         "storeDropdownSelections": false,
-         "showReloadButton": true,
-         "showExportButton": false,
-         "defaultValues": {},
-         "hasPermission": true
-      }
-   },
-   "environmentValues": {
-      "MATERIAL_UI_LICENSE_KEY": "ABCDE"
-   }
+          ],
+          "iconName": "emoji_people"
+        },
+        {
+          "type": "PROCESS",
+          "name": "clonePeople",
+          "label": "Clone People",
+          "iconName": "content_copy"
+        }
+      ],
+      "iconName": "person"
+    },
+    {
+      "type": "APP",
+      "name": "miscellaneous",
+      "label": "Miscellaneous",
+      "children": [
+        {
+          "type": "TABLE",
+          "name": "carrier",
+          "label": "Carrier",
+          "iconName": "local_shipping"
+        },
+        {
+          "type": "PROCESS",
+          "name": "simpleSleep",
+          "label": "Simple Sleep"
+        },
+        {
+          "type": "PROCESS",
+          "name": "sleepInteractive",
+          "label": "Sleep Interactive"
+        },
+        {
+          "type": "PROCESS",
+          "name": "simpleThrow",
+          "label": "Simple Throw"
+        }
+      ],
+      "iconName": "stars"
+    },
+    {
+      "type": "APP",
+      "name": "developer",
+      "label": "Developer",
+      "children": [
+        {
+          "type": "TABLE",
+          "name": "scriptType",
+          "label": "Script Type",
+          "iconName": "tune"
+        },
+        {
+          "type": "TABLE",
+          "name": "script",
+          "label": "Script",
+          "iconName": "data_object"
+        },
+        {
+          "type": "TABLE",
+          "name": "scriptRevision",
+          "label": "Script Revision",
+          "iconName": "history_edu"
+        },
+        {
+          "type": "TABLE",
+          "name": "scriptLog",
+          "label": "Script Log",
+          "iconName": "receipt_long"
+        },
+        {
+          "type": "TABLE",
+          "name": "scriptLogLine",
+          "label": "Script Log Line",
+          "iconName": "reorder"
+        },
+        {
+          "type": "TABLE",
+          "name": "dataBag",
+          "label": "Data Bag",
+          "iconName": "local_mall"
+        },
+        {
+          "type": "TABLE",
+          "name": "dataBagVersion",
+          "label": "Data Bag Version",
+          "iconName": "work_history"
+        }
+      ],
+      "iconName": "data_object"
+    },
+    {
+      "type": "APP",
+      "name": "userCustomizations",
+      "label": "User Customizations",
+      "children": [
+        {
+          "type": "TABLE",
+          "name": "savedReport",
+          "label": "Saved Report",
+          "iconName": "article"
+        }
+      ],
+      "iconName": "data_object"
+    }
+  ],
+  "branding": {
+    "logo": "/kr-logo.png",
+    "icon": "/kr-icon.png"
+  },
+  "widgets": {
+    "SampleTableWidget": {
+      "name": "SampleTableWidget",
+      "label": "Sample Table Widget",
+      "type": "table",
+      "showExportButton": true
+    },
+    "scriptViewer": {
+      "name": "scriptViewer",
+      "label": "Contents",
+      "type": "scriptViewer",
+      "isCard": true,
+      "storeDropdownSelections": false,
+      "hasPermission": true
+    },
+    "reportSetupWidget": {
+      "name": "reportSetupWidget",
+      "label": "Filters and Columns",
+      "type": "filterAndColumnsSetup",
+      "isCard": true,
+      "storeDropdownSelections": false,
+      "showReloadButton": true,
+      "showExportButton": false,
+      "defaultValues": {},
+      "hasPermission": true
+    },
+    "pivotTableSetupWidget": {
+      "name": "pivotTableSetupWidget",
+      "label": "Pivot Table",
+      "type": "pivotTableSetup",
+      "isCard": true,
+      "storeDropdownSelections": false,
+      "showReloadButton": true,
+      "showExportButton": false,
+      "defaultValues": {},
+      "hasPermission": true
+    }
+  },
+  "environmentValues": {
+    "MATERIAL_UI_LICENSE_KEY": "ABCDE"
+  }
 }

@@ -95,10 +95,10 @@ New file: `src/qqq/utils/createDynamicTheme.ts`
 
 ```typescript
 import { createTheme, Theme } from "@mui/material";
-import { QThemeMetaData } from "@qrunio/qqq-frontend-core/lib/model/metaData/QThemeMetaData";
+import { MaterialDashboardThemeMetaData } from "qqq/models/metadata/MaterialDashboardThemeMetaData";
 import { DEFAULT_THEME } from "./themeUtils";
 
-export function createDynamicTheme(themeData?: QThemeMetaData): Theme {
+export function createDynamicTheme(themeData?: MaterialDashboardThemeMetaData): Theme {
    // Merge with defaults
    const theme = { ...DEFAULT_THEME, ...filterUndefined(themeData) };
 
@@ -152,12 +152,12 @@ New file: `src/qqq/utils/injectIslandVariables.ts`
 This injects CSS variables ONLY for sidebar, branded header, and non-MUI components.
 
 ```typescript
-import { QThemeMetaData } from "@qrunio/qqq-frontend-core/lib/model/metaData/QThemeMetaData";
+import { MaterialDashboardThemeMetaData } from "qqq/models/metadata/MaterialDashboardThemeMetaData";
 import { DEFAULT_THEME } from "./themeUtils";
 
 const CSS_VAR_PREFIX = "--qqq-";
 
-export function injectIslandVariables(themeData?: QThemeMetaData): void {
+export function injectIslandVariables(themeData?: MaterialDashboardThemeMetaData): void {
    const root = document.documentElement;
    const theme = { ...DEFAULT_THEME, ...filterUndefined(themeData) };
 
@@ -413,10 +413,10 @@ mvn verify -Pci
 
 ### New Files to Create
 
-| File | Purpose |
-|------|---------|
-| `src/qqq/utils/createDynamicTheme.ts` | MUI theme builder from QThemeMetaData |
-| `src/qqq/utils/injectIslandVariables.ts` | CSS vars for sidebar/header islands only |
+| File | Purpose                                               |
+|------|-------------------------------------------------------|
+| `src/qqq/utils/createDynamicTheme.ts` | MUI theme builder from MaterialDashboardThemeMetaData |
+| `src/qqq/utils/injectIslandVariables.ts` | CSS vars for sidebar/header islands only              |
 
 ### Files to Modify
 
@@ -444,7 +444,7 @@ mvn verify -Pci
 1. All 26 Playwright tests pass
 2. CSS override file reduced from 1213 to <400 lines
 3. `!important` count reduced from 82 to <15
-4. Theme data flows directly: QThemeMetaData -> MUI Theme -> Components
+4. Theme data flows directly: MaterialDashboardThemeMetaData -> MUI Theme -> Components
 5. No visual regressions in app
 6. CI pipeline passes
 

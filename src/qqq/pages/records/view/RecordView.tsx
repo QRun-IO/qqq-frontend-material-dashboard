@@ -51,6 +51,8 @@ import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {QueryJoin} from "@qrunio/qqq-frontend-core/lib/model/query/QueryJoin";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
+import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import AuditBody from "qqq/components/audits/AuditBody";
 import {QActionsMenuButton, QCancelButton, QDeleteButton, QEditButton, standardWidth} from "qqq/components/buttons/DefaultButtons";
 import EntityForm from "qqq/components/forms/EntityForm";
@@ -1007,7 +1009,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          return (<Box width={standardWidth} mr={2}>
             <Tooltip title={disabledTooltipText}>
                <span>
-                  <MDButton id="shareButton" type="button" color="info" size="small" onClick={() => openShareModal()} fullWidth startIcon={<Icon>group_add</Icon>} disabled={shareDisabled}>
+                  <MDButton id="shareButton" type="button" color={preferredColorNameInfoOrPrimary()} size="small" onClick={() => openShareModal()} fullWidth startIcon={<Icon>group_add</Icon>} disabled={shareDisabled}>
                      Share
                   </MDButton>
                </span>
@@ -1120,9 +1122,11 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       localStorage.setItem(makeCollapsibleSectionOpenStateLocalStorageKey(tableMetaData.name, sectionName), newValue.toString());
    }
 
+   const tableNameForId = tableMetaData ? sanitizeId(tableMetaData.name) : "";
+
    return (
       <BaseLayout>
-         <Box className="recordView">
+         <Box className="recordView" data-qqq-id={`record-view-${tableNameForId}`}>
             <Grid container>
                <Grid item xs={12}>
                   <Box mb={3}>
@@ -1171,9 +1175,9 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
 
                                     <Grid container spacing={3}>
                                        <Grid item xs={12} mb={3}>
-                                          <Card id={t1SectionName} sx={{scrollMarginTop: "100px", minHeight: "88px"}}>
+                                          <Card id={t1SectionName} sx={{scrollMarginTop: "100px", minHeight: "88px"}} data-qqq-id={`record-view-header-${tableNameForId}`}>
                                              <Box display="flex" p={3} pb={1}>
-                                                <Box mr={1.5}>
+                                                <Box mr={1.5} data-qqq-id={`record-view-avatar-${tableNameForId}`}>
                                                    <Avatar sx={{bgcolor: accentColor}}>
                                                       <Icon>
                                                          {tableMetaData?.iconName}
@@ -1181,7 +1185,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                                    </Avatar>
                                                 </Box>
                                                 <Box display="flex" justifyContent="space-between" width="100%" alignItems="flex-start" flexWrap={{xs: "wrap", md: "nowrap"}}>
-                                                   <Typography variant="h5" mb="0.5rem">
+                                                   <Typography variant="h5" mb="0.5rem" data-qqq-id={`record-view-title-${tableNameForId}`}>
                                                       {tableMetaData && record ? `Viewing ${tableMetaData?.label}: ${record?.recordLabel || ""}` : ""}
                                                    </Typography>
                                                    <Box display="flex" ml="auto">
@@ -1291,7 +1295,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                        // sticky bottom button bar w/ delete & edit buttons (if applicable) //
                                        ///////////////////////////////////////////////////////////////////////
                                        tableMetaData && record && ((table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission) || (table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission)) &&
-                                       <Box component="div" p={3} className={"stickyBottomButtonBar"}>
+                                       <Box component="div" p={3} className={"stickyBottomButtonBar"} data-qqq-id={`record-view-button-bar-${tableNameForId}`}>
                                           <Grid container justifyContent="flex-end" spacing={3}>
                                              {
                                                 table.capabilities.has(Capability.TABLE_DELETE) && table.deletePermission && <QDeleteButton onClickHandler={handleClickDeleteButton} />
@@ -1312,16 +1316,17 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                  onClose={handleDeleteConfirmClose}
                                  aria-labelledby="alert-dialog-title"
                                  aria-describedby="alert-dialog-description"
+                                 data-qqq-id="delete-confirmation-dialog"
                               >
-                                 <DialogTitle id="alert-dialog-title">Confirm Deletion</DialogTitle>
+                                 <DialogTitle id="alert-dialog-title" data-qqq-id="delete-confirmation-title">Confirm Deletion</DialogTitle>
                                  <DialogContent>
-                                    <DialogContentText id="alert-dialog-description">
+                                    <DialogContentText id="alert-dialog-description" data-qqq-id="delete-confirmation-text">
                                        Are you sure you want to delete this record?
                                     </DialogContentText>
                                  </DialogContent>
-                                 <DialogActions>
-                                    <Button onClick={handleDeleteConfirmClose}>No</Button>
-                                    <Button onClick={handleDelete} autoFocus disabled={isDeleteSubmitting}>
+                                 <DialogActions data-qqq-id="delete-confirmation-actions">
+                                    <Button onClick={handleDeleteConfirmClose} data-qqq-id="button-delete-no">No</Button>
+                                    <Button onClick={handleDelete} autoFocus disabled={isDeleteSubmitting} data-qqq-id="button-delete-yes">
                                        Yes
                                     </Button>
                                  </DialogActions>

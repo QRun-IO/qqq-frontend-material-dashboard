@@ -29,14 +29,19 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
+      name: 'themed',
+      testMatch: /.*(?<!unthemed-regression)\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'unthemed',
+      testMatch: /unthemed-regression\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'] },
     },
   ],
   webServer: [
     {
-      // Pass THEME_FIXTURE through to fixture server for fixture selection
-      command: `THEME_FIXTURE=${process.env.THEME_FIXTURE || 'index'} node e2e/fixture-server.js`,
+      command: `THEME_FIXTURE=${process.env.THEME_FIXTURE || 'withFullCustomTheme'} node e2e/fixture-server.js`,
       url: 'http://localhost:8001/metaData',
       reuseExistingServer: true,
       timeout: 60000, // 1 minute - Docker startup can be slow

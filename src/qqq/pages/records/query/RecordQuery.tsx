@@ -3037,9 +3037,12 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
       //////////////////////////////////////////
       // default (no saved view, and "clean") //
       //////////////////////////////////////////
-      let buttonBackground = "none";
-      let buttonBorder = colors.grayLines.main;
+      let buttonBackground = "unset";
+      let buttonBorder = colors.grayLines.main + " !important";
       let buttonColor = colors.gray.main;
+      let buttonVariant: "outlined" | "contained" | "text" = "outlined";
+      let buttonColorName: "secondary" | "primary" = "secondary";
+      let buttonState: string = "empty";
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // diff the current view with either the current saved one, if there's one active, else the table default //
@@ -3056,15 +3059,21 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          buttonBackground = accentColor;
          buttonBorder = accentColor;
          buttonColor = "#FFFFFF";
+         buttonColorName = "primary";
+         buttonVariant = "contained";
+         buttonState = "clean";
       }
       else if (viewDiffs.length > 0)
       {
          ///////////////////////////////////////////////////
          // else if there are diffs, show alt/light style //
          ///////////////////////////////////////////////////
-         buttonBackground = accentColorLight;
-         buttonBorder = accentColorLight;
-         buttonColor = accentColor;
+         buttonBackground = accentColorLight + " !important";
+         buttonBorder = accentColorLight + " !important";
+         buttonColor = accentColor + " !important";
+         buttonColorName = "primary";
+         buttonVariant = "contained";
+         buttonState = "dirty";
       }
 
       const columnMenuButtonStyles = {
@@ -3074,6 +3083,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          textTransform: "none",
          fontWeight: 500,
          fontSize: "0.875rem",
+         boxShadow: "none",
          p: "0.5rem",
          backgroundColor: buttonBackground,
          "&:focus:not(:hover)": {
@@ -3083,6 +3093,8 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          "&:hover": {
             color: buttonColor,
             backgroundColor: buttonBackground,
+            boxShadow: "none",
+            filter: "unset"
          }
       };
 
@@ -3093,7 +3105,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
             showTableHeaderEvenIfNoExposedJoins={true}
             omitExposedJoins={omitExposedJoins}
             placeholder="Search Fields"
-            buttonProps={{sx: columnMenuButtonStyles}}
+            buttonProps={{variant: buttonVariant, sx: columnMenuButtonStyles, ["data-button-state"]: buttonState, color: buttonColorName}}
             buttonChildren={<><Icon sx={{mr: "0.5rem"}}>view_week_outline</Icon> Columns ({view.queryColumns.getVisibleColumnCount()}) <Icon sx={{ml: "0.5rem"}}>keyboard_arrow_down</Icon></>}
             isModeToggle={true}
             toggleStates={view.queryColumns.getVisibilityToggleStates()}
@@ -3320,7 +3332,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                         getRowId={(row) => row.__rowIndex}
                         selectionModel={rowSelectionModel}
                         hideFooterSelectedRowCount={true}
-                        sx={{border: 0, height: `calc(100vh - ${spaceAboveGrid + spaceBelowGrid}px)`}}
+                        sx={{border: 0, height: `calc(100vh - ${spaceAboveGrid + spaceBelowGrid}px - var(--qqq-branded-header-height, 0px))`}}
                      />
                   </Box>
                </Card>

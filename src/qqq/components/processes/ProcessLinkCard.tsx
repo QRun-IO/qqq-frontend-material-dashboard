@@ -23,6 +23,7 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import Icon from "@mui/material/Icon";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {ReactNode} from "react";
 import colors from "qqq/assets/theme/base/colors";
 import MDTypography from "qqq/components/legacy/MDTypography";
@@ -44,9 +45,14 @@ interface Props
 }
 
 function ProcessLinkCard({
-   color, isReport, title, percentage, icon, isDisabled
+   color, isReport, title, percentage, icon, isDisabled, qqqId
 }: Props): JSX.Element
 {
+   if(!color)
+   {
+      color = preferredColorNameInfoOrPrimary();
+   }
+
    return (
       <Card>
          <Box display="flex" justifyContent="space-between" pt={3} px={2} title={isDisabled ? `You do not have permission to access this ${isReport ? "report" : "process"}` : ""}>
@@ -59,7 +65,13 @@ function ProcessLinkCard({
                width="4rem"
                height="4rem"
                mt={-1.5}
-               sx={{borderRadius: "10px", backgroundColor: isDisabled ? colors.secondary.main : colors.info.main}}
+               sx={{
+                  borderRadius: "10px",
+                  backgroundColor: isDisabled
+                     ? "var(--qqq-secondary-color, #7b809a)"
+                     : `var(--qqq-${color}-color, #0062FF)`
+               }}
+               data-qqq-id={`${qqqId}-icon`}
             >
                <Icon fontSize="medium" color="inherit">
                   {icon}
@@ -101,7 +113,6 @@ function ProcessLinkCard({
 }
 
 ProcessLinkCard.defaultProps = {
-   color: "info",
    isReport: false,
    percentage: {
       color: "success",

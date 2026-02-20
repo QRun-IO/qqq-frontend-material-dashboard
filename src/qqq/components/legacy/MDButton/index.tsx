@@ -46,7 +46,7 @@ export interface Props extends Omit<ButtonProps, "color" | "variant"> {
 }
 
 const MDButton: FC<Props> = forwardRef(
-   ({color, variant, size, circular, iconOnly, children, ...rest}, ref) =>
+   ({color, variant, size, circular, iconOnly, children, qqqId, ...rest}, ref) =>
    {
       const [controller] = useMaterialUIController();
       const {darkMode} = controller;
@@ -55,6 +55,8 @@ const MDButton: FC<Props> = forwardRef(
          <MDButtonRoot
             {...rest}
             ref={ref}
+            data-qqq-id={qqqId}
+            data-button-variant={variant}
             ownerState={{color, variant, size, circular, iconOnly, darkMode}}
          >
             {children}

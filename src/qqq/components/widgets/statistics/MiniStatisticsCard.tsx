@@ -23,8 +23,8 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
+import {preferredInfoOrPrimaryColorVarExpression} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {ReactNode} from "react";
-import colors from "qqq/assets/theme/base/colors";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import {useMaterialUIController} from "qqq/context";
 
@@ -58,6 +58,7 @@ function MiniStatisticsCard({
    icon,
    direction,
    isDisabled,
+   qqqId,
 }: Props): JSX.Element
 {
    const [controller] = useMaterialUIController();
@@ -110,7 +111,13 @@ function MiniStatisticsCard({
                         justifyContent="center"
                         alignItems="center"
                         color="#FFFFFF"
-                        sx={{borderRadius: "10px", backgroundColor: isDisabled ? colors.secondary.main : colors.info.main}}
+                        sx={{
+                           borderRadius: "10px",
+                           backgroundColor: isDisabled
+                              ? "var(--qqq-secondary-color, #7b809a)"
+                              : preferredInfoOrPrimaryColorVarExpression()
+                        }}
+                        data-qqq-id={qqqId ? `${qqqId}-icon` : undefined}
                      >
                         <Icon fontSize="medium" color="inherit">
                            {icon.component}

@@ -19,10 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
-import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
-import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {FormControl, InputLabel, Select, SelectChangeEvent} from "@mui/material";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -32,8 +28,12 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
+import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {QCancelButton, QSaveButton} from "qqq/components/buttons/DefaultButtons";
-
 import ChipTextField from "qqq/components/forms/ChipTextField";
 import HelpContent from "qqq/components/misc/HelpContent";
 import {LoadingState} from "qqq/models/LoadingState";
@@ -363,7 +363,7 @@ function FilterCriteriaPaster({table, field, type, onSave}: Props): JSX.Element
    return (
       <Box>
          <Tooltip title="Quickly add many values to your filter by pasting them from a spreadsheet or any other data source.">
-            <Icon className="criteriaPasterButton" onClick={handlePasteClick} fontSize="small" color="info" sx={{mx: 0.25, cursor: "pointer"}}>paste_content</Icon>
+            <Icon className="criteriaPasterButton" onClick={handlePasteClick} fontSize="small" color={preferredColorNameInfoOrPrimary()} sx={{mx: 0.25, cursor: "pointer"}}>paste_content</Icon>
          </Tooltip>
          {
             pasteModalIsOpen &&

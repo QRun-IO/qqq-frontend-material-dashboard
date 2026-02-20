@@ -18,6 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {Icon, Typography} from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Divider from "@mui/material/Divider";
+import Grid from "@mui/material/Grid";
 import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
 import {QAppMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAppMetaData";
 import {QAppNodeType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QAppNodeType";
@@ -26,19 +31,16 @@ import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QPr
 import {QReportMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QReportMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
-import {Icon, Typography} from "@mui/material";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import Divider from "@mui/material/Divider";
-import Grid from "@mui/material/Grid";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
+import {preferredColorNameInfoOrPrimary, preferredInfoOrPrimaryColorVarExpression} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import ProcessLinkCard from "qqq/components/processes/ProcessLinkCard";
 import DashboardWidgets from "qqq/components/widgets/DashboardWidgets";
 import MiniStatisticsCard from "qqq/components/widgets/statistics/MiniStatisticsCard";
 import BaseLayout from "qqq/layouts/BaseLayout";
 import Client from "qqq/utils/qqq/Client";
+import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import React, {useContext, useEffect, useState} from "react";
 import {Link, useLocation} from "react-router-dom";
 import HelpContent from "../../components/misc/HelpContent";
@@ -67,9 +69,9 @@ function AppHome({app}: Props): JSX.Element
 
    const location = useLocation();
 
-   useEffect(() => 
+   useEffect(() =>
    {
-      (async () => 
+      (async () =>
       {
          const newQInstance = await qController.loadMetaData();
          setQInstance(newQInstance);
@@ -85,7 +87,7 @@ function AppHome({app}: Props): JSX.Element
       includeTableCountsOnHomeScreen = mdbMetaData.includeTableCountsOnHomeScreen;
    }
 
-   useEffect(() => 
+   useEffect(() =>
    {
       setPageHeader(null);
       recordAnalytics({location: window.location, title: "App: " + app.label});
@@ -101,7 +103,7 @@ function AppHome({app}: Props): JSX.Element
       const newReports: QReportMetaData[] = [];
       const newChildApps: QAppMetaData[] = [];
 
-      app.children.forEach((child) => 
+      app.children.forEach((child) =>
       {
          switch (child.type)
          {
@@ -131,12 +133,12 @@ function AppHome({app}: Props): JSX.Element
       const tableCounts = new Map<string, { isLoading: boolean, value: number }>();
       const tableCountNumbers = new Map<string, string>();
       const tableCountTexts = new Map<string, string>();
-      newTables.forEach((table) => 
+      newTables.forEach((table) =>
       {
          if (includeTableCountsOnHomeScreen)
          {
             tableCounts.set(table.name, {isLoading: true, value: null});
-            setTimeout(async () => 
+            setTimeout(async () =>
             {
                const tableMetaData = await qController.loadTableMetaData(table.name);
                let countResult = null;
@@ -196,7 +198,7 @@ function AppHome({app}: Props): JSX.Element
          // load widget meta data //
          ///////////////////////////
          const matchingWidgets: QWidgetMetaData[] = [];
-         app.widgets.forEach((widgetName) => 
+         app.widgets.forEach((widgetName) =>
          {
             const widget = qInstance.widgets.get(widgetName);
             matchingWidgets.push(widget);
@@ -207,17 +209,17 @@ function AppHome({app}: Props): JSX.Element
 
    const tileSizeLg = 3;
 
-   const hasTablePermission = (tableName: string) => 
+   const hasTablePermission = (tableName: string) =>
    {
       return tables.find(t => t.name === tableName && (t.readPermission || t.insertPermission || t.editPermission || t.deletePermission));
    };
 
-   const hasProcessPermission = (processName: string) => 
+   const hasProcessPermission = (processName: string) =>
    {
       return processes.find(p => p.name === processName && p.hasPermission);
    };
 
-   const hasReportPermission = (reportName: string) => 
+   const hasReportPermission = (reportName: string) =>
    {
       return reports.find(r => r.name === reportName && r.hasPermission);
    };
@@ -225,7 +227,7 @@ function AppHome({app}: Props): JSX.Element
    /*******************************************************************************
     ** get an element (or empty) to use as help content for an app
     *******************************************************************************/
-   const getHelp = (app: QAppMetaData, slotName: string) => 
+   const getHelp = (app: QAppMetaData, slotName: string) =>
    {
       const helpRoles = ["VIEW_SCREEN", "READ_SCREENS", "ALL_SCREENS"];
       const formattedHelpContent = <HelpContent helpContents={app?.helpContent?.get(slotName)} roles={helpRoles} helpContentKey={`app:${app.name};slot:${slotName}`} />;
@@ -275,7 +277,8 @@ function AppHome({app}: Props): JSX.Element
                                           alignItems="center"
                                           width="4rem"
                                           height="4rem"
-                                          sx={{borderRadius: "10px", backgroundColor: colors.info.main}}
+                                          sx={{borderRadius: "10px", backgroundColor: preferredInfoOrPrimaryColorVarExpression()}}
+                                          data-qqq-id={`app-card-${sanitizeId(childApp.name)}-icon`}
                                        >
                                           <Icon fontSize="medium" color="inherit">
                                              {childApp.iconName || app.iconName}
@@ -345,7 +348,7 @@ function AppHome({app}: Props): JSX.Element
                                     section.processes ? (
                                        <Grid container spacing={3} padding={3} paddingTop={0}>
                                           {
-                                             section.processes.map((processName) => 
+                                             section.processes.map((processName) =>
                                              {
                                                 let process = app.childMap.get(processName);
                                                 return (
@@ -353,11 +356,13 @@ function AppHome({app}: Props): JSX.Element
                                                       {hasProcessPermission(processName) ?
                                                          <Link to={process.name}>
                                                             <ProcessLinkCard
+                                                               color={preferredColorNameInfoOrPrimary()}
                                                                icon={process.iconName || app.iconName}
                                                                title={process.label}
                                                             />
                                                          </Link> :
                                                          <ProcessLinkCard
+                                                            color={preferredColorNameInfoOrPrimary()}
                                                             icon={process.iconName || app.iconName}
                                                             title={process.label}
                                                             isDisabled={true}
@@ -386,7 +391,7 @@ function AppHome({app}: Props): JSX.Element
                                     section.reports ? (
                                        <Grid container spacing={3} padding={3} paddingTop={0}>
                                           {
-                                             section.reports.map((reportName) => 
+                                             section.reports.map((reportName) =>
                                              {
                                                 let report = app.childMap.get(reportName);
                                                 return (
@@ -395,12 +400,14 @@ function AppHome({app}: Props): JSX.Element
                                                          <Link to={report.name}>
                                                             <ProcessLinkCard
                                                                icon={report.iconName || app.iconName}
+                                                               color={preferredColorNameInfoOrPrimary()}
                                                                title={report.label}
                                                                isReport={true}
                                                             />
                                                          </Link> :
                                                          <ProcessLinkCard
                                                             icon={report.iconName || app.iconName}
+                                                            color={preferredColorNameInfoOrPrimary()}
                                                             title={report.label}
                                                             isReport={true}
                                                             isDisabled={true}
@@ -429,7 +436,7 @@ function AppHome({app}: Props): JSX.Element
                                     section.apps && qInstance ? (
                                        <Grid container spacing={3} padding={3} paddingBottom={0} paddingTop={0}>
                                           {
-                                             section.apps.map((app) => 
+                                             section.apps.map((app) =>
                                              {
                                                 var qAppMetaData = qInstance.apps.get(app);
                                                 return (
@@ -462,7 +469,7 @@ function AppHome({app}: Props): JSX.Element
                                     section.tables ? (
                                        <Grid container spacing={3} padding={3} paddingBottom={0} paddingTop={0}>
                                           {
-                                             section.tables.map((tableName) => 
+                                             section.tables.map((tableName) =>
                                              {
                                                 let table = app.childMap.get(tableName);
                                                 let count = "";
@@ -480,8 +487,8 @@ function AppHome({app}: Props): JSX.Element
                                                                <MiniStatisticsCard
                                                                   title={{fontWeight: "bold", text: table.label}}
                                                                   count={count}
-                                                                  percentage={{color: "info", text: percentage}}
-                                                                  icon={{color: "info", component: <Icon>{table.iconName || app.iconName}</Icon>}}
+                                                                  percentage={{color: preferredColorNameInfoOrPrimary(), text: percentage}}
+                                                                  icon={{color: preferredColorNameInfoOrPrimary(), component: <Icon>{table.iconName || app.iconName}</Icon>}}
                                                                />
                                                             </Box>
                                                          </Link> :
@@ -489,8 +496,8 @@ function AppHome({app}: Props): JSX.Element
                                                             <MiniStatisticsCard
                                                                title={{fontWeight: "bold", text: table.label}}
                                                                count={count}
-                                                               percentage={{color: "info", text: percentage}}
-                                                               icon={{color: "info", component: <Icon>{table.iconName || app.iconName}</Icon>}}
+                                                               percentage={{color: preferredColorNameInfoOrPrimary(), text: percentage}}
+                                                               icon={{color: preferredColorNameInfoOrPrimary(), component: <Icon>{table.iconName || app.iconName}</Icon>}}
                                                                isDisabled={true}
                                                             />
                                                          </Box>

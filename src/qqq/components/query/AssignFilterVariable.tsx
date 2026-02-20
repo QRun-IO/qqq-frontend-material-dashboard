@@ -24,6 +24,7 @@ import {FilterVariableExpression} from "@qrunio/qqq-frontend-core/lib/model/quer
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
 import Tooltip from "@mui/material/Tooltip";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import CriteriaDateField from "qqq/components/query/CriteriaDateField";
 import React, {SyntheticEvent, useState} from "react";
 
@@ -58,7 +59,7 @@ export default function AssignFilterVariable({valueIndex, field, valueChangeHand
    return <Box display="flex" alignItems="flex-end">
       <Box>
          <Tooltip title={`Use a variable as the value for the ${field.label} field`} placement="bottom">
-            <Icon fontSize="small" color="info" sx={{mx: 0.25, cursor: "pointer", position: "relative", top: "2px"}} onClick={handleVariableButtonOnClick}>functions</Icon>
+            <Icon fontSize="small" color={preferredColorNameInfoOrPrimary()} sx={{mx: 0.25, cursor: "pointer", position: "relative", top: "2px"}} onClick={handleVariableButtonOnClick}>functions</Icon>
          </Tooltip>
       </Box>
    </Box>;

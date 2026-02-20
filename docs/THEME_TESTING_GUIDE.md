@@ -22,7 +22,7 @@ The QQQ dashboard now supports runtime theme customization via CSS custom proper
 Add theme configuration to your QInstance:
 
 ```java
-QThemeMetaData theme = new QThemeMetaData()
+MaterialDashboardThemeMetaData theme = new MaterialDashboardThemeMetaData()
    // Core colors
    .withPrimaryColor("#1976D2")
    .withSecondaryColor("#9C27B0")
@@ -144,7 +144,7 @@ Same pattern for H2-H6, Body1, Body2, Button, Caption.
 
 ### 1. Basic Color Test
 ```java
-new QThemeMetaData()
+new MaterialDashboardThemeMetaData()
    .withPrimaryColor("#FF5722")
    .withSidebarBackgroundColor("#263238");
 ```
@@ -152,7 +152,7 @@ new QThemeMetaData()
 
 ### 2. Typography Test
 ```java
-new QThemeMetaData()
+new MaterialDashboardThemeMetaData()
    .withFontFamily("Georgia, serif")
    .withTypographyH1FontSize("3rem")
    .withTypographyH1FontWeight(800);
@@ -161,7 +161,7 @@ new QThemeMetaData()
 
 ### 3. Branded Header Test
 ```java
-new QThemeMetaData()
+new MaterialDashboardThemeMetaData()
    .withBrandedHeaderEnabled(true)
    .withBrandedHeaderBackgroundColor("#1a237e")
    .withBrandedHeaderTextColor("#ffffff")
@@ -172,7 +172,7 @@ new QThemeMetaData()
 
 ### 4. Density Test
 ```java
-new QThemeMetaData()
+new MaterialDashboardThemeMetaData()
    .withDensity("compact");
 ```
 **Verify:** Reduced spacing throughout the UI.

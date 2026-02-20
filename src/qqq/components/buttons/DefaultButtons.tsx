@@ -21,6 +21,7 @@
 
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {QIcon} from "@qrunio/qqq-frontend-core/lib/model/metaData/QIcon";
 import React from "react";
 import {Link} from "react-router-dom";
@@ -43,7 +44,7 @@ export function QCreateNewButton({tablePath}: QCreateNewButtonProps): JSX.Elemen
    return (
       <Box display="inline-block" ml={standardML} mr={0} width={standardWidth}>
          <Link to={`${tablePath}/create`}>
-            <MDButton variant="gradient" color="info" fullWidth startIcon={<Icon>add</Icon>}>
+            <MDButton qqqId="create-new" variant="gradient" color={preferredColorNameInfoOrPrimary()} fullWidth startIcon={<Icon>add</Icon>}>
                Create New
             </MDButton>
          </Link>
@@ -68,7 +69,7 @@ export function QSaveButton({label, iconName, onClickHandler, disabled}: QSaveBu
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton type="submit" variant="gradient" color="info" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled}>
+         <MDButton qqqId="save" type="submit" variant="gradient" color={preferredColorNameInfoOrPrimary()} size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled}>
             {label}
          </MDButton>
       </Box>
@@ -89,7 +90,7 @@ export function QDeleteButton({onClickHandler, disabled}: QDeleteButtonProps): J
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton variant="gradient" color="primary" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>delete</Icon>} disabled={disabled}>
+         <MDButton qqqId="delete" variant="contained" color="error" size="small" onClick={onClickHandler} fullWidth startIcon={<Icon>delete</Icon>} disabled={disabled}>
             Delete
          </MDButton>
       </Box>
@@ -122,7 +123,8 @@ export function QActionsMenuButton({isOpen, onClickHandler, label, qIcon}: QActi
    return (
       <Box width={standardWidth} ml={1}>
          <MDButton
-            variant={isOpen ? "contained" : "outlined"}
+            qqqId="actions-menu"
+            variant={"outlined"}
             color="dark"
             onClick={onClickHandler}
             startIcon={<Icon>{qIcon?.name ?? "games"}</Icon>}

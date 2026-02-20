@@ -372,7 +372,7 @@ export default function ShareModal({open, onClose, tableMetaData, record}: Share
                <Box display="flex" flexDirection="row" justifyContent="space-between" alignItems="flex-start" maxWidth="590px">
                   <Typography variant="h4" pb={1} fontWeight="600">
                      Share {tableMetaData.label}: {record?.recordLabel ?? record?.values?.get(tableMetaData.primaryKeyField) ?? "Unknown"}
-                     <Box color={colors.gray.main} pb={"0.5rem"} fontSize={"0.875rem"} fontWeight="400">
+                     <Box color="var(--qqq-grey-600, #757575)" pb={"0.5rem"} fontSize={"0.875rem"} fontWeight="400">
                         {/* todo move to helpContent (what do we attach the meta-data too??) */}
                         Select a user or a group to share this record with.
                         {/*You can choose if they should only be able to Read the record, or also make Edits to it.*/}
@@ -389,7 +389,7 @@ export default function ShareModal({open, onClose, tableMetaData, record}: Share
                <Box pb={3} display="flex" flexDirection="column">
                   {/* row for adding a new share */}
                   <Box display="flex" flexDirection="row" alignItems="center">
-                     <Box width="550px" pr={2} mb={-1.5}>
+                     <Box width="550px" pr={2}>
                         <DynamicSelect
                            fieldPossibleValueProps={{possibleValueSourceName: shareableTableMetaData.audiencePossibleValueSourceName, initialDisplayValue: selectedAudienceOption?.label}}
                            fieldLabel="User or Group" // todo should come from shareableTableMetaData
@@ -425,7 +425,7 @@ export default function ShareModal({open, onClose, tableMetaData, record}: Share
                            }
                         </h5>
                      </Box>
-                     <Box sx={{border: `1px solid ${colors.grayLines.main}`, borderRadius: "1rem", overflow: "hidden"}}>
+                     <Box sx={{border: "1px solid var(--qqq-border-color, #D6D6D6)", borderRadius: "1rem", overflow: "hidden"}}>
                         <Box sx={{overflow: "auto"}} height="210px" pt="0.75rem">
                            {
                               currentShares.map((share) => (
@@ -438,7 +438,7 @@ export default function ShareModal({open, onClose, tableMetaData, record}: Share
                                        */}
                                     </Box>
                                     <Box pr="1rem">
-                                       <Button sx={{...iconButtonSX, ...redIconButton}} onClick={() => removeShare(share.shareId)}><Icon>clear</Icon></Button>
+                                       <Button sx={{...iconButtonSX, ...redIconButton}} onClick={() => removeShare(share.shareId)}><Icon color="error">clear</Icon></Button>
                                     </Box>
                                  </Box>
                               ))
@@ -462,7 +462,7 @@ export default function ShareModal({open, onClose, tableMetaData, record}: Share
 
 const iconButtonSX =
    {
-      border: `1px solid ${colors.grayLines.main} !important`,
+      border: "1px solid var(--qqq-border-color, #D6D6D6) !important",
       borderRadius: "0.75rem",
       textTransform: "none",
       fontSize: "1rem",
@@ -471,17 +471,17 @@ const iconButtonSX =
       minWidth: "40px",
       paddingLeft: 0,
       paddingRight: 0,
-      color: colors.secondary.main,
-      "&:hover": {color: colors.secondary.main},
-      "&:focus": {color: colors.secondary.main},
-      "&:focus:not(:hover)": {color: colors.secondary.main},
+      color: "var(--qqq-secondary-color, #7b809a)",
+      "&:hover": {color: "var(--qqq-secondary-color, #7b809a)"},
+      "&:focus": {color: "var(--qqq-secondary-color, #7b809a)"},
+      "&:focus:not(:hover)": {color: "var(--qqq-secondary-color, #7b809a)"},
    };
 
 const redIconButton =
    {
-      color: colors.error.main,
-      "&:hover": {color: colors.error.main},
-      "&:focus": {color: colors.error.main},
-      "&:focus:not(:hover)": {color: colors.error.main},
+      color: "var(--qqq-error-color, #F44335)",
+      "&:hover": {color: "var(--qqq-error-color, #F44335)"},
+      "&:focus": {color: "var(--qqq-error-color, #F44335)"},
+      "&:focus:not(:hover)": {color: "var(--qqq-error-color, #F44335)"},
    };
 

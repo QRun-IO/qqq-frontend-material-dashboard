@@ -33,6 +33,7 @@ import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTabl
 import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
 import parse from "html-react-parser";
 import QContext from "QContext";
+import {preferredInfoOrPrimaryColorVarExpression} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import colors from "qqq/assets/theme/base/colors";
 import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
 import WidgetDropdownMenu, {DropdownOption} from "qqq/components/widgets/components/WidgetDropdownMenu";
@@ -817,7 +818,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                                  width: "64px",
                                  height: "64px",
                                  borderRadius: "8px",
-                                 background: colors.info.main,
+                                 background: preferredInfoOrPrimaryColorVarExpression(),
                                  color: "#ffffff",
                                  float: "left"
                               }}
@@ -835,7 +836,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
                                  width: "64px",
                                  height: "64px",
                                  borderRadius: "8px",
-                                 background: colors.info.main,
+                                 background: preferredInfoOrPrimaryColorVarExpression(),
                                  color: "#ffffff",
                                  float: "left"
                               }}
