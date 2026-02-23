@@ -108,7 +108,6 @@ export default function QuickSavedViews({metaData, tableMetaData, apiVersion, ta
       if (savedView.values.get("id") == currentSavedView?.values.get("id"))
       {
          const baseView = JSON.parse(currentSavedView.values.get("viewJson")) as RecordQueryView;
-
          const viewDiffs = activeView ? SavedViewUtils.diffViews(tableMetaData, baseView, activeView) : [];
          if (viewDiffs.length > 0)
          {
@@ -121,6 +120,29 @@ export default function QuickSavedViews({metaData, tableMetaData, apiVersion, ta
       }
       return {};
    };
+
+   /***************************************************************************
+    * get a string for the data-button-state attribute of the button based on
+    * if the button isn't active ("empty"), or is active, then whether it's
+    * got changes ("dirty") or not ("clean").
+    ***************************************************************************/
+   const getQuickViewButtonState = (savedView: QRecord): string =>
+   {
+      if (savedView.values.get("id") == currentSavedView?.values.get("id"))
+      {
+         const baseView = JSON.parse(currentSavedView.values.get("viewJson")) as RecordQueryView;
+         const viewDiffs = activeView ? SavedViewUtils.diffViews(tableMetaData, baseView, activeView) : [];
+         if (viewDiffs.length > 0)
+         {
+            return "dirty"
+         }
+         else
+         {
+            return "clean"
+         }
+      }
+      return "empty";
+   }
 
    const yourQuickViews = useSavedViewsResult?.yourSavedViews?.filter(view => view.values.get("type") == "quickView") ?? [];
    const quickViewsSharedWithYou = useSavedViewsResult?.viewsSharedWithYou?.filter(view => view.values.get("type") == "quickView") ?? [];
@@ -168,6 +190,7 @@ export default function QuickSavedViews({metaData, tableMetaData, apiVersion, ta
          {quickViews.map((view) =>
             <Button
                key={view.values.get("id")}
+               data-button-state={getQuickViewButtonState(view)}
                sx={{...quickViewButtonStyles, ...getQuickViewButtonStyleOverrides(view), "&:hover": {...quickViewButtonStyles, ...getQuickViewButtonStyleOverrides(view), "&:hover": {}}}}
                onClick={(event) => quickViewOnClick(event, view)}
             >
