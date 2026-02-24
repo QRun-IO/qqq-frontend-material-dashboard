@@ -1,26 +1,53 @@
 # TODO - QQQ Frontend Material Dashboard
 
-**Last Updated:** 2026-01-24
+**Last Updated:** 2026-01-14
 
 ## In Progress
 
-- [ ] PR #136 - Base path detection fix (awaiting review)
-  - Branch: `feature/134-base-path-detection-bug`
-  - Closes issue #134
+### Issue #128: Visual Regressions - READY FOR REVIEW
 
-## Open Items
+**Branch:** `feature/fix-visual-regressions-128`
+**Status:** All fixes complete, waiting on Darin to test
 
-- [ ] Review dependabot PR #135 - lodash bump
-- [ ] Address npm audit vulnerabilities (9 total: 2 critical, 1 high, 6 moderate)
+- [x] Round 1-3: Add `.qqq-themed` class toggle, scope CSS overrides
+- [x] Round 4: Add CSS variable fallbacks to all `var(--qqq-*)` instances
+- [x] Round 5: Align ALL typography fallbacks with `typography.ts`
+- [x] Verify all 39 e2e tests pass (26 themed + 13 unthemed)
+- [x] Triple-check all 32 typography values against source of truth
+- [x] Commit typography fixes
+- [ ] **WAITING:** Darin to test and approve
+- [ ] Create PR to merge into develop
+- [ ] Publish snapshot after merge
+
+---
+
+### CI Playwright Timeout (Separate Issue)
+
+**Branch:** `fix/ci-playwright-timeout`
+**Status:** Parked - lower priority than visual regressions
+
+- [x] Diagnosed: webserver timeout (120s not enough for webpack)
+- [ ] Debug blank page issue in combined fixture server
+- [ ] Test locally until passing
+- [ ] Merge to develop
 
 ## Completed (Recent)
 
-- [x] Issue #134 - Base path detection bug
-  - Fixed `detectBasePath()` returning wrong path for root deployments
-  - Removed unreliable Strategy 3 (single-segment path detection)
-  - Added 25 unit tests for PathUtils
-  - PR #136 created and pushed
-- [x] PR #131 - Auth module enhancements (merged)
-- [x] Feature #364 - Customizable table action menus (merged)
-- [x] Feature #365 - Tables belonging to multiple apps (merged)
-- [x] Update qqq-frontend-core to 0.40.4-SNAPSHOT
+- [x] **Issue #128 Round 5** - Typography fallbacks aligned with typography.ts
+- [x] **Issue #128 Round 4** - CSS variable fallbacks added
+- [x] **Issue #128 Round 3** - Scoped CSS to `.qqq-themed` class
+- [x] **39 Playwright tests passing** (26 themed + 13 unthemed)
+- [x] **PR #127 merged** - Playwright e2e test integration
+- [x] **PR #125 merged** - Pluggable themes + CSS selectors system
+
+## Test Status
+
+| Suite | Tests | Status |
+|-------|-------|--------|
+| Playwright themed | 26 | PASS |
+| Playwright unthemed | 13 | PASS |
+
+## Known Issues
+
+- CI Playwright tests may timeout (WIP fix on separate branch)
+- `seleniumwithqapplication` tests require full QQQ backend (hang locally)

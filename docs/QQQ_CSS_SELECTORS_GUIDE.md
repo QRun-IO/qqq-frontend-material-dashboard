@@ -1,6 +1,6 @@
 # QQQ CSS Selectors Guide
 
-QQQ automatically generates stable `data-qqq-id` attributes on key UI elements, enabling precise CSS targeting via `QThemeMetaData.customCss`.
+QQQ automatically generates stable `data-qqq-id` attributes on key UI elements, enabling precise CSS targeting via `MaterialDashboardThemeMetaData.customCss`.
 
 ## ID Format
 

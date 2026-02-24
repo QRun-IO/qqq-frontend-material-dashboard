@@ -29,7 +29,7 @@ import com.kingsrook.qqq.backend.core.model.metadata.QSupplementalInstanceMetaDa
 
 
 /*******************************************************************************
- ** table-level meta-data for this module (handled as QSupplementalTableMetaData)
+ ** instance-level meta-data for this module (handled as QSupplementalTableMetaData)
  *******************************************************************************/
 public class MaterialDashboardInstanceMetaData implements QSupplementalInstanceMetaData
 {

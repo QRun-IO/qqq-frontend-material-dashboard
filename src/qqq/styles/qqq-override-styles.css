@@ -19,6 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+:root
+{
+   /* see full explanation in preferInfoColorToPrimaryColor.ts - but the quick version is:
+   If this value is 1, then components that maybe should have always been built with
+   color="primary" will instead use color="info" (which may be preferred - e.g., in the
+   default theme, info=blue, primary=pink, so info was preferred...).
+   Override this at the application level to use your primary color in more places (e.g.,
+   create-new button, save button, process stepper, etc).
+    */
+   --qqq-prefer-info-color-to-primary-color: 1;
+}
+
 .MuiDrawer-docked .MuiPaper-elevation
 {
    white-space: normal;
@@ -894,6 +906,211 @@ input[type="search"]::-webkit-search-results-decoration
    background-position: right 1.75rem center;
 }
 
+/*****************************************************************************
+ ** Sidebar theming - uses CSS variables from MaterialDashboardThemeMetaData
+ ** NOT scoped to .qqq-themed because sidebar needs consistent styling
+ ** regardless of theme presence (uses fallback colors when no theme)
+ *****************************************************************************/
+.MuiDrawer-paper
+{
+   background: var(--qqq-sidebar-background-color, linear-gradient(195deg, #42424a, #191919)) !important;
+}
+
+.MuiDrawer-paper a,
+.MuiDrawer-paper .MuiTypography-root,
+.MuiDrawer-paper .MuiListItemText-primary,
+.MuiDrawer-paper .MuiListItemText-root span
+{
+   color: var(--qqq-sidebar-text-color, #ffffff) !important;
+}
+
+.MuiDrawer-paper svg,
+.MuiDrawer-paper .MuiIcon-root,
+.MuiDrawer-paper .MuiSvgIcon-root,
+.MuiDrawer-paper .MuiListItemIcon-root,
+.MuiDrawer-paper .MuiListItemIcon-root .MuiIcon-root,
+.MuiDrawer-paper .MuiListItemIcon-root .MuiSvgIcon-root,
+.MuiDrawer-paper .MuiListItemIcon-root svg
+{
+   color: var(--qqq-sidebar-icon-color, #ffffff) !important;
+}
+
+.MuiDrawer-paper .MuiDivider-root
+{
+   border-color: var(--qqq-sidebar-divider-color, rgba(255, 255, 255, 0.25));
+}
+
+.MuiDrawer-paper .qqq-sidebar-active
+{
+   background-color: var(--qqq-sidebar-selected-background-color, rgba(255, 255, 255, 0.2)) !important;
+}
+
+.MuiDrawer-paper .qqq-sidebar-active,
+.MuiDrawer-paper .qqq-sidebar-active span,
+.MuiDrawer-paper .qqq-sidebar-active .MuiListItemText-primary,
+.MuiDrawer-paper .qqq-sidebar-active .MuiIcon-root,
+.MuiDrawer-paper .qqq-sidebar-active .MuiSvgIcon-root,
+.MuiDrawer-paper .qqq-sidebar-active svg,
+.MuiDrawer-paper .qqq-sidebar-active .MuiListItemIcon-root,
+.MuiDrawer-paper .qqq-sidebar-active .MuiListItemIcon-root .MuiIcon-root,
+.MuiDrawer-paper .qqq-sidebar-active .MuiListItemIcon-root svg
+{
+   color: var(--qqq-sidebar-selected-text-color, #ffffff) !important;
+}
+
+/*****************************************************************************
+ ** Input field theming - uses CSS variables from MaterialDashboardThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
+ *****************************************************************************/
+.qqq-themed input.MuiInputBase-input,
+.qqq-themed .MuiOutlinedInput-input,
+.qqq-themed .MuiFilledInput-input,
+.qqq-themed .MuiInput-input
+{
+   color: var(--qqq-text-primary, #344767) !important;
+}
+
+.qqq-themed .MuiOutlinedInput-notchedOutline
+{
+   border-color: var(--qqq-input-border-color, var(--qqq-border-color)) !important;
+}
+
+.qqq-themed .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline
+{
+   border-color: var(--qqq-input-border-color, var(--qqq-border-color)) !important;
+}
+
+.qqq-themed .Mui-focused .MuiOutlinedInput-notchedOutline
+{
+   border-color: var(--qqq-primary-color, #0062FF) !important;
+}
+
+/*****************************************************************************
+ ** Link theming - uses CSS variables from MaterialDashboardThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
+ *****************************************************************************/
+.qqq-themed a:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root),
+.qqq-themed .MuiLink-root:not(.MuiDrawer-root *):not(.qqq-branded-header-bar *):not(.MuiButtonBase-root)
+{
+   color: var(--qqq-link-color, var(--qqq-secondary-color)) !important;
+}
+
+/*****************************************************************************
+ ** Paper/Card theming - uses CSS variables from MaterialDashboardThemeMetaData
+ ** Excludes AppBar (navbar), Drawer (sidebar), Menu, Popover, Alerts
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
+ *****************************************************************************/
+.qqq-themed .MuiPaper-root:not(.MuiAppBar-root):not(.MuiDrawer-paper):not(.MuiMenu-paper):not(.MuiPopover-paper):not(.MuiAlert-root),
+.qqq-themed .MuiCard-root
+{
+   background-color: var(--qqq-surface-color, #ffffff) !important;
+}
+
+/*****************************************************************************
+ ** Menu theming - uses CSS variables from MaterialDashboardThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
+ *****************************************************************************/
+.qqq-themed .MuiMenu-paper,
+.qqq-themed .MuiPopover-paper[role="menu"]
+{
+   background-color: var(--qqq-surface-color, #ffffff) !important;
+}
+
+.qqq-themed .MuiMenuItem-root
+{
+   color: var(--qqq-text-primary, #344767);
+}
+
+.qqq-themed .MuiMenuItem-root:hover
+{
+   background-color: var(--qqq-menu-hover-color, var(--qqq-action-hover));
+}
+
+/*****************************************************************************
+ ** Typography theming - uses CSS variables from MaterialDashboardThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
+ *****************************************************************************/
+.qqq-themed .MuiTypography-body1
+{
+   font-weight: var(--qqq-font-weight-regular, 400) !important;
+}
+
+.qqq-themed .MuiTypography-body2
+{
+   font-weight: var(--qqq-font-weight-regular, 400) !important;
+}
+
+/*****************************************************************************
+ ** Button theming - uses CSS variables from MaterialDashboardThemeMetaData
+ ** NOT scoped to .qqq-themed to match develop behavior (applies to all apps)
+ *****************************************************************************/
+.qqq-themed .MuiButton-root
+{
+   font-weight: var(--qqq-typography-button-font-weight, 500) !important;
+}
+
+.qqq-themed .MuiButton-containedPrimary
+{
+   background-color: var(--qqq-primary-color, #0062FF) !important;
+}
+
+.qqq-themed .MuiButton-containedSecondary
+{
+   background-color: var(--qqq-secondary-color, #7b809a) !important;
+}
+
+.qqq-themed .MuiButton-outlinedPrimary
+{
+   border-color: var(--qqq-primary-color, #0062FF) !important;
+   color: var(--qqq-primary-color, #0062FF) !important;
+}
+
+/* use qqq-primary-color for button text - UNLESS the button variant is gradient or contained (which are colored background) */
+.qqq-themed .MuiButton-textPrimary:not([data-button-variant="gradient"]):not([data-button-variant="contained"])
+{
+   color: var(--qqq-primary-color, #0062FF) !important;
+}
+
+/*****************************************************************************
+ ** DataGrid theming - uses CSS variables from MaterialDashboardThemeMetaData
+ ** Scoped to .qqq-themed to avoid affecting unthemed apps
+ *****************************************************************************/
+.qqq-themed .MuiDataGrid-columnHeaders,
+.qqq-themed .MuiDataGrid-columnHeader
+{
+   background-color: var(--qqq-table-header-background-color, #f0f2f5) !important;
+}
+
+.qqq-themed .MuiDataGrid-columnHeaderTitle
+{
+   color: var(--qqq-table-header-text-color, #344767) !important;
+}
+
+.qqq-themed .MuiDataGrid-row:hover
+{
+   background-color: var(--qqq-table-row-hover-color, rgba(0, 0, 0, 0.04)) !important;
+}
+
+.qqq-themed .MuiDataGrid-row.Mui-selected
+{
+   background-color: var(--qqq-table-row-selected-color, rgba(0, 98, 255, 0.08)) !important;
+}
+
+.qqq-themed .MuiDataGrid-columnSeparator
+{
+   border-color: var(--qqq-table-border-color, rgba(0, 0, 0, 0.12)) !important;
+}
+
+.qqq-themed .MuiDataGrid-cell
+{
+   border-color: var(--qqq-table-border-color, rgba(0, 0, 0, 0.12)) !important;
+}
+
+.qqq-themed .MuiDataGrid-root
+{
+   border-color: var(--qqq-table-border-color, rgba(0, 0, 0, 0.12)) !important;
+}
+
 .looker-embed
 {
    width: 100%;
@@ -903,8 +1120,10 @@ input[type="search"]::-webkit-search-results-decoration
    border: 1px #d6d6d6 solid;
 }
 
-#looker-embed iframe {
+#looker-embed iframe
+{
    width: 100% !important;
    height: 100% !important;
    border: none;
 }
+

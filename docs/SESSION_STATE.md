@@ -1,58 +1,49 @@
 # Session State - QQQ Frontend Material Dashboard
 
-**Last Updated:** 2026-01-24
-**Branch:** `develop`
+**Last Updated:** 2026-01-15
+**Branch:** `feature/fix-visual-regressions-128`
 **Version:** `0.40.0-SNAPSHOT`
 
 ## Current Status
 
-On `develop` branch. Just completed fix for issue #134 (base path detection bug).
-
-## Active PR
-
-- **PR #136** - fix(PathUtils): correct base path detection for root deployments
-  - Branch: `feature/134-base-path-detection-bug`
-  - Fixes issue #134
-  - Adds 25 unit tests for PathUtils
-  - Awaiting review/merge
-
-## Recent Commits (develop)
-
-```
-a969192 chore: update qqq-frontend-core to 0.40.4-SNAPSHOT
-a43b5c8 Merged feature/365-formal-support-for-tables-belonging-to-multiple-apps
-1d82bfd Merged feature/364-customizable-table-action-menus-and-additional-menu-support
-7287659 chore: bump package.json version to 0.40.0-SNAPSHOT to match pom.xml
-99a8f79 Merge pull request #131 from QRun-IO/feature/371-Anonymous-auth-module
-```
+**ROUND 6 FIXES COMPLETE (ALL 5 ISSUES)** - Ready for Darin to test.
 
 ## What Was Done This Session
 
-1. Analyzed issue #134 - base path detection bug causing path duplication
-2. Identified two bugs in `detectBasePath()`:
-   - Bug 1: `if (match && match[1])` fails for root deployments (empty string is falsy)
-   - Bug 2: Strategy 3 incorrectly used current URL path as base path
-3. Fixed both bugs in `src/qqq/utils/PathUtils.ts`
-4. Created comprehensive test suite with 25 unit tests
-5. Verified all Playwright visual regression tests pass (18 tests)
-6. Created feature branch, committed, and opened PR #136
-7. Updated GitHub issue #134 with fix details
+### Issue #128 Visual Regressions - Round 6
 
-## Next Steps
+Fixed 5 regressions reported by Darin (compared to develop branch):
 
-- [ ] Get PR #136 reviewed and merged
-- [ ] Review dependabot PR #135 (lodash bump)
-- [ ] Address npm audit vulnerabilities
+| Issue | Root Cause | Fix |
+|-------|------------|-----|
+| Sidenav double-highlight | CSS hover rules added in `064e86d` conflicted with JS hover | Removed CSS rules (lines 949-953) |
+| Chip border radius changed | `shape.borderRadius: 8` vs MUI default 4 | Changed default to 4 |
+| Menu padding increased | MuiMenuItem override set 8px vs menuItem.ts's ~5px | Removed override |
+| View field height reduced | Button typography changed (lineHeight 1.5→1.75, fontWeight 300→500) | Reverted to develop values |
+| Button color change | Button CSS scoped to `.qqq-themed` class (develop was unscoped) | Removed `.qqq-themed` scoping from button rules |
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `src/qqq/styles/qqq-override-styles.css` | Removed sidenav hover CSS; removed `.qqq-themed` scoping from button rules |
+| `src/qqq/utils/createDynamicTheme.ts` | Fixed borderRadius default (4), removed MuiMenuItem, fixed button typography |
+| `src/qqq/utils/themeUtils.ts` | Fixed DEFAULT_THEME borderRadius and button typography |
+| `e2e/tests/round6-regressions.spec.ts` | Added 10 tests for Round 6 fixes (including Issue 5) |
 
 ## Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Jest unit tests (PathUtils) | 25 | PASS |
-| Playwright visual regression | 18 | PASS |
-| Selenium fixture-based | ~100 | Not run this session |
+| Playwright themed | 26 | PASS |
+| Round 6 regression tests | 10 | PASS |
 
-## Key Files Modified This Session
+## Next Steps
 
-- `src/qqq/utils/PathUtils.ts` - Bug fix
-- `src/qqq/utils/PathUtils.test.ts` - New test file (25 tests)
+1. Commit Round 6 fixes
+2. Darin to test on branch `feature/fix-visual-regressions-128`
+3. If approved, create PR to merge into develop
+
+## GitHub Issue
+
+https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128

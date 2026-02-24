@@ -15,7 +15,7 @@
     "@mui/x-data-grid-pro": "5.17.23",
     "@mui/x-date-pickers": "7.1.1",
     "@mui/x-license-pro": "5.12.3",
-    "@qrunio/qqq-frontend-core": "0.40.8-SNAPSHOT",
+    "@qrunio/qqq-frontend-core": "0.40.9-SNAPSHOT",
     "@react-jvectormap/core": "1.0.1",
     "@react-jvectormap/unitedstates": "1.0.1",
     "@react-oauth/google": "0.2.8",
@@ -75,7 +75,11 @@
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:headed": "npx playwright test --headed",
     "fixture-server": "node e2e/fixture-server.js",
-    "e2e": "concurrently --kill-others \"npm run fixture-server\" \"npx playwright test\""
+    "fixture-server:unthemed": "THEME_FIXTURE=index node e2e/fixture-server.js",
+    "e2e": "npx playwright test",
+    "e2e:themed": "THEME_FIXTURE=withFullCustomTheme npx playwright test e2e/tests/theme.spec.ts",
+    "e2e:unthemed": "THEME_FIXTURE=index npx playwright test e2e/tests/unthemed-regression.spec.ts",
+    "e2e:all": "npm run e2e:themed && npm run e2e:unthemed"
   },
   "eslintConfig": {
     "extends": [

@@ -4,7 +4,8 @@
 
 ## Goal
 
-Add stable, semantic CSS selectors so QQQ app developers can target specific UI elements in `QThemeMetaData.customCss`.
+Add stable, semantic CSS selectors so QQQ app developers can target specific UI elements in 
+`MaterialDashboardThemeMetaData.customCss`.
 
 ## Approach
 

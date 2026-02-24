@@ -236,36 +236,74 @@ Read these files in order:
 2. `docs/TODO.md` - Active and completed tasks
 3. This file (`CLAUDE.md`) - Project context
 
-### Current Status (as of 2026-01-24)
+### Current Status (as of 2026-01-14)
 
 | Item | Value |
 |------|-------|
-| Branch | `develop` |
+| Branch | `feature/fix-visual-regressions-128` |
 | Version | `0.40.0-SNAPSHOT` |
-| Active PR | #136 (base path detection fix) |
+| Latest Commit | `12934bb` - fix: align typography fallbacks with production typography.ts (#128) |
+| Status | **READY FOR REVIEW** - All typography fixes verified, waiting on Darin |
+| GitHub Issue | [#128](https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128) |
 
-### Recent Activity
+### Active Work: Issue #128 Visual Regressions (Round 5 - COMPLETE)
 
-- **PR #136** - Fix for issue #134 (base path detection bug)
-- **PR #131** - Auth module enhancements (merged)
-- **Feature #364** - Customizable table action menus (merged)
-- **Feature #365** - Tables belonging to multiple apps (merged)
-- **25 unit tests** - Added for PathUtils (detectBasePath, resolveAssetUrl)
-- **18 visual regression tests** - Playwright screenshot tests
+**Status:** All fixes complete and verified, waiting on Darin's approval
+
+**Root Cause Identified:** The `createDynamicTheme.ts` fallback values and `DEFAULT_THEME` values didn't match the original `typography.ts` source of truth. The original `Theme.ts` used `typography: {...typography}` (direct spread), so production always used `typography.ts` values directly.
+
+**What was fixed:**
+- Round 1-3: CSS scoping with `.qqq-themed` class
+- Round 4: Added CSS variable fallbacks to all `var(--qqq-*)` instances
+- Round 5: Aligned ALL 32 typography fallbacks with `typography.ts`
+
+**Key Typography Corrections (verified against typography.ts):**
+| Property | Before (WRONG) | After (CORRECT) | Source |
+|----------|---------------|-----------------|--------|
+| textPrimary | #344767 | #212121 | colors.ts dark.main |
+| fontWeightMedium | 500 | 600 | typography.ts:156 |
+| H3 fontSize/weight | 1.5rem/700 | 1.75rem/600 | typography.ts:202-205 |
+| H6 fontSize/weight | 0.875rem/600 | 1.125rem/500 | typography.ts:221-224 |
+| body2 weight | 400 | 300 | typography.ts:251 |
+| button weight | 500 | 300 | typography.ts:258 |
+| caption weight | 400 | 300 | typography.ts:266 |
+
+**Next steps:**
+1. Wait for Darin to test on branch `feature/fix-visual-regressions-128`
+2. If approved, create PR to merge into develop
+3. Publish snapshot after merge
 
 ### Test Status
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Jest unit tests (PathUtils) | 25 | PASS |
-| Playwright visual regression | 18 | PASS |
-| Selenium fixture-based | ~100 | PASS |
+| Playwright themed | 26 | PASS |
+| Playwright unthemed | 13 | PASS |
 
-### Pending Work
+### Key Files for Theme System
 
-- Get PR #136 reviewed and merged (closes #134)
-- Review dependabot PR #135 (lodash bump)
-- Address npm audit vulnerabilities
+| File | Purpose |
+|------|---------|
+| `src/qqq/assets/theme/base/typography.ts` | **SOURCE OF TRUTH** for typography values |
+| `src/qqq/assets/theme/base/colors.ts` | Color definitions (dark.main = #212121) |
+| `src/qqq/utils/createDynamicTheme.ts` | Builds MUI theme from QThemeMetaData |
+| `src/qqq/utils/themeUtils.ts` | DEFAULT_THEME values, CSS variable injection |
+| `src/qqq/components/legacy/Theme.ts` | Original theme (spreads typography.ts directly) |
+
+### Running Locally for Testing
+
+```bash
+# Unthemed (original MUI styling, no CSS variable overrides)
+THEME_FIXTURE=index npm run fixture-server &
+HTTPS=true PORT=3000 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start
+
+# Themed (full theme applied with CSS variables)
+THEME_FIXTURE=withFullCustomTheme npm run fixture-server &
+HTTPS=true PORT=3000 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start
+
+# Run all e2e tests (themed + unthemed)
+npm run e2e:all
+```
 
 ### Key Documentation Files
 
@@ -273,6 +311,9 @@ Read these files in order:
 |------|---------|
 | `docs/SESSION_STATE.md` | Current work status, branch, version, recent commits |
 | `docs/TODO.md` | Task tracking for current feature |
+| `docs/QQQ_THEMING_GUIDE.md` | Complete theming reference |
+| `docs/QQQ_CSS_SELECTORS_GUIDE.md` | CSS selector patterns reference |
+| `docs/THEME_TESTING_GUIDE.md` | Guide for testing theme features |
 
 ### Publishing
 

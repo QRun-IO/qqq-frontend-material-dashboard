@@ -50,11 +50,7 @@ function item(theme: Theme | any, ownerState: any)
          }
          else if (active === "isParent" && transparentSidenav)
          {
-            backgroundValue = grey[300];
-         }
-         else if (active === "isParent" && whiteSidenav)
-         {
-            backgroundValue = grey[200];
+            return "var(--qqq-sidebar-selected-background-color, rgba(255, 255, 255, 0.2))";
          }
          else if (active)
          {
@@ -69,9 +65,7 @@ function item(theme: Theme | any, ownerState: any)
       }),
 
       "&:hover, &:focus": {
-         backgroundColor:
-            !active &&
-            rgba((transparentSidenav && !darkMode) || whiteSidenav ? grey[400] : white.main, 0.2),
+         backgroundColor: !active ? "var(--qqq-sidebar-hover-background-color, rgba(255, 255, 255, 0.1))" : undefined,
       },
    };
 }
@@ -96,10 +90,7 @@ function itemContent(theme: Theme, ownerState: any)
       position: "relative",
 
       "& span": {
-         color:
-            ((transparentSidenav && !darkMode) || whiteSidenav) && (active === "isParent" || !active)
-               ? dark.main
-               : white.main,
+         color: active ? "var(--qqq-sidebar-selected-text-color, #ffffff)" : "var(--qqq-sidebar-text-color, #ffffff)",
          fontWeight: active ? fontWeightRegular : fontWeightLight,
          fontSize: size.sm,
          opacity: miniSidenav ? 0 : 1,
@@ -110,10 +101,7 @@ function itemContent(theme: Theme, ownerState: any)
       },
 
       "&::before": {
-         color:
-            ((transparentSidenav && !darkMode) || whiteSidenav) && (active === "isParent" || !active)
-               ? dark.main
-               : white.main,
+         color: active ? "var(--qqq-sidebar-selected-text-color, #ffffff)" : "var(--qqq-sidebar-text-color, #ffffff)",
          fontWeight: fontWeightRegular,
          display: "flex",
          alignItems: "center",
@@ -143,25 +131,8 @@ function itemArrow(theme: Theme, ownerState: any)
       fontWeight: 700,
       marginBottom: pxToRem(-1),
       transform: open ? "rotate(0)" : "rotate(-180deg)",
-      color: () =>
-      {
-         let colorValue;
-
-         if (transparentSidenav && darkMode)
-         {
-            colorValue = open || active ? white.main : rgba(white.main, 0.25);
-         }
-         else if (transparentSidenav || whiteSidenav)
-         {
-            colorValue = open || active ? dark.main : rgba(dark.main, 0.25);
-         }
-         else
-         {
-            colorValue = open || active ? white.main : rgba(white.main, 0.5);
-         }
-
-         return colorValue;
-      },
+      color: open || active ? "var(--qqq-sidebar-selected-text-color, #ffffff)" : "var(--qqq-sidebar-icon-color, #ffffff)",
+      opacity: open || active ? 1 : 0.5,
       transition: transitions.create(["color", "transform", "opacity"], {
          easing: transitions.easing.easeInOut,
          duration: transitions.duration.shorter,

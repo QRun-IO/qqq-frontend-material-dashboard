@@ -439,24 +439,33 @@ function SavedViews({useSavedViewsResult, metaData, tableMetaData, currentSavedV
    );
 
    let buttonText = "Views";
-   let buttonBackground = "none";
-   let buttonBorder = colors.grayLines.main;
+   let buttonBackground = "unset";
+   let buttonBorder = colors.grayLines.main + " !important";
    let buttonColor = colors.gray.main;
+   let buttonVariant: "outlined" | "contained" | "text" = "outlined";
+   let buttonColorName: "secondary" | "primary" = "secondary";
+   let buttonState: string = "empty";
 
    const savedViewId = currentSavedView?.values.get("id");
    if (currentSavedView && ([...yourSavedViews, ...viewsSharedWithYou]).map(view => view.values.get("id")).includes(savedViewId))
    {
       if (viewIsModified)
       {
-         buttonBackground = accentColorLight;
-         buttonBorder = buttonBackground;
-         buttonColor = accentColor;
+         buttonBackground = accentColorLight + " !important";
+         buttonBorder = buttonBackground + " !important";
+         buttonColor = accentColor + " !important";
+         buttonVariant = "contained";
+         buttonColorName = "primary";
+         buttonState = "dirty";
       }
       else
       {
-         buttonBackground = accentColor;
-         buttonBorder = buttonBackground;
-         buttonColor = "#FFFFFF";
+         buttonBackground = accentColor + " !important";
+         buttonBorder = buttonBackground + " !important";
+         buttonColor = "#FFFFFF" + " !important";
+         buttonVariant = "contained";
+         buttonColorName = "primary";
+         buttonState = "clean";
       }
    }
 
@@ -464,6 +473,7 @@ function SavedViews({useSavedViewsResult, metaData, tableMetaData, currentSavedV
       border: `1px solid ${buttonBorder}`,
       backgroundColor: buttonBackground,
       color: buttonColor,
+      boxShadow: "none",
       "&:focus:not(:hover)": {
          color: buttonColor,
          backgroundColor: buttonBackground,
@@ -471,6 +481,8 @@ function SavedViews({useSavedViewsResult, metaData, tableMetaData, currentSavedV
       "&:hover": {
          color: buttonColor,
          backgroundColor: buttonBackground,
+         boxShadow: "none",
+         filter: "unset"
       }
    };
 
@@ -510,7 +522,11 @@ function SavedViews({useSavedViewsResult, metaData, tableMetaData, currentSavedV
          <>
             <Box order="1" mr={"0.5rem"}>
                <Button
+                  variant={buttonVariant}
+                  color={buttonColorName}
+                  data-button-state={buttonState}
                   onClick={openSavedViewsMenu}
+                  data-qqq-id="button-views"
                   sx={{
                      borderRadius: "0.75rem",
                      textTransform: "none",

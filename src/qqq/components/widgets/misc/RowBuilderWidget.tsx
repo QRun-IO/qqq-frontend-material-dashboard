@@ -933,10 +933,10 @@ export const buttonSX =
       paddingLeft: "1rem",
       paddingRight: "1rem",
       opacity: "1",
-      color: colors.dark.main,
-      "&:hover": {color: colors.dark.main},
-      "&:focus": {color: colors.dark.main},
-      "&:focus:not(:hover)": {color: colors.dark.main},
+      color: "var(--qqq-text-primary, #212121)",
+      "&:hover": {color: "var(--qqq-text-primary, #212121)"},
+      "&:focus": {color: "var(--qqq-text-primary, #212121)"},
+      "&:focus:not(:hover)": {color: "var(--qqq-text-primary, #212121)"},
    };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
