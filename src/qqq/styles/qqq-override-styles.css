@@ -716,6 +716,16 @@ input[type="search"]::-webkit-search-results-decoration
    padding: 24px;
 }
 
+/* Remove the height: 100% from the container above collapsed dashboard widgets.
+The .widgetIsCollapsed is a 2-level deep descendant of .dashboardWidgetContainer
+(and we don't want to find deeper levels, due to parent widgets maybe having an
+inner child collapsed, which is why the '> * >' is used in the :has()).
+Limit this to the record-view screen, until it's found to be wanted elsewhere. */
+.recordView .dashboardWidgetContainer:has(> * > .widgetIsCollapsed)
+{
+   height: auto;
+}
+
 .MuiPickersDay-root.Mui-selected, .MuiPickersDay-root.MuiPickersDay-dayWithMargin:hover
 {
    color: white;

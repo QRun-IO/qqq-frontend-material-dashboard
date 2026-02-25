@@ -800,7 +800,7 @@ function Widget(props: React.PropsWithChildren<Props>): JSX.Element
 
    const errorLoading = props.widgetData?.errorLoading !== undefined && props.widgetData?.errorLoading === true;
    const widgetContent =
-      <Box sx={{width: "100%", height: "100%", minHeight: props.widgetMetaData?.minHeight ? props.widgetMetaData?.minHeight : "initial"}}>
+      <Box className={collapsibleStateIsOpen ? "widgetIsNotCollapsed" : "widgetIsCollapsed"} sx={{width: "100%", height: collapsibleStateIsOpen ? "100%" : "auto", minHeight: props.widgetMetaData?.minHeight ? props.widgetMetaData?.minHeight : "initial"}}>
          {
             needLabelBox &&
             <Box display="flex" justifyContent="space-between" alignItems="flex-start" sx={{width: "100%", ...props.labelBoxAdditionalSx}} minHeight={"2.5rem"} className="widgetLabelBox" {...moreHeaderProps}>
