@@ -516,6 +516,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    /////////////////////////////////////////////////////////////////////////////////////////////
    useEffect(() =>
    {
+      console.log("@dk the set action mennu memo is running");
       let actionMenu: QMenu = null;
       if (metaData && tableMetaData)
       {
@@ -1167,7 +1168,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
             {renderRecordViewActions()}
          </Box>
       );
-   }, [showRecordViewActionsInlineWithPageTitle, metaData, tableMetaData, record, actionsMenuAnchorElement, actionMenu, itemsShownInActionsMenu]);
+   }, [showRecordViewActionsInlineWithPageTitle, metaData, tableMetaData, record, actionsMenuAnchorElement, actionMenu]);
 
    useEffect(() =>
    {
