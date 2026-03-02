@@ -636,6 +636,7 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
          fieldEndAdornment={<Box whiteSpace="nowrap"><Icon>arrow_upward</Icon><Icon>arrow_downward</Icon></Box>}
          handleAdornmentClick={handleSetSortArrowClick}
          omitExposedJoins={props.omitExposedJoins}
+         includeVirtualFields="queryCriteria"
       />);
 
    const filterBuilderMouseEvents =
@@ -734,6 +735,7 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
                               isModeSelectOne={true}
                               handleSelectedField={handleFieldListMenuSelection}
                               omitExposedJoins={props.omitExposedJoins}
+                              includeVirtualFields="queryCriteria"
                            />
                         }
                      </>

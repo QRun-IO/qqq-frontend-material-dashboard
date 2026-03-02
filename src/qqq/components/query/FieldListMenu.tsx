@@ -32,6 +32,7 @@ import ListItem, {ListItemProps} from "@mui/material/ListItem/ListItem";
 import Menu from "@mui/material/Menu";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
+import {QVirtualFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QVirtualFieldMetaData";
 import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import React, {useMemo, useState} from "react";
 
@@ -52,13 +53,15 @@ interface FieldListMenuProps
    handleToggleField?: (field: QFieldMetaData, table: QTableMetaData, newValue: boolean) => void,
    fieldEndAdornment?: JSX.Element,
    handleAdornmentClick?: (field: QFieldMetaData, table: QTableMetaData, event: React.MouseEvent<any>) => void,
-   omitExposedJoins?: string[]
+   omitExposedJoins?: string[],
+   includeVirtualFields: "all" | "none" | "querySelectable" | "queryCriteria"
 }
 
 FieldListMenu.defaultProps = {
    showTableHeaderEvenIfNoExposedJoins: false,
    isModeSelectOne: false,
    isModeToggle: false,
+   includeVirtualFields: "none"
 };
 
 interface TableWithFields
@@ -71,7 +74,7 @@ interface TableWithFields
  ** Component to render a list of fields from a table (and its join tables)
  ** which can be interacted with...
  *******************************************************************************/
-export default function FieldListMenu({idPrefix, heading, placeholder, tableMetaData, showTableHeaderEvenIfNoExposedJoins, buttonProps, buttonChildren, isModeSelectOne, fieldNamesToHide, handleSelectedField, isModeToggle, toggleStates, handleToggleField, fieldEndAdornment, handleAdornmentClick, omitExposedJoins}: FieldListMenuProps): JSX.Element
+export default function FieldListMenu({idPrefix, heading, placeholder, tableMetaData, showTableHeaderEvenIfNoExposedJoins, buttonProps, buttonChildren, isModeSelectOne, fieldNamesToHide, handleSelectedField, isModeToggle, toggleStates, handleToggleField, fieldEndAdornment, handleAdornmentClick, omitExposedJoins, includeVirtualFields}: FieldListMenuProps): JSX.Element
 {
    const [menuAnchorElement, setMenuAnchorElement] = useState(null);
    const [searchText, setSearchText] = useState("");
@@ -161,7 +164,8 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
    function getTableFieldsAsAlphabeticalArray(table: QTableMetaData): QFieldMetaData[]
    {
       const fields: QFieldMetaData[] = [];
-      table.fields.forEach(field =>
+
+      const fieldPusher = (field: QFieldMetaData) =>
       {
          let fullFieldName = field.name;
          if (table.name != tableMetaData.name)
@@ -169,12 +173,32 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
             fullFieldName = `${table.name}.${field.name}`;
          }
 
+         if(field instanceof QVirtualFieldMetaData)
+         {
+            if(includeVirtualFields == "none")
+            {
+               return;
+            }
+            else if (includeVirtualFields == "queryCriteria" && !field.isQueryCriteria)
+            {
+               return;
+            }
+            else if (includeVirtualFields == "querySelectable" && !field.isQuerySelectable)
+            {
+               return;
+            }
+         }
+
          if (fieldNamesToHide && fieldNamesToHide.indexOf(fullFieldName) > -1)
          {
             return;
          }
          fields.push(field);
-      });
+      }
+
+      table.fields.forEach(field => fieldPusher(field));
+      table.virtualFields?.forEach(field => fieldPusher(field));
+
       fields.sort((a, b) => a.label.localeCompare(b.label));
       return (fields);
    }
@@ -483,14 +507,41 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
    }
 
 
+   /***************************************************************************
+    * Get the list of fields (and allowed virtual fields) for a given table.
+    ***************************************************************************/
+   function getFieldsList(table: QTableMetaData): QFieldMetaData[]
+   {
+      const fieldsList = [...table.fields.values()];
+      if (table.virtualFields && includeVirtualFields != "none")
+      {
+         for (let virtualField of table.virtualFields.values())
+         {
+            if (includeVirtualFields == "querySelectable" && virtualField.isQuerySelectable)
+            {
+               fieldsList.push(virtualField);
+            }
+            else if (includeVirtualFields == "queryCriteria" && virtualField.isQueryCriteria)
+            {
+               fieldsList.push(virtualField);
+            }
+            else if (includeVirtualFields == "all")
+            {
+               fieldsList.push(virtualField);
+            }
+         }
+      }
+      return fieldsList;
+   }
+
+
    /*******************************************************************************
     ** Event handler for toggling a table in toggle mode
     *******************************************************************************/
    function handleTableToggle(event: React.ChangeEvent<HTMLInputElement>, table: QTableMetaData)
    {
       event.stopPropagation();
-
-      const fieldsList = [...table.fields.values()];
+      const fieldsList = getFieldsList(table);
       for (let i = 0; i < fieldsList.length; i++)
       {
          const field = fieldsList[i];
@@ -529,7 +580,8 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
     *******************************************************************************/
    function getTableToggleState(table: QTableMetaData, isMainTable: boolean): { allOn: boolean, count: number }
    {
-      const fieldsList = [...table.fields.values()];
+      const fieldsList = getFieldsList(table);
+
       let allOn = true;
       let count = 0;
       for (let i = 0; i < fieldsList.length; i++)
@@ -605,7 +657,7 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
                   </Box>
                }
                <Box p={1} pt={0.5}>
-                  <TextField id={textFieldId} variant="outlined" placeholder={placeholder ?? "Search Fields"} fullWidth value={searchText} onChange={updateSearch} onKeyDown={keyDown} inputProps={{sx: {pr: "2rem"}}} />
+                  <TextField id={textFieldId} variant="outlined" placeholder={placeholder ?? "Search Fields"} fullWidth value={searchText} onChange={updateSearch} onKeyDown={keyDown} inputProps={{sx: {pr: "2rem"}, autoComplete: "off"}} />
                   {
                      searchText != "" && <IconButton sx={{position: "absolute", right: "0.5rem", top: "0.5rem"}} onClick={() =>
                      {

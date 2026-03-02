@@ -22,6 +22,7 @@
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {FieldFunction} from "@qrunio/qqq-frontend-core/lib/model/query/FieldFunction";
 import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCriteriaOperator";
 import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterCriteria";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -82,6 +83,7 @@ export interface OperatorOption
    value: QCriteriaOperator;
    implicitValues?: any[];
    valueMode: ValueMode;
+   fieldFunctionType?: string
 }
 
 export const getDefaultCriteriaValue = () => [""];
@@ -89,7 +91,7 @@ export const getDefaultCriteriaValue = () => [""];
 export const getOperatorOptions = (tableMetaData: QTableMetaData, fieldName: string): OperatorOption[] =>
 {
    const [field, fieldTable] = FilterUtils.getField(tableMetaData, fieldName);
-   let operatorOptions = [];
+   let operatorOptions: OperatorOption[] = [];
    if (field && fieldTable)
    {
       //////////////////////////////////////////////////////
@@ -135,10 +137,8 @@ export const getOperatorOptions = (tableMetaData: QTableMetaData, fieldName: str
                operatorOptions.push({label: "is not empty", value: QCriteriaOperator.IS_NOT_BLANK, valueMode: ValueMode.NONE});
                operatorOptions.push({label: "is between", value: QCriteriaOperator.BETWEEN, valueMode: ValueMode.DOUBLE_DATE});
                operatorOptions.push({label: "is not between", value: QCriteriaOperator.NOT_BETWEEN, valueMode: ValueMode.DOUBLE_DATE});
-               //? operatorOptions.push({label: "is between", value: QCriteriaOperator.BETWEEN});
-               //? operatorOptions.push({label: "is not between", value: QCriteriaOperator.NOT_BETWEEN});
-               //? operatorOptions.push({label: "is any of", value: QCriteriaOperator.IN});
-               //? operatorOptions.push({label: "is none of", value: QCriteriaOperator.NOT_IN});
+               operatorOptions.push({label: "day is any of", value: QCriteriaOperator.IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDate"});
+               operatorOptions.push({label: "day is none of", value: QCriteriaOperator.NOT_IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDate"});
                break;
             case QFieldType.DATE_TIME:
                operatorOptions.push({label: "equals", value: QCriteriaOperator.EQUALS, valueMode: ValueMode.SINGLE_DATE_TIME});
@@ -151,8 +151,8 @@ export const getOperatorOptions = (tableMetaData: QTableMetaData, fieldName: str
                operatorOptions.push({label: "is not empty", value: QCriteriaOperator.IS_NOT_BLANK, valueMode: ValueMode.NONE});
                operatorOptions.push({label: "is between", value: QCriteriaOperator.BETWEEN, valueMode: ValueMode.DOUBLE_DATE_TIME});
                operatorOptions.push({label: "is not between", value: QCriteriaOperator.NOT_BETWEEN, valueMode: ValueMode.DOUBLE_DATE_TIME});
-               //? operatorOptions.push({label: "is between", value: QCriteriaOperator.BETWEEN});
-               //? operatorOptions.push({label: "is not between", value: QCriteriaOperator.NOT_BETWEEN});
+               operatorOptions.push({label: "day is any of", value: QCriteriaOperator.IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDateTime"});
+               operatorOptions.push({label: "day is none of", value: QCriteriaOperator.NOT_IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDateTime"});
                break;
             case QFieldType.BOOLEAN:
                operatorOptions.push({label: "equals yes", value: QCriteriaOperator.EQUALS, valueMode: ValueMode.NONE, implicitValues: [true]});
@@ -382,16 +382,17 @@ export function FilterCriteriaRow({id, index, tableMetaData, metaData, criteria,
    /////////////////////////////////////////////
    const handleOperatorChange = (event: any, newValue: any, reason: string) =>
    {
-      criteria.operator = newValue ? newValue.value : null;
+      const newOperatorOption = newValue as OperatorOption;
 
-      if (newValue)
+      if (newOperatorOption)
       {
-         setOperatorSelectedValue(newValue);
-         setOperatorInputValue(newValue.label);
+         criteria.operator = newOperatorOption.value;
+         setOperatorSelectedValue(newOperatorOption);
+         setOperatorInputValue(newOperatorOption.label);
 
-         if (newValue.implicitValues)
+         if (newOperatorOption.implicitValues)
          {
-            criteria.values = newValue.implicitValues;
+            criteria.values = newOperatorOption.implicitValues;
          }
 
          //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -403,17 +404,28 @@ export function FilterCriteriaRow({id, index, tableMetaData, metaData, criteria,
             criteria.values = [];
          }
 
-         if (newValue.valueMode && !newValue.implicitValues)
+         if (newOperatorOption.valueMode && !newOperatorOption.implicitValues)
          {
-            const requiredValueCount = getValueModeRequiredCount(newValue.valueMode);
+            const requiredValueCount = getValueModeRequiredCount(newOperatorOption.valueMode);
             if (requiredValueCount != null && criteria.values.length > requiredValueCount)
             {
                criteria.values.splice(requiredValueCount);
             }
          }
+
+         if(newOperatorOption.fieldFunctionType)
+         {
+            criteria.fieldFunction = new FieldFunction(criteria.fieldName, newOperatorOption.fieldFunctionType, {});
+         }
+         else
+         {
+            criteria.fieldFunction = undefined;
+         }
       }
       else
       {
+         criteria.operator = null;
+         criteria.fieldFunction = undefined;
          setOperatorSelectedValue(null);
          setOperatorInputValue("");
       }
@@ -489,7 +501,7 @@ export function FilterCriteriaRow({id, index, tableMetaData, metaData, criteria,
                : <span />}
          </Box>
          <Box display="inline-block" width={250} className="fieldColumn">
-            <FieldAutoComplete id={`field-${id}`} metaData={metaData} tableMetaData={tableMetaData} defaultValue={defaultFieldValue} handleFieldChange={handleFieldChange}
+            <FieldAutoComplete id={`field-${id}`} metaData={metaData} tableMetaData={tableMetaData} defaultValue={defaultFieldValue} handleFieldChange={handleFieldChange} includeVirtualFields="queryCriteria"
                omitExposedJoins={omitExposedJoins} autocompleteSlotProps={{popper: {className: "filterCriteriaRowColumnPopper", style: {padding: 0, width: "250px"}}}}
             />
          </Box>

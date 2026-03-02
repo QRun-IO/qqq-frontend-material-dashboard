@@ -28,12 +28,13 @@ import TextField from "@mui/material/TextField";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {FieldFunction} from "@qrunio/qqq-frontend-core/lib/model/query/FieldFunction";
 import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCriteriaOperator";
 import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterCriteria";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
 import {QFilterCriteriaWithId} from "qqq/components/query/CustomFilterPanel";
-import {getDefaultCriteriaValue, getOperatorOptions, getValueModeRequiredCount, OperatorOption, validateCriteria} from "qqq/components/query/FilterCriteriaRow";
+import {getDefaultCriteriaValue, getOperatorOptions, getValueModeRequiredCount, OperatorOption, validateCriteria, ValueMode} from "qqq/components/query/FilterCriteriaRow";
 import FilterCriteriaRowValues from "qqq/components/query/FilterCriteriaRowValues";
 import XIcon from "qqq/components/query/XIcon";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
@@ -326,16 +327,17 @@ export default function QuickFilter({tableMetaData, fullFieldName, fieldMetaData
     *******************************************************************************/
    const handleOperatorChange = (event: any, newValue: any, reason: string) =>
    {
-      criteria.operator = newValue ? newValue.value : null;
+      const newOperatorOption = newValue as OperatorOption;
 
-      if (newValue)
+      if (newOperatorOption)
       {
-         setOperatorSelectedValue(newValue);
-         setOperatorInputValue(newValue.label);
+         criteria.operator = newOperatorOption.value;
+         setOperatorSelectedValue(newOperatorOption);
+         setOperatorInputValue(newOperatorOption.label);
 
-         if (newValue.implicitValues)
+         if (newOperatorOption.implicitValues)
          {
-            criteria.values = newValue.implicitValues;
+            criteria.values = newOperatorOption.implicitValues;
          }
 
          //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -347,17 +349,49 @@ export default function QuickFilter({tableMetaData, fullFieldName, fieldMetaData
             criteria.values = [];
          }
 
-         if (newValue.valueMode && !newValue.implicitValues)
+         if (newOperatorOption.valueMode && !newOperatorOption.implicitValues)
          {
-            const requiredValueCount = getValueModeRequiredCount(newValue.valueMode);
+            const requiredValueCount = getValueModeRequiredCount(newOperatorOption.valueMode);
             if (requiredValueCount != null && criteria.values.length > requiredValueCount)
             {
                criteria.values.splice(requiredValueCount);
             }
          }
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+         // if the operator option has a field function, then set it on the criteria object - else clear it //
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+         if(newOperatorOption.fieldFunctionType)
+         {
+            criteria.fieldFunction = new FieldFunction(criteria.fieldName, newOperatorOption.fieldFunctionType, {});
+         }
+         else
+         {
+            criteria.fieldFunction = undefined;
+         }
+
+         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+         // for dates & date-times - if moving from a PVS operator to a date (or date time) operator, reset the values array //
+         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+         if((fieldMetaData?.type == "DATE" || fieldMetaData?.type == "DATE_TIME") && criteria.values.length > 0)
+         {
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // at first we thought this code might fail if you move from pvs to none, then none to date...            //
+            // but presumably that goes through a splice again, w/ required value count 0, thus making it a non-issue //
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            const isPvs = (option: OperatorOption) => option?.valueMode == ValueMode.PVS_SINGLE || option?.valueMode == ValueMode.PVS_MULTI;
+            const isDate = (option: OperatorOption) => option?.valueMode == ValueMode.SINGLE_DATE || option?.valueMode == ValueMode.DOUBLE_DATE || option?.valueMode == ValueMode.SINGLE_DATE_TIME || option?.valueMode == ValueMode.DOUBLE_DATE_TIME;
+
+            if((isPvs(operatorSelectedValue) && isDate(newOperatorOption)) || (isDate(operatorSelectedValue) && isPvs(newOperatorOption)))
+            {
+               criteria.values = [];
+            }
+         }
       }
       else
       {
+         criteria.operator = null;
+         criteria.fieldFunction = undefined;
          setOperatorSelectedValue(null);
          setOperatorInputValue("");
       }

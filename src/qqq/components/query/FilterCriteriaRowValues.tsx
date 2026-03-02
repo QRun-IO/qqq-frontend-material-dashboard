@@ -23,6 +23,7 @@
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {FilterVariableExpression} from "@qrunio/qqq-frontend-core/lib/model/query/FilterVariableExpression";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
@@ -407,10 +408,46 @@ function FilterCriteriaRowValues({operatorOption, criteria, field, table, valueC
                initialValues = criteria.values;
             }
          }
+
+         let inlinePossibleValues: QPossibleValue[];
+         if(operatorOption.fieldFunctionType === "WeekdayOfDate" || operatorOption.fieldFunctionType === "WeekdayOfDateTime")
+         {
+            const allDays: QPossibleValue[] = [
+               new QPossibleValue({id: 1, label: "Monday"}),
+               new QPossibleValue({id: 2, label: "Tuesday"}),
+               new QPossibleValue({id: 3, label: "Wednesday"}),
+               new QPossibleValue({id: 4, label: "Thursday"}),
+               new QPossibleValue({id: 5, label: "Friday"}),
+               new QPossibleValue({id: 6, label: "Saturday"}),
+               new QPossibleValue({id: 7, label: "Sunday"}),
+            ];
+
+            ////////////////////////////////////////////////////////////////////////////
+            // determine the locale's first day of week to order the list accordingly //
+            ////////////////////////////////////////////////////////////////////////////
+            let firstDay = 7; // default to Sunday
+            try
+            {
+               const locale = new Intl.Locale(navigator.language) as any;
+               const weekInfo = typeof locale.getWeekInfo === "function" ? locale.getWeekInfo() : locale.weekInfo;
+               if (weekInfo?.firstDay)
+               {
+                  firstDay = weekInfo.firstDay;
+               }
+            }
+            catch (e)
+            {
+               // fall back to Sunday-first
+            }
+
+            const startIndex = firstDay - 1;
+            inlinePossibleValues = [...allDays.slice(startIndex), ...allDays.slice(0, startIndex)];
+         }
+
          return <Box display="flex" alignItems="flex-end" className="multiValue">
             <Box width={"100%"}>
                <DynamicSelect
-                  fieldPossibleValueProps={{tableName: table.name, fieldName: field.name, initialDisplayValue: null}}
+                  fieldPossibleValueProps={{tableName: table.name, fieldName: field.name, initialDisplayValue: null, possibleValues: inlinePossibleValues}}
                   overrideId={field.name + "-multi-" + criteria.id}
                   key={field.name + "-multi-" + criteria.id + `-pasterIteration-${pasterIteration}`}
                   isMultiple
