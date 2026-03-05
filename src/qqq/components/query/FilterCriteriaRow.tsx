@@ -84,12 +84,23 @@ export interface OperatorOption
    implicitValues?: any[];
    valueMode: ValueMode;
    fieldFunctionType?: string
+   fieldFunctionArguments?: Record<string, any>
 }
 
 export const getDefaultCriteriaValue = () => [""];
 
-export const getOperatorOptions = (tableMetaData: QTableMetaData, fieldName: string): OperatorOption[] =>
+export const getOperatorOptions = (metaData: QInstance, tableMetaData: QTableMetaData, fieldName: string): OperatorOption[] =>
 {
+   ////////////////////////////////////////////////////////////////////////////////////////////
+   // read settings for weekday criteria from materialDashboard supplementalInstanceMetaData //
+   // if the settings aren't there, assume we DO want these criteria available.              //
+   // and allow application to set fieldFunctionArguments for WeekdayOfDateTime functions -  //
+   // e.g., to set default time zone or to set preference to use session time zone, etc.     //
+   ////////////////////////////////////////////////////////////////////////////////////////////
+   const weekdayCriteriaSettings = metaData.supplementalInstanceMetaData?.get("materialDashboard")?.weekdayCriteriaSettings;
+   const weekdayCriteriaEnabled = weekdayCriteriaSettings ? weekdayCriteriaSettings.enabled : true;
+   const weekdayCriteriaDateTimeFieldFunctionArguments: Record<string, any> | undefined = weekdayCriteriaSettings?.dateTimeFieldFunctionArguments;
+
    const [field, fieldTable] = FilterUtils.getField(tableMetaData, fieldName);
    let operatorOptions: OperatorOption[] = [];
    if (field && fieldTable)
@@ -137,8 +148,11 @@ export const getOperatorOptions = (tableMetaData: QTableMetaData, fieldName: str
                operatorOptions.push({label: "is not empty", value: QCriteriaOperator.IS_NOT_BLANK, valueMode: ValueMode.NONE});
                operatorOptions.push({label: "is between", value: QCriteriaOperator.BETWEEN, valueMode: ValueMode.DOUBLE_DATE});
                operatorOptions.push({label: "is not between", value: QCriteriaOperator.NOT_BETWEEN, valueMode: ValueMode.DOUBLE_DATE});
-               operatorOptions.push({label: "day is any of", value: QCriteriaOperator.IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDate"});
-               operatorOptions.push({label: "day is none of", value: QCriteriaOperator.NOT_IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDate"});
+               if(weekdayCriteriaEnabled)
+               {
+                  operatorOptions.push({label: "day is any of", value: QCriteriaOperator.IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDate"});
+                  operatorOptions.push({label: "day is none of", value: QCriteriaOperator.NOT_IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDate"});
+               }
                break;
             case QFieldType.DATE_TIME:
                operatorOptions.push({label: "equals", value: QCriteriaOperator.EQUALS, valueMode: ValueMode.SINGLE_DATE_TIME});
@@ -151,8 +165,11 @@ export const getOperatorOptions = (tableMetaData: QTableMetaData, fieldName: str
                operatorOptions.push({label: "is not empty", value: QCriteriaOperator.IS_NOT_BLANK, valueMode: ValueMode.NONE});
                operatorOptions.push({label: "is between", value: QCriteriaOperator.BETWEEN, valueMode: ValueMode.DOUBLE_DATE_TIME});
                operatorOptions.push({label: "is not between", value: QCriteriaOperator.NOT_BETWEEN, valueMode: ValueMode.DOUBLE_DATE_TIME});
-               operatorOptions.push({label: "day is any of", value: QCriteriaOperator.IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDateTime"});
-               operatorOptions.push({label: "day is none of", value: QCriteriaOperator.NOT_IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDateTime"});
+               if(weekdayCriteriaEnabled)
+               {
+                  operatorOptions.push({label: "day is any of", value: QCriteriaOperator.IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDateTime", fieldFunctionArguments: weekdayCriteriaDateTimeFieldFunctionArguments});
+                  operatorOptions.push({label: "day is none of", value: QCriteriaOperator.NOT_IN, valueMode: ValueMode.PVS_MULTI, fieldFunctionType: "WeekdayOfDateTime", fieldFunctionArguments: weekdayCriteriaDateTimeFieldFunctionArguments});
+               }
                break;
             case QFieldType.BOOLEAN:
                operatorOptions.push({label: "equals yes", value: QCriteriaOperator.EQUALS, valueMode: ValueMode.NONE, implicitValues: [true]});
@@ -304,7 +321,7 @@ export function FilterCriteriaRow({id, index, tableMetaData, metaData, criteria,
             defaultFieldValue = {field: field, table: fieldTable, fieldName: criteria.fieldName};
          }
 
-         operatorOptions = getOperatorOptions(tableMetaData, criteria.fieldName);
+         operatorOptions = getOperatorOptions(metaData, tableMetaData, criteria.fieldName);
 
          let newOperatorSelectedValue = operatorOptions.filter(option =>
          {
@@ -357,7 +374,7 @@ export function FilterCriteriaRow({id, index, tableMetaData, metaData, criteria,
       ////////////////////////////////////////////////////////////////////
       // update the operator options, and the operator on this criteria //
       ////////////////////////////////////////////////////////////////////
-      operatorOptions = getOperatorOptions(tableMetaData, criteria.fieldName);
+      operatorOptions = getOperatorOptions(metaData, tableMetaData, criteria.fieldName);
       if (operatorOptions.length)
       {
          if (isFieldTypeDifferent(oldFieldName, criteria.fieldName))
@@ -415,7 +432,7 @@ export function FilterCriteriaRow({id, index, tableMetaData, metaData, criteria,
 
          if(newOperatorOption.fieldFunctionType)
          {
-            criteria.fieldFunction = new FieldFunction(criteria.fieldName, newOperatorOption.fieldFunctionType, {});
+            criteria.fieldFunction = new FieldFunction(criteria.fieldName, newOperatorOption.fieldFunctionType, newOperatorOption.fieldFunctionArguments);
          }
          else
          {

@@ -40,6 +40,7 @@ import {EvaluatedExpression} from "qqq/components/query/EvaluatedExpression";
 import FilterCriteriaPaster from "qqq/components/query/FilterCriteriaPaster";
 import {OperatorOption, ValueMode} from "qqq/components/query/FilterCriteriaRow";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
+import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import React, {SyntheticEvent, useReducer, useState} from "react";
 import {flushSync} from "react-dom";
@@ -412,36 +413,7 @@ function FilterCriteriaRowValues({operatorOption, criteria, field, table, valueC
          let inlinePossibleValues: QPossibleValue[];
          if(operatorOption.fieldFunctionType === "WeekdayOfDate" || operatorOption.fieldFunctionType === "WeekdayOfDateTime")
          {
-            const allDays: QPossibleValue[] = [
-               new QPossibleValue({id: 1, label: "Monday"}),
-               new QPossibleValue({id: 2, label: "Tuesday"}),
-               new QPossibleValue({id: 3, label: "Wednesday"}),
-               new QPossibleValue({id: 4, label: "Thursday"}),
-               new QPossibleValue({id: 5, label: "Friday"}),
-               new QPossibleValue({id: 6, label: "Saturday"}),
-               new QPossibleValue({id: 7, label: "Sunday"}),
-            ];
-
-            ////////////////////////////////////////////////////////////////////////////
-            // determine the locale's first day of week to order the list accordingly //
-            ////////////////////////////////////////////////////////////////////////////
-            let firstDay = 7; // default to Sunday
-            try
-            {
-               const locale = new Intl.Locale(navigator.language) as any;
-               const weekInfo = typeof locale.getWeekInfo === "function" ? locale.getWeekInfo() : locale.weekInfo;
-               if (weekInfo?.firstDay)
-               {
-                  firstDay = weekInfo.firstDay;
-               }
-            }
-            catch (e)
-            {
-               // fall back to Sunday-first
-            }
-
-            const startIndex = firstDay - 1;
-            inlinePossibleValues = [...allDays.slice(startIndex), ...allDays.slice(0, startIndex)];
+            inlinePossibleValues = FilterUtils.getWeekdayPossibleValues();
          }
 
          return <Box display="flex" alignItems="flex-end" className="multiValue">

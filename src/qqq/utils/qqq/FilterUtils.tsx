@@ -189,6 +189,8 @@ class FilterUtils
 
          if (values && values.length)
          {
+            const fieldFunctionName = criteria?.fieldFunction?.functionTypeIdentifierName;
+
             for (let i = 0; i < values.length; i++)
             {
                //////////////////////////////////////////////////////////////////////////
@@ -201,11 +203,21 @@ class FilterUtils
                }
                else
                {
-                  ///////////////////////////////////////////
-                  // make date-times work for the frontend //
-                  ///////////////////////////////////////////
-                  if (field.type == QFieldType.DATE_TIME)
+                  if (fieldFunctionName == "WeekdayOfDate" || fieldFunctionName == "WeekdayOfDateTime")
                   {
+                     ////////////////////////////////////////////////////////////////////////////////////////////
+                     // for weekday-of functions, make PVS's out of the values (in case they're just the ints) //
+                     ////////////////////////////////////////////////////////////////////////////////////////////
+                     if(values[i] != null && values[i] != undefined && !values[i].label)
+                     {
+                        values[i] = this.getWeekdayPossibleValue(values[i]);
+                     }
+                  }
+                  else if (field.type == QFieldType.DATE_TIME)
+                  {
+                     ///////////////////////////////////////////
+                     // make date-times work for the frontend //
+                     ///////////////////////////////////////////
                      values[i] = ValueUtils.formatDateTimeValueForForm(values[i]);
                   }
                }
@@ -222,6 +234,53 @@ class FilterUtils
       {
          await FilterUtils.cleanupValuesInFilerFromQueryString(qController, tableMetaData, queryFilter.subFilters[j]);
       }
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public static getWeekdayPossibleValue(dayNo: number): QPossibleValue | null
+   {
+      return this.getWeekdayPossibleValues().filter(pv => pv.id == dayNo)[0] ?? null;
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public static getWeekdayPossibleValues(): QPossibleValue[]
+   {
+      const allDays: QPossibleValue[] = [
+         new QPossibleValue({id: 1, label: "Monday"}),
+         new QPossibleValue({id: 2, label: "Tuesday"}),
+         new QPossibleValue({id: 3, label: "Wednesday"}),
+         new QPossibleValue({id: 4, label: "Thursday"}),
+         new QPossibleValue({id: 5, label: "Friday"}),
+         new QPossibleValue({id: 6, label: "Saturday"}),
+         new QPossibleValue({id: 7, label: "Sunday"}),
+      ];
+
+      ////////////////////////////////////////////////////////////////////////////
+      // determine the locale's first day of week to order the list accordingly //
+      ////////////////////////////////////////////////////////////////////////////
+      let firstDay = 7; // default to Sunday
+      try
+      {
+         const locale = new Intl.Locale(navigator.language) as any;
+         const weekInfo = typeof locale.getWeekInfo === "function" ? locale.getWeekInfo() : locale.weekInfo;
+         if (weekInfo?.firstDay)
+         {
+            firstDay = weekInfo.firstDay;
+         }
+      }
+      catch (e)
+      {
+         // fall back to Sunday-first
+      }
+
+      const startIndex = firstDay - 1;
+      return [...allDays.slice(startIndex), ...allDays.slice(0, startIndex)];
    }
 
 

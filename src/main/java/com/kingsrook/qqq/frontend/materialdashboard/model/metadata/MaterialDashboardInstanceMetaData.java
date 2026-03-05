@@ -39,6 +39,8 @@ public class MaterialDashboardInstanceMetaData implements QSupplementalInstanceM
 
    private Integer queryScreenCopyFullQueryColumnValuesLimit = 100_000;
 
+   private WeekdayCriteriaSettings weekdayCriteriaSettings = new WeekdayCriteriaSettings();
+
 
 
    /*******************************************************************************
@@ -151,6 +153,44 @@ public class MaterialDashboardInstanceMetaData implements QSupplementalInstanceM
    public MaterialDashboardInstanceMetaData withQueryScreenCopyFullQueryColumnValuesLimit(Integer queryScreenCopyFullQueryColumnValuesLimit)
    {
       this.queryScreenCopyFullQueryColumnValuesLimit = queryScreenCopyFullQueryColumnValuesLimit;
+      return (this);
+   }
+
+
+
+   /*******************************************************************************
+    * Getter for weekdayCriteriaSettings
+    * @see #withWeekdayCriteriaSettings(WeekdayCriteriaSettings)
+    *******************************************************************************/
+   public WeekdayCriteriaSettings getWeekdayCriteriaSettings()
+   {
+      return (this.weekdayCriteriaSettings);
+   }
+
+
+
+   /*******************************************************************************
+    * Setter for weekdayCriteriaSettings
+    * @see #withWeekdayCriteriaSettings(WeekdayCriteriaSettings)
+    *******************************************************************************/
+   public void setWeekdayCriteriaSettings(WeekdayCriteriaSettings weekdayCriteriaSettings)
+   {
+      this.weekdayCriteriaSettings = weekdayCriteriaSettings;
+   }
+
+
+
+   /*******************************************************************************
+    * Fluent setter for weekdayCriteriaSettings
+    *
+    * @param weekdayCriteriaSettings
+    * TODO document this property
+    *
+    * @return this
+    *******************************************************************************/
+   public MaterialDashboardInstanceMetaData withWeekdayCriteriaSettings(WeekdayCriteriaSettings weekdayCriteriaSettings)
+   {
+      this.weekdayCriteriaSettings = weekdayCriteriaSettings;
       return (this);
    }
 

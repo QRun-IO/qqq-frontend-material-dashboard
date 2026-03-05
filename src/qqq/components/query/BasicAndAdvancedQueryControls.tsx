@@ -693,6 +693,7 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
                                  key={fieldName}
                                  allowVariables={props.allowVariables}
                                  fullFieldName={fieldName}
+                                 metaData={metaData}
                                  tableMetaData={tableMetaData}
                                  updateCriteria={updateQuickCriteria}
                                  criteriaParam={getQuickCriteriaParam(fieldName)}
@@ -713,6 +714,7 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
                               return (defaultQuickFilterFieldNameMap[fieldName] ? null : <QuickFilter
                                  key={fieldName}
                                  fullFieldName={fieldName}
+                                 metaData={metaData}
                                  tableMetaData={tableMetaData}
                                  updateCriteria={updateQuickCriteria}
                                  criteriaParam={getQuickCriteriaParam(fieldName)}

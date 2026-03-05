@@ -27,6 +27,7 @@ import Menu from "@mui/material/Menu";
 import TextField from "@mui/material/TextField";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {FieldFunction} from "@qrunio/qqq-frontend-core/lib/model/query/FieldFunction";
 import {QCriteriaOperator} from "@qrunio/qqq-frontend-core/lib/model/query/QCriteriaOperator";
@@ -46,6 +47,7 @@ export type CriteriaParamType = QFilterCriteriaWithId | null | "tooComplex";
 
 interface QuickFilterProps
 {
+   metaData: QInstance;
    tableMetaData: QTableMetaData;
    fullFieldName: string;
    fieldMetaData: QFieldMetaData;
@@ -171,9 +173,9 @@ const getOperatorSelectedValue = (operatorOptions: OperatorOption[], criteria: Q
  ** Component to render a QuickFilter - that is - a button, with a Menu under it,
  ** with Operator and Value controls.
  *******************************************************************************/
-export default function QuickFilter({tableMetaData, fullFieldName, fieldMetaData, criteriaParam, updateCriteria, defaultOperator, handleRemoveQuickFilterField, queryScreenUsage, allowVariables}: QuickFilterProps): JSX.Element
+export default function QuickFilter({metaData, tableMetaData, fullFieldName, fieldMetaData, criteriaParam, updateCriteria, defaultOperator, handleRemoveQuickFilterField, queryScreenUsage, allowVariables}: QuickFilterProps): JSX.Element
 {
-   const operatorOptions = fieldMetaData ? getOperatorOptions(tableMetaData, fullFieldName) : [];
+   const operatorOptions = fieldMetaData ? getOperatorOptions(metaData, tableMetaData, fullFieldName) : [];
    const [_, tableForField] = TableUtils.getFieldAndTable(tableMetaData, fullFieldName);
 
    const [isOpen, setIsOpen] = useState(false);
@@ -363,7 +365,7 @@ export default function QuickFilter({tableMetaData, fullFieldName, fieldMetaData
          /////////////////////////////////////////////////////////////////////////////////////////////////////
          if(newOperatorOption.fieldFunctionType)
          {
-            criteria.fieldFunction = new FieldFunction(criteria.fieldName, newOperatorOption.fieldFunctionType, {});
+            criteria.fieldFunction = new FieldFunction(criteria.fieldName, newOperatorOption.fieldFunctionType, newOperatorOption.fieldFunctionArguments);
          }
          else
          {
