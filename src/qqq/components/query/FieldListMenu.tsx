@@ -164,6 +164,7 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
    function getTableFieldsAsAlphabeticalArray(table: QTableMetaData): QFieldMetaData[]
    {
       const fields: QFieldMetaData[] = [];
+      const seenFields: Record<string, true> = {};
 
       const fieldPusher = (field: QFieldMetaData) =>
       {
@@ -171,6 +172,11 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
          if (table.name != tableMetaData.name)
          {
             fullFieldName = `${table.name}.${field.name}`;
+         }
+
+         if(seenFields[fullFieldName])
+         {
+            return;
          }
 
          if(field instanceof QVirtualFieldMetaData)
@@ -193,6 +199,8 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
          {
             return;
          }
+
+         seenFields[fullFieldName] = true;
          fields.push(field);
       }
 
