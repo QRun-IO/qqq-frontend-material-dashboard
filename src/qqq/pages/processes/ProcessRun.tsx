@@ -74,7 +74,7 @@ import {ChildRecordListData} from "qqq/components/widgets/misc/RecordGridWidget"
 import BaseLayout from "qqq/layouts/BaseLayout";
 import ProcessWidgetBlockUtils from "qqq/pages/processes/ProcessWidgetBlockUtils";
 import {TABLE_VARIANT_LOCAL_STORAGE_KEY_ROOT} from "qqq/pages/records/query/RecordQuery";
-import {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";

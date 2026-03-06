@@ -22,7 +22,7 @@
 import {QBrandingMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QBrandingMetaData";
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
 import {createContext, ReactNode} from "react";
 
 interface QContext

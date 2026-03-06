@@ -19,14 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import AnalyticsUtils from "qqq/utils/analytics/AnalyticsUtils";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
+import {AnalyticsModel} from "qqq/utils/analytics/AnalyticsTypes";
 
-export type {AnalyticsModel, PageView, UserEvent} from "qqq/utils/analytics/AnalyticsUtils";
-
-/**
- * @deprecated Prefer `qqq/utils/analytics/AnalyticsUtils`.
- */
-export default class GoogleAnalyticsUtils extends AnalyticsUtils
+export default interface AnalyticsProviderInterface
 {
+   initialize(metaData: QInstance, sessionValues: {[key: string]: any} | null): void;
+   record(model: AnalyticsModel): void;
+   reset(): void;
 }
 

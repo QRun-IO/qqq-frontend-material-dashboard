@@ -186,6 +186,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
                // ** Exchange authorization code for session UUID via backend API * //
                ///////////////////////////////////////////////////////////////////////
                const {uuid: newSessionUuid, values} = await qController.manageSession(null, null, manageSessionRequestBody);
+               localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
 
                /////////////////////////////////////////////////////////
                // ** Update parent component's authentication state * //
@@ -265,6 +266,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
                // ** Validate the session UUID with backend and retrieve user data * //
                ////////////////////////////////////////////////////////////////////////
                const {values} = await qController.manageSession(null, sessionUuid, null);
+               localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
 
                /////////////////////////////////////////////////////////
                // ** Update parent component's authentication state * //
@@ -371,6 +373,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       // ** Clear authentication metadata stored in local storage by the QQQ client * //
       //////////////////////////////////////////////////////////////////////////////////
       qController.clearAuthenticationMetaDataLocalStorage();
+      localStorage.removeItem("sessionValues");
 
       /////////////////////////////////////////////////////////////////////////////////////////////////////
       // ** Remove session cookies from the browser                                                    * //

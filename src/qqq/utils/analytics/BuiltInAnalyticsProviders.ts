@@ -19,14 +19,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import AnalyticsUtils from "qqq/utils/analytics/AnalyticsUtils";
+import {getAnalyticsPluginRegistry} from "qqq/utils/analytics/AnalyticsPluginRegistry";
+import GoogleAnalyticsProvider from "qqq/utils/analytics/GoogleAnalyticsProvider";
+import PostHogAnalyticsProvider from "qqq/utils/analytics/PostHogAnalyticsProvider";
 
-export type {AnalyticsModel, PageView, UserEvent} from "qqq/utils/analytics/AnalyticsUtils";
+let hasRegisteredBuiltIns: boolean = false;
 
-/**
- * @deprecated Prefer `qqq/utils/analytics/AnalyticsUtils`.
- */
-export default class GoogleAnalyticsUtils extends AnalyticsUtils
+
+/*******************************************************************************
+ **
+ *******************************************************************************/
+export function registerBuiltInAnalyticsProviders(): void
 {
+   if(hasRegisteredBuiltIns)
+   {
+      return;
+   }
+
+   const registry = getAnalyticsPluginRegistry();
+   registry.register("google", () => new GoogleAnalyticsProvider());
+   registry.register("posthog", () => new PostHogAnalyticsProvider());
+   hasRegisteredBuiltIns = true;
 }
 

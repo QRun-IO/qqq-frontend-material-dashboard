@@ -19,14 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import AnalyticsUtils from "qqq/utils/analytics/AnalyticsUtils";
-
-export type {AnalyticsModel, PageView, UserEvent} from "qqq/utils/analytics/AnalyticsUtils";
-
-/**
- * @deprecated Prefer `qqq/utils/analytics/AnalyticsUtils`.
- */
-export default class GoogleAnalyticsUtils extends AnalyticsUtils
+export interface PageView
 {
+   location: Location;
+   title: string;
 }
+
+export interface UserEvent
+{
+   action: string;
+   category: string;
+   label?: string;
+}
+
+export type AnalyticsModel = PageView | UserEvent;
 

@@ -120,10 +120,10 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
          if (shouldStoreNewToken(accessToken, lsAccessToken))
          {
             console.log("Sending accessToken to backend, requesting a sessionUUID...");
-            const {uuid: values} = await qController.manageSession(accessToken, null);
+            const {values} = await qController.manageSession(accessToken, null);
 
             localStorage.setItem("accessToken", accessToken);
-            localStorage.setItem("sessionValues", JSON.stringify(values));
+            localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
             console.log("Got new sessionUUID from backend, and stored new accessToken");
          }
          else
@@ -142,6 +142,7 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
          console.log(`Error loading token: ${JSON.stringify(e)}`);
          qController.clearAuthenticationMetaDataLocalStorage();
          localStorage.removeItem("accessToken");
+         localStorage.removeItem("sessionValues");
          removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
          useAuth0Logout();
          return;
@@ -155,6 +156,7 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
    const logout = () =>
    {
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("sessionValues");
       useAuth0Logout({returnTo: window.location.origin});
    };
 
