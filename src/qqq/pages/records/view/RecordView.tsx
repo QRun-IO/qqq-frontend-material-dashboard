@@ -123,7 +123,7 @@ export function renderSectionOfFields(key: string, fieldNames: string[], tableMe
 {
    return <Grid container lg={12} key={key} display="flex" py={1} pr={2}>
       {
-         fieldNames.map((fieldName: string) =>
+         fieldNames.map((fieldName: string) => 
          {
             let [field, tableForField] = tableMetaData ? TableUtils.getFieldAndTable(tableMetaData, fieldName) : fieldMap ? [fieldMap[fieldName], null] : [null, null];
 
@@ -188,7 +188,7 @@ export function getVisibleJoinTables(tableMetaData: QTableMetaData): Set<string>
          continue;
       }
 
-      section.fieldNames.forEach((fieldName) =>
+      section.fieldNames.forEach((fieldName) => 
       {
          const [field, tableForField] = TableUtils.getFieldAndTable(tableMetaData, fieldName);
          if (tableForField && tableForField.name != tableMetaData.name)
@@ -259,7 +259,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       tableVariant = JSON.parse(localStorage.getItem(tableVariantLocalStorageKey));
    }
 
-   const reload = () =>
+   const reload = () => 
    {
       setSuccessMessage(null);
       setNotFoundMessage(null);
@@ -277,18 +277,18 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    ///////////////////////
    // Keyboard handling //
    ///////////////////////
-   useEffect(() =>
+   useEffect(() => 
    {
       if (tableMetaData == null)
       {
-         (async () =>
+         (async () => 
          {
             const tableMetaData = await qController.loadTableMetaData(tableName);
             setTableMetaData(tableMetaData);
          })();
       }
 
-      const down = (e: KeyboardEvent) =>
+      const down = (e: KeyboardEvent) => 
       {
          const type = (e.target as any).type;
          const validType = (type !== "text" && type !== "textarea" && type !== "input" && type !== "search");
@@ -324,19 +324,19 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       };
 
       document.addEventListener("keydown", down);
-      return () =>
+      return () => 
       {
          document.removeEventListener("keydown", down);
       };
    }, [dotMenuOpen, keyboardHelpOpen, modalStack, showEditChildForm, showAudit, metaData, location]);
 
-   const gotoCreate = () =>
+   const gotoCreate = () => 
    {
       const path = `${pathParts.slice(0, -1).join("/")}/create`;
       navigate(path);
    };
 
-   const gotoEdit = () =>
+   const gotoEdit = () => 
    {
       const path = `${pathParts.slice(0, -1).join("/")}/${record.values.get(table.primaryKeyField)}/edit`;
       navigate(path);
@@ -347,7 +347,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    // we'll stay in this component, but we'll need to reload all data for the new record.            //
    // if, however, our url looks like a process, then open that process.                             //
    ////////////////////////////////////////////////////////////////////////////////////////////////////
-   useEffect(() =>
+   useEffect(() => 
    {
       try
       {
@@ -392,7 +392,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
             const parts = hashParts[i].split("=");
             if (parts.length > 1 && parts[0] == "launchProcess")
             {
-               (async () =>
+               (async () => 
                {
                   const processMetaData = await qController.loadProcessMetaData(parts[1]);
                   setActiveModalProcess(processMetaData);
@@ -407,7 +407,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
          if (pathParts[pathParts.length - 4] === tableName && pathParts[pathParts.length - 2] == CREATE_CHILD_KEY)
          {
-            (async () =>
+            (async () => 
             {
                const childTable = await qController.loadTableMetaData(pathParts[pathParts.length - 1]);
                const childId: any = null; // todo - for editing a child, not just creating one.
@@ -426,7 +426,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
             const parts = hashParts[i].split("=");
             if (parts.length > 1 && parts[0] == CREATE_CHILD_KEY)
             {
-               (async () =>
+               (async () => 
                {
                   const childTable = await qController.loadTableMetaData(parts[1]);
                   const childId: any = null; // todo - for editing a child, not just creating one.
@@ -514,9 +514,8 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    /////////////////////////////////////////////////////////////////////////////////////////////
    // when the tableMetaData changes, grab the action menu out of it (or build a default one) //
    /////////////////////////////////////////////////////////////////////////////////////////////
-   useEffect(() =>
+   useEffect(() => 
    {
-      console.log("@dk the set action mennu memo is running");
       let actionMenu: QMenu = null;
       if (metaData && tableMetaData)
       {
@@ -534,7 +533,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    /*******************************************************************************
     ** get an element (or empty) to use as help content for a section
     *******************************************************************************/
-   const getSectionHelp = (section: QTableSection) =>
+   const getSectionHelp = (section: QTableSection) => 
    {
       const helpRoles = ["VIEW_SCREEN", "READ_SCREENS", "ALL_SCREENS"];
       const formattedHelpContent = <HelpContent helpContents={section.helpContents} roles={helpRoles} helpContentKey={`table:${tableName};section:${section.name}`} />;
@@ -594,7 +593,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    {
       setAsyncLoadInited(true);
 
-      (async () =>
+      (async () => 
       {
          /////////////////////////////////////////////////////////////////////
          // load the full table meta-data (the one we took in is a partial) //
@@ -670,7 +669,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          }
          catch (e)
          {
-            const historyPurge = (path: string) =>
+            const historyPurge = (path: string) => 
             {
                try
                {
@@ -832,33 +831,33 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       })();
    }
 
-   const handleClickDeleteButton = () =>
+   const handleClickDeleteButton = () => 
    {
       setDeleteConfirmationOpen(true);
       setIsDeleteSubmitting(false);
    };
 
-   const handleDeleteConfirmClose = () =>
+   const handleDeleteConfirmClose = () => 
    {
       setDeleteConfirmationOpen(false);
    };
 
-   const handleDelete = (event: { preventDefault: () => void }) =>
+   const handleDelete = (event: { preventDefault: () => void }) => 
    {
       setIsDeleteSubmitting(true);
       event?.preventDefault();
-      (async () =>
+      (async () => 
       {
          recordAnalytics({category: "tableEvents", action: "delete", label: tableMetaData?.label + " / " + record?.recordLabel});
 
          await qController.delete(tableName, id)
-            .then(() =>
+            .then(() => 
             {
                setIsDeleteSubmitting(false);
                const path = pathParts.slice(0, -1).join("/");
                navigate(path, {state: {deleteSuccess: true}});
             })
-            .catch((error) =>
+            .catch((error) => 
             {
                setIsDeleteSubmitting(false);
                setDeleteConfirmationOpen(false);
@@ -893,18 +892,18 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          new: () => gotoCreate(),
          copy: () => navigate("copy"),
          edit: () => navigate("edit"),
-         delete: (closeMenu?: () => void) =>
+         delete: (closeMenu?: () => void) => 
          {
             closeMenu?.();
             handleClickDeleteButton();
          },
          developerMode: () => navigate("dev"),
-         audit: (closeMenu?: () => void) =>
+         audit: (closeMenu?: () => void) => 
          {
             closeMenu?.();
             navigate("#audit");
          },
-         runProcess: (processName: string) =>
+         runProcess: (processName: string) => 
          {
             const process = metaData?.processes?.get(processName);
             if (process)
@@ -916,7 +915,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                console.log("No process found for name: [" + processName + "]");
             }
          },
-         downloadFileFromField: (fieldName: string, closeMenu?: () => void) =>
+         downloadFileFromField: (fieldName: string, closeMenu?: () => void) => 
          {
             ////////////////////////////////////////////////////////////
             // todo can or should this share more with BlobComponent? //
@@ -940,15 +939,15 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
 
             closeMenu?.();
          },
-         getMetaData: () =>
+         getMetaData: () => 
          {
             return metaData;
          },
-         getTableProcesses: () =>
+         getTableProcesses: () => 
          {
             return tableProcesses;
          },
-         getGenericProcesses: () =>
+         getGenericProcesses: () => 
          {
             return getGenericProcesses(metaData);
          }
@@ -964,7 +963,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    /*******************************************************************************
     ** function to open the sharing modal
     *******************************************************************************/
-   const openShareModal = () =>
+   const openShareModal = () => 
    {
       setShowShareModal(true);
    };
@@ -973,7 +972,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    /*******************************************************************************
     ** function to close the sharing modal
     *******************************************************************************/
-   const closeShareModal = () =>
+   const closeShareModal = () => 
    {
       setShowShareModal(false);
    };
@@ -982,7 +981,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    /*******************************************************************************
     ** render the share button (if allowed for table)
     *******************************************************************************/
-   const renderShareButton = () =>
+   const renderShareButton = () => 
    {
       if (tableMetaData && tableMetaData.shareableTableMetaData)
       {
@@ -1022,13 +1021,13 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    };
 
 
-   const openModalProcess = (process: QProcessMetaData = null) =>
+   const openModalProcess = (process: QProcessMetaData = null) => 
    {
       navigate(process.name);
       closeActionsMenu();
    };
 
-   const closeModalProcess = (event: object, reason: string) =>
+   const closeModalProcess = (event: object, reason: string) => 
    {
       if (reason === "backdropClick" || reason === "escapeKeyDown")
       {
@@ -1062,7 +1061,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       setShowEditChildForm(showEditChildForm);
    }
 
-   const closeEditChildForm = (event: object, reason: string) =>
+   const closeEditChildForm = (event: object, reason: string) => 
    {
       if (reason === "backdropClick" || reason === "escapeKeyDown")
       {
@@ -1087,7 +1086,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       setShowEditChildForm(null);
    };
 
-   const closeAudit = (event: object, reason: string) =>
+   const closeAudit = (event: object, reason: string) => 
    {
       if (reason === "backdropClick") // allowing esc here, as it's a non-destructive close || reason === "escapeKeyDown")
       {
@@ -1131,7 +1130,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
    const recordViewActionsPlacement = materialDashboardInstanceMetaData?.recordViewActionsPlacement ?? materialDashboardTableMetaData?.recordViewActionsPlacement ?? "IN_IDENTITY_SECTION";
    const showRecordViewActionsInlineWithPageTitle = recordViewActionsPlacement === "INLINE_WITH_PAGE_TITLE";
 
-   const renderRecordViewActions = (boxProps: any = {}) =>
+   const renderRecordViewActions = (boxProps: any = {}) => 
    {
       return (
          <>
@@ -1156,7 +1155,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       );
    };
 
-   const pageHeaderRecordViewActions = useMemo(() =>
+   const pageHeaderRecordViewActions = useMemo(() => 
    {
       if (!showRecordViewActionsInlineWithPageTitle)
       {
@@ -1170,7 +1169,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
       );
    }, [showRecordViewActionsInlineWithPageTitle, metaData, tableMetaData, record, actionsMenuAnchorElement, actionMenu]);
 
-   useEffect(() =>
+   useEffect(() => 
    {
       setPageHeaderRightContent?.(pageHeaderRecordViewActions);
 
@@ -1191,7 +1190,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                            <Box pb={3}>
                               {
                                  successMessage ?
-                                    <Alert color="success" sx={{mb: 3}} onClose={() =>
+                                    <Alert color="success" sx={{mb: 3}} onClose={() => 
                                     {
                                        setSuccessMessage(null);
                                     }}>
@@ -1201,7 +1200,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                               }
                               {
                                  warningMessage ?
-                                    <Alert color="warning" sx={{mb: 3}} icon={<Icon>warning</Icon>} onClose={() =>
+                                    <Alert color="warning" sx={{mb: 3}} icon={<Icon>warning</Icon>} onClose={() => 
                                     {
                                        setWarningMessage(null);
                                     }}>
@@ -1211,7 +1210,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                               }
                               {
                                  errorMessage ?
-                                    <Alert color="error" sx={{mb: 3}} onClose={() =>
+                                    <Alert color="error" sx={{mb: 3}} onClose={() => 
                                     {
                                        setErrorMessage(null);
                                     }}>
@@ -1250,7 +1249,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
                                        </Grid>
                                     </Grid>
                                     <Grid container spacing={3} pb={4}>
-                                       {nonT1TableSections.length > 0 ? nonT1TableSections.map((section: QTableSection) =>
+                                       {nonT1TableSections.length > 0 ? nonT1TableSections.map((section: QTableSection) => 
                                        {
                                           ///////////////////////////////////////////////
                                           // render all sections after the T1 section. //
