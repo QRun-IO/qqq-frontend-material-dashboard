@@ -23,12 +23,14 @@ import {QBrandingMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QB
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
-import {createContext} from "react";
+import {createContext, ReactNode} from "react";
 
 interface QContext
 {
    pageHeader: string | JSX.Element;
    setPageHeader?: (header: string | JSX.Element) => void;
+   pageHeaderRightContent?: ReactNode;
+   setPageHeaderRightContent?: (content: ReactNode) => void;
 
    accentColor: string;
    setAccentColor?: (color: string) => void;
@@ -69,6 +71,7 @@ interface QContext
 
 const defaultState = {
    pageHeader: "",
+   pageHeaderRightContent: null as ReactNode,
    accentColor: "#0062FF",
    accentColorLight: "#C0D6F7",
    dotMenuOpen: false,

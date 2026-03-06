@@ -40,10 +40,62 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 
 /*******************************************************************************
- ** Unit test for MaterialDashboardTableMetaData 
+ ** Unit test for MaterialDashboardTableMetaData
  *******************************************************************************/
 class MaterialDashboardTableMetaDataTest extends BaseTest
 {
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Test
+   void testShowRecordSidebarDefaultsTrue()
+   {
+      MaterialDashboardTableMetaData tableMetaData = new MaterialDashboardTableMetaData();
+      assertThat(tableMetaData.getShowRecordSidebar()).isTrue();
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Test
+   void testShowRecordSidebarCloned()
+   {
+      MaterialDashboardTableMetaData tableMetaData = new MaterialDashboardTableMetaData().withShowRecordSidebar(false);
+      MaterialDashboardTableMetaData clone         = (MaterialDashboardTableMetaData) tableMetaData.clone();
+
+      assertThat(clone.getShowRecordSidebar()).isFalse();
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Test
+   void testRecordViewActionsPlacementDefaultsToInIdentitySection()
+   {
+      MaterialDashboardTableMetaData tableMetaData = new MaterialDashboardTableMetaData();
+      assertThat(tableMetaData.getRecordViewActionsPlacement()).isEqualTo(MaterialDashboardTableMetaData.RecordViewActionsPlacement.IN_IDENTITY_SECTION);
+   }
+
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   @Test
+   void testRecordViewActionsPlacementCloned()
+   {
+      MaterialDashboardTableMetaData tableMetaData = new MaterialDashboardTableMetaData()
+         .withRecordViewActionsPlacement(MaterialDashboardTableMetaData.RecordViewActionsPlacement.INLINE_WITH_PAGE_TITLE);
+      MaterialDashboardTableMetaData clone = (MaterialDashboardTableMetaData) tableMetaData.clone();
+
+      assertThat(clone.getRecordViewActionsPlacement()).isEqualTo(MaterialDashboardTableMetaData.RecordViewActionsPlacement.INLINE_WITH_PAGE_TITLE);
+   }
+
+
 
    /*******************************************************************************
     **
@@ -117,7 +169,6 @@ class MaterialDashboardTableMetaDataTest extends BaseTest
    // todo - methods below here were copied from QInstanceValidatorTest... //
    // how to share those...                                                //
    //////////////////////////////////////////////////////////////////////////
-
 
 
    /*******************************************************************************

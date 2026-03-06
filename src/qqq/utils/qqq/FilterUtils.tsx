@@ -155,7 +155,7 @@ class FilterUtils
                      // DynamicFormFieldDefinition (dynamicField) and add possible value props to it. //
                      ///////////////////////////////////////////////////////////////////////////////////
                      const dynamicField = DynamicFormUtils.getDynamicField(field);
-                     DynamicFormUtils.addPossibleValuePropsToSingleField(dynamicField, field, tableMetaData.name, null, null);
+                     DynamicFormUtils.addPossibleValuePropsToSingleField(dynamicField, field, fieldTable.name, null, null);
 
                      const displayValuesMap = await getDisplayValues(dynamicField, values);
 
