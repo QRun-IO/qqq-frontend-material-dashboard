@@ -127,14 +127,6 @@ export function renderSectionOfFields(key: string, fieldNames: string[], tableMe
          {
             let [field, tableForField] = tableMetaData ? TableUtils.getFieldAndTable(tableMetaData, fieldName) : fieldMap ? [fieldMap[fieldName], null] : [null, null];
 
-            if (field == null)
-            {
-               if (tableMetaData?.virtualFields?.has(fieldName))
-               {
-                  field = tableMetaData.virtualFields.get(fieldName);
-               }
-            }
-
             if (field != null)
             {
                let label = field.label;
