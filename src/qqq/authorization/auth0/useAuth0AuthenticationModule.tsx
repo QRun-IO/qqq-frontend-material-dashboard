@@ -109,12 +109,46 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
    /***************************************************************************
     **
     ***************************************************************************/
+   const readStoredSessionValues = (): {[key: string]: any} | null =>
+   {
+      try
+      {
+         const rawSessionValues = localStorage.getItem("sessionValues");
+         return (rawSessionValues ? JSON.parse(rawSessionValues) : null);
+      }
+      catch (e)
+      {
+         console.log("Error parsing sessionValues from localStorage: " + e);
+         return (null);
+      }
+   };
+
+
+   /***************************************************************************
+    **
+    ***************************************************************************/
+   const hasAnalyticsIdentityValues = (sessionValues: {[key: string]: any} | null): boolean =>
+   {
+      const googleAnalyticsValues = sessionValues?.googleAnalyticsValues ?? {};
+      return Boolean(
+         googleAnalyticsValues["ctl_user_id"]
+         || googleAnalyticsValues["user_email"]
+         || sessionValues?.user?.email
+         || sessionValues?.user?.idReference
+      );
+   };
+
+
+   /***************************************************************************
+    **
+    ***************************************************************************/
    const setupSession = async () =>
    {
       try
       {
          console.log("Loading token from auth0...");
          const accessToken = await auth0GetAccessTokenSilently();
+         let loggedInUserForApp = auth0User;
 
          const lsAccessToken = localStorage.getItem("accessToken");
          if (shouldStoreNewToken(accessToken, lsAccessToken))
@@ -124,17 +158,31 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
 
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
+            loggedInUserForApp = values?.user ?? auth0User;
             console.log("Got new sessionUUID from backend, and stored new accessToken");
          }
          else
          {
+            const storedSessionValues = readStoredSessionValues();
+            if (!hasAnalyticsIdentityValues(storedSessionValues))
+            {
+               console.log("Refreshing session values from existing sessionUUID...");
+               const {values} = await qController.manageSession(null, cookies[SESSION_UUID_COOKIE_NAME]);
+               localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
+               loggedInUserForApp = values?.user ?? auth0User;
+            }
+            else if (storedSessionValues?.user)
+            {
+               loggedInUserForApp = storedSessionValues.user;
+            }
+
             console.log("Using existing sessionUUID cookie");
          }
 
          setIsFullyAuthenticated(true);
          Client.setGotAuthenticationInAllControllers();
 
-         setLoggedInUser(auth0User);
+         setLoggedInUser(loggedInUserForApp);
          console.log("Token load complete.");
       }
       catch (e)

@@ -201,17 +201,27 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
       }
 
       const googleAnalyticsValues = (sessionValues?.googleAnalyticsValues ?? {}) as {[key: string]: any};
-      const email = googleAnalyticsValues["user_email"] || sessionValues?.user?.email;
-      const name = googleAnalyticsValues["name"] || sessionValues?.user?.name;
+      const ctlUserId = googleAnalyticsValues["ctl_user_id"] || sessionValues?.user?.id || sessionValues?.user?.userId;
+      const email = googleAnalyticsValues["user_email"] || sessionValues?.user?.email || sessionValues?.user?.idReference;
+      const name = googleAnalyticsValues["name"] || sessionValues?.user?.name || sessionValues?.user?.fullName;
       const clientName = googleAnalyticsValues["client_name"];
       const clientId = googleAnalyticsValues["client_id"];
+      const distinctId = ctlUserId || email;
 
-      if(!email)
+      if(!distinctId)
       {
          return;
       }
 
-      const properties: {[key: string]: any} = {email};
+      const properties: {[key: string]: any} = {};
+      if(ctlUserId)
+      {
+         properties.ctl_user_id = ctlUserId;
+      }
+      if(email)
+      {
+         properties.email = email;
+      }
       if(name)
       {
          properties.name = name;
@@ -226,7 +236,7 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
          properties.client_id = clientId;
       }
 
-      this.getPostHog()?.identify?.(email, properties);
+      this.getPostHog()?.identify?.(String(distinctId), properties);
    }
 
 
@@ -238,4 +248,3 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
       return (window as any).posthog || null;
    }
 }
-
