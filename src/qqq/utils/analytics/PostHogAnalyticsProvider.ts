@@ -28,6 +28,7 @@ type PostHogType = {
    __SV?: number;
    _i?: any[];
    people?: any[];
+   push?: (...items: any[]) => number;
    init?: (token: string, config: {[key: string]: any}, name?: string) => void;
    identify?: (distinctId: string, properties?: {[key: string]: any}) => void;
    capture?: (event: string, properties?: {[key: string]: any}) => void;
@@ -108,10 +109,11 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
 
    /*******************************************************************************
     **
-    *******************************************************************************/
+   *******************************************************************************/
    private initializePostHog = (projectApiKey: string, apiHost: string): void =>
    {
       const win = window as any;
+      win.posthog = win.posthog || [];
       const existingPostHog = this.getPostHog();
       if(existingPostHog && existingPostHog.__QQQ_POSTHOG_INITIALIZED)
       {
@@ -175,13 +177,14 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
          {
             document.head.appendChild(script);
          }
-      })(document, win.posthog || (win.posthog = {}));
+      })(document, win.posthog);
 
       const postHog = this.getPostHog();
       postHog?.init?.(projectApiKey, {
          api_host: apiHost,
          person_profiles: "identified_only",
-         capture_pageview: false
+         capture_pageview: false,
+         session_idle_timeout_seconds: 5 * 60
       });
       if(postHog)
       {
