@@ -24,14 +24,17 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
+import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import Modal from "@mui/material/Modal";
 import Table from "@mui/material/Table";
 import Tooltip from "@mui/material/Tooltip/Tooltip";
 import Typography from "@mui/material/Typography";
+import {AdornmentType} from "@qrunio/qqq-frontend-core/lib/model/metaData/AdornmentType";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {Formik, FormikValues, useFormikContext} from "formik";
@@ -44,6 +47,7 @@ import {Group, Option} from "qqq/components/misc/QHierarchyAutoComplete";
 import {WidgetScreenType} from "qqq/components/widgets/DashboardWidgets";
 import {DragAndDropElementWrapper, DragPreviewLayer} from "qqq/components/widgets/misc/DragAndDropElementWrapper";
 import Widget from "qqq/components/widgets/Widget";
+import Client from "qqq/utils/qqq/Client";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import usePossibleValueLabels from "qqq/utils/usePossibleValueLabels";
 import React, {Ref, useCallback, useContext, useEffect, useMemo, useState} from "react";
@@ -79,6 +83,80 @@ interface RowBuilderModel
 //////////////////////////////////////
 let qRowIndexValue = 0;
 const ROW_INDEX_KEY = "_qRowIndex";
+const qController = Client.getInstance();
+
+
+/***************************************************************************
+ * Clone the row-builder model so modal editing does not share array/object
+ * references with the view model.
+ ***************************************************************************/
+function cloneRowBuilderModel(model: RowBuilderModel): RowBuilderModel
+{
+   return {
+      records: (model?.records ?? []).map((record) => new QRecord({
+         values: Object.fromEntries(record.values.entries()),
+         displayValues: Object.fromEntries(record.displayValues.entries()),
+      })),
+   };
+}
+
+
+/***************************************************************************
+ * Accept either a backend-style row-builder record ({values,displayValues})
+ * or a plain object of field values, and normalize it into a QRecord.
+ ***************************************************************************/
+function coerceToQRecord(record: any): QRecord
+{
+   if (record?.values || record?.displayValues)
+   {
+      return new QRecord(record);
+   }
+
+   return new QRecord({values: record ?? {}, displayValues: {}});
+}
+
+
+/***************************************************************************
+ * Show a selected field name in the modal context line. If the stored value
+ * is table-qualified, trim it down to just the field portion.
+ ***************************************************************************/
+function formatSelectedFieldName(value: any, emptyLabel: string): string
+{
+   if (value === undefined || value === null || value === "")
+   {
+      return emptyLabel;
+   }
+
+   const stringValue = String(value);
+   if (stringValue.includes("."))
+   {
+      return stringValue.substring(stringValue.indexOf(".") + 1);
+   }
+
+   return stringValue;
+}
+
+
+/***************************************************************************
+ * Prefer the resolved field label for modal context text, with a fallback to
+ * the stored selected-field value.
+ ***************************************************************************/
+function resolveSelectedFieldDisplayName(metaData: QInstance, hiddenValues: Record<string, any>, selectedFieldName: any, emptyLabel: string): string
+{
+   const fallback = formatSelectedFieldName(selectedFieldName, emptyLabel);
+   if (!metaData || selectedFieldName === undefined || selectedFieldName === null || selectedFieldName === "")
+   {
+      return fallback;
+   }
+
+   const selectedField = resolveSelectedFieldMetaData(metaData, hiddenValues, String(selectedFieldName));
+   if (selectedField?.label)
+   {
+      return selectedField.label;
+   }
+
+   return fallback;
+}
 
 
 /*******************************************************************************
@@ -99,6 +177,10 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
 {
    const [modalOpen, setModalOpen] = useState(false);
    const [errorAlert, setErrorAlert] = useState(null as string);
+   const [metaData, setMetaData] = useState(null as QInstance);
+   const [selectionAdjustedFields, setSelectionAdjustedFields] = useState<Record<string, QFieldMetaData>>({});
+   const [selectionAdjustedFieldsLoading, setSelectionAdjustedFieldsLoading] = useState(false);
+   const [localRecordsOverride, setLocalRecordsOverride] = useState(null as null | Record<string, any>[]);
 
    const [rowBuilderModel, setRowBuilderModel] = useState(null as RowBuilderModel);
    ///////////////////////////////////////////////////////////////////////////////////////////
@@ -112,9 +194,6 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    ///////////////////////////
    const [initialValues, setInitialValues] = useState({} as Record<string, any>);
    const [validations, setValidations] = useState({} as Yup.BaseSchema);
-   const formikContext = useFormikContext();
-
-   const {getDisplayValues} = usePossibleValueLabels({useCase: "filter"});
 
    const {pushModalOnStack, popModalOffStack} = useContext(QContext);
 
@@ -131,6 +210,88 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    const useAddRowsButton = false;
    const defaultValuesForNewRowsFromParentRecord: Record<string, string> = widgetMetaData.defaultValues.get("defaultValuesForNewRowsFromParentRecord");
    const defaultValuesForNewRecords: Record<string, any> = widgetData?.defaultValuesForNewRecords;
+   const inputFieldNameOverride = parentFormValues?.["inputFieldName"];
+   const outputFieldNameOverride = parentFormValues?.["outputFieldName"];
+   const clientIdOverride = parentFormValues?.["clientId"];
+   const workflowClientIdOverride = parentFormValues?.["workflow.clientId"];
+   const tableNameOverride = parentFormValues?.["tableName"];
+   const workflowTableNameOverride = parentFormValues?.["workflow.tableName"];
+   const workflowValuesJSONOverride = parentFormValues?.["workflowValuesJSON"];
+   const workflowRevisionApiNameOverride = parentFormValues?.["workflowRevision.apiName"];
+   const workflowRevisionApiVersionOverride = parentFormValues?.["workflowRevision.apiVersion"];
+   const workflowRevisionValuesJSONOverride = parentFormValues?.["workflowRevisionValuesJSON"];
+   const apiNameOverride = parentFormValues?.["apiName"];
+   const apiVersionOverride = parentFormValues?.["apiVersion"];
+   const parentOutputValueOverride = parentFormValues?.[outputFieldName];
+   const hiddenValuesJSON = JSON.stringify(widgetData?.hiddenValues ?? {});
+   const widgetDataRecordsSignature = JSON.stringify(widgetData?.records ?? []);
+   const parentOutputValueSignature = typeof parentOutputValueOverride === "string" ? parentOutputValueOverride : JSON.stringify(parentOutputValueOverride ?? null);
+   const effectiveHiddenValues: Record<string, any> = useMemo(() =>
+   {
+      const hiddenValues: Record<string, any> = JSON.parse(hiddenValuesJSON);
+      for (const [fieldName, parentValue] of [
+         ["inputFieldName", inputFieldNameOverride],
+         ["outputFieldName", outputFieldNameOverride],
+         ["clientId", clientIdOverride],
+         ["workflow.clientId", workflowClientIdOverride],
+         ["tableName", tableNameOverride],
+         ["workflow.tableName", workflowTableNameOverride],
+         ["workflowValuesJSON", workflowValuesJSONOverride],
+         ["workflowRevision.apiName", workflowRevisionApiNameOverride],
+         ["workflowRevision.apiVersion", workflowRevisionApiVersionOverride],
+         ["workflowRevisionValuesJSON", workflowRevisionValuesJSONOverride],
+         ["apiName", apiNameOverride],
+         ["apiVersion", apiVersionOverride],
+      ] as [string, any][])
+      {
+         if (parentValue !== undefined && parentValue !== null && parentValue !== "")
+         {
+            hiddenValues[fieldName] = parentValue;
+         }
+      }
+
+      return hiddenValues;
+   }, [
+      apiNameOverride,
+      apiVersionOverride,
+      clientIdOverride,
+      hiddenValuesJSON,
+      inputFieldNameOverride,
+      outputFieldNameOverride,
+      tableNameOverride,
+      workflowClientIdOverride,
+      workflowRevisionApiNameOverride,
+      workflowRevisionApiVersionOverride,
+      workflowRevisionValuesJSONOverride,
+      workflowTableNameOverride,
+      workflowValuesJSONOverride,
+   ]);
+
+   const possibleValueLookupOtherValues = useMemo(() => new Map<string, any>(Object.entries(effectiveHiddenValues ?? {})), [effectiveHiddenValues]);
+   const {getDisplayValues} = usePossibleValueLabels({useCase: "filter", otherValues: possibleValueLookupOtherValues});
+
+   let parsedParentOutputValueOverride: any[] | null = null;
+   if (parentOutputValueOverride !== undefined)
+   {
+      if (typeof parentOutputValueOverride === "string")
+      {
+         try
+         {
+            const parsedParentValue = JSON.parse(parentOutputValueOverride);
+            if (Array.isArray(parsedParentValue))
+            {
+               parsedParentOutputValueOverride = parsedParentValue;
+            }
+         }
+         catch (e)
+         {
+         }
+      }
+      else if (Array.isArray(parentOutputValueOverride))
+      {
+         parsedParentOutputValueOverride = parentOutputValueOverride;
+      }
+   }
 
    /////////////////////////////////////////////////////////////////////////
    // convert the fields from meta data to list of QFieldMetaData objects //
@@ -144,6 +305,108 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       }
       return fields;
    }, [widgetMetaData]);
+
+   const configuredFields = useMemo(() =>
+   {
+      return fields.map((field) =>
+      {
+         if (field.name === "inputValue")
+         {
+            return configureFieldForSelection(field, selectionAdjustedFields[field.name], effectiveHiddenValues.inputFieldName, "Input Value", metaData, effectiveHiddenValues);
+         }
+         if (field.name === "outputValue")
+         {
+            return configureFieldForSelection(field, selectionAdjustedFields[field.name], effectiveHiddenValues.outputFieldName, "Output Value", metaData, effectiveHiddenValues);
+         }
+         return field;
+      });
+   }, [fields, selectionAdjustedFields, effectiveHiddenValues, metaData]);
+
+   const fieldConfigSignature = useMemo(() =>
+   {
+      return configuredFields.map((field) => `${field.name}:${field.type}:${field.possibleValueSourceName ?? ""}:${field.inlinePossibleValueSource?.length ?? 0}`).join("|");
+   }, [configuredFields]);
+   const modalInputFieldLabel = useMemo(() =>
+   {
+      return effectiveHiddenValues.inputFieldLabel
+         ?? resolveSelectedFieldDisplayName(metaData, effectiveHiddenValues, effectiveHiddenValues.inputFieldName, "[select input field]");
+   }, [effectiveHiddenValues, metaData]);
+   const modalOutputFieldLabel = useMemo(() =>
+   {
+      return effectiveHiddenValues.outputFieldLabel
+         ?? resolveSelectedFieldDisplayName(metaData, effectiveHiddenValues, effectiveHiddenValues.outputFieldName, "[select output field]");
+   }, [effectiveHiddenValues, metaData]);
+
+   useEffect(() =>
+   {
+      if (!metaData)
+      {
+         (async () =>
+         {
+            setMetaData(await qController.loadMetaData());
+         })();
+      }
+   }, [metaData]);
+
+
+   /***************************************************************************
+    * After loading saved row-builder values from backend JSON, hydrate any
+    * missing displayValues for possible-value fields so the view table shows
+    * labels instead of raw ids.
+    ***************************************************************************/
+   useEffect(() =>
+   {
+      hydrateMissingPossibleValueDisplayValues(rowBuilderModel, setRowBuilderModel);
+   }, [configuredFields, rowBuilderModel]);
+
+   useEffect(() =>
+   {
+      if (modalOpen)
+      {
+         hydrateMissingPossibleValueDisplayValues(modalRowBuilderModel, setModalRowBuilderModel);
+      }
+   }, [configuredFields, modalOpen, modalRowBuilderModel]);
+
+
+   /***************************************************************************
+    * Ask the backend row-field adjusters to resolve the selected input/output
+    * fields up front, so the modal renders the correct control types from the
+    * first paint even for API-backed workflow fields.
+    ***************************************************************************/
+   useEffect(() =>
+   {
+      const sourceRecords = modalOpen ? (modalRowBuilderModel?.records ?? rowBuilderModel?.records ?? []) : (rowBuilderModel?.records ?? []);
+      if (!sourceRecords.length && !effectiveHiddenValues.inputFieldName && !effectiveHiddenValues.outputFieldName)
+      {
+         setSelectionAdjustedFields({});
+         setSelectionAdjustedFieldsLoading(false);
+         return;
+      }
+
+      let cancelled = false;
+
+      (async () =>
+      {
+         setSelectionAdjustedFieldsLoading(modalOpen);
+         const nextAdjustedFields = await loadSelectionAdjustedFields(effectiveHiddenValues, sourceRecords);
+         if (!cancelled)
+         {
+            setSelectionAdjustedFields(nextAdjustedFields);
+            setSelectionAdjustedFieldsLoading(false);
+         }
+      })();
+
+      return () =>
+      {
+         cancelled = true;
+      };
+   }, [
+      effectiveHiddenValues,
+      fields,
+      modalOpen,
+      modalRowBuilderModel,
+      rowBuilderModel,
+   ]);
 
 
    /////////////////////////////////////////////////////////////////////
@@ -175,7 +438,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    if (isEditable && useModalEditor)
    {
       labelAdditionalElementsRight.push(
-         <Button key="editButton" disabled={false} onClick={() => openEditor()} sx={{p: 0}} disableRipple>
+         <Button key="editButton" type="button" disabled={false} onClick={() => openEditor()} sx={{p: 0}} disableRipple>
             <Typography display="inline" textTransform="none" fontSize={"1.125rem"}>
                Edit
             </Typography>
@@ -189,40 +452,101 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    //////////////////
    useEffect(() =>
    {
-      if (!rowBuilderModel)
+      qRowIndexValue = 0;
+      const nextRowBuilderModel: RowBuilderModel = {records: []};
+      let sourceRecords: any[] = widgetData?.records ?? [];
+      let resolvedParentRecords: any[] | null = null;
+      if (parentOutputValueOverride !== undefined)
       {
-         qRowIndexValue = 0;
-         let originalRowBuilderModel: RowBuilderModel = {records: []};
-
-         let seqNo = 0;
-         for (const record of widgetData?.records ?? [])
+         if (typeof parentOutputValueOverride === "string")
          {
-            const qRecord = new QRecord(record);
+            try
+            {
+               const parsedParentValue = JSON.parse(parentOutputValueOverride);
+               if (Array.isArray(parsedParentValue))
+               {
+                  resolvedParentRecords = parsedParentValue;
+               }
+            }
+            catch (e)
+            {
+            }
+         }
+         else if (Array.isArray(parentOutputValueOverride))
+         {
+            resolvedParentRecords = parentOutputValueOverride;
+         }
+      }
 
-            if (qRecord.values.get(ROW_INDEX_KEY) == null)
-            {
-               qRecord.values.set(ROW_INDEX_KEY, qRowIndexValue++);
-            }
-            else
-            {
-               ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-               // let a row index value come from the backend (in case backend is saving them, and it expects them to remain stable) //
-               ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-               const thisRowIndexValue = Number(qRecord.values.get(ROW_INDEX_KEY));
-               qRowIndexValue = Math.max(thisRowIndexValue, qRowIndexValue) + 1;
-            }
+      if (localRecordsOverride !== null)
+      {
+         sourceRecords = localRecordsOverride;
+      }
+      else if (resolvedParentRecords !== null)
+      {
+         sourceRecords = resolvedParentRecords;
+      }
 
-            if (mayReorderRows)
-            {
-               qRecord.values.set(orderByFieldName, seqNo++);
-            }
-            originalRowBuilderModel.records.push(qRecord);
+      let seqNo = 0;
+      for (const record of sourceRecords)
+      {
+         const qRecord = coerceToQRecord(record);
+
+         if (qRecord.values.get(ROW_INDEX_KEY) == null)
+         {
+            qRecord.values.set(ROW_INDEX_KEY, qRowIndexValue++);
+         }
+         else
+         {
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // let a row index value come from the backend (in case backend is saving them, and it expects them to remain stable) //
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            const thisRowIndexValue = Number(qRecord.values.get(ROW_INDEX_KEY));
+            qRowIndexValue = Math.max(thisRowIndexValue, qRowIndexValue) + 1;
          }
 
-         setRowBuilderModel(originalRowBuilderModel);
-         buildInitialValues(originalRowBuilderModel.records);
+         if (mayReorderRows)
+         {
+            qRecord.values.set(orderByFieldName, seqNo++);
+         }
+         nextRowBuilderModel.records.push(qRecord);
       }
-   });
+
+      setRowBuilderModel(nextRowBuilderModel);
+      buildInitialValues(nextRowBuilderModel.records);
+   }, [localRecordsOverride, mayReorderRows, orderByFieldName, parentOutputValueSignature, widgetDataRecordsSignature]);
+
+
+   /***************************************************************************
+    * once parent/widget props catch up to a locally saved set of rows, drop
+    * the local override and go back to normal prop-driven syncing.
+    ***************************************************************************/
+   useEffect(() =>
+   {
+      if (localRecordsOverride === null)
+      {
+         return;
+      }
+
+      const localRecordsOverrideSignature = JSON.stringify(localRecordsOverride);
+      if (parentOutputValueSignature === localRecordsOverrideSignature || widgetDataRecordsSignature === localRecordsOverrideSignature)
+      {
+         setLocalRecordsOverride(null);
+      }
+   }, [localRecordsOverride, parentOutputValueSignature, widgetDataRecordsSignature]);
+
+
+   /***************************************************************************
+    * clear modal model when editor closes, without causing source-record
+    * resync just because modal open state changed.
+    ***************************************************************************/
+   useEffect(() =>
+   {
+      if (!modalOpen)
+      {
+         setModalRowBuilderModel(null);
+      }
+   }, [modalOpen]);
 
 
    ////////////////////////////////
@@ -234,11 +558,50 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       let i = 0;
       for (let row of (useModalEditor ? modalRowBuilderModel : rowBuilderModel)?.records ?? [])
       {
-         for (let field of fields)
+         for (let field of configuredFields)
          {
             const rowIndex = row.values.get(ROW_INDEX_KEY);
             const fullName = makeFullName(field.name, rowIndex);
-            formValidations[fullName] = DynamicFormUtils.getValidationForField(field);
+            let validation = DynamicFormUtils.getValidationForField(field);
+            if (field.name === "inputValue")
+            {
+               validation = validation.test("uniqueInputValue", "Duplicate Input Values are not allowed.", function (value)
+               {
+                  if (value === undefined || value === null || String(value).trim() === "")
+                  {
+                     return true;
+                  }
+
+                  const normalizedValue = String(value).trim().toLowerCase();
+                  const allValues = (this.parent ?? {}) as Record<string, any>;
+                  let matchCount = 0;
+                  for (const [name, otherValue] of Object.entries(allValues))
+                  {
+                     if (!name.startsWith("inputValue_"))
+                     {
+                        continue;
+                     }
+
+                     if (otherValue === undefined || otherValue === null || String(otherValue).trim() === "")
+                     {
+                        continue;
+                     }
+
+                     if (String(otherValue).trim().toLowerCase() === normalizedValue)
+                     {
+                        matchCount++;
+                        if (matchCount > 1)
+                        {
+                           return this.createError({message: "Duplicate Input Values are not allowed."});
+                        }
+                     }
+                  }
+
+                  return true;
+               });
+            }
+
+            formValidations[fullName] = validation;
          }
       }
 
@@ -249,14 +612,14 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       ////////////////////////////////////////////////
       addSubValidations?.(widgetMetaData.name, formValidations);
 
-   }, [modalRowBuilderModel, rowBuilderModel]);
+   }, [addSubValidations, configuredFields, modalRowBuilderModel, rowBuilderModel, useModalEditor, widgetMetaData.name]);
 
 
    /***************************************************************************
     * for a list of records, populate the initialValues state variable
     * (as formik needs).
     ***************************************************************************/
-   function buildInitialValues(records?: QRecord[])
+   function makeInitialValues(records?: QRecord[])
    {
       const newInitialValues: Record<string, any> = {};
 
@@ -268,18 +631,193 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
             const fullFieldName = makeFullName(fieldName, rowIndex);
             const value = record.values.get(fieldName);
             newInitialValues[fullFieldName] = value;
-            formikContext?.setFieldValue(fullFieldName, value);
          }
       }
 
-      for (const fieldName in widgetData?.hiddenValues ?? {})
+      for (const fieldName in effectiveHiddenValues)
       {
-         const value = widgetData.hiddenValues[fieldName];
+         const value = effectiveHiddenValues[fieldName];
          newInitialValues[fieldName] = value;
-         formikContext?.setFieldValue(fieldName, value);
       }
 
-      setInitialValues(newInitialValues);
+      return newInitialValues;
+   }
+
+
+   /***************************************************************************
+    * Build a form-value object from an arbitrary hidden-values snapshot.
+    ***************************************************************************/
+   function makeInitialValuesWithHiddenValues(records: QRecord[] | undefined, hiddenValues: Record<string, any>)
+   {
+      const newInitialValues: Record<string, any> = {};
+
+      for (const record of records ?? [])
+      {
+         const rowIndex = record.values.get(ROW_INDEX_KEY);
+         for (let fieldName of record.values.keys())
+         {
+            const fullFieldName = makeFullName(fieldName, rowIndex);
+            const value = record.values.get(fieldName);
+            newInitialValues[fullFieldName] = value;
+         }
+      }
+
+      for (const fieldName in hiddenValues)
+      {
+         newInitialValues[fieldName] = hiddenValues[fieldName];
+      }
+
+      return newInitialValues;
+   }
+
+
+   /***************************************************************************
+    * Update initialValues state from a record list for Formik reinit.
+    ***************************************************************************/
+   function buildInitialValues(records?: QRecord[])
+   {
+      setInitialValues(makeInitialValues(records));
+   }
+
+
+   /***************************************************************************
+    * Resolve row field metadata from backend form-adjusters before rendering
+    * the modal rows, so they start with the correct control type.
+    ***************************************************************************/
+   async function loadSelectionAdjustedFields(hiddenValues: Record<string, any>, records: QRecord[]): Promise<Record<string, QFieldMetaData>>
+   {
+      const nextAdjustedFields: Record<string, QFieldMetaData> = {};
+      const preloadRecords = records.length > 0 ? records : [new QRecord({values: {[ROW_INDEX_KEY]: 0}, displayValues: {}})];
+      const allValuesJSON = JSON.stringify(makeInitialValuesWithHiddenValues(preloadRecords, hiddenValues));
+
+      for (const field of fields)
+      {
+         if ((field.name !== "inputValue" && field.name !== "outputValue") || !field.supplementalFieldMetaData)
+         {
+            continue;
+         }
+
+         const selectedFieldName = field.name === "inputValue" ? hiddenValues.inputFieldName : hiddenValues.outputFieldName;
+         if (!selectedFieldName)
+         {
+            continue;
+         }
+
+         const materialDashboardFieldMetaData = field.supplementalFieldMetaData.get("materialDashboard");
+         if (!materialDashboardFieldMetaData?.onLoadFormAdjuster || !materialDashboardFieldMetaData?.formAdjusterIdentifier)
+         {
+            continue;
+         }
+
+         try
+         {
+            const requestedFieldName = makeFullName(field.name, preloadRecords[0].values.get(ROW_INDEX_KEY));
+            const postBody = new FormData();
+            postBody.append("event", "onLoad");
+            postBody.append("fieldName", requestedFieldName);
+            postBody.append("newValue", "");
+            postBody.append("allValues", allValuesJSON);
+
+            const response = await qController.axiosRequest({
+               method: "post",
+               url: `/material-dashboard-backend/form-adjuster/${encodeURIComponent(materialDashboardFieldMetaData.formAdjusterIdentifier)}/onLoad`,
+               data: postBody,
+               headers: qController.defaultMultipartFormDataHeaders(),
+            });
+
+            const updatedField = response?.updatedFieldMetaData?.[requestedFieldName] ?? Object.values(response?.updatedFieldMetaData ?? {})?.[0];
+            if (updatedField)
+            {
+               const adjustedField = new QFieldMetaData(updatedField);
+               adjustedField.name = field.name;
+               adjustedField.supplementalFieldMetaData = field.supplementalFieldMetaData;
+               nextAdjustedFields[field.name] = adjustedField;
+            }
+         }
+         catch (e)
+         {
+            console.warn("[RowBuilderWidget] failed to preload adjusted field metadata", {
+               widgetName: widgetMetaData.name,
+               fieldName: field.name,
+               selectedFieldName,
+               error: e,
+            });
+         }
+      }
+
+      return nextAdjustedFields;
+   }
+
+
+   /***************************************************************************
+    * Fill in missing displayValues for possible-value fields on loaded rows.
+    ***************************************************************************/
+   async function hydrateMissingPossibleValueDisplayValues(model: RowBuilderModel | null, setModel: (model: RowBuilderModel) => void): Promise<void>
+   {
+      if (!model?.records?.length)
+      {
+         return;
+      }
+
+      let changed = false;
+      const hydratedRecords = model.records.map((record) => new QRecord({
+         values: Object.fromEntries(record.values.entries()),
+         displayValues: Object.fromEntries(record.displayValues.entries()),
+      }));
+
+      const displayFieldConfigs: {name: string, field: QFieldMetaData}[] = [];
+      for (const field of configuredFields)
+      {
+         if (field.name === "inputValue")
+         {
+            displayFieldConfigs.push({name: field.name, field: selectionAdjustedFields.inputValue ?? field});
+         }
+         else if (field.name === "outputValue")
+         {
+            displayFieldConfigs.push({name: field.name, field: selectionAdjustedFields.outputValue ?? field});
+         }
+         else
+         {
+            displayFieldConfigs.push({name: field.name, field});
+         }
+      }
+
+      for (const {name, field} of displayFieldConfigs)
+      {
+         if (!field.possibleValueSourceName && !field.inlinePossibleValueSource)
+         {
+            continue;
+         }
+
+         const idsToLookup = Array.from(new Set(hydratedRecords
+            .map((record) => record.values.get(name))
+            .filter((value) => value !== undefined && value !== null && value !== "")
+            .filter((value) => hydratedRecords.some((record) => record.values.get(name) === value && !record.displayValues.get(name)))));
+
+         if (!idsToLookup.length)
+         {
+            continue;
+         }
+
+         const dynamicFormField = DynamicFormUtils.getDynamicField(field);
+         DynamicFormUtils.addPossibleValuePropsToSingleField(dynamicFormField, field, null, null, new Map());
+         const displayValues = await getDisplayValues(dynamicFormField, idsToLookup);
+
+         for (const record of hydratedRecords)
+         {
+            const id = record.values.get(name);
+            if ((record.displayValues.get(name) === undefined || record.displayValues.get(name) === null || record.displayValues.get(name) === "") && displayValues[id])
+            {
+               record.displayValues.set(name, displayValues[id]);
+               changed = true;
+            }
+         }
+      }
+
+      if (changed)
+      {
+         setModel({records: hydratedRecords});
+      }
    }
 
 
@@ -340,7 +878,6 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
          const toFieldName = defaultValuesForNewRowsFromParentRecord[fromFieldName];
          const value = parentFormValues?.[fromFieldName];
          newRecord.values.set(toFieldName, value);
-         formikContext?.setFieldValue(makeFullName(toFieldName, thisRowIndexValue), value);
          // todo display values... ?
       }
 
@@ -351,7 +888,6 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       {
          const value = defaultValuesForNewRecords[fieldName];
          newRecord.values.set(fieldName, value);
-         formikContext?.setFieldValue(makeFullName(fieldName, thisRowIndexValue), value);
          // todo display values... ?
       }
 
@@ -360,16 +896,23 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       ///////////////////////////////////
       if (forModal)
       {
-         setModalRowBuilderModel({records: [...modalRowBuilderModel.records, newRecord]});
+         setModalRowBuilderModel((previousModel) =>
+         {
+            const updatedRecords = [...(previousModel?.records ?? []), newRecord];
+            setInitialValues(makeInitialValues(updatedRecords));
+            return {records: updatedRecords};
+         });
       }
       else
       {
-         setRowBuilderModel({records: [...rowBuilderModel.records, newRecord]});
+         const updatedRecords = [...rowBuilderModel.records, newRecord];
+         setRowBuilderModel({records: updatedRecords});
+         buildInitialValues(updatedRecords);
 
          ///////////////////////////////////////////////////////////////////////////////////////
          // when not in a modal form, run this callback, to propagate data to the parent form //
          ///////////////////////////////////////////////////////////////////////////////////////
-         runOnSaveCallback(rowBuilderModel.records);
+         runOnSaveCallback(updatedRecords);
       }
 
       ////////////////////////////////////////////////////////////////////////////
@@ -379,7 +922,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       {
          try
          {
-            document.getElementById(makeFullName(fields[0].name, thisRowIndexValue)).focus();
+            document.getElementById(makeFullName(configuredFields[0].name, thisRowIndexValue)).focus();
          }
          catch (e)
          {
@@ -403,7 +946,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
     *******************************************************************************/
    function removeRow(forModal: boolean, index: number)
    {
-      const records = (forModal ? modalRowBuilderModel : rowBuilderModel).records;
+      const records = [...(forModal ? modalRowBuilderModel : rowBuilderModel).records];
       records.splice(index, 1);
 
       if(mayReorderRows)
@@ -420,10 +963,12 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       if (forModal)
       {
          setModalRowBuilderModel({records: [...records]});
+         buildInitialValues(records);
       }
       else
       {
          setRowBuilderModel({records: [...records]});
+         buildInitialValues(records);
 
          ///////////////////////////////////////////////////////////////////////////////////////
          // when not in a modal form, run this callback, to propagate data to the parent form //
@@ -438,7 +983,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
     *******************************************************************************/
    const dndCallback = useCallback((forModal: boolean, dragIndex: number, hoverIndex: number, isDrop: boolean) =>
    {
-      const records = (forModal ? modalRowBuilderModel : rowBuilderModel).records;
+      const records = [...(forModal ? modalRowBuilderModel : rowBuilderModel).records];
       const dragItem = records[dragIndex];
       records.splice(dragIndex, 1);
       records.splice(hoverIndex, 0, dragItem);
@@ -451,13 +996,15 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       if (forModal)
       {
          setModalRowBuilderModel({records: [...records]});
+         buildInitialValues(records);
       }
       else
       {
          setRowBuilderModel({records: [...records]});
+         buildInitialValues(records);
          if(isDrop)
          {
-            runOnSaveCallback(rowBuilderModel.records);
+            runOnSaveCallback(records);
          }
       }
 
@@ -467,7 +1014,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
    /*******************************************************************************
     * open (modal) editor
     *******************************************************************************/
-   function openEditor()
+   async function openEditor()
    {
       ////////////////////////////////////////////
       // re-set the index values in the records //
@@ -478,8 +1025,13 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
          record.values.set(ROW_INDEX_KEY, qRowIndexValue++);
       }
 
-      setModalRowBuilderModel(Object.assign({}, rowBuilderModel));
-      buildInitialValues(rowBuilderModel.records);
+      const nextModalModel = cloneRowBuilderModel(rowBuilderModel);
+      const hiddenValuesSnapshot = {...effectiveHiddenValues};
+      setSelectionAdjustedFieldsLoading(true);
+      setSelectionAdjustedFields(await loadSelectionAdjustedFields(hiddenValuesSnapshot, nextModalModel.records));
+      setModalRowBuilderModel(nextModalModel);
+      setInitialValues(makeInitialValuesWithHiddenValues(nextModalModel.records, hiddenValuesSnapshot));
+      setSelectionAdjustedFieldsLoading(false);
       setModalOpen(true);
       pushModalOnStack?.(widgetMetaData.name);
    }
@@ -514,9 +1066,9 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       // capture possible value labels and put them in our record displayValues  //
       /////////////////////////////////////////////////////////////////////////////
       const {fieldName, index} = splitFullName(fullName);
-      for (let i = 0; i < fields.length; i++)
+      for (let i = 0; i < configuredFields.length; i++)
       {
-         const field = fields[i];
+         const field = configuredFields[i];
          if (field.name == fieldName)
          {
             for (let record of model.records)
@@ -562,7 +1114,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       {
          const rowIndex = record.values.get(ROW_INDEX_KEY);
 
-         for (let field of fields)
+         for (let field of configuredFields)
          {
             const fullName = makeFullName(field.name, rowIndex);
             const value = values[fullName];
@@ -628,12 +1180,14 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       {
          const recordForCallback: Record<string, any> = {};
          recordsForCallback.push(recordForCallback);
-         for (let field of fields)
+         for (let field of configuredFields)
          {
             recordForCallback[field.name] = record.values.get(field.name);
          }
          recordForCallback[ROW_INDEX_KEY] = record.values.get(ROW_INDEX_KEY);
       }
+
+      setLocalRecordsOverride(recordsForCallback);
 
       const callbackArg: Record<string, string> = {};
       callbackArg[outputFieldName] = JSON.stringify(recordsForCallback);
@@ -659,7 +1213,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
             <Box className="rowBuilderRowForm" width="100%">{rowForm}</Box>
             <Box alignSelf="flex-start" pt="2.5rem">
                <Tooltip title="Remove Row" enterDelay={500}>
-                  <Button sx={xIconButtonSX} onClick={() => removeRow(forModal, index)}><Icon>clear</Icon></Button>
+                  <Button type="button" sx={xIconButtonSX} onClick={() => removeRow(forModal, index)}><Icon>clear</Icon></Button>
                </Tooltip>
             </Box>
          </Box>
@@ -691,10 +1245,10 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       // seed it with 'hidden values' first               //
       //////////////////////////////////////////////////////
       const allFormValuesRecord = newEmptyQRecord();
-      for (const fieldName in widgetData?.hiddenValues ?? {})
+      for (const fieldName in effectiveHiddenValues)
       {
          formData.formFields[fieldName] = DynamicFormUtils.getDynamicField(new QFieldMetaData({name: fieldName, type: QFieldType.STRING}));
-         allFormValuesRecord.values.set(fieldName, widgetData.hiddenValues[fieldName]);
+         allFormValuesRecord.values.set(fieldName, effectiveHiddenValues[fieldName]);
       }
 
       //////////////////////////////////////////////////////////////////////////////////////////////
@@ -705,7 +1259,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       for (let row of model.records)
       {
          const fieldNamesForRow: string[] = [];
-         for (let field of fields)
+         for (let field of configuredFields)
          {
             const rowIndex = row.values.get(ROW_INDEX_KEY);
             const fullName = makeFullName(field.name, rowIndex);
@@ -723,7 +1277,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
             allFormValuesRecord.displayValues.set(fullName, row.displayValues.get(field.name));
          }
          rowForms.push(<QDynamicForm
-            key={i++}
+            key={`${i++}-${fieldConfigSignature}`}
             formData={formData}
             record={allFormValuesRecord}
             fieldNamesToInclude={fieldNamesForRow}
@@ -740,6 +1294,14 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       return (<Box sx={{"& .DynamicSelectAutoCompleteWrapper": {mb: "0.75rem"}}}>
          <DragPreviewLayer itemStyles={{width: "300px"}} />
          {
+            selectionAdjustedFieldsLoading &&
+            <Box display="flex" alignItems="center" gap="0.75rem" py="1rem">
+               <CircularProgress size={20} />
+               <Typography variant="body2">Loading row field options...</Typography>
+            </Box>
+         }
+         {
+            !selectionAdjustedFieldsLoading &&
             rowForms.map((rowForm, i) =>
             {
                if (mayReorderRows)
@@ -760,7 +1322,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
             })
          }
          <Box pt="0.5rem">
-            <Button sx={buttonSX} onClick={() => addRow(forModal)}>+ Add new</Button>
+            <Button type="button" sx={buttonSX} onClick={() => addRow(forModal)}>+ Add new</Button>
          </Box>
       </Box>);
    }
@@ -792,7 +1354,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
             }
          };
 
-      const visibleFields = fields.filter(field => !field.isHidden);
+      const visibleFields = configuredFields.filter(field => !field.isHidden);
 
       return <>
          <Table sx={tableStyle}>
@@ -809,7 +1371,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
                            {
                               visibleFields.map((field, j) =>
                                  (
-                                    <td key={`${i}.${j}`}>{ValueUtils.getValueForDisplay(fields[j], record.values?.get(fields[j].name), record.displayValues?.get(fields[j].name), "view", null, record, fields[j].name)}</td>
+                                    <td key={`${i}.${j}`}>{ValueUtils.getValueForDisplay(field, record.values?.get(field.name), record.displayValues?.get(field.name), "view", null, record, field.name)}</td>
                                  ))
                            }
                         </tr>
@@ -830,7 +1392,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
       {
          <React.Fragment>
             {
-               (!fields || fields.length === 0) && <Alert icon={<Icon>error_outline</Icon>} color="error">Configuration error: No fields were defined for this widget</Alert>
+               (!configuredFields || configuredFields.length === 0) && <Alert icon={<Icon>error_outline</Icon>} color="error">Configuration error: No fields were defined for this widget</Alert>
             }
             <DndProvider backend={HTML5Backend}>
                {
@@ -848,7 +1410,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
                         (isEditable && !useModalEditor) &&
                         (
                            widgetMetaData.defaultValues?.get("requiresFormWrapper") ? (
-                              <Formik initialValues={initialValues} validationSchema={validations} onSubmit={handleSubmit}>
+                              <Formik initialValues={initialValues} enableReinitialize validationSchema={validations} onSubmit={handleSubmit}>
                                  {({handleSubmit}) => (
                                     <Grid item xs={12}><RenderRowsForm forModal={false} /></Grid>
                                  )}
@@ -862,10 +1424,13 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
                         (isEditable && useModalEditor && modalOpen) &&
                         <Modal open={modalOpen} onClose={(event, reason) => closeEditor(event, reason)}>
                            <div>
-                              <Formik initialValues={initialValues} validationSchema={validations} onSubmit={handleSubmit}>
+                              <Formik initialValues={initialValues} enableReinitialize validationSchema={validations} onSubmit={handleSubmit}>
                                  {({handleSubmit}) => (
                                     <Card sx={{position: "absolute", maxWidth: "800px", maxHeight: "800px", top: "50%", left: "50%", transform: "translate(-50%, -50%)", p: "2rem", overflowY: "auto", width: "100%", height: "calc(100vh - 4rem)"}}>
                                        <h3>{widgetData.modalTitle ?? widgetMetaData.defaultValues?.get("modalTitle") ?? "Edit Rows"}</h3>
+                                       <Typography variant="caption" color="text.secondary" display="block" sx={{mb: "0.5rem"}}>
+                                          Mapping {modalInputFieldLabel} to {modalOutputFieldLabel}
+                                       </Typography>
                                        {
                                           errorAlert && <Alert icon={<Icon>error_outline</Icon>} color="error" onClose={() => setErrorAlert(null)}>{errorAlert}</Alert>
                                        }
@@ -918,6 +1483,84 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
          </React.Fragment>
       }
    </Widget>);
+}
+
+
+/***************************************************************************
+ * Build row field metadata from the currently selected input/output fields.
+ ***************************************************************************/
+function configureFieldForSelection(baseField: QFieldMetaData, adjustedField: QFieldMetaData | undefined, selectedFieldName: string, label: string, metaData: QInstance, hiddenValues: Record<string, any>): QFieldMetaData
+{
+   const selectedField = adjustedField ?? (!selectedFieldName || !metaData ? null : resolveSelectedFieldMetaData(metaData, hiddenValues, selectedFieldName));
+   if (!selectedField)
+   {
+      return baseField;
+   }
+
+   const configuredField = selectedField.clone();
+   configuredField.name = baseField.name;
+   configuredField.label = label;
+   configuredField.gridColumns = baseField.gridColumns;
+   configuredField.isRequired = baseField.isRequired;
+   configuredField.isHidden = baseField.isHidden;
+   configuredField.isEditable = baseField.isEditable;
+   configuredField.supplementalFieldMetaData = baseField.supplementalFieldMetaData;
+   if ((baseField.name === "inputValue" || baseField.name === "outputValue") && configuredField.adornments)
+   {
+      configuredField.adornments = configuredField.adornments.filter((adornment) => adornment.type !== AdornmentType.LINK);
+   }
+   return configuredField;
+}
+
+
+/***************************************************************************
+ * Resolve the selected field metadata from the loaded QQQ instance.
+ ***************************************************************************/
+function resolveSelectedFieldMetaData(metaData: QInstance, hiddenValues: Record<string, any>, selectedFieldName: string): QFieldMetaData | null
+{
+   let tableName = hiddenValues["workflow.tableName"] ?? hiddenValues.tableName;
+   let fieldName = selectedFieldName;
+
+   if (!tableName && hiddenValues.workflowValuesJSON)
+   {
+      try
+      {
+         const workflowValues = JSON.parse(hiddenValues.workflowValuesJSON);
+         tableName = workflowValues.tableName;
+      }
+      catch (e)
+      {
+      }
+   }
+
+   if (selectedFieldName.includes("."))
+   {
+      const splitAt = selectedFieldName.indexOf(".");
+      tableName = selectedFieldName.substring(0, splitAt);
+      fieldName = selectedFieldName.substring(splitAt + 1);
+   }
+
+   if (!tableName)
+   {
+      return null;
+   }
+
+   const table = metaData.tables?.get(tableName);
+   const directMatch = table?.fields?.get(fieldName);
+   if (directMatch)
+   {
+      return directMatch;
+   }
+
+   for (const candidateField of table?.fields?.values() ?? [])
+   {
+      if ((candidateField.label || "").toLowerCase() === selectedFieldName.toLowerCase())
+      {
+         return candidateField;
+      }
+   }
+
+   return null;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -990,4 +1633,3 @@ const addFieldMenuButtonStyles = {
       backgroundColor: buttonBackground,
    }
 };
-

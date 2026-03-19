@@ -102,7 +102,6 @@ function QFMDBridgeForm({fields, record, handleChange, handleSubmit, helpRoles, 
       }
 
    }
-   const [lastValues, setLastValues] = useState(initialValues);
    const [loaded, setLoaded] = useState(false);
 
    ///////////////////////////////////////////////////////////////////////////////
@@ -161,6 +160,18 @@ function QFMDBridgeForm({fields, record, handleChange, handleSubmit, helpRoles, 
       }
    }
 
+   const bridgeHandleChange = (fieldName: string, newValue: any) =>
+   {
+      const field = fields.find((candidateField) => candidateField.name === fieldName);
+      if (field?.possibleValueSourceName || field?.inlinePossibleValueSource)
+      {
+         handleChange(fieldName, newValue ? newValue.id : null);
+         return;
+      }
+
+      handleChange(fieldName, newValue);
+   };
+
    /////////////////////////////////////////////////////////////////////////////////
    // re-introduce these two context providers, in case the child calls this      //
    // method under a different root... maybe this should be optional per a param? //
@@ -178,31 +189,7 @@ function QFMDBridgeForm({fields, record, handleChange, handleSubmit, helpRoles, 
                      formData.errors = errors;
                      formData.formFields = dynamicFormFields;
 
-                     try
-                     {
-                        let anyDiffs = false;
-                        for (let fieldName in values)
-                        {
-                           const value = values[fieldName];
-                           if (lastValues[fieldName] != value)
-                           {
-                              handleChange(fieldName, value);
-                              lastValues[fieldName] = value;
-                              anyDiffs = true;
-                           }
-                        }
-
-                        if (anyDiffs)
-                        {
-                           setLastValues(lastValues);
-                        }
-                     }
-                     catch (e)
-                     {
-                        console.error(e);
-                     }
-
-                     return (<QDynamicForm formData={formData} record={record} helpRoles={helpRoles} helpContentKeyPrefix={helpContentKeyPrefix} />);
+                     return (<QDynamicForm formData={formData} record={record} helpRoles={helpRoles} helpContentKeyPrefix={helpContentKeyPrefix} valueChangedCallback={bridgeHandleChange} />);
                   }}
                </Formik>
             </ThemeProvider>
@@ -229,6 +216,7 @@ QFMDBridgeWidget.defaultProps = {};
 function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, actionCallback, qContext: qContextProp}: QFMDBridgeWidgetProps): JSX.Element
 {
    const qContext = useContext(QContext) as QContextType;
+   const recordValuesObject = Object.fromEntries(record?.values?.entries?.() ?? []);
 
    const [ready, setReady] = useState(false);
 
@@ -236,9 +224,12 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
    const [widgetData, setWidgetData] = useState(null as any);
 
    const [tableMetaData, setTableMetaData] = useState(null as QTableMetaData);
+   const recordValuesSignature = JSON.stringify(Object.fromEntries(record?.values?.entries?.() ?? []));
 
    useEffect(() =>
    {
+      let cancelled = false;
+
       (async () =>
       {
          const qController = Client.getInstance();
@@ -250,14 +241,24 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
             formData.append(key, record.values.get(key));
          }
 
-         setWidgetMetaData(qInstance.widgets.get(widgetName));
-         setWidgetData(await qController.widget(widgetName, formData));
+         const nextWidgetMetaData = qInstance.widgets.get(widgetName);
+         const nextWidgetData = await qController.widget(widgetName, formData);
 
-         setReady(true);
+         if (!cancelled)
+         {
+            setWidgetMetaData(nextWidgetMetaData);
+            setWidgetData(nextWidgetData);
+            setReady(true);
+         }
       })();
-   }, []);
 
-   if (!ready)
+      return () =>
+      {
+         cancelled = true;
+      };
+   }, [entityPrimaryKey, recordValuesSignature, tableName, widgetName]);
+
+   if (!ready && (!widgetMetaData || !widgetData))
    {
       return (<Box py={"1rem"}>Loading...</Box>);
    }
@@ -274,7 +275,7 @@ function QFMDBridgeWidget({widgetName, tableName, record, entityPrimaryKey, acti
                setTableMetaData: (tableMetaData: QTableMetaData) => setTableMetaData(tableMetaData),
             }}>
                <div className={`bridgedWidget ${widgetMetaData.type}`}>
-                  <DashboardWidgets tableName={tableName} widgetMetaDataList={[widgetMetaData]} initialWidgetDataList={[widgetData]} record={record} entityPrimaryKey={entityPrimaryKey} omitWrappingGridContainer={true} actionCallback={actionCallback} />
+                  <DashboardWidgets tableName={tableName} widgetMetaDataList={[widgetMetaData]} initialWidgetDataList={[widgetData]} record={record} values={recordValuesObject} entityPrimaryKey={entityPrimaryKey} omitWrappingGridContainer={true} actionCallback={actionCallback} />
                </div>
             </QContext.Provider>
          </ThemeProvider>
@@ -434,4 +435,3 @@ export const qfmdBridge =
          return (<QFMDBridgeForm fields={fields} record={record} handleChange={handleChange} handleSubmit={handleSubmit} helpRoles={helpRoles} helpContentKeyPrefix={helpContentKeyPrefix} />);
       }
    };
-
