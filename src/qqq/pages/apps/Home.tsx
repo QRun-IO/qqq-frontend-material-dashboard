@@ -258,7 +258,7 @@ function AppHome({app}: Props): JSX.Element
                   <Box pl={0}>{getHelp(app, "header")}</Box>
                </Box>
             }
-            <Grid container spacing={3}>
+            <Grid container spacing={3} className="appHome">
                <Grid item xs={12} lg={12}>
                   <Card sx={{overflow: "visible"}}>
                      <Box p={3} display="flex" alignItems="center" gap=".5rem">
@@ -313,7 +313,7 @@ function AppHome({app}: Props): JSX.Element
                <Box pl={0}>{getHelp(app, "header")}</Box>
             </Box>
          }
-         <Box>
+         <Box className="appHome">
             {app.widgets && app.widgets.length > 0 && (
                <Box pb={app.sections ? 2.375 : 4} pt={"0.5rem"}>
                   <DashboardWidgets widgetMetaDataList={widgets} />
@@ -492,7 +492,7 @@ function AppHome({app}: Props): JSX.Element
                                                                />
                                                             </Box>
                                                          </Link> :
-                                                         <Box mb={3} title="You do not have permission to access this table">
+                                                         <Box className="big-icon" mb={3} title="You do not have permission to access this table">
                                                             <MiniStatisticsCard
                                                                title={{fontWeight: "bold", text: table.label}}
                                                                count={count}
