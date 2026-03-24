@@ -1008,7 +1008,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                showEditChildForm &&
                <RecordScreenModal
-                  open={showEditChildForm !== null}
+                  open={true}
                   onClose={closeEditChildForm}
                   tableName={showEditChildForm.table?.name}
                   defaultValues={showEditChildForm.defaultValues}

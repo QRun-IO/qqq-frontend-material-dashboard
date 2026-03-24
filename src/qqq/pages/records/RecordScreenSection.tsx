@@ -26,7 +26,6 @@ import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QTableSection} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableSection";
 import {QTableVariant} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableVariant";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
@@ -239,7 +238,7 @@ function RecordScreenSection({section, mode, record, formFieldsBySection, isOpen
             <Grid container display="flex" spacing={0}>
                {section.fieldNames.map((fieldName: string) =>
                {
-                  let [field, tableForField] = tableMetaData ? TableUtils.getFieldAndTable(tableMetaData, fieldName) : [null, null];
+                  let [field] = tableMetaData ? TableUtils.getFieldAndTable(tableMetaData, fieldName) : [null, null];
 
                   if (field == null && tableMetaData?.virtualFields?.has(fieldName))
                   {

@@ -24,7 +24,7 @@ import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTabl
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {ChildRecordListData} from "qqq/components/widgets/misc/RecordGridWidget";
 import {FieldRule} from "qqq/models/fields/FieldRules";
-import React, {createContext} from "react";
+import {createContext} from "react";
 
 export type RecordScreenMode = "view" | "edit" | "create";
 

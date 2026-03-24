@@ -80,7 +80,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const location = useLocation();
    const navigate = useNavigate();
 
-   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, helpHelpActive, tableProcesses, userId: currentUserId} = useContext(QContext);
+   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, tableProcesses} = useContext(QContext);
 
    // scroll correction: stores field name + Y position before mode switch
    const scrollCorrectionRef = useRef<{fieldName: string; yBefore: number} | null>(null);
@@ -791,7 +791,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const renderModals = () => (
       <>
          {activeModalProcess && (
-            <Modal open={activeModalProcess !== null} onClose={closeModalProcess}>
+            <Modal open={true} onClose={closeModalProcess}>
                <div className="modalProcess">
                   <ProcessRun process={activeModalProcess} isModal={true} table={tableMetaData} recordIds={[id]} closeModalHandler={closeModalProcess} />
                </div>
@@ -800,7 +800,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
 
          {showEditChildForm && (
             <RecordScreenModal
-               open={showEditChildForm !== null}
+               open={true}
                onClose={closeEditChildForm}
                tableName={showEditChildForm.table?.name}
                recordId={showEditChildForm.id}

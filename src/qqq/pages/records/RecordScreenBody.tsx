@@ -58,7 +58,7 @@ export default function RecordScreenBody({screen, formId, onSubmit, formikSubmit
       mode, record, tableMetaData, metaData,
       tableSections, t1Section, nonT1Sections,
       formFieldsBySection, initialValues, formValidations,
-      fieldRules, loading,
+      fieldRules,
       errorMessage, successMessage, warningMessage, notAllowedError,
       handleFieldChange, handleFieldBlur, reloadWidget,
       collapsibleSectionOpenStates, toggleCollapsibleSectionOpenState, openCollapsedSectionsWithErrorFields,
