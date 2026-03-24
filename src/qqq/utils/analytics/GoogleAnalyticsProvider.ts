@@ -21,6 +21,7 @@
 
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import AnalyticsProviderInterface from "qqq/utils/analytics/AnalyticsProviderInterface";
+import AnalyticsUtils from "qqq/utils/analytics/AnalyticsUtils";
 import {AnalyticsModel, PageView, UserEvent} from "qqq/utils/analytics/AnalyticsTypes";
 import ReactGA from "react-ga4";
 
@@ -44,9 +45,10 @@ export default class GoogleAnalyticsProvider implements AnalyticsProviderInterfa
                gtagOptions: {}
             });
 
-         if(sessionValues && sessionValues["googleAnalyticsValues"])
+         const analyticsIdentityValues = AnalyticsUtils.getAnalyticsIdentityValues(sessionValues);
+         if(Object.keys(analyticsIdentityValues).length > 0)
          {
-            ReactGA.gtag("set", "user_properties", sessionValues["googleAnalyticsValues"]);
+            ReactGA.gtag("set", "user_properties", analyticsIdentityValues);
          }
       }
       else
@@ -91,4 +93,3 @@ export default class GoogleAnalyticsProvider implements AnalyticsProviderInterfa
       // no-op for GA in current implementation
    }
 }
-

@@ -52,6 +52,16 @@ export default class AnalyticsUtils
 
 
    /*******************************************************************************
+    ** Prefer the generic analyticsValues key, but keep googleAnalyticsValues as a
+    ** deprecated fallback while app backends migrate their session payloads.
+    *******************************************************************************/
+   public static getAnalyticsIdentityValues = (sessionValues: {[key: string]: any} | null): {[key: string]: any} =>
+   {
+      return sessionValues?.analyticsValues ?? sessionValues?.googleAnalyticsValues ?? {};
+   }
+
+
+   /*******************************************************************************
     **
     *******************************************************************************/
    private setup = async (): Promise<void> =>

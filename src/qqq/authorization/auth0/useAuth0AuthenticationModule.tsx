@@ -25,6 +25,7 @@ import HandleAuthorizationError from "HandleAuthorizationError";
 import jwt_decode from "jwt-decode";
 import ProtectedRoute from "qqq/authorization/auth0/ProtectedRoute";
 import {MaterialUIControllerProvider} from "qqq/context";
+import AnalyticsUtils from "qqq/utils/analytics/AnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
 import {useCookies} from "react-cookie";
 import {useNavigate, useSearchParams} from "react-router-dom";
@@ -129,7 +130,7 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
     ***************************************************************************/
    const hasAnalyticsIdentityValues = (sessionValues: {[key: string]: any} | null): boolean =>
    {
-      const analyticsIdentityValues = sessionValues?.googleAnalyticsValues ?? {};
+      const analyticsIdentityValues = AnalyticsUtils.getAnalyticsIdentityValues(sessionValues);
       return Boolean(
          analyticsIdentityValues["user_email"]
          || sessionValues?.user?.email

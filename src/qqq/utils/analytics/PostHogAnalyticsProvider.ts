@@ -21,6 +21,7 @@
 
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import AnalyticsProviderInterface from "qqq/utils/analytics/AnalyticsProviderInterface";
+import AnalyticsUtils from "qqq/utils/analytics/AnalyticsUtils";
 import {AnalyticsModel, PageView, UserEvent} from "qqq/utils/analytics/AnalyticsTypes";
 
 type PostHogType = {
@@ -201,7 +202,7 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
          return;
       }
 
-      const analyticsIdentityValues = (sessionValues?.googleAnalyticsValues ?? {}) as {[key: string]: any};
+      const analyticsIdentityValues = AnalyticsUtils.getAnalyticsIdentityValues(sessionValues) as {[key: string]: any};
       const userId = sessionValues?.user?.id || sessionValues?.user?.userId;
       const email = analyticsIdentityValues["user_email"] || sessionValues?.user?.email || sessionValues?.user?.idReference;
       const name = analyticsIdentityValues["name"] || sessionValues?.user?.name || sessionValues?.user?.fullName;
