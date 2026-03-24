@@ -74,7 +74,7 @@ import RecordQueryView from "qqq/models/query/RecordQueryView";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ColumnStats from "qqq/pages/records/query/ColumnStats";
 import DataGridUtils from "qqq/utils/DataGridUtils";
-import {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import ProcessUtils from "qqq/utils/qqq/ProcessUtils";

@@ -25,6 +25,7 @@ import HandleAuthorizationError from "HandleAuthorizationError";
 import jwt_decode from "jwt-decode";
 import ProtectedRoute from "qqq/authorization/auth0/ProtectedRoute";
 import {MaterialUIControllerProvider} from "qqq/context";
+import AnalyticsUtils from "qqq/utils/analytics/AnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
 import {useCookies} from "react-cookie";
 import {useNavigate, useSearchParams} from "react-router-dom";
@@ -109,32 +110,81 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
    /***************************************************************************
     **
     ***************************************************************************/
+   const readStoredSessionValues = (): {[key: string]: any} | null =>
+   {
+      try
+      {
+         const rawSessionValues = localStorage.getItem("sessionValues");
+         return (rawSessionValues ? JSON.parse(rawSessionValues) : null);
+      }
+      catch (e)
+      {
+         console.log("Error parsing sessionValues from localStorage: " + e);
+         return (null);
+      }
+   };
+
+
+   /***************************************************************************
+    **
+    ***************************************************************************/
+   const hasAnalyticsIdentityValues = (sessionValues: {[key: string]: any} | null): boolean =>
+   {
+      const analyticsIdentityValues = AnalyticsUtils.getAnalyticsIdentityValues(sessionValues);
+      return Boolean(
+         analyticsIdentityValues["user_email"]
+         || sessionValues?.user?.email
+         || sessionValues?.user?.idReference
+         || sessionValues?.user?.id
+         || sessionValues?.user?.userId
+      );
+   };
+
+
+   /***************************************************************************
+    **
+    ***************************************************************************/
    const setupSession = async () =>
    {
       try
       {
          console.log("Loading token from auth0...");
          const accessToken = await auth0GetAccessTokenSilently();
+         let loggedInUserForApp = auth0User;
 
          const lsAccessToken = localStorage.getItem("accessToken");
          if (shouldStoreNewToken(accessToken, lsAccessToken))
          {
             console.log("Sending accessToken to backend, requesting a sessionUUID...");
-            const {uuid: values} = await qController.manageSession(accessToken, null);
+            const {values} = await qController.manageSession(accessToken, null);
 
             localStorage.setItem("accessToken", accessToken);
-            localStorage.setItem("sessionValues", JSON.stringify(values));
+            localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
+            loggedInUserForApp = values?.user ?? auth0User;
             console.log("Got new sessionUUID from backend, and stored new accessToken");
          }
          else
          {
+            const storedSessionValues = readStoredSessionValues();
+            if (!hasAnalyticsIdentityValues(storedSessionValues))
+            {
+               console.log("Refreshing session values from existing sessionUUID...");
+               const {values} = await qController.manageSession(null, cookies[SESSION_UUID_COOKIE_NAME]);
+               localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
+               loggedInUserForApp = values?.user ?? auth0User;
+            }
+            else if (storedSessionValues?.user)
+            {
+               loggedInUserForApp = storedSessionValues.user;
+            }
+
             console.log("Using existing sessionUUID cookie");
          }
 
          setIsFullyAuthenticated(true);
          Client.setGotAuthenticationInAllControllers();
 
-         setLoggedInUser(auth0User);
+         setLoggedInUser(loggedInUserForApp);
          console.log("Token load complete.");
       }
       catch (e)
@@ -142,6 +192,7 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
          console.log(`Error loading token: ${JSON.stringify(e)}`);
          qController.clearAuthenticationMetaDataLocalStorage();
          localStorage.removeItem("accessToken");
+         localStorage.removeItem("sessionValues");
          removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
          useAuth0Logout();
          return;
@@ -155,6 +206,7 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
    const logout = () =>
    {
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("sessionValues");
       useAuth0Logout({returnTo: window.location.origin});
    };
 

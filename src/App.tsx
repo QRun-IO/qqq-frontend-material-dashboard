@@ -55,7 +55,7 @@ import RecordDeveloperView from "qqq/pages/records/view/RecordDeveloperView";
 import RecordView from "qqq/pages/records/view/RecordView";
 import RecordViewByUniqueKey from "qqq/pages/records/view/RecordViewByUniqueKey";
 import {createDynamicTheme} from "qqq/utils/createDynamicTheme";
-import GoogleAnalyticsUtils, {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import AnalyticsUtils, {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
 import {injectIslandVariables} from "qqq/utils/injectIslandVariables";
 import {detectBasePath, resolveAssetUrl} from "qqq/utils/PathUtils";
 import Client from "qqq/utils/qqq/Client";
@@ -92,6 +92,7 @@ export default function App({authenticationMetaData}: Props)
    const {setupSession: auth0SetupSession, logout: auth0Logout} = useAuth0AuthenticationModule({setIsFullyAuthenticated, setLoggedInUser, setEarlyReturnForAuth});
    const {setupSession: oauth2SetupSession, logout: oauth2Logout} = useOAuth2AuthenticationModule({setIsFullyAuthenticated, setLoggedInUser, setEarlyReturnForAuth, inOAuthContext: authenticationMetaData.type === "OAUTH2"});
    const {setupSession: anonymousSetupSession, logout: anonymousLogout} = useAnonymousAuthenticationModule({setIsFullyAuthenticated, setLoggedInUser, setEarlyReturnForAuth});
+   const [analyticsUtils] = useState(new AnalyticsUtils());
 
    /////////////////////////////////////////////////////////
    // tell the client how to do a logout if it sees a 401 //
@@ -147,6 +148,8 @@ export default function App({authenticationMetaData}: Props)
     ***************************************************************************/
    function doLogout()
    {
+      analyticsUtils.reset();
+
       if (authenticationMetaData?.type === "AUTH_0")
       {
          auth0Logout();
@@ -708,14 +711,20 @@ export default function App({authenticationMetaData}: Props)
    }, [loggedInUser]);
 
 
-   const [googleAnalyticsUtils] = useState(new GoogleAnalyticsUtils());
+   useEffect(() =>
+   {
+      if (isFullyAuthenticated)
+      {
+         analyticsUtils.initialize();
+      }
+   }, [isFullyAuthenticated, analyticsUtils]);
 
    /*******************************************************************************
     **
     *******************************************************************************/
    function recordAnalytics(model: AnalyticsModel)
    {
-      googleAnalyticsUtils.recordAnalytics(model);
+      analyticsUtils.recordAnalytics(model);
    }
 
    ///////////////////////////////////////////////////////////////////
