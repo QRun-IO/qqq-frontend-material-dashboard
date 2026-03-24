@@ -54,7 +54,6 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
    private List<FieldRule>    fieldRules;
 
    private QCodeReference onLoadFormAdjuster = null;
-   private Boolean        useRecordScreen    = null;
 
 
 
@@ -347,36 +346,6 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
       return (this);
    }
 
-
-
-   /*******************************************************************************
-    ** Getter for useRecordScreen
-    *******************************************************************************/
-   public Boolean getUseRecordScreen()
-   {
-      return (this.useRecordScreen);
-   }
-
-
-
-   /*******************************************************************************
-    ** Setter for useRecordScreen
-    *******************************************************************************/
-   public void setUseRecordScreen(Boolean useRecordScreen)
-   {
-      this.useRecordScreen = useRecordScreen;
-   }
-
-
-
-   /*******************************************************************************
-    ** Fluent setter for useRecordScreen
-    *******************************************************************************/
-   public MaterialDashboardTableMetaData withUseRecordScreen(Boolean useRecordScreen)
-   {
-      this.useRecordScreen = useRecordScreen;
-      return (this);
-   }
 
 
 
