@@ -129,12 +129,13 @@ export default function useAuth0AuthenticationModule({setIsFullyAuthenticated, s
     ***************************************************************************/
    const hasAnalyticsIdentityValues = (sessionValues: {[key: string]: any} | null): boolean =>
    {
-      const googleAnalyticsValues = sessionValues?.googleAnalyticsValues ?? {};
+      const analyticsIdentityValues = sessionValues?.googleAnalyticsValues ?? {};
       return Boolean(
-         googleAnalyticsValues["ctl_user_id"]
-         || googleAnalyticsValues["user_email"]
+         analyticsIdentityValues["user_email"]
          || sessionValues?.user?.email
          || sessionValues?.user?.idReference
+         || sessionValues?.user?.id
+         || sessionValues?.user?.userId
       );
    };
 

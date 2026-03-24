@@ -113,6 +113,7 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
    private initializePostHog = (projectApiKey: string, apiHost: string): void =>
    {
       const win = window as any;
+      const scriptUrl = this.getPostHogScriptUrl(apiHost);
       win.posthog = win.posthog || [];
       const existingPostHog = this.getPostHog();
       if(existingPostHog && existingPostHog.__QQQ_POSTHOG_INITIALIZED)
@@ -163,10 +164,7 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
          script.async = true;
          script.crossOrigin = "anonymous";
          script.type = "text/javascript";
-
-         const normalizedHost = apiHost.replace(/\/+$/, "");
-         const assetHost = normalizedHost.includes(".i.posthog.com") ? normalizedHost.replace(".i.posthog.com", "-assets.i.posthog.com") : normalizedHost;
-         script.src = `${assetHost}/static/array.js`;
+         script.src = scriptUrl;
 
          const firstScript = document.getElementsByTagName("script")[0];
          if(firstScript && firstScript.parentNode)
@@ -203,13 +201,13 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
          return;
       }
 
-      const googleAnalyticsValues = (sessionValues?.googleAnalyticsValues ?? {}) as {[key: string]: any};
-      const ctlUserId = googleAnalyticsValues["ctl_user_id"] || sessionValues?.user?.id || sessionValues?.user?.userId;
-      const email = googleAnalyticsValues["user_email"] || sessionValues?.user?.email || sessionValues?.user?.idReference;
-      const name = googleAnalyticsValues["name"] || sessionValues?.user?.name || sessionValues?.user?.fullName;
-      const clientName = googleAnalyticsValues["client_name"];
-      const clientId = googleAnalyticsValues["client_id"];
-      const distinctId = ctlUserId || email;
+      const analyticsIdentityValues = (sessionValues?.googleAnalyticsValues ?? {}) as {[key: string]: any};
+      const userId = sessionValues?.user?.id || sessionValues?.user?.userId;
+      const email = analyticsIdentityValues["user_email"] || sessionValues?.user?.email || sessionValues?.user?.idReference;
+      const name = analyticsIdentityValues["name"] || sessionValues?.user?.name || sessionValues?.user?.fullName;
+      const clientName = analyticsIdentityValues["client_name"];
+      const clientId = analyticsIdentityValues["client_id"];
+      const distinctId = userId || email;
 
       if(!distinctId)
       {
@@ -217,9 +215,9 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
       }
 
       const properties: {[key: string]: any} = {};
-      if(ctlUserId)
+      if(userId)
       {
-         properties.ctl_user_id = ctlUserId;
+         properties.user_id = userId;
       }
       if(email)
       {
@@ -249,5 +247,27 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
    private getPostHog = (): PostHogType | null =>
    {
       return (window as any).posthog || null;
+   }
+
+
+   /*******************************************************************************
+    **
+    *******************************************************************************/
+   private getPostHogScriptUrl = (apiHost: string): string =>
+   {
+      const scriptUrl = new URL(apiHost, window.location.origin);
+      if(scriptUrl.hostname.toLowerCase() == "i.posthog.com")
+      {
+         scriptUrl.hostname = "assets.i.posthog.com";
+      }
+      else if(scriptUrl.hostname.toLowerCase().endsWith(".i.posthog.com"))
+      {
+         scriptUrl.hostname = scriptUrl.hostname.replace(/\.i\.posthog\.com$/i, "-assets.i.posthog.com");
+      }
+
+      scriptUrl.hash = "";
+      scriptUrl.search = "";
+      scriptUrl.pathname = "/static/array.js";
+      return (scriptUrl.toString());
    }
 }
