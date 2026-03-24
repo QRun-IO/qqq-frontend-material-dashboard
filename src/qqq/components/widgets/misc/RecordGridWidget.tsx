@@ -221,8 +221,16 @@ function RecordGridWidget({widgetMetaData, data, addNewRecordCallback, disableRo
                   renderCell: ((params: GridRenderCellParams) =>
                   {
                      return <Box>
-                        {allowRecordEdit && <IconButton onClick={() => editRecordCallback(params.row.__rowIndex)}><Icon>edit</Icon></IconButton>}
-                        {allowRecordDelete && <IconButton onClick={() => deleteRecordCallback(params.row.__rowIndex)}><Icon>delete</Icon></IconButton>}
+                        {allowRecordEdit && <IconButton onClick={(e) =>
+                        {
+                           e.stopPropagation();
+                           editRecordCallback(params.row.__rowIndex);
+                        }}><Icon>edit</Icon></IconButton>}
+                        {allowRecordDelete && <IconButton onClick={(e) =>
+                        {
+                           e.stopPropagation();
+                           deleteRecordCallback(params.row.__rowIndex);
+                        }}><Icon>delete</Icon></IconButton>}
                      </Box>;
                   })
                });

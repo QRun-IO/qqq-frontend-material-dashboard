@@ -28,7 +28,7 @@ import {FormikContextType, useFormikContext} from "formik";
 import QDynamicForm from "qqq/components/forms/DynamicForm";
 import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
 import Widget from "qqq/components/widgets/Widget";
-import {renderSectionOfFields} from "qqq/pages/records/view/RecordView";
+import {renderSectionOfFields} from "qqq/utils/qqq/ViewUtils";
 import Client from "qqq/utils/qqq/Client";
 import React, {useEffect, useState} from "react";
 

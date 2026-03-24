@@ -217,6 +217,37 @@ class TableUtils
    }
 
 
+
+
+   /*******************************************************************************
+    ** For a table, get the set of join table names that are visible in any
+    ** non-hidden section's field list.
+    *******************************************************************************/
+   public static getVisibleJoinTables(tableMetaData: QTableMetaData): Set<string>
+   {
+      const visibleJoinTables = new Set<string>();
+
+      for (let i = 0; i < tableMetaData?.sections.length; i++)
+      {
+         const section = tableMetaData?.sections[i];
+         if (section.isHidden || !section.fieldNames || !section.fieldNames.length)
+         {
+            continue;
+         }
+
+         section.fieldNames.forEach((fieldName) =>
+         {
+            const [field, tableForField] = TableUtils.getFieldAndTable(tableMetaData, fieldName);
+            if (tableForField && tableForField.name != tableMetaData.name)
+            {
+               visibleJoinTables.add(tableForField.name);
+            }
+         });
+      }
+
+      return (visibleJoinTables);
+   }
+
 }
 
 export default TableUtils;

@@ -114,7 +114,11 @@ function BooleanFieldSwitch({name, label, value, isDisabled, onChangeCallback}: 
    const classNullSwitch = (value === null || value == undefined || `${value}` == "") ? "nullSwitch" : "";
 
    return (
-      <Box bgcolor={isDisabled ? colors.grey[200] : ""}>
+      <Box bgcolor={isDisabled ? colors.grey[200] : ""} sx={{
+         ".compactForm & .MuiInputLabel-root": {display: "none"},
+         ".compactForm & .MuiStack-root": {height: "26px"},
+         ".compactForm & .MuiTypography-root": {fontSize: "0.875rem"},
+      }}>
          <InputLabel shrink={true}>{label}</InputLabel>
          <Stack direction="row" spacing={1} alignItems="center" height="37px">
             <Typography

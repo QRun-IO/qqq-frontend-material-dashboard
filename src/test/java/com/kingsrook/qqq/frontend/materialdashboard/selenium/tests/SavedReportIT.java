@@ -22,6 +22,7 @@
 package com.kingsrook.qqq.frontend.materialdashboard.selenium.tests;
 
 
+import java.time.Duration;
 import java.util.List;
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.QBaseSeleniumTest;
 import com.kingsrook.qqq.frontend.materialdashboard.selenium.lib.QSeleniumLib;
@@ -31,6 +32,8 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -114,9 +117,11 @@ public class SavedReportIT extends QBaseSeleniumTest
       qSeleniumLib.waitForSelectorContaining(".advancedQueryString", "First Name");
       qSeleniumLib.waitForSelectorContaining(".advancedQueryString", "contains");
       qSeleniumLib.waitForSelectorContaining(".advancedQueryString", "Darin");
-      List<WebElement> columns = qSeleniumLib.waitForSelectorContaining("h5", "Columns")
-         .findElement(QSeleniumLib.PARENT)
-         .findElements(By.cssSelector("DIV"));
+      // Use exact text match for <h5>Columns</h5> inside the widget
+      // (not the section header "Filters and Columns" which also matches "contains Columns")
+      WebElement columnsH5 = new WebDriverWait(qSeleniumLib.driver, Duration.ofSeconds(10))
+         .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h5[text()='Columns']")));
+      List<WebElement> columns = columnsH5.findElement(QSeleniumLib.PARENT).findElements(By.cssSelector("DIV"));
 
       assertThat(columns)
          .hasSizeGreaterThanOrEqualTo(5) // at least this many

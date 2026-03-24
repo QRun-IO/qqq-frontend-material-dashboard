@@ -26,14 +26,35 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import {Capability} from "@qrunio/qqq-frontend-core/lib/model/metaData/Capability";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QMenu} from "@qrunio/qqq-frontend-core/lib/model/metaData/QMenu";
 import {QMenuItem} from "@qrunio/qqq-frontend-core/lib/model/metaData/QMenuItem";
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {QActionsMenuButton} from "qqq/components/buttons/DefaultButtons";
-import {RecordViewMenuActions} from "qqq/pages/records/view/RecordView";
 import React, {useEffect, useState} from "react";
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// define an object that is passed into the components of RecordViewMenu.tsx for getting data from //
+// this component, and for making callbacks into this component to perform actions from menus.     //
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+export interface RecordViewMenuActions
+{
+   new: (closeMenu?: () => void) => void;
+   copy: (closeMenu?: () => void) => void;
+   edit: () => void;
+   developerMode: (closeMenu?: () => void) => void;
+   audit: (closeMenu?: () => void) => void;
+   delete: (closeMenu?: () => void) => void;
+   runProcess: (processName: string) => void;
+   downloadFileFromField: (fieldName: string, closeMenu?: () => void) => void;
+
+   getMetaData: () => QInstance;
+   getTableProcesses: () => QProcessMetaData[];
+   getGenericProcesses: () => QProcessMetaData[];
+}
 
 /////////////////////////////////////////////////
 // component for the multiple additional menus //
@@ -191,13 +212,13 @@ export function RecordViewMenuItem({tableMetaData: table, menuItem, record, acti
             case "NEW":
             {
                return table?.capabilities.has(Capability.TABLE_INSERT) && table?.insertPermission
-                  ? itemsShown.addItem(menuItem) && <MenuItem onClick={() => actions.new()} data-qqq-id="menu-item-new">{content(menuItem, "add", "New")}</MenuItem>
+                  ? itemsShown.addItem(menuItem) && <MenuItem onClick={() => actions.new(closeMenu)} data-qqq-id="menu-item-new">{content(menuItem, "add", "New")}</MenuItem>
                   : <></>;
             }
             case "COPY":
             {
                return table?.capabilities.has(Capability.TABLE_INSERT) && table?.insertPermission
-                  ? <MenuItem onClick={() => actions.copy()} data-qqq-id="menu-item-copy">{content(menuItem, "copy", "Copy")}</MenuItem>
+                  ? <MenuItem onClick={() => actions.copy(closeMenu)} data-qqq-id="menu-item-copy">{content(menuItem, "copy", "Copy")}</MenuItem>
                   : <></>;
             }
             case "EDIT":
@@ -214,7 +235,7 @@ export function RecordViewMenuItem({tableMetaData: table, menuItem, record, acti
             }
             case "DEVELOPER_MODE":
             {
-               return <MenuItem onClick={() => actions.developerMode()}>{content(menuItem, "code", "Developer Mode")}</MenuItem>;
+               return <MenuItem onClick={() => actions.developerMode(closeMenu)}>{content(menuItem, "code", "Developer Mode")}</MenuItem>;
             }
             case "AUDIT":
             {

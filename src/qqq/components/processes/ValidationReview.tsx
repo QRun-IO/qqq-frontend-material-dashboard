@@ -35,7 +35,7 @@ import MDTypography from "qqq/components/legacy/MDTypography";
 import CustomWidthTooltip from "qqq/components/tooltips/CustomWidthTooltip";
 import RecordGridWidget, {ChildRecordListData} from "qqq/components/widgets/misc/RecordGridWidget";
 import {ProcessSummaryLine} from "qqq/models/processes/ProcessSummaryLine";
-import {renderSectionOfFields} from "qqq/pages/records/view/RecordView";
+import {renderSectionOfFields} from "qqq/utils/qqq/ViewUtils";
 import Client from "qqq/utils/qqq/Client";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";

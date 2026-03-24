@@ -97,15 +97,17 @@ export function QDeleteButton({onClickHandler, disabled}: QDeleteButtonProps): J
    );
 }
 
-export function QEditButton(): JSX.Element
+export function QEditButton({onClickHandler}: {onClickHandler?: () => void}): JSX.Element
 {
+   const button = (
+      <MDButton variant="gradient" color="dark" size="small" fullWidth startIcon={<Icon>edit</Icon>} onClick={onClickHandler}>
+         Edit
+      </MDButton>
+   );
+
    return (
       <Box ml={standardML} width={standardWidth}>
-         <Link to="edit">
-            <MDButton variant="gradient" color="dark" size="small" fullWidth startIcon={<Icon>edit</Icon>}>
-               Edit
-            </MDButton>
-         </Link>
+         {onClickHandler ? button : <Link to="edit">{button}</Link>}
       </Box>
    );
 }
