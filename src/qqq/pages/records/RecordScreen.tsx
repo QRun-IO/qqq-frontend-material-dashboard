@@ -44,14 +44,13 @@ import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/prefer
 import {QActionsMenuButton, QCancelButton, QDeleteButton, QEditButton, QSaveButton} from "qqq/components/buttons/DefaultButtons";
 import MDButton from "qqq/components/legacy/MDButton";
 import {GotoRecordButton} from "qqq/components/misc/GotoRecordDialog";
-import {RecordViewAdditionalMenus, RecordViewMenuItem, ItemsShownInMenu} from "qqq/components/view/RecordViewMenus";
+import {RecordViewAdditionalMenus, RecordViewMenuItem, ItemsShownInMenu, RecordViewMenuActions} from "qqq/components/view/RecordViewMenus";
 import BaseLayout from "qqq/layouts/BaseLayout";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
 import RecordScreenBody from "qqq/pages/records/RecordScreenBody";
 import {RecordScreenMode} from "qqq/pages/records/RecordScreenContext";
 import RecordScreenSection from "qqq/pages/records/RecordScreenSection";
 import {useRecordScreen} from "qqq/pages/records/useRecordScreen";
-import {RecordViewMenuActions} from "qqq/components/view/RecordViewMenus";
 import Client from "qqq/utils/qqq/Client";
 import HtmlUtils from "qqq/utils/HtmlUtils";
 import {sanitizeId} from "qqq/utils/qqqIdUtils";
