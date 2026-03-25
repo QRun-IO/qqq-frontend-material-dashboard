@@ -38,6 +38,38 @@ type PostHogType = {
 };
 
 
+export function buildPostHogScriptUrl(apiHost: string, origin: string): string
+{
+   const scriptUrl = new URL(apiHost, origin);
+   const normalizedPathname = scriptUrl.pathname.replace(/\/+$/, "");
+   if(scriptUrl.hostname.toLowerCase() == "i.posthog.com")
+   {
+      scriptUrl.hostname = "assets.i.posthog.com";
+   }
+   else if(scriptUrl.hostname.toLowerCase().endsWith(".i.posthog.com"))
+   {
+      scriptUrl.hostname = scriptUrl.hostname.replace(/\.i\.posthog\.com$/i, "-assets.i.posthog.com");
+   }
+
+   scriptUrl.hash = "";
+   scriptUrl.search = "";
+   if(normalizedPathname.toLowerCase().endsWith("/static/array.js"))
+   {
+      scriptUrl.pathname = normalizedPathname;
+   }
+   else if(normalizedPathname && normalizedPathname != "/")
+   {
+      scriptUrl.pathname = `${normalizedPathname}/static/array.js`;
+   }
+   else
+   {
+      scriptUrl.pathname = "/static/array.js";
+   }
+
+   return (scriptUrl.toString());
+}
+
+
 export default class PostHogAnalyticsProvider implements AnalyticsProviderInterface
 {
    private active: boolean = false;
@@ -253,22 +285,9 @@ export default class PostHogAnalyticsProvider implements AnalyticsProviderInterf
 
    /*******************************************************************************
     **
-    *******************************************************************************/
+   *******************************************************************************/
    private getPostHogScriptUrl = (apiHost: string): string =>
    {
-      const scriptUrl = new URL(apiHost, window.location.origin);
-      if(scriptUrl.hostname.toLowerCase() == "i.posthog.com")
-      {
-         scriptUrl.hostname = "assets.i.posthog.com";
-      }
-      else if(scriptUrl.hostname.toLowerCase().endsWith(".i.posthog.com"))
-      {
-         scriptUrl.hostname = scriptUrl.hostname.replace(/\.i\.posthog\.com$/i, "-assets.i.posthog.com");
-      }
-
-      scriptUrl.hash = "";
-      scriptUrl.search = "";
-      scriptUrl.pathname = "/static/array.js";
-      return (scriptUrl.toString());
+      return (buildPostHogScriptUrl(apiHost, window.location.origin));
    }
 }
