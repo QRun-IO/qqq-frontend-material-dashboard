@@ -850,7 +850,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    /////////////////////////////////////
    return (
       <BaseLayout>
-         <Box className={`recordScreen${isEditing ? " compactForm" : ""}`} data-qqq-id={`record-screen-${tableNameForId}`}>
+         <Box className={`recordScreen${mode === "view" ? " recordView" : " recordEdit"}${mode === "create" ? " recordCreate" : ""}${isEditing ? " compactForm" : ""}`} data-qqq-id={`record-screen-${tableNameForId}`}>
             <Grid container>
                <Grid item xs={12}>
                   <Box mb={3}>
