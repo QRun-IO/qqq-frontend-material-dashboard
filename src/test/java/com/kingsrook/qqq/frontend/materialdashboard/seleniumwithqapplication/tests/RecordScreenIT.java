@@ -96,6 +96,8 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
    private static final int MEDIUM_WAIT = 100; // was 500ms — widget/grid render
    private static final int LONG_WAIT   = 250; // was 1000ms — modal close + grid reload
 
+   private static final Keys MODIFIER_KEY = System.getProperty("os.name").toLowerCase().contains("mac") ? Keys.COMMAND : Keys.CONTROL;
+
    /***************************************************************************
     *
     ***************************************************************************/
@@ -215,7 +217,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       enterEditModeViaPencilIcon();
 
       WebElement firstNameInput = qSeleniumLib.waitForSelector("input[name='firstName']");
-      firstNameInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      firstNameInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       firstNameInput.sendKeys("Bart");
       WebElement saveButton = qSeleniumLib.waitForSelectorContaining(".stickyBottomButtonBar button", "Save");
       ((JavascriptExecutor) driver).executeScript("arguments[0].click();", saveButton);
@@ -231,9 +233,9 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       enterEditModeViaPencilIcon();
 
       firstNameInput = qSeleniumLib.waitForSelector("input[name='firstName']");
-      firstNameInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      firstNameInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       firstNameInput.sendKeys("Homer");
-      firstNameInput.sendKeys(Keys.chord(Keys.COMMAND, "s"));
+      firstNameInput.sendKeys(Keys.chord(MODIFIER_KEY, "s"));
 
       qSeleniumLib.waitForSelectorContaining(".MuiAlert-message", "successfully updated");
       qSeleniumLib.waitForSelectorContaining("[data-qqq-id='record-screen-title-person']", "Viewing Person: Homer Simpson");
@@ -258,7 +260,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       enterEditModeViaPencilIcon();
 
       WebElement firstNameInput = qSeleniumLib.waitForSelector("input[name='firstName']");
-      firstNameInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      firstNameInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       firstNameInput.sendKeys("CHANGED");
 
       WebElement cancelButton = qSeleniumLib.waitForSelectorContaining("button", "Cancel");
@@ -941,7 +943,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       selectInput.click();
       qSeleniumLib.waitForMillis(SHORT_WAIT);
 
-      selectInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      selectInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       selectInput.sendKeys("Cat");
       qSeleniumLib.waitForMillis(MEDIUM_WAIT);
 
@@ -1305,7 +1307,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       ////////////////////////////////////
       // change the first name and save //
       ////////////////////////////////////
-      firstNameInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      firstNameInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       firstNameInput.sendKeys("Bart");
       qSeleniumLib.waitForSelectorContaining("button", "Save").click();
 
@@ -1600,11 +1602,11 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // modify the label and repeat seconds     //
       /////////////////////////////////////////////
       WebElement labelInput = qSeleniumLib.waitForSelector("input[name='label']");
-      labelInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      labelInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       labelInput.sendKeys("Updated Job");
 
       WebElement repeatInput = qSeleniumLib.waitForSelector("input[name='repeatSeconds']");
-      repeatInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      repeatInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       repeatInput.sendKeys("120");
 
       //////////////
@@ -1675,7 +1677,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // clear lastName and type lowercase text //
       ////////////////////////////////////////////
       WebElement lastNameInput = qSeleniumLib.waitForSelector("input[name='lastName']");
-      lastNameInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      lastNameInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       lastNameInput.sendKeys("flanders");
 
       /////////////////////////////////////////////////////////
@@ -1842,7 +1844,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // change the label and save //
       ///////////////////////////////
       WebElement labelInput = qSeleniumLib.waitForSelector("input[name='label']");
-      labelInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      labelInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       labelInput.sendKeys("Updated Report Name");
       assertThat(labelInput.getAttribute("value")).isEqualTo("Updated Report Name");
 
@@ -2201,7 +2203,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // change name to "x" and blur — data section should hide again //
       //////////////////////////////////////////////////////////////////
       nameInput = qSeleniumLib.waitForSelector("input[name='name']");
-      nameInput.sendKeys(Keys.chord(Keys.COMMAND, "a"));
+      nameInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       nameInput.sendKeys("x");
       qSeleniumLib.waitForSelectorContaining("h5", "Creating New").click();
       qSeleniumLib.waitForMillis(LONG_WAIT);
