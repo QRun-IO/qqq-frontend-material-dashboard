@@ -159,7 +159,7 @@ public class QFMDSeleniumLib
     ***************************************************************************/
    public void waitForViewScreenFieldValue(String fieldLabel, String value)
    {
-      qSeleniumLib.waitForSelectorContaining(".MuiGrid-item", fieldLabel + ": " + value);
+      qSeleniumLib.waitForSelectorContaining(".MuiGrid-item", fieldLabel + ":\n" + value);
    }
 
 
@@ -168,7 +168,7 @@ public class QFMDSeleniumLib
     ***************************************************************************/
    public void waitForViewScreenFieldValueToNotExist(String fieldLabel, String value)
    {
-      qSeleniumLib.waitForSelectorContainingToNotExist(".MuiGrid-item", fieldLabel + ": " + value);
+      qSeleniumLib.waitForSelectorContainingToNotExist(".MuiGrid-item", fieldLabel + ":\n" + value);
    }
 
 
