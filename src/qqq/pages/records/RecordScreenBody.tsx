@@ -68,6 +68,7 @@ export default function RecordScreenBody({screen, formId, onSubmit, formikSubmit
       openAddChildRecord, openEditChildRecord, deleteChildRecord,
       tableVariant,
       sectionVisibility,
+      addSubValidations,
    } = screen;
 
    const isEditing = mode === "edit" || mode === "create";
@@ -94,11 +95,12 @@ export default function RecordScreenBody({screen, formId, onSubmit, formikSubmit
       reloadWidget,
       fieldRules,
       isFormDisabled,
+      addSubValidations,
       childListWidgetData,
       openAddChildRecord,
       openEditChildRecord,
       deleteChildRecord,
-   }), [mode, tableMetaData, metaData, record, stableSetFieldValue, reloadWidget, fieldRules, isFormDisabled, childListWidgetData]);
+   }), [mode, tableMetaData, metaData, record, stableSetFieldValue, reloadWidget, fieldRules, isFormDisabled, addSubValidations, childListWidgetData]);
 
 
    //////////////////////////////////////////////

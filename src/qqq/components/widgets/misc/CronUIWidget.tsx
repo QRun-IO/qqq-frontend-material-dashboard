@@ -861,6 +861,12 @@ export default function CronUIWidget({widgetMetaData, widgetData, screen, record
                      {cronDescription ? <Box>{cronDescription}</Box> : <Box color={colors.error.main}>{cronDescriptionError}</Box>}
                      {loadingDescription ? <LinearProgress color="info" /> : <Box height="0.375rem"></Box>}
                   </Box>
+                  {
+                     cronExpressionField?.isRequired &&
+                     <Typography component="div" className="fieldErrorMessage" variant="caption" color="error" fontWeight="regular">
+                        <ErrorMessage name={cronExpressionFieldName} render={msg => <span data-field-error={cronExpressionFieldName}>{msg}</span>} />
+                     </Typography>
+                  }
                </>
             }
 

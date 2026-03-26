@@ -83,6 +83,7 @@ interface Props
    initialWidgetDataList: any[];
    values?: { [key: string]: any };
    screen: WidgetScreenType;
+   addSubValidations?: (name: string, validations: Record<string, any>) => void;
 }
 
 DashboardWidgets.defaultProps = {
@@ -101,7 +102,7 @@ DashboardWidgets.defaultProps = {
    screen: "dashboard",
 };
 
-function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, omitPaddingOnWidget, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values, screen}: Props): JSX.Element
+function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, omitPaddingOnWidget, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values, screen, addSubValidations}: Props): JSX.Element
 {
    const [widgetData, setWidgetData] = useState(initialWidgetDataList == null ? [] as any[] : initialWidgetDataList);
    const [errorsLoading, setErrorsLoading] = useState([] as any[]);
@@ -884,14 +885,14 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "rowBuilder" && (
                   (widgetData && widgetData[i]) ?
-                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={rowBuilderOnSaveCallback} /> :
+                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={rowBuilderOnSaveCallback} addSubValidations={addSubValidations} /> :
                      <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
                )
             }
             {
                widgetMetaData.type === "cronUI" && (
                   (widgetData && widgetData[i]) ?
-                     <CronUIWidget screen={screen} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={Object.keys(values).length > 0 ? values : convertQRecordValuesFromMapToObject(record)} recordDisplayValueMap={record?.displayValues} onSaveCallback={(values: { [name: string]: any }) =>
+                     <CronUIWidget screen={screen} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={Object.keys(values).length > 0 ? values : convertQRecordValuesFromMapToObject(record)} recordDisplayValueMap={record?.displayValues} addSubValidations={addSubValidations} onSaveCallback={(values: { [name: string]: any }) =>
                      {
                         if (actionCallback)
                         {

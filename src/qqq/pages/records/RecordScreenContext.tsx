@@ -40,6 +40,9 @@ export interface RecordScreenContextValue
    fieldRules: FieldRule[];
    isFormDisabled: boolean;
 
+   // widget sub-validations
+   addSubValidations: (name: string, validations: Record<string, any>) => void;
+
    // child record management (edit mode)
    childListWidgetData: { [name: string]: ChildRecordListData };
    openAddChildRecord: (widgetName: string, widgetData: ChildRecordListData) => void;
@@ -63,6 +66,9 @@ const RecordScreenContext = createContext<RecordScreenContextValue>({
    },
    fieldRules: [],
    isFormDisabled: false,
+   addSubValidations: () =>
+   {
+   },
    childListWidgetData: {},
    openAddChildRecord: () =>
    {

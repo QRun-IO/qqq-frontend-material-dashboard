@@ -146,6 +146,9 @@ export interface UseRecordScreenResult
    setFieldValueRef: React.MutableRefObject<(name: string, value: any, shouldValidate?: boolean) => void>;
    formValuesRef: React.MutableRefObject<{ [key: string]: any }>;
 
+   // widget sub-validations
+   addSubValidations: (name: string, validations: { [key: string]: Yup.BaseSchema }) => void;
+
    // disabled fields (for modal usage)
    disabledFields: { [key: string]: boolean };
 
@@ -204,6 +207,12 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
    const [formFieldsBySection, setFormFieldsBySection] = useState<Map<string, DynamicFormFieldDefinition[]>>(new Map());
    const [initialValues, setInitialValues] = useState<{ [key: string]: any }>({});
    const [formValidations, setFormValidations] = useState<{ [key: string]: Yup.BaseSchema }>({});
+
+   // allows widgets (e.g., CronUIWidget) to register their own field validations with Formik
+   const addSubValidations = useCallback((name: string, validations: { [key: string]: Yup.BaseSchema }) =>
+   {
+      setFormValidations(prev => ({...prev, ...validations}));
+   }, []);
 
    const [fieldRules, setFieldRules] = useState<FieldRule[]>([]);
 
@@ -1429,5 +1438,6 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
       deleteChildRecord,
       submitEditChildForm,
       sectionVisibility,
+      addSubValidations,
    };
 }

@@ -61,7 +61,7 @@ interface RecordScreenSectionProps
  ** which is needed for widgets like FilterAndColumnsSetup that depend on
  ** form field values (e.g., tableName).
  ***************************************************************************/
-function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaDataName, widgetMetaDataList, record, primaryKeyField, widgetReloadCounter, setFieldValue}: {
+function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaDataName, widgetMetaDataList, record, primaryKeyField, widgetReloadCounter, setFieldValue, addSubValidations}: {
    sectionName: string;
    mode: string;
    recordId: any;
@@ -71,6 +71,7 @@ function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaData
    primaryKeyField: string;
    widgetReloadCounter: number;
    setFieldValue: (name: string, value: any) => void;
+   addSubValidations?: (name: string, validations: Record<string, any>) => void;
 }): JSX.Element
 {
    const {values: formikValues} = useFormikContext<any>();
@@ -85,6 +86,7 @@ function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaData
          omitWrappingGridContainer={true}
          screen="recordEdit"
          values={formikValues ?? {}}
+         addSubValidations={addSubValidations}
          actionCallback={(data: any) =>
          {
             if (data && typeof data === "object")
@@ -107,7 +109,7 @@ function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaData
  ***************************************************************************/
 function RecordScreenSection({section, mode, record, formFieldsBySection, isOpen = true, isT1 = false, onToggleCollapse, onEditIconClick, tableVariant, widgetReloadCounter = 0}: RecordScreenSectionProps): JSX.Element
 {
-   const {tableMetaData, metaData, childListWidgetData, openAddChildRecord, openEditChildRecord, deleteChildRecord, setFieldValue, isFormDisabled} = useContext(RecordScreenContext);
+   const {tableMetaData, metaData, childListWidgetData, openAddChildRecord, openEditChildRecord, deleteChildRecord, setFieldValue, isFormDisabled, addSubValidations} = useContext(RecordScreenContext);
 
    if (!section || section.isHidden)
    {
@@ -188,6 +190,7 @@ function RecordScreenSection({section, mode, record, formFieldsBySection, isOpen
                   primaryKeyField={tableMetaData.primaryKeyField}
                   widgetReloadCounter={widgetReloadCounter}
                   setFieldValue={setFieldValue}
+                  addSubValidations={addSubValidations}
                />
             ) : (
                <DashboardWidgets
