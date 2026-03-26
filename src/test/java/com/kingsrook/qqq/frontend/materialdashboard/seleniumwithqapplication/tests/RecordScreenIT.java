@@ -752,7 +752,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       /////////////////////////////////////////////////////////
       // verify the edit modal opens and change the pet name //
       /////////////////////////////////////////////////////////
-      qSeleniumLib.waitForSelectorContaining(".modalEditForm h5", "Edit Pet");
+      qSeleniumLib.waitForSelectorContaining(".modalEditForm h5", "Editing Pet");
       WebElement nameInput = qSeleniumLib.waitForSelector(".modalEditForm input[name='name']");
       nameInput.clear();
       nameInput.sendKeys("Santos L. Halper");
@@ -1083,7 +1083,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       /////////////////////////////////////////////////
       WebElement editButton = driver.findElement(By.xpath("//div[contains(@class,'MuiDataGrid-row')][1]//button[.//span[text()='edit']]"));
       editButton.click();
-      qSeleniumLib.waitForSelectorContaining(".modalEditForm h5", "Edit Pet");
+      qSeleniumLib.waitForSelectorContaining(".modalEditForm h5", "Editing Pet");
       WebElement nameInput = qSeleniumLib.waitForSelector(".modalEditForm input[name='name']");
       assertThat(nameInput.getAttribute("value"))
          .as("Name should be pre-populated with existing pet name")
