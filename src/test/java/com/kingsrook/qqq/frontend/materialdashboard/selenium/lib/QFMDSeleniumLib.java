@@ -161,11 +161,22 @@ public class QFMDSeleniumLib
    {
       // RecordScreenField renders label and value as separate block elements (getText returns "Label:\nValue")
       // while renderSectionOfFields (used by widgets in view mode) renders inline (getText returns "Label: Value")
-      // Try both separators — space and newline
+      // Try both separators — space and newline.
+      // Catch StaleElementReferenceException in the predicate (page may re-render between findElements and getText).
       String withSpace = fieldLabel + ": " + value;
       String withNewline = fieldLabel + ":\n" + value;
       qSeleniumLib.waitForSelectorAllSatisfyingPredicate(".MuiGrid-item",
-         elements -> elements.stream().anyMatch(e -> e.getText().contains(withSpace) || e.getText().contains(withNewline)),
+         elements ->
+         {
+            try
+            {
+               return elements.stream().anyMatch(e -> e.getText().contains(withSpace) || e.getText().contains(withNewline));
+            }
+            catch(org.openqa.selenium.StaleElementReferenceException e)
+            {
+               return false;
+            }
+         },
          "containing [" + fieldLabel + ": " + value + "]");
    }
 

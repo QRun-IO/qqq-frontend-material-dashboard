@@ -499,7 +499,10 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
             /////////////////////////////
             // build sections          //
             /////////////////////////////
-            const sections = buildSections(tableMetaData, metaData, mode);
+            // use effectiveMode (derived from props) instead of mode state, which may
+            // be stale in this effect when both recordId and initialMode change together
+            const effectiveMode: RecordScreenMode = initialMode ?? (recordId ? "view" : "create");
+            const sections = buildSections(tableMetaData, metaData, effectiveMode);
             setTableSections(sections);
 
             const t1 = sections.find(s => s.tier === "T1");
