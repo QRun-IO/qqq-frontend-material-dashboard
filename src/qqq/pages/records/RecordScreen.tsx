@@ -158,7 +158,9 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const tableNameForId = tableMetaData ? sanitizeId(tableMetaData.name) : "";
    const isEditing = mode === "edit" || mode === "create";
 
-   // set breadcrumb label for current path
+   // set breadcrumb label for current path (view and create only — edit mode uses
+   // pushState so location.pathname is the view path; overwriting it would break
+   // the breadcrumb link that should still show the record label)
    useEffect(() =>
    {
       if (tableMetaData && pathToLabelMap)
@@ -167,10 +169,6 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          if (mode === "view" && record)
          {
             pathToLabelMap[currentPath] = `${record.recordLabel ?? id}`;
-         }
-         else if (mode === "edit" && record)
-         {
-            pathToLabelMap[currentPath] = `Editing ${tableMetaData.label}: ${record.recordLabel ?? id}`;
          }
          else if (mode === "create")
          {
