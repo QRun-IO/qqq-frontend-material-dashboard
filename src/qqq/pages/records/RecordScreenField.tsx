@@ -119,16 +119,22 @@ export default function RecordScreenField({field, fieldName, mode, record, formF
    const handleCopyValue = useCallback((e: React.MouseEvent) =>
    {
       e.stopPropagation();
-      const displayValue = record?.displayValues?.get(fieldName);
-      const rawValue = record?.values?.get(fieldName);
-      const textToCopy = displayValue != null && displayValue !== "" ? String(displayValue) : (rawValue != null ? String(rawValue) : "");
+      // use getDisplayValue for proper formatting (e.g., date-times), but fall back
+      // to plain display/raw values since getDisplayValue can return JSX for some types
+      let formattedValue = record ? ValueUtils.getDisplayValue(field, record, "view", fieldName, tableVariant) : null;
+      if (formattedValue != null && typeof formattedValue === "object")
+      {
+         // getDisplayValue returned JSX — fall back to display value or raw value
+         formattedValue = record?.displayValues?.get(fieldName) ?? record?.values?.get(fieldName);
+      }
+      const textToCopy = formattedValue != null && formattedValue !== "" ? String(formattedValue) : "";
       if (textToCopy)
       {
          navigator.clipboard.writeText(textToCopy);
          setShowCopied(true);
          setTimeout(() => setShowCopied(false), 1500);
       }
-   }, [record, fieldName]);
+   }, [record, field, fieldName, tableVariant]);
    const label = field.label;
 
    const helpRoles = isEditing
@@ -193,13 +199,19 @@ export default function RecordScreenField({field, fieldName, mode, record, formF
       if (isEditing)
       {
          // for PV fields, use the initialDisplayValue from the form field def
-         // (which was looked up during form data setup); otherwise fall back to
-         // record display values, record raw values, or formik values
-         displayValue = formFieldDef?.possibleValueProps?.initialDisplayValue
-            ?? record?.displayValues?.get(fieldName)
-            ?? record?.values?.get(fieldName)
-            ?? formikValues?.[fieldName]
-            ?? "";
+         // (which was looked up during form data setup); otherwise use
+         // ValueUtils.getDisplayValue for proper formatting (e.g., date-times),
+         // falling back to plain display/raw values if it returns JSX (links, chips, etc.)
+         displayValue = formFieldDef?.possibleValueProps?.initialDisplayValue;
+         if (displayValue == null)
+         {
+            displayValue = record ? ValueUtils.getDisplayValue(field, record, "view", fieldName, tableVariant) : null;
+            if (displayValue != null && typeof displayValue === "object")
+            {
+               displayValue = record?.displayValues?.get(fieldName) ?? record?.values?.get(fieldName);
+            }
+         }
+         displayValue = displayValue ?? formikValues?.[fieldName] ?? "";
       }
       else
       {
