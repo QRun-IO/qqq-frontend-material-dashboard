@@ -170,7 +170,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          }
          else if (mode === "edit" && record)
          {
-            pathToLabelMap[currentPath] = `Edit ${tableMetaData.label}: ${record.recordLabel ?? id}`;
+            pathToLabelMap[currentPath] = `Editing ${tableMetaData.label}: ${record.recordLabel ?? id}`;
          }
          else if (mode === "create")
          {
@@ -703,7 +703,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          ? (tableMetaData && record ? `Viewing ${tableMetaData?.label}: ${record?.recordLabel || ""}` : "")
          : mode === "create"
             ? (isCopy ? `Copy ${tableMetaData?.label}: ${record?.recordLabel || ""}` : `Creating New ${tableMetaData?.label}`)
-            : `Edit ${tableMetaData?.label}: ${record?.recordLabel || ""}`;
+            : `Editing ${tableMetaData?.label}: ${record?.recordLabel || ""}`;
 
       return (
          <Card id={t1Section?.name} className="recordScreenFieldSection" sx={{scrollMarginTop: "100px", minHeight: "88px", overflow: "visible"}} data-qqq-id={`record-screen-header-${tableNameForId}`}>
