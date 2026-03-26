@@ -53,6 +53,8 @@ import RecordScreenSection from "qqq/pages/records/RecordScreenSection";
 import {useRecordScreen} from "qqq/pages/records/useRecordScreen";
 import Client from "qqq/utils/qqq/Client";
 import HtmlUtils from "qqq/utils/HtmlUtils";
+import ValueUtils from "qqq/utils/qqq/ValueUtils";
+import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {sanitizeId} from "qqq/utils/qqqIdUtils";
 import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
@@ -462,8 +464,29 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
             closeActionsMenu();
          }
       },
-      downloadFileFromField: () =>
+      downloadFileFromField: (fieldName: string, closeMenu?: () => void) =>
       {
+         const fieldValue = record?.values?.get(fieldName);
+         if (fieldName && fieldValue)
+         {
+            const field = tableMetaData.fields.get(fieldName);
+            const url = ValueUtils.getUrlFromBlobOrFileDownloadField(fieldValue, tableVariant, field, record, fieldName);
+
+            if (field.type == QFieldType.BLOB)
+            {
+               const fileName = record?.displayValues?.get(fieldName) ?? fieldName;
+               HtmlUtils.downloadUrlViaIFrame(field, url, fileName);
+            }
+            else
+            {
+               window.open(url);
+            }
+         }
+
+         if (closeMenu)
+         {
+            closeMenu();
+         }
       },
       getMetaData: () => metaData,
       getTableProcesses: () => tableProcesses,
