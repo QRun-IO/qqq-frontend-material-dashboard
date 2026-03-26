@@ -80,7 +80,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const location = useLocation();
    const navigate = useNavigate();
 
-   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, tableProcesses, pathToLabelMap} = useContext(QContext);
+   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, tableProcesses} = useContext(QContext);
 
    // scroll correction: stores field name + Y position before mode switch
    const scrollCorrectionRef = useRef<{fieldName: string; yBefore: number} | null>(null);
@@ -157,25 +157,6 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const pathParts = location.pathname.replace(/\/+$/, "").split("/");
    const tableNameForId = tableMetaData ? sanitizeId(tableMetaData.name) : "";
    const isEditing = mode === "edit" || mode === "create";
-
-   // set breadcrumb label for current path (view and create only — edit mode uses
-   // pushState so location.pathname is the view path; overwriting it would break
-   // the breadcrumb link that should still show the record label)
-   useEffect(() =>
-   {
-      if (tableMetaData && pathToLabelMap)
-      {
-         const currentPath = location.pathname.replace(/\/+$/, "");
-         if (mode === "view" && record)
-         {
-            pathToLabelMap[currentPath] = `${record.recordLabel ?? id}`;
-         }
-         else if (mode === "create")
-         {
-            pathToLabelMap[currentPath] = `Creating New ${tableMetaData.label}`;
-         }
-      }
-   }, [mode, record, tableMetaData, location.pathname]);
 
    /////////////////////////
    // Handle cancel click //
