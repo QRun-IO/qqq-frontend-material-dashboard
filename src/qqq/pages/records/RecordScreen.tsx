@@ -80,7 +80,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const location = useLocation();
    const navigate = useNavigate();
 
-   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, tableProcesses} = useContext(QContext);
+   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, tableProcesses, setPageHeader} = useContext(QContext);
 
    // scroll correction: stores field name + Y position before mode switch
    const scrollCorrectionRef = useRef<{fieldName: string; yBefore: number} | null>(null);
@@ -182,6 +182,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          }
 
          setMode("view");
+         setPageHeader(record?.recordLabel ?? id);
          if (propMode === "view")
          {
             // edit was entered via pushState — pop the entry cleanly
@@ -584,6 +585,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          }
 
          setMode("edit");
+         setPageHeader(`Edit ${tableMetaData?.label}: ${record?.recordLabel ?? id}`);
          window.history.pushState(null, "", location.pathname.replace(/\/(edit)?\/?$/, "") + "/edit");
          window.dispatchEvent(new Event("urlchanged"));
 
@@ -682,7 +684,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          ? (tableMetaData && record ? `Viewing ${tableMetaData?.label}: ${record?.recordLabel || ""}` : "")
          : mode === "create"
             ? (isCopy ? `Copy ${tableMetaData?.label}: ${record?.recordLabel || ""}` : `Creating New ${tableMetaData?.label}`)
-            : `Editing ${tableMetaData?.label}: ${record?.recordLabel || ""}`;
+            : `Edit ${tableMetaData?.label}: ${record?.recordLabel || ""}`;
 
       return (
          <Card id={t1Section?.name} className="recordScreenFieldSection" sx={{scrollMarginTop: "100px", minHeight: "88px", overflow: "visible"}} data-qqq-id={`record-screen-header-${tableNameForId}`}>

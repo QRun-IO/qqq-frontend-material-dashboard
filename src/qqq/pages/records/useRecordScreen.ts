@@ -345,7 +345,10 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
 
                   if (!skipNavigation)
                   {
-                     setPageHeader(loadedRecord.recordLabel);
+                     const effectiveModeForHeader: RecordScreenMode = initialMode ?? (recordId ? "view" : "create");
+                     setPageHeader(effectiveModeForHeader === "edit"
+                        ? `Edit ${tableMetaData?.label}: ${loadedRecord.recordLabel}`
+                        : loadedRecord.recordLabel);
                      recordAnalytics({category: "tableEvents", action: mode === "view" ? "view" : (isCopy ? "copy" : "edit"), label: tableMetaData?.label + " / " + loadedRecord?.recordLabel});
 
                      try

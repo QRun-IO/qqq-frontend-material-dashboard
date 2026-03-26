@@ -279,19 +279,19 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // now Edit via button > Cancel > Edit again — no /edit/edit //
       ///////////////////////////////////////////////////////////////
       qSeleniumLib.waitForSelectorContaining("button", "Edit").click();
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
 
       qSeleniumLib.waitForSelectorContaining("button", "Cancel").click();
       qSeleniumLib.waitForSelectorContaining("h5", "Viewing Person");
 
       qSeleniumLib.waitForSelectorContaining("button", "Edit").click();
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
 
       ///////////////////////////////////////////////////////////////////
       // verify we're still on the edit screen (not redirected home)   //
       // and the URL does not contain /edit/edit (the double-edit bug) //
       ///////////////////////////////////////////////////////////////////
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
       qSeleniumLib.waitForSelector("input[name='firstName']");
       assertThat(driver.getCurrentUrl())
          .as("URL should not contain /edit/edit")
@@ -325,7 +325,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       ////////////////////////////////
       // verify edit mode activated //
       ////////////////////////////////
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
 
       /////////////////////////////////////////
       // verify the lastName input has focus //
@@ -345,7 +345,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.moveMouseCursorToElement(field);
       qSeleniumLib.waitForMillis(SHORT_WAIT);
       qSeleniumLib.waitForSelector("[data-field-name='firstName'] .field-action-icons .MuiIconButton-root:last-child").click();
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
    }
 
 
@@ -500,7 +500,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       ////////////////////////////////
       // verify edit mode activated //
       ////////////////////////////////
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit ");
 
       ////////////////////////////////////////////////////////////
       // find the section header again and check its Y position //
@@ -533,7 +533,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // enter edit mode via 'e' keyboard shortcut //
       ///////////////////////////////////////////////
       new Actions(driver).sendKeys("e").perform();
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
 
       ///////////////////////////////////////////////////////////
       // verify the record ID "1" appears as a breadcrumb link //
@@ -752,7 +752,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       /////////////////////////////////////////////////////////
       // verify the edit modal opens and change the pet name //
       /////////////////////////////////////////////////////////
-      qSeleniumLib.waitForSelectorContaining(".modalEditForm h5", "Editing Pet");
+      qSeleniumLib.waitForSelectorContaining(".modalEditForm h5", "Edit Pet");
       WebElement nameInput = qSeleniumLib.waitForSelector(".modalEditForm input[name='name']");
       nameInput.clear();
       nameInput.sendKeys("Santos L. Halper");
@@ -1074,7 +1074,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // enter edit mode //
       /////////////////////
       enterEditModeViaPencilIcon();
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
       qSeleniumLib.waitForSelector(".MuiDataGrid-root");
       qSeleniumLib.waitForMillis(MEDIUM_WAIT);
 
@@ -1083,7 +1083,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       /////////////////////////////////////////////////
       WebElement editButton = driver.findElement(By.xpath("//div[contains(@class,'MuiDataGrid-row')][1]//button[.//span[text()='edit']]"));
       editButton.click();
-      qSeleniumLib.waitForSelectorContaining(".modalEditForm h5", "Editing Pet");
+      qSeleniumLib.waitForSelectorContaining(".modalEditForm h5", "Edit Pet");
       WebElement nameInput = qSeleniumLib.waitForSelector(".modalEditForm input[name='name']");
       assertThat(nameInput.getAttribute("value"))
          .as("Name should be pre-populated with existing pet name")
@@ -1167,7 +1167,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // enter edit mode //
       /////////////////////
       enterEditModeViaPencilIcon();
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
       qSeleniumLib.waitForSelector(".MuiDataGrid-root");
       qSeleniumLib.waitForMillis(MEDIUM_WAIT);
 
@@ -1224,7 +1224,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       ////////////////////////////////////////
       WebElement body = driver.findElement(By.tagName("body"));
       body.sendKeys("e");
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
       qSeleniumLib.waitForSelector("input[name='firstName']");
 
       ////////////////////////////////////////////////////////////
@@ -1233,7 +1233,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       WebElement firstNameInput = qSeleniumLib.waitForSelector("input[name='firstName']");
       firstNameInput.sendKeys("n");
       qSeleniumLib.waitForMillis(SHORT_WAIT);
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
 
       //////////////////////////////
       // cancel back to view mode //
@@ -1475,7 +1475,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       //////////////////////////////////////////////////////////
       // verify we're still in edit mode (no form submission) //
       //////////////////////////////////////////////////////////
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Person");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Person");
       qSeleniumLib.waitForSelector("input[name='firstName']");
 
       ////////////////////////////////////////////////
@@ -1596,7 +1596,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // enter edit mode      //
       //////////////////////////
       qSeleniumLib.waitForSelectorContaining("button", "Edit").click();
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Scheduled Job");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Scheduled Job");
 
       /////////////////////////////////////////////
       // modify the label and repeat seconds     //
@@ -1832,7 +1832,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // EDIT the report //
       /////////////////////
       qSeleniumLib.waitForSelectorContaining("button", "Edit").click();
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Report");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Report");
 
       /////////////////////////////////////////////////////////////
       // verify the filter widget button is enabled in edit mode //
@@ -2151,7 +2151,7 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       // in edit mode: the "details" section should now be visible with its "type" field   //
       // and the T1 section should show "id" (non-editable) + "name" + "homeTown" editable //
       ///////////////////////////////////////////////////////////////////////////////////////
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing");
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit ");
       qSeleniumLib.waitForSelector("input[name='name']");
       qSeleniumLib.waitForSelector("input[name='homeTown']");
 

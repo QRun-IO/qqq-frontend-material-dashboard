@@ -255,13 +255,13 @@ public class FormAdjusterIT extends QBaseSeleniumWithQApplicationTest
    void testDisablingForm()
    {
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/" + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID + "/edit", "" + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID);
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID);
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID);
       qfmdSeleniumLib.waitForAlert("No soup for you.");
       assertThatThrownBy(() -> qfmdSeleniumLib.inputTextField("size", "XL"));
       qSeleniumLib.waitForSelectorContaining("button[disabled]", "save");
 
       qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/" + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID + "/edit", "" + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
-      qSeleniumLib.waitForSelectorContaining("h5", "Editing Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
       qfmdSeleniumLib.waitForAlert("You are not allowed to edit this record");
       qSeleniumLib.waitForSelectorContaining("button[disabled]", "save");
    }
