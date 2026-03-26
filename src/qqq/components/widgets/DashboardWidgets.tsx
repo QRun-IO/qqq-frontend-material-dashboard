@@ -891,7 +891,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "cronUI" && (
                   (widgetData && widgetData[i]) ?
-                     <CronUIWidget screen={screen} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={convertQRecordValuesFromMapToObject(record)} recordDisplayValueMap={record?.displayValues} onSaveCallback={(values: { [name: string]: any }) =>
+                     <CronUIWidget screen={screen} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={Object.keys(values).length > 0 ? values : convertQRecordValuesFromMapToObject(record)} recordDisplayValueMap={record?.displayValues} onSaveCallback={(values: { [name: string]: any }) =>
                      {
                         if (actionCallback)
                         {

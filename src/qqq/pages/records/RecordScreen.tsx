@@ -80,7 +80,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const location = useLocation();
    const navigate = useNavigate();
 
-   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, tableProcesses} = useContext(QContext);
+   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, tableProcesses, pathToLabelMap} = useContext(QContext);
 
    // scroll correction: stores field name + Y position before mode switch
    const scrollCorrectionRef = useRef<{fieldName: string; yBefore: number} | null>(null);
@@ -157,6 +157,27 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const pathParts = location.pathname.replace(/\/+$/, "").split("/");
    const tableNameForId = tableMetaData ? sanitizeId(tableMetaData.name) : "";
    const isEditing = mode === "edit" || mode === "create";
+
+   // set breadcrumb label for current path
+   useEffect(() =>
+   {
+      if (tableMetaData && pathToLabelMap)
+      {
+         const currentPath = location.pathname.replace(/\/+$/, "");
+         if (mode === "view" && record)
+         {
+            pathToLabelMap[currentPath] = `${record.recordLabel ?? id}`;
+         }
+         else if (mode === "edit" && record)
+         {
+            pathToLabelMap[currentPath] = `Edit ${tableMetaData.label}: ${record.recordLabel ?? id}`;
+         }
+         else if (mode === "create")
+         {
+            pathToLabelMap[currentPath] = `Creating New ${tableMetaData.label}`;
+         }
+      }
+   }, [mode, record, tableMetaData, location.pathname]);
 
    /////////////////////////
    // Handle cancel click //
@@ -682,7 +703,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          ? (tableMetaData && record ? `Viewing ${tableMetaData?.label}: ${record?.recordLabel || ""}` : "")
          : mode === "create"
             ? (isCopy ? `Copy ${tableMetaData?.label}: ${record?.recordLabel || ""}` : `Creating New ${tableMetaData?.label}`)
-            : `Editing ${tableMetaData?.label}: ${record?.recordLabel || ""}`;
+            : `Edit ${tableMetaData?.label}: ${record?.recordLabel || ""}`;
 
       return (
          <Card id={t1Section?.name} className="recordScreenFieldSection" sx={{scrollMarginTop: "100px", minHeight: "88px", overflow: "visible"}} data-qqq-id={`record-screen-header-${tableNameForId}`}>

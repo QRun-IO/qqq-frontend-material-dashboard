@@ -146,7 +146,6 @@ public class ChildRecordListWidgetIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelectorContainingToNotExist(".MuiDataGrid-rowCount", "of");
 
       qSeleniumLib.waitForSelector("[aria-label=\"Export\"] button").click();
-      qSeleniumLib.waitForever();
 
       ////////////////////////////
       // validate view all link //

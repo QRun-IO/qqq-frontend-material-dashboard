@@ -159,7 +159,14 @@ public class QFMDSeleniumLib
     ***************************************************************************/
    public void waitForViewScreenFieldValue(String fieldLabel, String value)
    {
-      qSeleniumLib.waitForSelectorContaining(".MuiGrid-item", fieldLabel + ":\n" + value);
+      // RecordScreenField renders label and value as separate block elements (getText returns "Label:\nValue")
+      // while renderSectionOfFields (used by widgets in view mode) renders inline (getText returns "Label: Value")
+      // Try both separators — space and newline
+      String withSpace = fieldLabel + ": " + value;
+      String withNewline = fieldLabel + ":\n" + value;
+      qSeleniumLib.waitForSelectorAllSatisfyingPredicate(".MuiGrid-item",
+         elements -> elements.stream().anyMatch(e -> e.getText().contains(withSpace) || e.getText().contains(withNewline)),
+         "containing [" + fieldLabel + ": " + value + "]");
    }
 
 
@@ -168,7 +175,11 @@ public class QFMDSeleniumLib
     ***************************************************************************/
    public void waitForViewScreenFieldValueToNotExist(String fieldLabel, String value)
    {
-      qSeleniumLib.waitForSelectorContainingToNotExist(".MuiGrid-item", fieldLabel + ":\n" + value);
+      String withSpace = fieldLabel + ": " + value;
+      String withNewline = fieldLabel + ":\n" + value;
+      qSeleniumLib.waitForSelectorAllSatisfyingPredicate(".MuiGrid-item",
+         elements -> elements.stream().noneMatch(e -> e.getText().contains(withSpace) || e.getText().contains(withNewline)),
+         "not containing [" + fieldLabel + ": " + value + "]");
    }
 
 

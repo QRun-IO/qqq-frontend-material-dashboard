@@ -143,12 +143,15 @@ export default function RecordScreenField({field, fieldName, mode, record, formF
       if (isEditing)
       {
          return (
-            <DynamicFormFieldAsWidget
-               name={fieldName}
-               fieldMetaData={field}
-               setValueCallback={(name: string, value: any) => setFieldValue(name, value)}
-               otherValues={formikValues}
-            />
+            <>
+               <DynamicFormFieldAsWidget
+                  name={fieldName}
+                  fieldMetaData={field}
+                  setValueCallback={(name: string, value: any) => setFieldValue(name, value)}
+                  otherValues={formikValues}
+               />
+               <AnimatedFieldError fieldName={fieldName} />
+            </>
          );
       }
       return <FieldValueAsWidget field={field} record={record} />;

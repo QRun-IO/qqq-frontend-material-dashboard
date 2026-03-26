@@ -213,20 +213,20 @@ public class FormAdjusterIT extends QBaseSeleniumWithQApplicationTest
       /////////////////////////////////////////////////////////////////////
       qSeleniumLib.waitForSelectorContainingToNotExist("h6", "Data");
       qSeleniumLib.waitForSelectorContainingToNotExist("h6", "Filter");
-      assertSidebar(List.of("Identity"));
+      assertSidebar(List.of("Identity", "Dates"));
 
       qfmdSeleniumLib.inputTextField("name", "filter");
       qSeleniumLib.waitForSelectorContaining("h5", "Creating New").click(); // blur the text field to trigger the on-change
       qfmdSeleniumLib.blurByClickingBlankSpace();
       qSeleniumLib.waitForSelectorContainingToNotExist("h6", "Data");
       qSeleniumLib.waitForSelectorContaining("h6", "Filter");
-      assertSidebar(List.of("Identity", "Filter"));
+      assertSidebar(List.of("Identity", "Filter", "Dates"));
 
       qfmdSeleniumLib.inputTextField("name", " type");
       qfmdSeleniumLib.blurByClickingBlankSpace();
       qSeleniumLib.waitForSelectorContaining("h6", "Data");
       qSeleniumLib.waitForSelectorContaining("h6", "Filter");
-      assertSidebar(List.of("Identity", "Data", "Filter"));
+      assertSidebar(List.of("Identity", "Data", "Filter", "Dates"));
 
       ////////////////////////////////////////////////////////////
       // put a value in the 'type' field.  then make it go away //
@@ -254,14 +254,14 @@ public class FormAdjusterIT extends QBaseSeleniumWithQApplicationTest
    @Test
    void testDisablingForm()
    {
-      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/" + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID + "/edit",
-         "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID);
+      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/" + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID + "/edit", "" + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID);
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_CUSTOM_MESSAGE_ID);
       qfmdSeleniumLib.waitForAlert("No soup for you.");
       assertThatThrownBy(() -> qfmdSeleniumLib.inputTextField("size", "XL"));
       qSeleniumLib.waitForSelectorContaining("button[disabled]", "save");
 
-      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/" + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID + "/edit",
-         "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
+      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/" + TABLE_NAME + "/" + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID + "/edit", "" + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
       qfmdSeleniumLib.waitForAlert("You are not allowed to edit this record");
       qSeleniumLib.waitForSelectorContaining("button[disabled]", "save");
    }

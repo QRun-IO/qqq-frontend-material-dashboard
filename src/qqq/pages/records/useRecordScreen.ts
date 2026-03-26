@@ -602,7 +602,7 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
       }
       else
       {
-         // for edit/create, use the same filter as EntityForm
+         // for edit/create, use all fields but filter widget sections to qualifying types
          return TableUtils.getSectionsForRecordSidebar(tableMetaData, [...tableMetaData.fields.keys()], (section: QTableSection) =>
          {
             const widget = metaData?.widgets?.get(section.widgetName);
