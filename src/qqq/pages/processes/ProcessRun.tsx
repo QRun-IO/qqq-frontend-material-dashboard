@@ -50,7 +50,6 @@ import FormData from "form-data";
 import {Form, Formik} from "formik";
 import parse from "html-react-parser";
 import QContext from "QContext";
-import colors from "qqq/assets/theme/base/colors";
 import linearGradient from "qqq/assets/theme/functions/linearGradient";
 import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {QAlternateButton, QCancelButton, QSubmitButton} from "qqq/components/buttons/DefaultButtons";
@@ -74,7 +73,7 @@ import {ChildRecordListData} from "qqq/components/widgets/misc/RecordGridWidget"
 import BaseLayout from "qqq/layouts/BaseLayout";
 import ProcessWidgetBlockUtils from "qqq/pages/processes/ProcessWidgetBlockUtils";
 import {TABLE_VARIANT_LOCAL_STORAGE_KEY_ROOT} from "qqq/pages/records/query/RecordQuery";
-import {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
@@ -620,8 +619,8 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                </MDTypography>
                <Box component="div" py={3}>
                   <Grid container justifyContent="flex-end" spacing={3}>
-                     {isModal ? <QCancelButton onClickHandler={() => handleCancelClicked(true)} disabled={false} label="Close" />
-                        : !isWidget && <QCancelButton onClickHandler={() => handleCancelClicked(true)} disabled={false} />
+                     {isModal ? <QCancelButton onClickHandler={() => handleCancelClicked(true)} disabled={false} label="Close" qqqId="close" />
+                        : !isWidget && <QCancelButton onClickHandler={() => handleCancelClicked(true)} disabled={false} qqqId="cancel" />
                      }
                   </Grid>
                </Box>
@@ -2179,18 +2178,21 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
 
    let nextButtonLabel = "Next";
    let nextButtonIcon = "arrow_forward";
+   let nextButtonQqqId = "next";
    if (overrideOnLastStep !== null)
    {
       if (overrideOnLastStep)
       {
          nextButtonLabel = "Submit";
          nextButtonIcon = "check";
+         nextButtonQqqId = "submit";
       }
    }
    else if (onLastStep)
    {
       nextButtonLabel = "Submit";
       nextButtonIcon = "check";
+      nextButtonQqqId = "submit";
    }
 
    const form = (
@@ -2266,6 +2268,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                                           onClickHandler={() => handleCancelClicked(true)}
                                           label={isModal ? "Close" : "Return"}
                                           iconName={isModal ? "cancel" : "arrow_back"}
+                                          qqqId={isModal ? "close" : "return"}
                                           disabled={isSubmitting} />
                                     }
                                     {
@@ -2274,17 +2277,17 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                                              <Grid container justifyContent="flex-end" spacing={3}>
                                                 {
                                                    !isWidget && (
-                                                      <QCancelButton onClickHandler={() => handleCancelClicked(false)} disabled={isSubmitting} />
+                                                      <QCancelButton onClickHandler={() => handleCancelClicked(false)} disabled={isSubmitting} qqqId="cancel" />
                                                    )
                                                 }
 
                                                 {backStepName ? (
-                                                   <QAlternateButton label="Back" onClick={handleBack} disabled={isSubmitting} iconName="arrow_back" />
+                                                   <QAlternateButton label="Back" onClick={handleBack} disabled={isSubmitting} iconName="arrow_back" qqqId="back" />
                                                 ) : (
                                                    <Box />
                                                 )}
 
-                                                <QSubmitButton label={nextButtonLabel} iconName={nextButtonIcon} disabled={isSubmitting} />
+                                                <QSubmitButton label={nextButtonLabel} iconName={nextButtonIcon} disabled={isSubmitting} qqqId={nextButtonQqqId} />
                                              </Grid>
                                           </Box>
                                        )

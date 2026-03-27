@@ -20,9 +20,9 @@
  */
 
 
+import {GridPinnedColumns} from "@mui/x-data-grid-pro";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {GridPinnedColumns} from "@mui/x-data-grid-pro";
 import DataGridUtils from "qqq/utils/DataGridUtils";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 
@@ -159,7 +159,16 @@ export default class QQueryColumns
     *******************************************************************************/
    private static getSortedFieldsFromTable(table: QTableMetaData)
    {
-      const fields = [...table.fields.values()];
+      const fields: QFieldMetaData[] = [];
+      table.fields.forEach((field) => fields.push(field));
+      table.virtualFields?.forEach((virtualField) =>
+      {
+         if (virtualField.isQuerySelectable)
+         {
+            fields.push(virtualField);
+         }
+      });
+
       fields.sort((a: QFieldMetaData, b: QFieldMetaData) =>
       {
          return a.name.localeCompare(b.name);

@@ -23,6 +23,7 @@
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
 import {FilterVariableExpression} from "@qrunio/qqq-frontend-core/lib/model/query/FilterVariableExpression";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
@@ -39,6 +40,7 @@ import {EvaluatedExpression} from "qqq/components/query/EvaluatedExpression";
 import FilterCriteriaPaster from "qqq/components/query/FilterCriteriaPaster";
 import {OperatorOption, ValueMode} from "qqq/components/query/FilterCriteriaRow";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
+import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import React, {SyntheticEvent, useReducer, useState} from "react";
 import {flushSync} from "react-dom";
@@ -407,10 +409,17 @@ function FilterCriteriaRowValues({operatorOption, criteria, field, table, valueC
                initialValues = criteria.values;
             }
          }
+
+         let inlinePossibleValues: QPossibleValue[];
+         if(operatorOption.fieldFunctionType === "WeekdayOfDate" || operatorOption.fieldFunctionType === "WeekdayOfDateTime")
+         {
+            inlinePossibleValues = FilterUtils.getWeekdayPossibleValues();
+         }
+
          return <Box display="flex" alignItems="flex-end" className="multiValue">
             <Box width={"100%"}>
                <DynamicSelect
-                  fieldPossibleValueProps={{tableName: table.name, fieldName: field.name, initialDisplayValue: null}}
+                  fieldPossibleValueProps={{tableName: table.name, fieldName: field.name, initialDisplayValue: null, possibleValues: inlinePossibleValues}}
                   overrideId={field.name + "-multi-" + criteria.id}
                   key={field.name + "-multi-" + criteria.id + `-pasterIteration-${pasterIteration}`}
                   isMultiple

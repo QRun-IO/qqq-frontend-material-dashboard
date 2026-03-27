@@ -152,16 +152,40 @@ class TableUtils
             const join = tableMetaData?.exposedJoins[i];
             if (join?.joinTable.name == nameParts[0])
             {
-               return ([join.joinTable.fields.get(nameParts[1]), join.joinTable]);
+               return ([this.getFieldOrVirtualField(join.joinTable, nameParts[1]), join.joinTable]);
             }
          }
       }
       else
       {
-         return ([tableMetaData.fields.get(fieldName), tableMetaData]);
+         return ([this.getFieldOrVirtualField(tableMetaData, fieldName), tableMetaData]);
       }
 
       return [null, null];
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   private static getFieldOrVirtualField(tableMetaData: QTableMetaData, fieldName: string): QFieldMetaData
+   {
+      if(!fieldName)
+      {
+         return null;
+      }
+
+      if(tableMetaData.fields.has(fieldName))
+      {
+         return tableMetaData.fields.get(fieldName);
+      }
+
+      if(tableMetaData.virtualFields?.has(fieldName))
+      {
+         return tableMetaData.virtualFields.get(fieldName);
+      }
+
+      return (null);
    }
 
 

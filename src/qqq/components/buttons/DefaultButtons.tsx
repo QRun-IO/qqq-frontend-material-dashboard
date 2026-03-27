@@ -145,15 +145,16 @@ interface QCancelButtonProps
    disabled: boolean;
    label?: string;
    iconName?: string;
+   qqqId?: string;
 }
 
 export function QCancelButton({
-   onClickHandler, disabled, label, iconName,
+   onClickHandler, disabled, label, iconName, qqqId
 }: QCancelButtonProps): JSX.Element
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton type="button" variant="outlined" color="dark" size="small" fullWidth startIcon={<Icon>{iconName}</Icon>} onClick={onClickHandler} disabled={disabled}>
+         <MDButton type="button" variant="outlined" color="dark" size="small" fullWidth startIcon={<Icon>{iconName}</Icon>} onClick={onClickHandler} disabled={disabled} qqqId={qqqId}>
             {label}
          </MDButton>
       </Box>
@@ -163,6 +164,7 @@ export function QCancelButton({
 QCancelButton.defaultProps = {
    label: "cancel",
    iconName: "cancel",
+   qqqId: "cancel"
 };
 
 interface QSubmitButtonProps
@@ -170,13 +172,14 @@ interface QSubmitButtonProps
    label?: string;
    iconName?: string;
    disabled: boolean;
+   qqqId?: string;
 }
 
-export function QSubmitButton({label, iconName, disabled}: QSubmitButtonProps): JSX.Element
+export function QSubmitButton({label, iconName, disabled, qqqId}: QSubmitButtonProps): JSX.Element
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton type="submit" variant="gradient" color="dark" size="small" fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled}>
+         <MDButton type="submit" variant="gradient" color="dark" size="small" fullWidth startIcon={<Icon>{iconName}</Icon>} disabled={disabled} qqqId={qqqId}>
             {label}
          </MDButton>
       </Box>
@@ -186,6 +189,7 @@ export function QSubmitButton({label, iconName, disabled}: QSubmitButtonProps): 
 QSubmitButton.defaultProps = {
    label: "Submit",
    iconName: "check",
+   qqqId: "submit"
 };
 
 interface QAlternateButtonProps
@@ -193,18 +197,21 @@ interface QAlternateButtonProps
    label: string,
    iconName?: string,
    disabled: boolean,
-   onClick?: () => void
+   onClick?: () => void,
+   qqqId?: string;
 }
 
-export function QAlternateButton({label, iconName, disabled, onClick}: QAlternateButtonProps): JSX.Element
+export function QAlternateButton({label, iconName, disabled, onClick, qqqId}: QAlternateButtonProps): JSX.Element
 {
    return (
       <Box ml={standardML} width={standardWidth}>
-         <MDButton type="button" variant="gradient" color="secondary" size="small" fullWidth startIcon={iconName && <Icon>{iconName}</Icon>} onClick={onClick} disabled={disabled}>
+         <MDButton type="button" variant="gradient" color="secondary" size="small" fullWidth startIcon={iconName && <Icon>{iconName}</Icon>} onClick={onClick} disabled={disabled} qqqId={qqqId}>
             {label}
          </MDButton>
       </Box>
    );
 }
 
-QAlternateButton.defaultProps = {};
+QAlternateButton.defaultProps = {
+   qqqId: "alternate"
+};

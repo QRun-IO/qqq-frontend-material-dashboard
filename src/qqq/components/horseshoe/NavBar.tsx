@@ -65,7 +65,7 @@ function NavBar({absolute, light, isMini}: Props): JSX.Element
    const [fullPath, setFullPath] = useState(locationPath);
    const navigate = useNavigate();
 
-   const {pageHeader, setDotMenuOpen} = useContext(QContext);
+   const {pageHeader, pageHeaderRightContent, setDotMenuOpen} = useContext(QContext);
 
    // Sync fullPath with React Router location changes
    useEffect(() =>
@@ -285,10 +285,11 @@ function NavBar({absolute, light, isMini}: Props): JSX.Element
          </Toolbar>
          {
             pageHeader &&
-            <Box display="flex" justifyContent="space-between">
+            <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap={{xs: "wrap", md: "nowrap"}} columnGap={2} rowGap={1}>
                <MDTypography pb="0.5rem" variant="h3" color={light ? "white" : "dark"}>
                   {pageHeader}
                </MDTypography>
+               {pageHeaderRightContent && <Box display="flex">{pageHeaderRightContent}</Box>}
             </Box>
          }
       </AppBar>

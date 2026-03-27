@@ -47,7 +47,8 @@ interface FieldAutoCompleteProps
    autocompleteSlotProps?: any,
    hasError?: boolean,
    noOptionsText?: string,
-   omitExposedJoins?: string[]
+   omitExposedJoins?: string[],
+   includeVirtualFields: "all" | "none" | "querySelectable" | "queryCriteria"
 }
 
 FieldAutoComplete.defaultProps =
@@ -63,11 +64,24 @@ FieldAutoComplete.defaultProps =
       autocompleteSlotProps: null,
       hasError: false,
       noOptionsText: "No options",
+      includeVirtualFields: "none"
    };
 
-function makeFieldOptionsForTable(tableMetaData: QTableMetaData, fieldOptions: any[], isJoinTable: boolean, hiddenFieldNames: string[], availableFieldNames: string[], selectedFieldName: string)
+function makeFieldOptionsForTable(tableMetaData: QTableMetaData, fieldOptions: any[], isJoinTable: boolean, hiddenFieldNames: string[], availableFieldNames: string[], selectedFieldName: string, includeVirtualFields: "all" | "none" | "querySelectable" | "queryCriteria" = "none")
 {
-   const sortedFields = [...tableMetaData.fields.values()].sort((a, b) => a.label.localeCompare(b.label));
+   const availableFields = [...tableMetaData.fields.values()]
+   if (includeVirtualFields != "none")
+   {
+      tableMetaData.virtualFields?.forEach(virtualField =>
+      {
+         if (includeVirtualFields == "all" || (includeVirtualFields == "querySelectable" && virtualField.isQuerySelectable) || (includeVirtualFields == "queryCriteria" && virtualField.isQueryCriteria))
+         {
+            availableFields.push(virtualField);
+         }
+      })
+   }
+
+   const sortedFields = availableFields.sort((a, b) => a.label.localeCompare(b.label));
    for (let i = 0; i < sortedFields.length; i++)
    {
       const fieldName = isJoinTable ? `${tableMetaData.name}.${sortedFields[i].name}` : sortedFields[i].name;
@@ -90,12 +104,12 @@ function makeFieldOptionsForTable(tableMetaData: QTableMetaData, fieldOptions: a
 /*******************************************************************************
  ** Component for rendering a list of field names from a table as an auto-complete.
  *******************************************************************************/
-export default function FieldAutoComplete({id, metaData, tableMetaData, handleFieldChange, defaultValue, autoFocus, forceOpen, hiddenFieldNames, availableFieldNames, variant, label, textFieldSX, autocompleteSlotProps, hasError, noOptionsText, omitExposedJoins}: FieldAutoCompleteProps): JSX.Element
+export default function FieldAutoComplete({id, metaData, tableMetaData, handleFieldChange, defaultValue, autoFocus, forceOpen, hiddenFieldNames, availableFieldNames, variant, label, textFieldSX, autocompleteSlotProps, hasError, noOptionsText, omitExposedJoins, includeVirtualFields}: FieldAutoCompleteProps): JSX.Element
 {
    const [selectedFieldName, setSelectedFieldName] = useState(defaultValue ? defaultValue.fieldName : null);
 
    const fieldOptions: any[] = [];
-   makeFieldOptionsForTable(tableMetaData, fieldOptions, false, hiddenFieldNames, availableFieldNames, selectedFieldName);
+   makeFieldOptionsForTable(tableMetaData, fieldOptions, false, hiddenFieldNames, availableFieldNames, selectedFieldName, includeVirtualFields);
    let fieldsGroupBy = null;
 
    const availableExposedJoins = useMemo(() =>

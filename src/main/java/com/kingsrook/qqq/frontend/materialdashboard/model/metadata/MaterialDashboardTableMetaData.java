@@ -45,6 +45,12 @@ import static com.kingsrook.qqq.backend.core.logging.LogUtils.logPair;
  *******************************************************************************/
 public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
 {
+   public enum RecordViewActionsPlacement
+   {
+      IN_IDENTITY_SECTION,
+      INLINE_WITH_PAGE_TITLE
+   }
+
    private static final QLogger LOG = QLogger.getLogger(MaterialDashboardTableMetaData.class);
 
    public static final String TYPE = "materialDashboard";
@@ -52,6 +58,8 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
    private List<List<String>> gotoFieldNames;
    private List<String>       defaultQuickFilterFieldNames;
    private List<FieldRule>    fieldRules;
+   private Boolean            showRecordSidebar = true;
+   private RecordViewActionsPlacement recordViewActionsPlacement = RecordViewActionsPlacement.IN_IDENTITY_SECTION;
 
    private QCodeReference onLoadFormAdjuster = null;
 
@@ -263,6 +271,68 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
 
 
    /*******************************************************************************
+    ** Getter for showRecordSidebar
+    *******************************************************************************/
+   public Boolean getShowRecordSidebar()
+   {
+      return (this.showRecordSidebar);
+   }
+
+
+
+   /*******************************************************************************
+    ** Setter for showRecordSidebar
+    *******************************************************************************/
+   public void setShowRecordSidebar(Boolean showRecordSidebar)
+   {
+      this.showRecordSidebar = showRecordSidebar;
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for showRecordSidebar
+    *******************************************************************************/
+   public MaterialDashboardTableMetaData withShowRecordSidebar(Boolean showRecordSidebar)
+   {
+      this.showRecordSidebar = showRecordSidebar;
+      return (this);
+   }
+
+
+
+   /*******************************************************************************
+    ** Getter for recordViewActionsPlacement
+    *******************************************************************************/
+   public RecordViewActionsPlacement getRecordViewActionsPlacement()
+   {
+      return (this.recordViewActionsPlacement);
+   }
+
+
+
+   /*******************************************************************************
+    ** Setter for recordViewActionsPlacement
+    *******************************************************************************/
+   public void setRecordViewActionsPlacement(RecordViewActionsPlacement recordViewActionsPlacement)
+   {
+      this.recordViewActionsPlacement = recordViewActionsPlacement;
+   }
+
+
+
+   /*******************************************************************************
+    ** Fluent setter for recordViewActionsPlacement
+    *******************************************************************************/
+   public MaterialDashboardTableMetaData withRecordViewActionsPlacement(RecordViewActionsPlacement recordViewActionsPlacement)
+   {
+      this.recordViewActionsPlacement = recordViewActionsPlacement;
+      return (this);
+   }
+
+
+
+   /*******************************************************************************
     ** Getter for fieldRules
     *******************************************************************************/
    public List<FieldRule> getFieldRules()
@@ -384,6 +454,9 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
       {
          clone.onLoadFormAdjuster = onLoadFormAdjuster.clone();
       }
+
+      clone.showRecordSidebar = showRecordSidebar;
+      clone.recordViewActionsPlacement = recordViewActionsPlacement;
 
       return abstractClone;
    }

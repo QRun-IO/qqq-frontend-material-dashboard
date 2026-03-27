@@ -40,6 +40,7 @@ import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance"
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QTableVariant} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableVariant";
+import {QVirtualFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QVirtualFieldMetaData";
 import {QJobComplete} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobComplete";
 import {QJobError} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobError";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
@@ -73,7 +74,7 @@ import RecordQueryView from "qqq/models/query/RecordQueryView";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ColumnStats from "qqq/pages/records/query/ColumnStats";
 import DataGridUtils from "qqq/utils/DataGridUtils";
-import {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import ProcessUtils from "qqq/utils/qqq/ProcessUtils";
@@ -2310,25 +2311,39 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          const closeCopyMoreMenu = () => setCopyMoreMenu(null);
          */
 
+         const [field, fieldTable] = TableUtils.getFieldAndTable(tableMetaData, currentColumn.field);
+         let isQueryCriteria = true;
+         if(field instanceof QVirtualFieldMetaData)
+         {
+            if(!field.isQueryCriteria)
+            {
+               isQueryCriteria = false;
+            }
+         }
+
          return (
             <GridColumnMenuContainer ref={ref} {...props}>
-               <SortGridMenuItems onClick={hideMenu} column={currentColumn!} />
-
-               <MenuItem onClick={(e) =>
                {
-                  hideMenu(e);
-                  if (mode == "advanced")
+                  isQueryCriteria && <SortGridMenuItems onClick={hideMenu} column={currentColumn!} />
+               }
+
+               {
+                  isQueryCriteria && <MenuItem onClick={(e) =>
                   {
-                     handleColumnMenuAdvancedFilterSelection(currentColumn.field);
-                  }
-                  else
-                  {
-                     // @ts-ignore
-                     basicAndAdvancedQueryControlsRef.current.addField(currentColumn.field);
-                  }
-               }}>
-                  Filter
-               </MenuItem>
+                     hideMenu(e);
+                     if (mode == "advanced")
+                     {
+                        handleColumnMenuAdvancedFilterSelection(currentColumn.field);
+                     }
+                     else
+                     {
+                        // @ts-ignore
+                        basicAndAdvancedQueryControlsRef.current.addField(currentColumn.field);
+                     }
+                  }}>
+                     Filter
+                  </MenuItem>
+               }
 
                <HideGridColMenuItem onClick={hideMenu} column={currentColumn!} />
 
@@ -3110,6 +3125,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
             isModeToggle={true}
             toggleStates={view.queryColumns.getVisibilityToggleStates()}
             handleToggleField={handleChangeOneColumnVisibility}
+            includeVirtualFields="querySelectable"
          />
       </Box>);
    };

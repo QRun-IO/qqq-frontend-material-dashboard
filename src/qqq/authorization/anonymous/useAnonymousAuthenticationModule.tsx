@@ -54,6 +54,7 @@ export default function useAnonymousAuthenticationModule({setIsFullyAuthenticate
       try
       {
          const {values} = await qController.manageSession(null, null, null);
+         localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
          if (values?.user)
          {
             setLoggedInUser(values.user);
@@ -74,6 +75,7 @@ export default function useAnonymousAuthenticationModule({setIsFullyAuthenticate
    const logout = () =>
    {
       qController.clearAuthenticationMetaDataLocalStorage();
+      localStorage.removeItem("sessionValues");
       removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
    };
 

@@ -636,6 +636,7 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
          fieldEndAdornment={<Box whiteSpace="nowrap"><Icon>arrow_upward</Icon><Icon>arrow_downward</Icon></Box>}
          handleAdornmentClick={handleSetSortArrowClick}
          omitExposedJoins={props.omitExposedJoins}
+         includeVirtualFields="queryCriteria"
       />);
 
    const filterBuilderMouseEvents =
@@ -692,6 +693,7 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
                                  key={fieldName}
                                  allowVariables={props.allowVariables}
                                  fullFieldName={fieldName}
+                                 metaData={metaData}
                                  tableMetaData={tableMetaData}
                                  updateCriteria={updateQuickCriteria}
                                  criteriaParam={getQuickCriteriaParam(fieldName)}
@@ -712,6 +714,7 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
                               return (defaultQuickFilterFieldNameMap[fieldName] ? null : <QuickFilter
                                  key={fieldName}
                                  fullFieldName={fieldName}
+                                 metaData={metaData}
                                  tableMetaData={tableMetaData}
                                  updateCriteria={updateQuickCriteria}
                                  criteriaParam={getQuickCriteriaParam(fieldName)}
@@ -734,6 +737,7 @@ const BasicAndAdvancedQueryControls = forwardRef((props: BasicAndAdvancedQueryCo
                               isModeSelectOne={true}
                               handleSelectedField={handleFieldListMenuSelection}
                               omitExposedJoins={props.omitExposedJoins}
+                              includeVirtualFields="queryCriteria"
                            />
                         }
                      </>
