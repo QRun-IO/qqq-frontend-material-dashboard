@@ -181,7 +181,7 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
    useEffect(() =>
    {
       const newMode = initialMode ?? (recordId ? "view" : "create");
-      setMode(newMode);
+      switchMode(newMode);
    }, [initialMode, recordId]);
 
    // clear alerts when entering edit mode (covers Back-button navigation to /edit)
@@ -581,27 +581,24 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
 
 
    /***************************************************************************
-    ** rebuild sections when mode changes (edit and create need different
-    ** section filtering than view — e.g., widgets that shouldn't appear on
-    ** the edit screen must be removed when entering edit via instant-edit).
+    ** Switch mode and rebuild sections synchronously in one batch, so there's
+    ** no intermediate render with new mode + old sections (which would cause
+    ** view-only widget-adorned fields to error in edit mode).
     ***************************************************************************/
-   useEffect(() =>
+   function switchMode(newMode: RecordScreenMode): void
    {
+      setMode(newMode);
       if (tableMetaData && metaData)
       {
-         const sections = buildSections(tableMetaData, metaData, mode);
+         const sections = buildSections(tableMetaData, metaData, newMode);
          setTableSections(sections);
 
          const t1 = sections.find(s => s.tier === "T1");
          const nonT1 = sections.filter(s => s.tier !== "T1" && !s.isHidden);
          setT1Section(t1);
          setNonT1Sections(nonT1);
-
-         // rebuild formFieldsBySection for the new sections (alternative sections
-         // may have different field lists than the default sections)
-         rebuildFormFieldsBySection(sections);
       }
-   }, [mode]);
+   }
 
 
    /***************************************************************************
@@ -1342,7 +1339,7 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
             }
          }
 
-         setMode("view");
+         switchMode("view");
          if (initialMode === "view")
          {
             // edit was entered via pushState — push a new view entry (keeps /edit in history for Back)
@@ -1402,7 +1399,7 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
 
    return {
       mode,
-      setMode,
+      setMode: switchMode,
       record,
       tableMetaData,
       metaData,
