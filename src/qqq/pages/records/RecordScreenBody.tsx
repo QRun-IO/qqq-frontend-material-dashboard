@@ -272,7 +272,7 @@ export default function RecordScreenBody({screen, formId, onSubmit, formikSubmit
                            </Grid>
                         ) : (
                            <>
-                              {renderT1Card && renderT1Card()}
+                              {renderT1Card && <Box mb={3}>{renderT1Card()}</Box>}
                               {renderNonT1Sections(!renderT1Card)}
                               {renderBottomBar?.(isSubmitting)}
                            </>

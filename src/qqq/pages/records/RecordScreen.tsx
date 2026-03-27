@@ -56,7 +56,7 @@ import HtmlUtils from "qqq/utils/HtmlUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {sanitizeId} from "qqq/utils/qqqIdUtils";
-import React, {useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import RecordScreenModal from "qqq/pages/records/RecordScreenModal";
 import AuditBody from "qqq/components/audits/AuditBody";
@@ -82,7 +82,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const location = useLocation();
    const navigate = useNavigate();
 
-   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, tableProcesses, setPageHeader} = useContext(QContext);
+   const {accentColor, dotMenuOpen, keyboardHelpOpen, modalStack, tableProcesses, setPageHeader, setPageHeaderRightContent} = useContext(QContext);
 
    // scroll correction: stores field name + Y position before mode switch
    const scrollCorrectionRef = useRef<{fieldName: string; yBefore: number} | null>(null);
@@ -109,6 +109,21 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          setMode("view");
       }
    }, [location.key]);
+
+   // Listen for browser back/forward (popstate) to exit edit mode when URL no longer ends with /edit
+   // (covers history.back() from cancel, or user pressing browser back button)
+   useEffect(() =>
+   {
+      const handlePopState = () =>
+      {
+         if (!window.location.pathname.endsWith("/edit") && mode === "edit" && propMode === "view")
+         {
+            setMode("view");
+         }
+      };
+      window.addEventListener("popstate", handlePopState);
+      return () => window.removeEventListener("popstate", handlePopState);
+   }, [mode, propMode, setMode]);
 
    // local UI state
    const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
@@ -160,6 +175,19 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const tableNameForId = tableMetaData ? sanitizeId(tableMetaData.name) : "";
    const isEditing = mode === "edit" || mode === "create";
 
+   // keep h3 page header in sync with mode
+   useEffect(() =>
+   {
+      if (mode === "edit" && tableMetaData && record)
+      {
+         setPageHeader(`Edit ${tableMetaData.label}: ${record.recordLabel ?? id}`);
+      }
+      else if (mode === "view" && record)
+      {
+         setPageHeader(record.recordLabel ?? id);
+      }
+   }, [mode, tableMetaData, record]);
+
    /////////////////////////
    // Handle cancel click //
    /////////////////////////
@@ -184,7 +212,6 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          }
 
          setMode("view");
-         setPageHeader(record?.recordLabel ?? id);
          if (propMode === "view")
          {
             // edit was entered via pushState — pop the entry cleanly
@@ -496,6 +523,69 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const itemsShownInActionsMenu = new ItemsShownInMenu();
 
 
+   ///////////////////////////////////////////
+   // Actions placement & sidebar metadata //
+   ///////////////////////////////////////////
+   const materialDashboardTableMetaData = tableMetaData?.supplementalTableMetaData?.get("materialDashboard");
+   const materialDashboardInstanceMetaData = metaData?.supplementalInstanceMetaData?.get("materialDashboard");
+   const showRecordSidebar = materialDashboardTableMetaData?.showRecordSidebar !== false;
+   const recordViewActionsPlacement = materialDashboardInstanceMetaData?.recordViewActionsPlacement ?? materialDashboardTableMetaData?.recordViewActionsPlacement ?? "IN_IDENTITY_SECTION";
+   const showRecordViewActionsInlineWithPageTitle = recordViewActionsPlacement === "INLINE_WITH_PAGE_TITLE";
+
+   const renderRecordViewActions = (boxProps: any = {}) =>
+   {
+      return (
+         <>
+            <Box display="flex" {...boxProps}>
+               <GotoRecordButton metaData={metaData} tableMetaData={tableMetaData} />
+               {tableMetaData?.shareableTableMetaData && (
+                  <Box mr={2}>
+                     <MDButton type="button" color={preferredColorNameInfoOrPrimary()} size="small" onClick={() => setShowShareModal(true)} fullWidth startIcon={<Icon>group_add</Icon>}>
+                        Share
+                     </MDButton>
+                  </Box>
+               )}
+               {metaData && tableMetaData && <RecordViewAdditionalMenus tableMetaData={tableMetaData} record={record} actions={recordViewMenuActions} />}
+               {metaData && tableMetaData && <QActionsMenuButton isOpen={actionsMenuAnchorElement} onClickHandler={openActionsMenu} />}
+            </Box>
+            <Menu
+               anchorEl={actionsMenuAnchorElement}
+               anchorOrigin={{vertical: "bottom", horizontal: "right"}}
+               transformOrigin={{vertical: "top", horizontal: "right"}}
+               open={Boolean(actionsMenuAnchorElement)}
+               onClose={closeActionsMenu}
+               keepMounted
+               data-qqq-id="record-view-actions-menu"
+            >
+               {actionMenu?.items?.map((item: any, index: number) => (
+                  <RecordViewMenuItem key={index} tableMetaData={tableMetaData} menuItem={item} record={record} actions={recordViewMenuActions} closeMenu={closeActionsMenu} itemsShown={itemsShownInActionsMenu} />
+               ))}
+            </Menu>
+         </>
+      );
+   };
+
+   const pageHeaderRecordViewActions = useMemo(() =>
+   {
+      if (!showRecordViewActionsInlineWithPageTitle)
+      {
+         return (null);
+      }
+
+      return (
+         <Box display="flex" pb="1rem" pr="0.5rem" sx={{visibility: mode === "view" ? "visible" : "hidden"}}>
+            {renderRecordViewActions()}
+         </Box>
+      );
+   }, [showRecordViewActionsInlineWithPageTitle, mode, metaData, tableMetaData, record, actionsMenuAnchorElement, actionMenu]);
+
+   useEffect(() =>
+   {
+      setPageHeaderRightContent?.(pageHeaderRecordViewActions);
+
+      return () => setPageHeaderRightContent?.(null);
+   }, [setPageHeaderRightContent, pageHeaderRecordViewActions]);
+
    /////////////////////
    // Modal callbacks //
    /////////////////////
@@ -608,7 +698,6 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          }
 
          setMode("edit");
-         setPageHeader(`Edit ${tableMetaData?.label}: ${record?.recordLabel ?? id}`);
          window.history.pushState(null, "", location.pathname.replace(/\/(edit)?\/?$/, "") + "/edit");
          window.dispatchEvent(new Event("urlchanged"));
 
@@ -721,33 +810,10 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
                   <Typography variant="h5" mb="0.5rem" data-qqq-id={`record-screen-title-${tableNameForId}`}>
                      {titleText}
                   </Typography>
-                  {mode === "view" && (
-                     <Box display="flex" ml="auto">
-                        <GotoRecordButton metaData={metaData} tableMetaData={tableMetaData} />
-                        {tableMetaData?.shareableTableMetaData && (
-                           <Box mr={2}>
-                              <MDButton type="button" color={preferredColorNameInfoOrPrimary()} size="small" onClick={() => setShowShareModal(true)} fullWidth startIcon={<Icon>group_add</Icon>}>
-                                 Share
-                              </MDButton>
-                           </Box>
-                        )}
-                        {metaData && tableMetaData && <RecordViewAdditionalMenus tableMetaData={tableMetaData} record={record} actions={recordViewMenuActions} />}
-                        {metaData && tableMetaData && <QActionsMenuButton isOpen={actionsMenuAnchorElement} onClickHandler={openActionsMenu} />}
+                  {!showRecordViewActionsInlineWithPageTitle && (
+                     <Box sx={{ml: "auto", visibility: mode === "view" ? "visible" : "hidden"}}>
+                        {renderRecordViewActions()}
                      </Box>
-                  )}
-                  {mode === "view" && (
-                     <Menu
-                        anchorEl={actionsMenuAnchorElement}
-                        anchorOrigin={{vertical: "bottom", horizontal: "right"}}
-                        transformOrigin={{vertical: "top", horizontal: "right"}}
-                        open={Boolean(actionsMenuAnchorElement)}
-                        onClose={closeActionsMenu}
-                        keepMounted
-                     >
-                        {actionMenu?.items?.map((item: any, index: number) => (
-                           <RecordViewMenuItem key={index} tableMetaData={tableMetaData} menuItem={item} record={record} actions={recordViewMenuActions} closeMenu={closeActionsMenu} itemsShown={itemsShownInActionsMenu} />
-                        ))}
-                     </Menu>
                   )}
                </Box>
             </Box>
@@ -886,7 +952,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
                            formikSubmitRef={formikSubmitRef}
                            renderT1Card={renderT1Section}
                            renderBottomBar={renderBottomBar}
-                           showSidebar={true}
+                           showSidebar={showRecordSidebar}
                            widgetReloadCounter={widgetReloadCounter}
                            enterEditMode={enterEditMode}
                         />

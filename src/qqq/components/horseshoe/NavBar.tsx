@@ -74,11 +74,17 @@ function NavBar({absolute, light, isMini}: Props): JSX.Element
    }, [locationPath]);
 
    // Listen for manual pushState/replaceState URL changes (e.g., entering/leaving edit mode)
+   // and popstate (e.g., history.back() from cancel in edit mode)
    useEffect(() =>
    {
       const handleUrlChanged = () => setFullPath(window.location.pathname);
       window.addEventListener("urlchanged", handleUrlChanged);
-      return () => window.removeEventListener("urlchanged", handleUrlChanged);
+      window.addEventListener("popstate", handleUrlChanged);
+      return () =>
+      {
+         window.removeEventListener("urlchanged", handleUrlChanged);
+         window.removeEventListener("popstate", handleUrlChanged);
+      };
    }, []);
 
    const route = fullPath.split("/").slice(1);
