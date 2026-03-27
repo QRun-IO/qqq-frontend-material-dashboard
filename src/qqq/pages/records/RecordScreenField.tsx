@@ -250,7 +250,7 @@ export default function RecordScreenField({field, fieldName, mode, record, formF
                            </IconButton>
                         </Tooltip>
                      )}
-                     {field.isEditable && onEditIconClick && (
+                     {field.isEditable && !fieldName.includes(".") && onEditIconClick && (
                         <Tooltip title="Edit" placement="top" enterDelay={500} enterNextDelay={300}>
                            <IconButton size="small" onClick={() => onEditIconClick(fieldName)} sx={{ml: 0.25}}>
                               <Icon fontSize="small">edit</Icon>

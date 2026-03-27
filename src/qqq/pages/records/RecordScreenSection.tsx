@@ -253,6 +253,12 @@ function RecordScreenSection({section, mode, record, formFieldsBySection, isOpen
                      return null;
                   }
 
+                  // skip join fields in edit/create mode — they aren't editable from this table
+                  if ((mode === "edit" || mode === "create") && fieldName.includes("."))
+                  {
+                     return null;
+                  }
+
                   const gridColumns = (field.gridColumns && field.gridColumns > 0) ? field.gridColumns : 12;
 
                   return (

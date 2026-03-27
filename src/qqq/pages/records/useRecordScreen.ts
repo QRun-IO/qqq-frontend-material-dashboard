@@ -957,7 +957,7 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
          let anyVisible = false;
          for (const fieldName of section.fieldNames)
          {
-            const field = table.fields?.get(fieldName);
+            const [field] = TableUtils.getFieldAndTable(table, fieldName);
             if (field && !field.isHidden)
             {
                anyVisible = true;

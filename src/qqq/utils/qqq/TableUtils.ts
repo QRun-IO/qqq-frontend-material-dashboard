@@ -100,7 +100,6 @@ class TableUtils
                }
             }
 
-            console.log("allowedSections length: " + allowedSections.length);
             return (allowedSections);
          }
 
