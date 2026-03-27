@@ -432,7 +432,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       ////////////////////////////////////////////////////////////////////////////////////
       // ** Extract the OAuth2 identity provider's base URL (authority) from metadata * //
       ////////////////////////////////////////////////////////////////////////////////////
-      const authority: string = authenticationMetaData.data.baseUrl;
+      const authority: string = authenticationMetaData.data.externalBaseUrl || authenticationMetaData.data.baseUrl;
 
       //////////////////////////////////////////////////////////////////////////
       // ** Extract the OAuth2 client ID for this application from metadata * //
