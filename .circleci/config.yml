@@ -1,8 +1,43 @@
 ---
 version: 2.1
 
+parameters:
+  run_playwright:
+    type: boolean
+    default: false
+
 orbs:
-  qqq-orb: kingsrook/qqq-orb@0.5.0
+  qqq-orb: kingsrook/qqq-orb@0.6
+
+executors:
+  playwright:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.58.2-jammy
+
+jobs:
+  playwright_tests:
+    executor: playwright
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-deps-{{ checksum "package-lock.json" }}
+            - npm-deps-
+      - run:
+          name: Install dependencies
+          command: npm ci --legacy-peer-deps
+      - save_cache:
+          key: npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
+      - run:
+          name: Run Playwright visual regression tests
+          command: npx playwright test
+      - store_artifacts:
+          path: playwright-report/
+          destination: playwright-report
+      - store_test_results:
+          path: test-results/
 
 workflows:
   test_only:
@@ -15,11 +50,48 @@ workflows:
             tags:
               only: []
 
+  test_only_with_playwright:
+    when: << pipeline.parameters.run_playwright >>
+    jobs:
+      - playwright_tests:
+          filters:
+            branches:
+              ignore: /(develop|main|release/.*|hotfix/.*)/
+            tags:
+              only: []
+      - qqq-orb/mvn_frontend_test_only:
+          context: [qqq-maven-registry-credentials]
+          requires:
+            - playwright_tests
+          filters:
+            branches:
+              ignore: /(develop|main|release/.*|hotfix/.*)/
+            tags:
+              only: []
+
   publish_snapshot:
     jobs:
       - qqq-orb/mvn_frontend_publish:
           context: [qqq-maven-registry-credentials]
           branch_type: snapshot
+          filters:
+            branches:
+              only:
+                - develop
+
+  publish_snapshot_with_playwright:
+    when: << pipeline.parameters.run_playwright >>
+    jobs:
+      - playwright_tests:
+          filters:
+            branches:
+              only:
+                - develop
+      - qqq-orb/mvn_frontend_publish:
+          context: [qqq-maven-registry-credentials]
+          branch_type: snapshot
+          requires:
+            - playwright_tests
           filters:
             branches:
               only:

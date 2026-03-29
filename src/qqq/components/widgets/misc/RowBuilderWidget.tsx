@@ -656,7 +656,7 @@ export default function RowBuilderWidget({widgetMetaData, onSaveCallback, widget
                   <Icon ref={dragRef} sx={{cursor: "ns-resize"}}>drag_indicator</Icon>
                </Box>
             }
-            <Box width="100%">{rowForm}</Box>
+            <Box className="rowBuilderRowForm" width="100%">{rowForm}</Box>
             <Box alignSelf="flex-start" pt="2.5rem">
                <Tooltip title="Remove Row" enterDelay={500}>
                   <Button sx={xIconButtonSX} onClick={() => removeRow(forModal, index)}><Icon>clear</Icon></Button>
@@ -933,10 +933,10 @@ export const buttonSX =
       paddingLeft: "1rem",
       paddingRight: "1rem",
       opacity: "1",
-      color: colors.dark.main,
-      "&:hover": {color: colors.dark.main},
-      "&:focus": {color: colors.dark.main},
-      "&:focus:not(:hover)": {color: colors.dark.main},
+      color: "var(--qqq-text-primary, #212121)",
+      "&:hover": {color: "var(--qqq-text-primary, #212121)"},
+      "&:focus": {color: "var(--qqq-text-primary, #212121)"},
+      "&:focus:not(:hover)": {color: "var(--qqq-text-primary, #212121)"},
    };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

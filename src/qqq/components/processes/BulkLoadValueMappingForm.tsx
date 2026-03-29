@@ -217,7 +217,7 @@ const BulkLoadValueMappingForm = forwardRef(({processValues, setActiveStepLabel,
                      />
                      {
                         valueErrors[fileValue] &&
-                        <Box fontSize={"0.875rem"} mt={"-0.75rem"} color={colors.error.main}>
+                        <Box fontSize={"0.875rem"} mt={"-0.75rem"} color="var(--qqq-error-color, #F44335)">
                            {valueErrors[fileValue]}
                         </Box>
                      }

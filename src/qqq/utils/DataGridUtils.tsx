@@ -86,7 +86,7 @@ export default class DataGridUtils
          return value;
       }
 
-      const fields = [...tableMetaData.fields.values()];
+      const fields = [...tableMetaData.fields.values(), ...(tableMetaData.virtualFields?.values() ?? [])] as QFieldMetaData[];
       const rows = [] as any[];
       let rowIndex = 0;
       results.forEach((record: QRecord) =>
@@ -107,7 +107,7 @@ export default class DataGridUtils
 
                if (join?.joinTable?.fields?.values())
                {
-                  const fields = [...join.joinTable.fields.values()];
+                  const fields = [...join.joinTable.fields.values(), ...(join.joinTable.virtualFields?.values() ?? [])];
                   fields.forEach((field) =>
                   {
                      let fieldName = join.joinTable.name + "." + field.name;
@@ -188,6 +188,23 @@ export default class DataGridUtils
       ////////////////////////////////////////////////////////////////////////
       if (columnSort === "bySection")
       {
+         ////////////////////////////////////////
+         // build set of virtual fields to use //
+         ////////////////////////////////////////
+         const virtualFieldsToUse: Record<string, true> = {};
+         (tableMetaData.virtualFields ?? []).forEach((virtualField) =>
+         {
+            if (virtualField.isQuerySelectable)
+            {
+               virtualFieldsToUse[virtualField.name] = true;
+            }
+         });
+
+         /////////////////////////////////////////////////////////////////////////////////////////
+         // loop over sections, adding all fields from sections first, then, if there's         //
+         // an alternative section, add any virtual fields which are in our set one ones to use //
+         // this doesn't quite put exactly where they'd be, but it's an okay first version.     //
+         /////////////////////////////////////////////////////////////////////////////////////////
          for (let i = 0; i < tableMetaData.sections.length; i++)
          {
             const section = tableMetaData.sections[i];
@@ -200,7 +217,28 @@ export default class DataGridUtils
             {
                sortedKeys.push(section.fieldNames[j]);
             }
+
+            if (section.alternatives?.has("RECORD_VIEW"))
+            {
+               section.alternatives.get("RECORD_VIEW").fieldNames.forEach((fieldName) =>
+               {
+                  if(virtualFieldsToUse[fieldName])
+                  {
+                     sortedKeys.push(fieldName);
+                     delete virtualFieldsToUse[fieldName];
+                  }
+               })
+            }
          }
+
+         //////////////////////////////////////////////////////////////
+         // if there are any leftover virtuals, add them to the end. //
+         //////////////////////////////////////////////////////////////
+         for (let virtualFieldName in virtualFieldsToUse)
+         {
+            sortedKeys.push(virtualFieldName);
+         }
+
       }
       else // columnSort = "alphabetical"
       {
@@ -208,15 +246,33 @@ export default class DataGridUtils
          // sort by labels... mmm //
          ///////////////////////////
          sortedKeys.push(...tableMetaData.fields.keys());
+
+         if(tableMetaData.virtualFields)
+         {
+            for (let virtualField of tableMetaData.virtualFields.values())
+            {
+               if(virtualField.isQuerySelectable)
+               {
+                  sortedKeys.push(virtualField.name);
+               }
+            }
+         }
+
          sortedKeys.sort((a: string, b: string): number =>
          {
-            return (tableMetaData.fields.get(a).label.localeCompare(tableMetaData.fields.get(b).label));
+            const fieldA = tableMetaData.fields.get(a) ?? tableMetaData.virtualFields?.get(a);
+            const fieldB = tableMetaData.fields.get(b) ?? tableMetaData.virtualFields?.get(b);
+
+            const labelA = fieldA?.label ?? "";
+            const labelB = fieldB?.label ?? "";
+
+            return (labelA.localeCompare(labelB));
          });
       }
 
       sortedKeys.forEach((key) =>
       {
-         const field = tableMetaData.fields.get(key);
+         const field = tableMetaData.fields.get(key) ?? tableMetaData.virtualFields?.get(key);
          if (!field)
          {
             return;

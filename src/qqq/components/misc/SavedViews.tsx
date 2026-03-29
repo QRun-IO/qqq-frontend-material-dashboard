@@ -33,26 +33,24 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import {TooltipProps} from "@mui/material/Tooltip/Tooltip";
-import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController";
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
-import {QJobComplete} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobComplete";
-import {QJobError} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobError";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import FormData from "form-data";
 import QContext from "QContext";
 import colors from "qqq/assets/theme/base/colors";
 import {QCancelButton, QDeleteButton, QSaveButton} from "qqq/components/buttons/DefaultButtons";
+import {UseSavedViewsResult} from "qqq/components/query/useSavedViews";
 import RecordQueryView from "qqq/models/query/RecordQueryView";
 import {QueryScreenUsage} from "qqq/pages/records/query/RecordQuery";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import {SavedViewUtils} from "qqq/utils/qqq/SavedViewUtils";
-import React, {useContext, useEffect, useRef, useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
+import React, {useContext, useState} from "react";
+import {useNavigate} from "react-router-dom";
 
 interface Props
 {
-   qController: QController;
+   useSavedViewsResult: UseSavedViewsResult;
    metaData: QInstance;
    tableMetaData: QTableMetaData;
    currentSavedView: QRecord;
@@ -64,27 +62,22 @@ interface Props
    queryScreenUsage: QueryScreenUsage;
 }
 
-function SavedViews({qController, metaData, tableMetaData, currentSavedView, tableDefaultView, view, viewAsJson, viewOnChangeCallback, loadingSavedView, queryScreenUsage}: Props): JSX.Element
+function SavedViews({useSavedViewsResult, metaData, tableMetaData, currentSavedView, tableDefaultView, view, viewAsJson, viewOnChangeCallback, loadingSavedView, queryScreenUsage}: Props): JSX.Element
 {
    const navigate = useNavigate();
 
-   const [savedViews, setSavedViews] = useState([] as QRecord[]);
-   const [yourSavedViews, setYourSavedViews] = useState([] as QRecord[]);
-   const [viewsSharedWithYou, setViewsSharedWithYou] = useState([] as QRecord[]);
+   const yourSavedViews: QRecord[] = useSavedViewsResult?.yourSavedViews.filter((view: QRecord) => view.values.get("type") != "quickView") ?? [];
+   const viewsSharedWithYou: QRecord[] = useSavedViewsResult?.viewsSharedWithYou.filter((view: QRecord) => view.values.get("type") != "quickView") ?? [];
+
    const [savedViewsMenu, setSavedViewsMenu] = useState(null);
-   const [savedViewsHaveLoaded, setSavedViewsHaveLoaded] = useState(false);
    const [isSubmitting, setIsSubmitting] = useState(false);
 
-   const [saveFilterPopupOpen, setSaveFilterPopupOpen] = useState(false);
-   const [isSaveFilterAs, setIsSaveFilterAs] = useState(false);
-   const [isRenameFilter, setIsRenameFilter] = useState(false);
-   const [isDeleteFilter, setIsDeleteFilter] = useState(false);
+   const [savePopupOpen, setSavePopupOpen] = useState(false);
+   const [isSaveAs, setIsSaveAs] = useState(false);
+   const [isRename, setIsRename] = useState(false);
+   const [isDelete, setIsDelete] = useState(false);
    const [savedViewNameInputValue, setSavedViewNameInputValue] = useState(null as string);
    const [popupAlertContent, setPopupAlertContent] = useState("");
-
-   const anchorRef = useRef<HTMLDivElement>(null);
-   const location = useLocation();
-   const [saveOptionsOpen, setSaveOptionsOpen] = useState(false);
 
    const SAVE_OPTION = "Save...";
    const DUPLICATE_OPTION = "Duplicate...";
@@ -106,19 +99,6 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
    const openSavedViewsMenu = (event: any) => setSavedViewsMenu(event.currentTarget);
    const closeSavedViewsMenu = () => setSavedViewsMenu(null);
 
-   //////////////////////////////////////////////////////////////////////////
-   // load filters on first run, then monitor location or metadata changes //
-   //////////////////////////////////////////////////////////////////////////
-   useEffect(() =>
-   {
-      loadSavedViews()
-         .then(() =>
-         {
-            setSavedViewsHaveLoaded(true);
-         });
-   }, [location, tableMetaData]);
-
-
    const baseView = currentSavedView ? JSON.parse(currentSavedView.values.get("viewJson")) as RecordQueryView : tableDefaultView;
    const viewDiffs = SavedViewUtils.diffViews(tableMetaData, baseView, view);
    let viewIsModified = false;
@@ -128,46 +108,11 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
    }
 
    /*******************************************************************************
-    ** make request to load all saved filters from backend
-    *******************************************************************************/
-   async function loadSavedViews()
-   {
-      if (!tableMetaData)
-      {
-         return;
-      }
-
-      const formData = new FormData();
-      formData.append("tableName", tableMetaData.name);
-
-      let savedViews = await makeSavedViewRequest("querySavedView", formData);
-      setSavedViews(savedViews);
-
-      const yourSavedViews: QRecord[] = [];
-      const viewsSharedWithYou: QRecord[] = [];
-      for (let i = 0; i < savedViews.length; i++)
-      {
-         const record = savedViews[i];
-         if (record.values.get("userId") == currentUserId)
-         {
-            yourSavedViews.push(record);
-         }
-         else
-         {
-            viewsSharedWithYou.push(record);
-         }
-      }
-      setYourSavedViews(yourSavedViews);
-      setViewsSharedWithYou(viewsSharedWithYou);
-   }
-
-
-   /*******************************************************************************
     ** fired when a saved record is clicked from the dropdown
     *******************************************************************************/
    const handleSavedViewRecordOnClick = async (record: QRecord) =>
    {
-      setSaveFilterPopupOpen(false);
+      setSavePopupOpen(false);
       closeSavedViewsMenu();
       viewOnChangeCallback(record.values.get("id"));
       if (isQueryScreen)
@@ -182,13 +127,12 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
     *******************************************************************************/
    const handleDropdownOptionClick = (optionName: string) =>
    {
-      setSaveOptionsOpen(false);
       setPopupAlertContent("");
       closeSavedViewsMenu();
-      setSaveFilterPopupOpen(true);
-      setIsSaveFilterAs(false);
-      setIsRenameFilter(false);
-      setIsDeleteFilter(false);
+      setSavePopupOpen(true);
+      setIsSaveAs(false);
+      setIsRename(false);
+      setIsDelete(false);
 
       switch (optionName)
       {
@@ -200,10 +144,10 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
             break;
          case DUPLICATE_OPTION:
             setSavedViewNameInputValue("");
-            setIsSaveFilterAs(true);
+            setIsSaveAs(true);
             break;
          case CLEAR_OPTION:
-            setSaveFilterPopupOpen(false);
+            setSavePopupOpen(false);
             viewOnChangeCallback(null);
             if (isQueryScreen)
             {
@@ -215,10 +159,10 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
             {
                setSavedViewNameInputValue(currentSavedView.values.get("label"));
             }
-            setIsRenameFilter(true);
+            setIsRename(true);
             break;
          case DELETE_OPTION:
-            setIsDeleteFilter(true);
+            setIsDelete(true);
             break;
          case NEW_REPORT_OPTION:
             createNewReport();
@@ -247,7 +191,7 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
    /*******************************************************************************
     ** fired when save or delete button saved on confirmation dialogs
     *******************************************************************************/
-   async function handleFilterDialogButtonOnClick()
+   async function handleDialogButtonOnClick()
    {
       try
       {
@@ -255,13 +199,12 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
          setIsSubmitting(true);
 
          const formData = new FormData();
-         if (isDeleteFilter)
+         if (isDelete)
          {
             formData.append("id", currentSavedView.values.get("id"));
-            await makeSavedViewRequest("deleteSavedView", formData);
+            await useSavedViewsResult.makeSavedViewRequest("deleteSavedView", formData);
 
-            setSaveFilterPopupOpen(false);
-            setSaveOptionsOpen(false);
+            setSavePopupOpen(false);
 
             await (async () =>
             {
@@ -288,10 +231,10 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
 
             formData.append("viewJson", JSON.stringify(viewObject));
 
-            if (isSaveFilterAs || isRenameFilter || currentSavedView == null)
+            if (isSaveAs || isRename || currentSavedView == null)
             {
                formData.append("label", savedViewNameInputValue);
-               if (currentSavedView != null && isRenameFilter)
+               if (currentSavedView != null && isRename)
                {
                   formData.append("id", currentSavedView.values.get("id"));
                }
@@ -301,20 +244,18 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
                formData.append("id", currentSavedView.values.get("id"));
                formData.append("label", currentSavedView?.values.get("label"));
             }
-            const recordList = await makeSavedViewRequest("storeSavedView", formData);
+            const recordList = await useSavedViewsResult.makeSavedViewRequest("storeSavedView", formData);
             await (async () =>
             {
                if (recordList && recordList.length > 0)
                {
-                  setSavedViewsHaveLoaded(false);
-                  loadSavedViews();
+                  useSavedViewsResult.loadSavedViews();
                   handleSavedViewRecordOnClick(recordList[0]);
                }
             })();
          }
 
-         setSaveFilterPopupOpen(false);
-         setSaveOptionsOpen(false);
+         setSavePopupOpen(false);
       }
       catch (e: any)
       {
@@ -339,32 +280,9 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
 
 
    /*******************************************************************************
-    ** hides/shows the save options
-    *******************************************************************************/
-   const handleToggleSaveOptions = () =>
-   {
-      setSaveOptionsOpen((prevOpen) => !prevOpen);
-   };
-
-
-   /*******************************************************************************
-    ** closes save options menu (on clickaway)
-    *******************************************************************************/
-   const handleSaveOptionsMenuClose = (event: Event) =>
-   {
-      if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement))
-      {
-         return;
-      }
-
-      setSaveOptionsOpen(false);
-   };
-
-
-   /*******************************************************************************
     ** stores the current dialog input text to state
     *******************************************************************************/
-   const handleSaveFilterInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
+   const handleSaveDialogInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
    {
       setSavedViewNameInputValue(event.target.value);
    };
@@ -373,53 +291,10 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
    /*******************************************************************************
     ** closes current dialog
     *******************************************************************************/
-   const handleSaveFilterPopupClose = () =>
+   const handleSavePopupClose = () =>
    {
-      setSaveFilterPopupOpen(false);
+      setSavePopupOpen(false);
    };
-
-
-   /*******************************************************************************
-    ** make a request to the backend for various savedView processes
-    *******************************************************************************/
-   async function makeSavedViewRequest(processName: string, formData: FormData): Promise<QRecord[]>
-   {
-      /////////////////////////
-      // fetch saved filters //
-      /////////////////////////
-      let savedViews = [] as QRecord[];
-      try
-      {
-         //////////////////////////////////////////////////////////////////
-         // we don't want this job to go async, so, pass a large timeout //
-         //////////////////////////////////////////////////////////////////
-         formData.append(QController.STEP_TIMEOUT_MILLIS_PARAM_NAME, 60 * 1000);
-         const processResult = await qController.processInit(processName, formData, qController.defaultMultipartFormDataHeaders());
-         if (processResult instanceof QJobError)
-         {
-            const jobError = processResult as QJobError;
-            throw (jobError.error);
-         }
-         else
-         {
-            const result = processResult as QJobComplete;
-            if (result.values.savedViewList)
-            {
-               for (let i = 0; i < result.values.savedViewList.length; i++)
-               {
-                  const qRecord = new QRecord(result.values.savedViewList[i]);
-                  savedViews.push(qRecord);
-               }
-            }
-         }
-      }
-      catch (e)
-      {
-         throw (e);
-      }
-
-      return (savedViews);
-   }
 
    const hasStorePermission = metaData?.processes.has("storeSavedView");
    const hasDeletePermission = metaData?.processes.has("deleteSavedView");
@@ -564,23 +439,33 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
    );
 
    let buttonText = "Views";
-   let buttonBackground = "none";
-   let buttonBorder = colors.grayLines.main;
+   let buttonBackground = "unset";
+   let buttonBorder = colors.grayLines.main + " !important";
    let buttonColor = colors.gray.main;
+   let buttonVariant: "outlined" | "contained" | "text" = "outlined";
+   let buttonColorName: "secondary" | "primary" = "secondary";
+   let buttonState: string = "empty";
 
-   if (currentSavedView)
+   const savedViewId = currentSavedView?.values.get("id");
+   if (currentSavedView && ([...yourSavedViews, ...viewsSharedWithYou]).map(view => view.values.get("id")).includes(savedViewId))
    {
       if (viewIsModified)
       {
-         buttonBackground = accentColorLight;
-         buttonBorder = buttonBackground;
-         buttonColor = accentColor;
+         buttonBackground = accentColorLight + " !important";
+         buttonBorder = buttonBackground + " !important";
+         buttonColor = accentColor + " !important";
+         buttonVariant = "contained";
+         buttonColorName = "primary";
+         buttonState = "dirty";
       }
       else
       {
-         buttonBackground = accentColor;
-         buttonBorder = buttonBackground;
-         buttonColor = "#FFFFFF";
+         buttonBackground = accentColor + " !important";
+         buttonBorder = buttonBackground + " !important";
+         buttonColor = "#FFFFFF" + " !important";
+         buttonVariant = "contained";
+         buttonColorName = "primary";
+         buttonState = "clean";
       }
    }
 
@@ -588,6 +473,7 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
       border: `1px solid ${buttonBorder}`,
       backgroundColor: buttonBackground,
       color: buttonColor,
+      boxShadow: "none",
       "&:focus:not(:hover)": {
          color: buttonColor,
          backgroundColor: buttonBackground,
@@ -595,6 +481,8 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
       "&:hover": {
          color: buttonColor,
          backgroundColor: buttonBackground,
+         boxShadow: "none",
+         filter: "unset"
       }
    };
 
@@ -610,7 +498,7 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
 
       const haveInputText = (savedViewNameInputValue != null && savedViewNameInputValue.trim() != "");
 
-      if (isSaveFilterAs || isRenameFilter || currentSavedView == null)
+      if (isSaveAs || isRename || currentSavedView == null)
       {
          if (!haveInputText)
          {
@@ -634,7 +522,11 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
          <>
             <Box order="1" mr={"0.5rem"}>
                <Button
+                  variant={buttonVariant}
+                  color={buttonColorName}
+                  data-button-state={buttonState}
                   onClick={openSavedViewsMenu}
+                  data-qqq-id="button-views"
                   sx={{
                      borderRadius: "0.75rem",
                      textTransform: "none",
@@ -732,8 +624,8 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
             </Box>
             {
                <Dialog
-                  open={saveFilterPopupOpen}
-                  onClose={handleSaveFilterPopupClose}
+                  open={savePopupOpen}
+                  onClose={handleSavePopupClose}
                   aria-labelledby="alert-dialog-title"
                   aria-describedby="alert-dialog-description"
                   onKeyPress={(e) =>
@@ -742,21 +634,21 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
                      // make user actually hit delete button           //
                      // but for other modes, let Enter submit the form //
                      ////////////////////////////////////////////////////
-                     if (e.key == "Enter" && !isDeleteFilter)
+                     if (e.key == "Enter" && !isDelete)
                      {
-                        handleFilterDialogButtonOnClick();
+                        handleDialogButtonOnClick();
                      }
                   }}
                >
                   {
                      currentSavedView ? (
-                        isDeleteFilter ? (
+                        isDelete ? (
                            <DialogTitle id="alert-dialog-title">Delete View</DialogTitle>
                         ) : (
-                           isSaveFilterAs ? (
+                           isSaveAs ? (
                               <DialogTitle id="alert-dialog-title">Save View As</DialogTitle>
                            ) : (
-                              isRenameFilter ? (
+                              isRename ? (
                                  <DialogTitle id="alert-dialog-title">Rename View</DialogTitle>
                               ) : (
                                  <DialogTitle id="alert-dialog-title">Update Existing View</DialogTitle>
@@ -774,10 +666,10 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
                         </Box>
                      ) : ("")}
                      {
-                        (!currentSavedView || isSaveFilterAs || isRenameFilter) && !isDeleteFilter ? (
+                        (!currentSavedView || isSaveAs || isRename) && !isDelete ? (
                            <Box>
                               {
-                                 isSaveFilterAs ? (
+                                 isSaveAs ? (
                                     <Box mb={3}>Enter a name for this new saved view.</Box>
                                  ) : (
                                     <Box mb={3}>Enter a new name for this saved view.</Box>
@@ -790,7 +682,7 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
                                  inputProps={{width: "100%", maxLength: 100}}
                                  value={savedViewNameInputValue}
                                  sx={{width: "100%"}}
-                                 onChange={handleSaveFilterInputChange}
+                                 onChange={handleSaveDialogInputChange}
                                  onFocus={event =>
                                  {
                                     event.target.select();
@@ -798,7 +690,7 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
                               />
                            </Box>
                         ) : (
-                           isDeleteFilter ? (
+                           isDelete ? (
                               <Box>Are you sure you want to delete the view {`'${currentSavedView?.values.get("label")}'`}?</Box>
                            ) : (
                               <Box>Are you sure you want to update the view {`'${currentSavedView?.values.get("label")}'`}?</Box>
@@ -807,12 +699,12 @@ function SavedViews({qController, metaData, tableMetaData, currentSavedView, tab
                      }
                   </DialogContent>
                   <DialogActions>
-                     <QCancelButton onClickHandler={handleSaveFilterPopupClose} disabled={false} />
+                     <QCancelButton onClickHandler={handleSavePopupClose} disabled={false} />
                      {
-                        isDeleteFilter ?
-                           <QDeleteButton onClickHandler={handleFilterDialogButtonOnClick} disabled={isSubmitting} />
+                        isDelete ?
+                           <QDeleteButton onClickHandler={handleDialogButtonOnClick} disabled={isSubmitting} />
                            :
-                           <QSaveButton label="Save" onClickHandler={handleFilterDialogButtonOnClick} disabled={isSaveButtonDisabled()} />
+                           <QSaveButton label="Save" onClickHandler={handleDialogButtonOnClick} disabled={isSaveButtonDisabled()} />
                      }
                   </DialogActions>
                </Dialog>

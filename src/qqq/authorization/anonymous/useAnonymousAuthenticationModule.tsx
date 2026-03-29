@@ -50,6 +50,21 @@ export default function useAnonymousAuthenticationModule({setIsFullyAuthenticate
       setIsFullyAuthenticated(true);
       Client.setGotAuthenticationInAllControllers();
       setCookie(SESSION_UUID_COOKIE_NAME, Md5.hashStr(`${new Date()}`), {path: "/"});
+
+      try
+      {
+         const {values} = await qController.manageSession(null, null, null);
+         localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
+         if (values?.user)
+         {
+            setLoggedInUser(values.user);
+         }
+      }
+      catch (e)
+      {
+         console.log("manageSession call failed (may be expected for some backends)", e);
+      }
+
       console.log("Token generation complete.");
    };
 
@@ -60,6 +75,7 @@ export default function useAnonymousAuthenticationModule({setIsFullyAuthenticate
    const logout = () =>
    {
       qController.clearAuthenticationMetaDataLocalStorage();
+      localStorage.removeItem("sessionValues");
       removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
    };
 

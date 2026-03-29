@@ -26,7 +26,7 @@ import {Select, SelectChangeEvent, Typography} from "@mui/material";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import QContext from "QContext";
 import BaseLayout from "qqq/layouts/BaseLayout";
@@ -51,7 +51,6 @@ function TableDeveloperView({table}: Props): JSX.Element
    const [accessToken, setAccessToken] = useState(null as string);
 
    const tableName = table.name;
-   const [asyncLoadInited, setAsyncLoadInited] = useState(false);
    const [noApis, setNoApis] = useState(null as boolean);
    const [tableMetaData, setTableMetaData] = useState(null);
    const [metaData, setMetaData] = useState(null as QInstance);
@@ -62,11 +61,14 @@ function TableDeveloperView({table}: Props): JSX.Element
 
    const {setPageHeader} = useContext(QContext);
 
-   (async () =>
+   useEffect(() =>
    {
-      const accessToken = await getAccessTokenSilently();
-      setAccessToken(accessToken);
-   })();
+      (async () =>
+      {
+         const accessToken = await getAccessTokenSilently();
+         setAccessToken(accessToken);
+      })();
+   }, []);
 
    const LAST_API_NAME_LS_KEY = "qqq.tableDeveloperView.lastApiName";
    const LAST_API_VERSION_LS_KEY = "qqq.tableDeveloperView.lastApiVersion";
@@ -95,10 +97,8 @@ function TableDeveloperView({table}: Props): JSX.Element
       }
    }
 
-   if (!asyncLoadInited)
+   useEffect(() =>
    {
-      setAsyncLoadInited(true);
-
       (async () =>
       {
          /////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ function TableDeveloperView({table}: Props): JSX.Element
          ///////////////////////////////////////////////////////////////////////////////////////////////
          selectVersionAfterApiIsChanged(versionsJson);
       })();
-   }
+   }, [tableName]);
 
    const selectApi = async (event: SelectChangeEvent) =>
    {

@@ -36,6 +36,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import TextField from "@mui/material/TextField";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {QCancelButton} from "qqq/components/buttons/DefaultButtons";
 import MDButton from "qqq/components/legacy/MDButton";
 import Client from "qqq/utils/qqq/Client";
@@ -297,7 +298,7 @@ function GotoRecordDialog(props: Props): JSX.Element
                                  <Grid item xs={1} pl={2}>
                                     {
                                        (index == option.length - 1) &&
-                                       <MDButton id={`gotoButton-${optionIndex}`} type="submit" variant="gradient" color="info" size="small" onClick={() => optionGoClicked(optionIndex)} fullWidth startIcon={<Icon>double_arrow</Icon>} disabled={isOptionSubmitButtonDisabled(optionIndex)}>Go</MDButton>
+                                       <MDButton id={`gotoButton-${optionIndex}`} type="submit" variant="gradient" color={preferredColorNameInfoOrPrimary()} size="small" onClick={() => optionGoClicked(optionIndex)} fullWidth startIcon={<Icon>double_arrow</Icon>} disabled={isOptionSubmitButtonDisabled(optionIndex)}>Go</MDButton>
                                     }
                                  </Grid>
                               </Grid>

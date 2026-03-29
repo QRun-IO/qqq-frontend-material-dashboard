@@ -40,6 +40,7 @@ import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance"
 import {QProcessMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QProcessMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QTableVariant} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableVariant";
+import {QVirtualFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QVirtualFieldMetaData";
 import {QJobComplete} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobComplete";
 import {QJobError} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobError";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
@@ -64,6 +65,7 @@ import {validateCriteria} from "qqq/components/query/FilterCriteriaRow";
 import QueryScreenActionMenu from "qqq/components/query/QueryScreenActionMenu";
 import SelectionSubsetDialog from "qqq/components/query/SelectionSubsetDialog";
 import TableVariantDialog from "qqq/components/query/TableVariantDialog";
+import useSavedViews from "qqq/components/query/useSavedViews";
 import CustomWidthTooltip from "qqq/components/tooltips/CustomWidthTooltip";
 import BaseLayout from "qqq/layouts/BaseLayout";
 import {LoadingState} from "qqq/models/LoadingState";
@@ -72,7 +74,7 @@ import RecordQueryView from "qqq/models/query/RecordQueryView";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ColumnStats from "qqq/pages/records/query/ColumnStats";
 import DataGridUtils from "qqq/utils/DataGridUtils";
-import {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import ProcessUtils from "qqq/utils/qqq/ProcessUtils";
@@ -466,6 +468,8 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    // page context references //
    /////////////////////////////
    const {accentColor, accentColorLight, setPageHeader, recordAnalytics, dotMenuOpen, keyboardHelpOpen, modalStack} = useContext(QContext);
+
+   const useSavedViewsResult = useSavedViews({qController, metaData, tableMetaData});
 
    //////////////////////
    // ole' faithful... //
@@ -2307,25 +2311,39 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          const closeCopyMoreMenu = () => setCopyMoreMenu(null);
          */
 
+         const [field, fieldTable] = TableUtils.getFieldAndTable(tableMetaData, currentColumn.field);
+         let isQueryCriteria = true;
+         if(field instanceof QVirtualFieldMetaData)
+         {
+            if(!field.isQueryCriteria)
+            {
+               isQueryCriteria = false;
+            }
+         }
+
          return (
             <GridColumnMenuContainer ref={ref} {...props}>
-               <SortGridMenuItems onClick={hideMenu} column={currentColumn!} />
-
-               <MenuItem onClick={(e) =>
                {
-                  hideMenu(e);
-                  if (mode == "advanced")
+                  isQueryCriteria && <SortGridMenuItems onClick={hideMenu} column={currentColumn!} />
+               }
+
+               {
+                  isQueryCriteria && <MenuItem onClick={(e) =>
                   {
-                     handleColumnMenuAdvancedFilterSelection(currentColumn.field);
-                  }
-                  else
-                  {
-                     // @ts-ignore
-                     basicAndAdvancedQueryControlsRef.current.addField(currentColumn.field);
-                  }
-               }}>
-                  Filter
-               </MenuItem>
+                     hideMenu(e);
+                     if (mode == "advanced")
+                     {
+                        handleColumnMenuAdvancedFilterSelection(currentColumn.field);
+                     }
+                     else
+                     {
+                        // @ts-ignore
+                        basicAndAdvancedQueryControlsRef.current.addField(currentColumn.field);
+                     }
+                  }}>
+                     Filter
+                  </MenuItem>
+               }
 
                <HideGridColMenuItem onClick={hideMenu} column={currentColumn!} />
 
@@ -3022,7 +3040,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    let savedViewsComponent = null;
    if (metaData && metaData.processes.has("querySavedView"))
    {
-      savedViewsComponent = (<SavedViews qController={qController} metaData={metaData} tableMetaData={tableMetaData} view={view} viewAsJson={viewAsJson} currentSavedView={currentSavedView} tableDefaultView={tableDefaultView} viewOnChangeCallback={handleSavedViewChange} loadingSavedView={loadingSavedView} queryScreenUsage={usage} />);
+      savedViewsComponent = (<SavedViews useSavedViewsResult={useSavedViewsResult} metaData={metaData} tableMetaData={tableMetaData} view={view} viewAsJson={viewAsJson} currentSavedView={currentSavedView} tableDefaultView={tableDefaultView} viewOnChangeCallback={handleSavedViewChange} loadingSavedView={loadingSavedView} queryScreenUsage={usage} />);
    }
 
 
@@ -3034,9 +3052,12 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
       //////////////////////////////////////////
       // default (no saved view, and "clean") //
       //////////////////////////////////////////
-      let buttonBackground = "none";
-      let buttonBorder = colors.grayLines.main;
+      let buttonBackground = "unset";
+      let buttonBorder = colors.grayLines.main + " !important";
       let buttonColor = colors.gray.main;
+      let buttonVariant: "outlined" | "contained" | "text" = "outlined";
+      let buttonColorName: "secondary" | "primary" = "secondary";
+      let buttonState: string = "empty";
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // diff the current view with either the current saved one, if there's one active, else the table default //
@@ -3053,15 +3074,21 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          buttonBackground = accentColor;
          buttonBorder = accentColor;
          buttonColor = "#FFFFFF";
+         buttonColorName = "primary";
+         buttonVariant = "contained";
+         buttonState = "clean";
       }
       else if (viewDiffs.length > 0)
       {
          ///////////////////////////////////////////////////
          // else if there are diffs, show alt/light style //
          ///////////////////////////////////////////////////
-         buttonBackground = accentColorLight;
-         buttonBorder = accentColorLight;
-         buttonColor = accentColor;
+         buttonBackground = accentColorLight + " !important";
+         buttonBorder = accentColorLight + " !important";
+         buttonColor = accentColor + " !important";
+         buttonColorName = "primary";
+         buttonVariant = "contained";
+         buttonState = "dirty";
       }
 
       const columnMenuButtonStyles = {
@@ -3071,6 +3098,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          textTransform: "none",
          fontWeight: 500,
          fontSize: "0.875rem",
+         boxShadow: "none",
          p: "0.5rem",
          backgroundColor: buttonBackground,
          "&:focus:not(:hover)": {
@@ -3080,6 +3108,8 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
          "&:hover": {
             color: buttonColor,
             backgroundColor: buttonBackground,
+            boxShadow: "none",
+            filter: "unset"
          }
       };
 
@@ -3090,11 +3120,12 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
             showTableHeaderEvenIfNoExposedJoins={true}
             omitExposedJoins={omitExposedJoins}
             placeholder="Search Fields"
-            buttonProps={{sx: columnMenuButtonStyles}}
+            buttonProps={{variant: buttonVariant, sx: columnMenuButtonStyles, ["data-button-state"]: buttonState, color: buttonColorName}}
             buttonChildren={<><Icon sx={{mr: "0.5rem"}}>view_week_outline</Icon> Columns ({view.queryColumns.getVisibleColumnCount()}) <Icon sx={{ml: "0.5rem"}}>keyboard_arrow_down</Icon></>}
             isModeToggle={true}
             toggleStates={view.queryColumns.getVisibilityToggleStates()}
             handleToggleField={handleChangeOneColumnVisibility}
+            includeVirtualFields="querySelectable"
          />
       </Box>);
    };
@@ -3233,6 +3264,8 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                      ref={basicAndAdvancedQueryControlsRef}
                      metaData={metaData}
                      tableMetaData={tableMetaData}
+                     apiVersion={apiVersion}
+                     tableVariant={tableVariant}
                      queryFilter={queryFilter}
                      queryFilterJSON={JSON.stringify(queryFilter)}
                      setQueryFilter={doSetQueryFilter}
@@ -3246,6 +3279,10 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                      savedViewsComponent={savedViewsComponent}
                      columnMenuComponent={buildColumnMenu()}
                      omitExposedJoins={omitExposedJoins}
+                     useSavedViewsResult={useSavedViewsResult}
+                     viewOnChangeCallback={handleSavedViewChange}
+                     currentSavedView={currentSavedView}
+                     activeView={view}
                   />
                }
 
@@ -3311,7 +3348,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                         getRowId={(row) => row.__rowIndex}
                         selectionModel={rowSelectionModel}
                         hideFooterSelectedRowCount={true}
-                        sx={{border: 0, height: `calc(100vh - ${spaceAboveGrid + spaceBelowGrid}px)`}}
+                        sx={{border: 0, height: `calc(100vh - ${spaceAboveGrid + spaceBelowGrid}px - var(--qqq-branded-header-height, 0px))`}}
                      />
                   </Box>
                </Card>

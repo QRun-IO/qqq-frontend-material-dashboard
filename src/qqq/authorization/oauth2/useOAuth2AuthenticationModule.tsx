@@ -31,6 +31,7 @@ import {useNavigate, useSearchParams} from "react-router-dom";
 // ** Singleton instance of the QQQ client controller for API communication * //
 ////////////////////////////////////////////////////////////////////////////////
 const qController = Client.getInstance();
+const qControllerV1 = Client.getInstanceV1();
 
 /**
  * Properties interface for the useOAuth2AuthenticationModule hook.
@@ -95,10 +96,9 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
    const authOidc: AuthContextProps | null = inOAuthContext ? useAuth() : null;
 
    /////////////////////////////////////////////////////////////////////////////
-   // ** Cookie management hook for reading the session UUID cookie         * //
-   // ** (Removal is done via direct document.cookie manipulation in logout) * //
+   // ** Cookie management hook for reading and removing session cookies    * //
    /////////////////////////////////////////////////////////////////////////////
-   const [cookies] = useCookies([SESSION_UUID_COOKIE_NAME]);
+   const [cookies, , removeCookie] = useCookies([SESSION_UUID_COOKIE_NAME, "sessionId"]);
 
    ////////////////////////////////////////////////////////////////////////////////////////////
    // ** URL search parameters hook for extracting OAuth callback parameters (code, state) * //
@@ -186,6 +186,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
                // ** Exchange authorization code for session UUID via backend API * //
                ///////////////////////////////////////////////////////////////////////
                const {uuid: newSessionUuid, values} = await qController.manageSession(null, null, manageSessionRequestBody);
+               localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
 
                /////////////////////////////////////////////////////////
                // ** Update parent component's authentication state * //
@@ -265,6 +266,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
                // ** Validate the session UUID with backend and retrieve user data * //
                ////////////////////////////////////////////////////////////////////////
                const {values} = await qController.manageSession(null, sessionUuid, null);
+               localStorage.setItem("sessionValues", JSON.stringify(values ?? {}));
 
                /////////////////////////////////////////////////////////
                // ** Update parent component's authentication state * //
@@ -337,30 +339,50 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
     * Logs out the current user by clearing all authentication data and redirecting to the identity provider's logout endpoint.
     *
     * This function performs a complete cleanup of the authentication session:
-    * 1. Clears authentication metadata from local storage (via QQQ client controller)
-    * 2. Removes the session UUID cookie from the browser
-    * 3. Clears all OIDC-related localStorage items (session state, verifiers, etc.)
-    * 4. Redirects to the identity provider's logout endpoint for server-side session cleanup
+    * 1. Calls the backend logout endpoint to invalidate the server-side session
+    * 2. Clears authentication metadata from local storage (via QQQ client controller)
+    * 3. Removes the session UUID cookie from the browser
+    * 4. Clears all OIDC-related localStorage items (session state, verifiers, etc.)
+    * 5. Redirects to the identity provider's logout endpoint for server-side session cleanup
     *
     * After logout, the user will need to re-authenticate to access protected resources.
     *
     * @function logout
-    * @returns {void}
+    * @returns {Promise<void>}
     */
-   const logout = () =>
+   const logout = async () =>
    {
+      ///////////////////////////////////////////////////////////////////////////////////
+      // ** Call backend logout endpoint FIRST to invalidate server-side session      * //
+      // ** This ensures the session is deleted from database and cache is cleared    * //
+      ///////////////////////////////////////////////////////////////////////////////////
+      try
+      {
+         await qControllerV1.axiosRequest({
+            method: "POST",
+            url: "/qqq/v1/logout",
+            withCredentials: true
+         });
+      }
+      catch (e)
+      {
+         console.warn("[OAuth2] Backend logout failed:", e);
+      }
+
       //////////////////////////////////////////////////////////////////////////////////
       // ** Clear authentication metadata stored in local storage by the QQQ client * //
       //////////////////////////////////////////////////////////////////////////////////
       qController.clearAuthenticationMetaDataLocalStorage();
+      localStorage.removeItem("sessionValues");
 
       /////////////////////////////////////////////////////////////////////////////////////////////////////
-      // ** Remove the session UUID cookie from the browser                                            * //
-      // ** Backend always sets the cookie at path="/", so we only need to remove it from that path    * //
-      // ** Use direct document.cookie manipulation (react-cookie's removeCookie has bugs)             * //
+      // ** Remove session cookies from the browser                                                    * //
+      // ** Backend sets both sessionUUID and sessionId cookies (see issue #339)                       * //
+      // ** Must clear both to prevent stale session persistence                                       * //
       /////////////////////////////////////////////////////////////////////////////////////////////////////
-      console.log("[OAuth2] Removing sessionUUID cookie (path: /)");
-      document.cookie = `${SESSION_UUID_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0;`;
+      console.log("[OAuth2] Removing session cookies (path: /)");
+      removeCookie(SESSION_UUID_COOKIE_NAME, {path: "/"});
+      removeCookie("sessionId", {path: "/"});
 
       ///////////////////////////////////////////////////////////////////////////////////
       // ** Clear all OIDC-related items from localStorage (state, verifiers, etc.) * //
@@ -410,7 +432,7 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       ////////////////////////////////////////////////////////////////////////////////////
       // ** Extract the OAuth2 identity provider's base URL (authority) from metadata * //
       ////////////////////////////////////////////////////////////////////////////////////
-      const authority: string = authenticationMetaData.data.baseUrl;
+      const authority: string = authenticationMetaData.data.externalBaseUrl || authenticationMetaData.data.baseUrl;
 
       //////////////////////////////////////////////////////////////////////////
       // ** Extract the OAuth2 client ID for this application from metadata * //
@@ -442,13 +464,18 @@ export default function useOAuth2AuthenticationModule({setIsFullyAuthenticated, 
       const basePath = detectBasePath();
       const baseUrl = (basePath && basePath !== "/") ? `${window.location.origin}${basePath}` : window.location.origin;
       
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      // ** Extract scopes from metadata, with sensible default for backwards compatibility * //
+      ///////////////////////////////////////////////////////////////////////////////////////////
+      const scopes = authenticationMetaData.data.scopes || "openid profile email offline_access";
+
       const oidcConfig = {
          authority: authority,
          client_id: clientId,
          redirect_uri: `${baseUrl}/token`,
          post_logout_redirect_uri: baseUrl,
          response_type: "code",
-         scope: "openid profile email offline_access",
+         scope: scopes,
       };
 
       ///////////////////////////////////////////////////////////////////////////////

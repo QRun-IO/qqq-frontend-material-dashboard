@@ -1,0 +1,181 @@
+{
+   "tables": {
+      "person": {
+         "name": "person",
+         "label": "Person",
+         "isHidden": false,
+         "iconName": "person",
+         "deletePermission": true,
+         "editPermission": true,
+         "insertPermission": true,
+         "readPermission": true,
+         "capabilities": ["TABLE_COUNT", "TABLE_GET", "TABLE_QUERY", "TABLE_UPDATE", "TABLE_INSERT", "TABLE_DELETE"],
+         "primaryKeyField": "id",
+         "fields": {
+            "id": {"name": "id", "label": "Id", "type": "INTEGER", "isEditable": false},
+            "firstName": {"name": "firstName", "label": "First Name", "type": "STRING", "isEditable": true},
+            "lastName": {"name": "lastName", "label": "Last Name", "type": "STRING", "isEditable": true}
+         }
+      }
+   },
+   "processes": {},
+   "apps": {
+      "testApp": {
+         "name": "testApp",
+         "label": "Full Theme Test App",
+         "iconName": "palette",
+         "widgets": [],
+         "children": [
+            {"type": "TABLE", "name": "person", "label": "Person", "iconName": "person"}
+         ],
+         "childMap": {
+            "person": {"type": "TABLE", "name": "person", "label": "Person", "iconName": "person"}
+         },
+         "sections": [
+            {"name": "testApp", "label": "Full Theme Test App", "icon": {"name": "palette"}, "tables": ["person"]}
+         ]
+      }
+   },
+   "appTree": [
+      {
+         "type": "APP",
+         "name": "testApp",
+         "label": "Full Theme Test App",
+         "children": [
+            {"type": "TABLE", "name": "person", "label": "Person", "iconName": "person"}
+         ],
+         "iconName": "palette"
+      }
+   ],
+   "branding": {
+      "logo": "/test-logo.png",
+      "icon": "/test-icon.png"
+   },
+   "supplementalInstanceMetaData": {
+      "com.kingsrook.qqq.frontend.materialdashboard.model.metadata.MaterialDashboardThemeMetaData": {
+         "primaryColor": "#E91E63",
+         "secondaryColor": "#9C27B0",
+         "backgroundColor": "#ECEFF1",
+         "surfaceColor": "#FAFAFA",
+         "textPrimary": "#263238",
+         "textSecondary": "#607D8B",
+         "errorColor": "#D50000",
+         "warningColor": "#FF6D00",
+         "successColor": "#00C853",
+         "infoColor": "#2962FF",
+
+         "fontFamily": "\"Inter\", \"Helvetica\", sans-serif",
+         "headerFontFamily": "\"Poppins\", \"Helvetica\", sans-serif",
+         "monoFontFamily": "\"JetBrains Mono\", monospace",
+         "fontSizeBase": "15px",
+         "fontWeightLight": 300,
+         "fontWeightRegular": 400,
+         "fontWeightMedium": 500,
+         "fontWeightBold": 700,
+
+         "typographyH1FontSize": "3rem",
+         "typographyH1FontWeight": 700,
+         "typographyH1LineHeight": "1.2",
+         "typographyH1LetterSpacing": "-0.02em",
+         "typographyH1TextTransform": "none",
+
+         "typographyH2FontSize": "2.5rem",
+         "typographyH2FontWeight": 600,
+         "typographyH2LineHeight": "1.3",
+         "typographyH2LetterSpacing": "-0.01em",
+         "typographyH2TextTransform": "none",
+
+         "typographyH3FontSize": "2rem",
+         "typographyH3FontWeight": 600,
+         "typographyH3LineHeight": "1.4",
+         "typographyH3LetterSpacing": "0",
+         "typographyH3TextTransform": "none",
+
+         "typographyH4FontSize": "1.5rem",
+         "typographyH4FontWeight": 500,
+         "typographyH4LineHeight": "1.4",
+         "typographyH4LetterSpacing": "0",
+         "typographyH4TextTransform": "none",
+
+         "typographyH5FontSize": "1.25rem",
+         "typographyH5FontWeight": 500,
+         "typographyH5LineHeight": "1.5",
+         "typographyH5LetterSpacing": "0",
+         "typographyH5TextTransform": "none",
+
+         "typographyH6FontSize": "1rem",
+         "typographyH6FontWeight": 500,
+         "typographyH6LineHeight": "1.5",
+         "typographyH6LetterSpacing": "0.01em",
+         "typographyH6TextTransform": "none",
+
+         "typographyBody1FontSize": "1rem",
+         "typographyBody1FontWeight": 400,
+         "typographyBody1LineHeight": "1.6",
+         "typographyBody1LetterSpacing": "0",
+         "typographyBody1TextTransform": "none",
+
+         "typographyBody2FontSize": "0.875rem",
+         "typographyBody2FontWeight": 400,
+         "typographyBody2LineHeight": "1.5",
+         "typographyBody2LetterSpacing": "0",
+         "typographyBody2TextTransform": "none",
+
+         "typographyButtonFontSize": "0.875rem",
+         "typographyButtonFontWeight": 600,
+         "typographyButtonLineHeight": "1.75",
+         "typographyButtonLetterSpacing": "0.03em",
+         "typographyButtonTextTransform": "uppercase",
+
+         "typographyCaptionFontSize": "0.75rem",
+         "typographyCaptionFontWeight": 400,
+         "typographyCaptionLineHeight": "1.4",
+         "typographyCaptionLetterSpacing": "0.03em",
+         "typographyCaptionTextTransform": "none",
+
+         "borderRadiusGlobal": "12px",
+         "density": "normal",
+
+         "logoPath": "/custom-logo.png",
+         "iconPath": "/custom-icon.png",
+         "faviconPath": "/custom-favicon.ico",
+
+         "iconStyle": "rounded",
+
+         "brandedHeaderEnabled": true,
+         "brandedHeaderBackgroundColor": "#1A237E",
+         "brandedHeaderTextColor": "#E8EAF6",
+         "brandedHeaderLogoPath": "/branded-header-logo.png",
+         "brandedHeaderLogoAltText": "Test Brand Logo",
+         "brandedHeaderHeight": "56px",
+         "brandedHeaderTagline": "Custom Theme Test Suite",
+
+         "appBarBackgroundColor": "#F5F5F5",
+         "appBarTextColor": "#37474F",
+
+         "sidebarBackgroundColor": "#1B5E20",
+         "sidebarTextColor": "#C8E6C9",
+         "sidebarIconColor": "#A5D6A7",
+         "sidebarSelectedBackgroundColor": "#2E7D32",
+         "sidebarSelectedTextColor": "#FFFFFF",
+         "sidebarHoverBackgroundColor": "rgba(255, 255, 255, 0.15)",
+         "sidebarDividerColor": "rgba(255, 255, 255, 0.25)",
+
+         "tableHeaderBackgroundColor": "#7B1FA2",
+         "tableHeaderTextColor": "#FFFFFF",
+         "tableRowHoverColor": "#F3E5F5",
+         "tableRowSelectedColor": "#CE93D8",
+         "tableBorderColor": "#E1BEE7",
+
+         "dividerColor": "#CFD8DC",
+         "borderColor": "#B0BEC5",
+         "cardBorderColor": "#ECEFF1",
+
+         "customCss": ".qqq-full-theme-test-marker { display: block; }"
+      }
+   },
+   "widgets": {},
+   "environmentValues": {
+      "MATERIAL_UI_LICENSE_KEY": "ABCDE"
+   }
+}

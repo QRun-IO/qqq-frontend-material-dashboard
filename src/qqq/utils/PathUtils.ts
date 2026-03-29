@@ -19,23 +19,57 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+let cachedBasePath: string | null = null
+
 /**
  * Detects the base path where the SPA is running at RUNTIME.
  * Works for any base path: /, /admin, /my-app, /client/portal, etc.
- * 
+ *
  * Detection strategy (in order of reliability):
  * 1. Extract from script tag sources (looks for /static/js/ pattern from Create React App)
  * 2. Extract from HTML <base> tag if present
- * 3. Use first path segment if it doesn't look like an app route
- * 4. Default to / (root)
- * 
+ * 3. Default to / (root)
+ *
  * @returns The detected base path (e.g., "/admin", "/", "/my-app")
  */
 export function detectBasePath(): string
 {
-   // Strategy 1: Try to extract from script tags (most reliable for CRA builds)
-   // CRA always puts scripts in /static/js/, so we can extract the base path from that
-   // Example: http://example.com/my-app/static/js/main.abc123.js -> /my-app
+   /////////////////////////////////////////////////////////////////
+   // Strategy 0: If the base path was previously determined,     //
+   // reuse that result.  this might help prevent issues if React //
+   // injects code-splitting chunks after the initial page load   //
+   /////////////////////////////////////////////////////////////////
+   if (cachedBasePath !== null)
+   {
+      return cachedBasePath;
+   }
+
+   //////////////////////////////////////////////////////////////
+   // Strategy 1: Check for HTML <base> tag                    //
+   // If the HTML has <base href="/my-app/">, use that.        //
+   // The idea being, if someone said "this is the base path", //
+   // then trust it - there's no need to figure out anything.  //
+   //////////////////////////////////////////////////////////////
+   const baseTag = document.querySelector("base");
+   if (baseTag && baseTag.getAttribute("href"))
+   {
+      const href = baseTag.getAttribute("href");
+      if (href && href !== "/")
+      {
+         cachedBasePath = href.endsWith("/") ? href.slice(0, -1) : href;
+         return cachedBasePath;
+      }
+   }
+
+
+   //////////////////////////////////////////////////////////////////////////////////////////
+   // Strategy 2: Try to extract from script tags (most reliable for CRA builds)           //
+   // CRA always puts scripts in /static/js/, so we can extract the base path from that    //
+   // Example: http://example.com/my-app/static/js/main.abc123.js -> /my-app               //
+   // At one time this was thought to be the most reliable approach, but (in a not-yet     //
+   // understood way) it was seen to return differing results throughout the SPA lifecycle //
+   // if the page was originally loaded from the root path (/).                            //
+   //////////////////////////////////////////////////////////////////////////////////////////
    const scripts = document.getElementsByTagName("script");
    for (let i = 0; i < scripts.length; i++)
    {
@@ -43,45 +77,17 @@ export function detectBasePath(): string
       if (src && src.includes("/static/js/"))
       {
          const match = src.match(/^https?:\/\/[^\/]+([\/\w-]*?)\/static\/js\//);
-         if (match && match[1])
+         if (match)
          {
-            return match[1] || "/";
+            cachedBasePath = match[1] || "/";
+            return cachedBasePath;
          }
       }
    }
 
-   // Strategy 2: Check for HTML <base> tag
-   // If the HTML has <base href="/my-app/">, use that
-   const baseTag = document.querySelector("base");
-   if (baseTag && baseTag.getAttribute("href"))
-   {
-      const href = baseTag.getAttribute("href");
-      if (href && href !== "/")
-      {
-         return href.endsWith("/") ? href.slice(0, -1) : href;
-      }
-   }
-
-   // Strategy 3: Use first path segment if it doesn't look like an app route
-   // Avoid treating routes like "/users/123" as base path
-   // Only use if it's a simple single segment without additional path parts
-   const currentPath = window.location.pathname;
-   const parts = currentPath.split("/").filter(p => p);
-   
-   // If URL is like /something (single segment), it MIGHT be the base path
-   // But be conservative - only use if it's common base path names or doesn't look like data
-   if (parts.length === 1)
-   {
-      const firstPart = parts[0];
-      // If it's not numeric and not obviously a route, assume it's base path
-      if (!/^\d+$/.test(firstPart) && firstPart.length > 1)
-      {
-         return "/" + firstPart;
-      }
-   }
-
    // Default to root
-   return "/";
+   cachedBasePath = "/";
+   return cachedBasePath;
 }
 
 /**
@@ -149,4 +155,14 @@ export function resolveAssetUrl(url: string | null | undefined): string
    return url;
 }
 
+
+/**
+ * Clears the cached base path, forcing detection to run again next time it's needed.
+ *
+ * Not expected to be needed in normal use cases, but can be useful for testing.
+ */
+export function clearCachedBasePath()
+{
+   cachedBasePath = null;
+}
 

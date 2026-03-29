@@ -44,6 +44,7 @@ import RecordQuery from "qqq/pages/records/query/RecordQuery";
 import Client from "qqq/utils/qqq/Client";
 import FilterUtils from "qqq/utils/qqq/FilterUtils";
 import TableUtils from "qqq/utils/qqq/TableUtils";
+import usePossibleValueLabels from "qqq/utils/usePossibleValueLabels";
 import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {unborderedButtonSX} from "qqq/components/widgets/misc/RowBuilderWidget";
 
@@ -99,6 +100,8 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
 
    const {helpHelpActive} = useContext(QContext);
 
+   const {getDisplayValues} = usePossibleValueLabels({useCase: "filter"});
+
    const recordQueryRef = useRef();
 
    /////////////////////////////
@@ -123,6 +126,24 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
       queryFilter = Object.assign(new QQueryFilter(), queryFilter);
    }
 
+
+   /***************************************************************************
+    * for a default-filter (criteria) - decide if the field name to use for
+    * getting values from the record should be the same name as used in the
+    * filter being built - or - if a replacement name is set in
+    * widgetData.filterDefaultFieldNameSourceFieldNames - then use that name.
+    ***************************************************************************/
+   function getRecordFieldNameForDefaultFilter(fieldName: string)
+   {
+      let recordFieldName = fieldName;
+      if (widgetData.filterDefaultFieldNameSourceFieldNames?.[fieldName])
+      {
+         recordFieldName = widgetData.filterDefaultFieldNameSourceFieldNames[fieldName];
+      }
+      return recordFieldName;
+   }
+
+
    //////////////////////////////////////////////////////////////////////////////////////////////////////
    // if there are default fields from which a query should be seeded, add/update the filter with them //
    //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,14 +151,34 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
    {
       defaultFilterFields.forEach((fieldName: string) =>
       {
-         ////////////////////////////////////////////////////////////////////////////////////////////
-         // if a value for the default field exists, remove the criteria for it in our query first //
-         ////////////////////////////////////////////////////////////////////////////////////////////
-         queryFilter.criteria = queryFilter.criteria?.filter(c => c.fieldName != fieldName);
-
-         if (recordValues[fieldName])
+         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+         // if a value for the default field exists, make sure a criteria exist for it, with that value, is in the query //
+         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+         let recordFieldName = getRecordFieldNameForDefaultFilter(fieldName);
+         if (recordValues[recordFieldName])
          {
-            queryFilter.addCriteria(new QFilterCriteria(fieldName, QCriteriaOperator.EQUALS, [recordValues[fieldName]]));
+            const newCriteria = new QFilterCriteria(fieldName, QCriteriaOperator.EQUALS, [recordValues[recordFieldName]])
+            let replacedCriteria = false;
+            for (let i = 0; i < (queryFilter.criteria ?? []).length; i++)
+            {
+               if (queryFilter.criteria[i].fieldName == fieldName)
+               {
+                  queryFilter.criteria[i] = newCriteria;
+                  replacedCriteria = true;
+               }
+            }
+
+            if (!replacedCriteria)
+            {
+               queryFilter.addCriteria(newCriteria);
+            }
+         }
+         else
+         {
+            /////////////////////////////////////////////////////////////////////////////////////////////////////
+            // else if there is no value for the field, then make sure there's no criteria for it in our query //
+            /////////////////////////////////////////////////////////////////////////////////////////////////////
+            queryFilter.criteria = queryFilter.criteria?.filter(c => c.fieldName != fieldName);
          }
       });
    }
@@ -205,7 +246,26 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
             {
                const tableMetaData = await qControllerV1.loadTableMetaData(tableName, version);
                setTableMetaData(tableMetaData);
+            }
+            catch (e)
+            {
+               console.log(e);
+               //@ts-ignore e.message
+               setWidgetFailureAlertContent("Error preparing filter widget: " + (e.message ?? "Details not available."));
+            }
+         })();
+      }
 
+      ////////////////////////////////////////////////////////////////////////////////////////////
+      // if we have tableMetaData, make sure the query is good for the frontend to use          //
+      // this may include removing criteria for non-existing fields, and cleansing value object //
+      ////////////////////////////////////////////////////////////////////////////////////////////
+      if (tableMetaData)
+      {
+         (async () =>
+         {
+            try
+            {
                const queryFilterForFrontend = Object.assign({}, queryFilter);
 
                let warnings: string[] = [];
@@ -221,20 +281,20 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
                   }
                }
 
-               await FilterUtils.cleanupValuesInFilerFromQueryString(qController, tableMetaData, queryFilterForFrontend);
+               await FilterUtils.cleanupValuesInFilerFromQueryString(qController, tableMetaData, queryFilterForFrontend, getDisplayValues);
                setFrontendQueryFilter(queryFilterForFrontend);
 
                setWarning(warnings.join("; "));
             }
             catch (e)
             {
-               console.log(e);
+               console.warn(e);
                //@ts-ignore e.message
                setWidgetFailureAlertContent("Error preparing filter widget: " + (e.message ?? "Details not available."));
             }
          })();
       }
-   }, [JSON.stringify(recordValues)]);
+   }, [JSON.stringify(recordValues), tableMetaData]);
 
 
    /*******************************************************************************
@@ -245,9 +305,11 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
       let missingRequiredFields = [] as string[];
       widgetData?.filterDefaultFieldNames?.forEach((fieldName: string) =>
       {
-         if (!recordValues[fieldName])
+         let recordFieldName = getRecordFieldNameForDefaultFilter(fieldName);
+         if (!recordValues[recordFieldName])
          {
-            missingRequiredFields.push(tableMetaData.fields.get(fieldName).label);
+            const tableField = tableMetaData.fields.get(recordFieldName);
+            missingRequiredFields.push(tableField?.label ?? recordFieldName);
          }
       });
 
@@ -401,6 +463,12 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
       {
          buttonLabel = "Edit Filters";
       }
+
+      if(widgetData.editButtonLabel)
+      {
+         buttonLabel = widgetData.editButtonLabel;
+      }
+
       labelAdditionalElementsRight.push(<HeaderLinkButtonComponent key="filterAndColumnsHeader" label={buttonLabel} onClickCallback={openEditor} disabled={tableMetaData == null} disabledTooltip={selectTableFirstTooltipTitle} className="editFiltersButton" />);
    }
 
@@ -503,7 +571,7 @@ export default function FilterAndColumnsSetupWidget({isEditable: isEditableProp,
                <div>
                   <Box sx={{position: "absolute", overflowY: "auto", maxHeight: "100%", width: "100%"}}>
                      <Card sx={{m: "2rem", p: "2rem"}}>
-                        <h3>Edit Filters {hideColumns ? "" : " and Columns"}</h3>
+                        <h3>{widgetData.modalHeader ?? `Edit Filters ${hideColumns ? "" : " and Columns"}`}</h3>
                         {
                            showHelp("modalSubheader") &&
                            <Box color={colors.gray.main} pb={"0.5rem"}>

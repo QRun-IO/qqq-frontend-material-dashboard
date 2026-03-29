@@ -28,6 +28,7 @@ import TableContainer from "@mui/material/TableContainer";
 import Tooltip from "@mui/material/Tooltip";
 import parse from "html-react-parser";
 import colors from "qqq/assets/theme/base/colors";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import MDInput from "qqq/components/legacy/MDInput";
 import MDPagination from "qqq/components/legacy/MDPagination";
 import MDTypography from "qqq/components/legacy/MDTypography";
@@ -67,7 +68,7 @@ DataTable.defaultProps = {
    showTotalEntries: true,
    fixedStickyLastRow: false,
    fixedHeight: null,
-   pagination: {variant: "gradient", color: "info"},
+   pagination: {variant: "gradient", color: preferredColorNameInfoOrPrimary()},
    isSorted: true,
    noEndBorder: false,
 };
@@ -525,7 +526,7 @@ function DataTable({
             {pageOptions.length > 1 && (
                <MDPagination
                   variant={pagination.variant ? pagination.variant : "gradient"}
-                  color={pagination.color ? pagination.color : "info"}
+                  color={pagination.color ? pagination.color : preferredColorNameInfoOrPrimary()}
                >
                   {canPreviousPage && (
                      <MDPagination item onClick={() => previousPage()}>

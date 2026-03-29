@@ -36,8 +36,7 @@ interface CustomComponentWidgetProps
 }
 
 
-CustomComponentWidget.defaultProps = {
-};
+CustomComponentWidget.defaultProps = {};
 
 
 /*******************************************************************************
@@ -62,7 +61,7 @@ export default function CustomComponentWidget({widgetMetaData, widgetData, recor
          record: record,
       }
 
-   return (<Box sx={widgetMetaData.defaultValues?.get("sx")}>
+   return (<Box id="customComponentWidget" sx={widgetMetaData.defaultValues?.get("sx")}>
       {hasComponentLoaded(componentName) ? renderComponent(componentName, props) : <Skeleton width="100%" height="100%" />}
    </Box>);
 }

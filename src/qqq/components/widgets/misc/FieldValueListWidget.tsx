@@ -41,7 +41,7 @@ FieldValueListWidget.defaultProps = {};
 
 function FieldValueListWidget({widgetMetaData, data, reloadWidgetCallback}: Props): JSX.Element
 {
-   if(data?.dropdownNeedsSelectedText)
+   if (data?.dropdownNeedsSelectedText)
    {
       return (
          <Widget widgetMetaData={widgetMetaData} widgetData={data} reloadWidgetCallback={reloadWidgetCallback}>
@@ -50,7 +50,7 @@ function FieldValueListWidget({widgetMetaData, data, reloadWidgetCallback}: Prop
       );
    }
 
-   if(!data.fields || !data.record)
+   if (!data.fields || !data.record)
    {
       const skeletons = [75, 50, 90];
       return (
@@ -63,7 +63,7 @@ function FieldValueListWidget({widgetMetaData, data, reloadWidgetCallback}: Prop
                            <Skeleton width={s + "px"} />
                         </Typography>
                         <Typography variant="button">
-                           <Skeleton width={2*(s + (100 - (1.25*s))) + "px"} />
+                           <Skeleton width={2 * (s + (100 - (1.25 * s))) + "px"} />
                         </Typography>
                      </Box>
                   ))
@@ -80,8 +80,8 @@ function FieldValueListWidget({widgetMetaData, data, reloadWidgetCallback}: Prop
    const fieldIndentLevels = data.fieldIndentLevels ?? {};
 
    return (
-      <Widget widgetMetaData={widgetMetaData} widgetData={data} reloadWidgetCallback={reloadWidgetCallback}>
-         <Box p={3} pt={0} display="flex" flexDirection="column">
+      <Widget omitPadding={true} widgetMetaData={widgetMetaData} widgetData={data} reloadWidgetCallback={reloadWidgetCallback}>
+         <Box p={0} pt={0} display="flex" flexDirection="column">
             {
                fields.map((field: QFieldMetaData, index: number) => (
                   <Box key={field.label} flexDirection="row" pr={2} pl={3 * (fieldIndentLevels[field.name] ?? 0)}>

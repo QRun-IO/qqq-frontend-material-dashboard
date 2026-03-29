@@ -50,7 +50,8 @@ import FormData from "form-data";
 import {Form, Formik} from "formik";
 import parse from "html-react-parser";
 import QContext from "QContext";
-import colors from "qqq/assets/theme/base/colors";
+import linearGradient from "qqq/assets/theme/functions/linearGradient";
+import {preferredColorNameInfoOrPrimary} from "qqq/assets/theme/functions/preferInfoColorToPrimaryColor";
 import {QAlternateButton, QCancelButton, QSubmitButton} from "qqq/components/buttons/DefaultButtons";
 import QDynamicForm from "qqq/components/forms/DynamicForm";
 import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
@@ -72,14 +73,13 @@ import {ChildRecordListData} from "qqq/components/widgets/misc/RecordGridWidget"
 import BaseLayout from "qqq/layouts/BaseLayout";
 import ProcessWidgetBlockUtils from "qqq/pages/processes/ProcessWidgetBlockUtils";
 import {TABLE_VARIANT_LOCAL_STORAGE_KEY_ROOT} from "qqq/pages/records/query/RecordQuery";
-import {AnalyticsModel} from "qqq/utils/GoogleAnalyticsUtils";
+import {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import * as Yup from "yup";
-
 
 interface Props
 {
@@ -619,8 +619,8 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                </MDTypography>
                <Box component="div" py={3}>
                   <Grid container justifyContent="flex-end" spacing={3}>
-                     {isModal ? <QCancelButton onClickHandler={() => handleCancelClicked(true)} disabled={false} label="Close" />
-                        : !isWidget && <QCancelButton onClickHandler={() => handleCancelClicked(true)} disabled={false} />
+                     {isModal ? <QCancelButton onClickHandler={() => handleCancelClicked(true)} disabled={false} label="Close" qqqId="close" />
+                        : !isWidget && <QCancelButton onClickHandler={() => handleCancelClicked(true)} disabled={false} qqqId="cancel" />
                      }
                   </Grid>
                </Box>
@@ -780,7 +780,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
 
             {
                showHelp &&
-               <Box fontSize={"0.875rem"} color={colors.blueGray.main} pb={2}>
+               <Box fontSize={"0.875rem"} color="var(--qqq-text-secondary, #546E7A)" pb={2}>
                   {formattedHelpContent}
                </Box>
             }
@@ -962,8 +962,8 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                         {
                            component.type === QComponentType.DOWNLOAD_FORM && (
                               <Grid container display="flex" justifyContent="center">
-                                 <Grid item xs={12} sm={12} xl={8} m={3} p={3} mt={6} sx={{border: "1px solid gray", borderRadius: "1rem"}}>
-                                    <Box mx={2} mt={-6} p={1} sx={{width: "fit-content", borderColor: "rgb(70%, 70%, 70%)", borderWidth: "2px", borderStyle: "solid", borderRadius: ".25em", backgroundColor: "#FFFFFF"}} width="initial" color="white">
+                                 <Grid item xs={12} sm={12} xl={8} m={3} p={3} mt={6} sx={{border: "1px solid var(--qqq-border-color, gray)", borderRadius: "1rem"}}>
+                                    <Box mx={2} mt={-6} p={1} sx={{width: "fit-content", borderColor: "var(--qqq-border-color, rgb(70%, 70%, 70%))", borderWidth: "2px", borderStyle: "solid", borderRadius: ".25em", backgroundColor: "var(--qqq-surface-color, #FFFFFF)"}} width="initial" color="var(--qqq-text-primary, #344767)">
                                        Download
                                     </Box>
                                     <Box display="flex" py={1} pr={2}>
@@ -1650,14 +1650,21 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                         const fieldName = field.name;
                         if (field.possibleValueSourceName && newValues && newValues[fieldName])
                         {
-                           const results: QPossibleValue[] = await qController.possibleValues(null, processName, fieldName, null, [newValues[fieldName]]);
-                           if (results && results.length > 0)
+                           try
                            {
-                              if (!cachedPossibleValueLabels[fieldName])
+                              const results: QPossibleValue[] = await qController.possibleValues(null, processName, fieldName, null, [newValues[fieldName]]);
+                              if (results && results.length > 0)
                               {
-                                 cachedPossibleValueLabels[fieldName] = {};
+                                 if (!cachedPossibleValueLabels[fieldName])
+                                 {
+                                    cachedPossibleValueLabels[fieldName] = {};
+                                 }
+                                 cachedPossibleValueLabels[fieldName][newValues[fieldName]] = results[0].label;
                               }
-                              cachedPossibleValueLabels[fieldName][newValues[fieldName]] = results[0].label;
+                           }
+                           catch(e)
+                           {
+                              console.warn(`Error looking up possible value label for field [${fieldName}], value [${newValues[fieldName]}]: ${e}`);
                            }
                         }
                      }
@@ -1811,44 +1818,41 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
 
       (async () =>
       {
+         const formData = new FormData();
          const urlSearchParams = new URLSearchParams(location.search);
-         let queryStringPairsForInit = [];
          if (urlSearchParams.get("recordIds"))
          {
-            const recordIdsFromQueryString = urlSearchParams.get("recordIds").split(",");
-            const encodedRecordIds = recordIdsFromQueryString.map(r => encodeURIComponent(r)).join(",");
-            queryStringPairsForInit.push("recordsParam=recordIds");
-            queryStringPairsForInit.push(`recordIds=${encodedRecordIds}`);
+            formData.append("recordsParam", "recordIds");
+            formData.append("recordIds", urlSearchParams.get("recordIds"));
          }
          else if (urlSearchParams.get("filterJSON"))
          {
-            queryStringPairsForInit.push("recordsParam=filterJSON");
-            queryStringPairsForInit.push(`filterJSON=${encodeURIComponent(urlSearchParams.get("filterJSON"))}`);
+            formData.append("recordsParam", "filterJSON");
+            formData.append("filterJSON", urlSearchParams.get("filterJSON"));
          }
          // todo once saved filters exist
          //else if(urlSearchParams.get("filterId")) {
-         //   queryStringPairsForInit.push("recordsParam=filterId");
-         //   queryStringPairsForInit.push(`filterId=${urlSearchParams.get("filterId")}`);
+         //   formData.append("recordsParam", "filterId");
+         //   formData.append(`filterId", filterId);
          // }
          else if (recordIds)
          {
             if (recordIds instanceof QQueryFilter)
             {
-               queryStringPairsForInit.push("recordsParam=filterJSON");
-               queryStringPairsForInit.push(`filterJSON=${encodeURIComponent(JSON.stringify(recordIds))}`);
+               formData.append("recordsParam", "filterJSON");
+               formData.append("filterJSON", JSON.stringify(recordIds));
             }
             else if (typeof recordIds === "object" && recordIds.length)
             {
-               const encodedRecordIds = recordIds.map(r => encodeURIComponent(r)).join(",");
-               queryStringPairsForInit.push("recordsParam=recordIds");
-               queryStringPairsForInit.push(`recordIds=${encodedRecordIds}`);
+               formData.append("recordsParam", "recordIds");
+               formData.append("recordIds", recordIds.join(","));
             }
          }
 
          if (tableVariantLocalStorageKey && localStorage.getItem(tableVariantLocalStorageKey))
          {
             let tableVariant = JSON.parse(localStorage.getItem(tableVariantLocalStorageKey));
-            queryStringPairsForInit.push(`tableVariant=${encodeURIComponent(JSON.stringify(tableVariant))}`);
+            formData.append("tableVariant", JSON.stringify(tableVariant));
          }
 
          try
@@ -1910,18 +1914,18 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
          {
             for (let key in defaultProcessValues)
             {
-               queryStringPairsForInit.push(`${key}=${encodeURIComponent(defaultProcessValues[key])}`);
+               formData.append(key, defaultProcessValues[key]);
             }
          }
 
          if (tableMetaData)
          {
-            queryStringPairsForInit.push(`tableName=${encodeURIComponent(tableMetaData.name)}`);
+            formData.append("tableName", tableMetaData.name);
          }
 
          try
          {
-            const processResponse = await qController.processInit(processName, queryStringPairsForInit.join("&"));
+            const processResponse = await qController.processInit(processName, formData);
             setProcessUUID(processResponse.processUUID);
             setLastProcessResponse(processResponse);
          }
@@ -2154,7 +2158,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
       mainCardStyles.minHeight = `calc(100vh - ${isModal ? 150 : 400}px)`;
       if (!processError && (qJobRunning || activeStep === null) && !isModal && !isWidget)
       {
-         mainCardStyles.background = "#FFFFFF";
+         mainCardStyles.background = "var(--qqq-surface-color, #FFFFFF)";
          mainCardStyles.boxShadow = "none";
       }
 
@@ -2174,18 +2178,21 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
 
    let nextButtonLabel = "Next";
    let nextButtonIcon = "arrow_forward";
+   let nextButtonQqqId = "next";
    if (overrideOnLastStep !== null)
    {
       if (overrideOnLastStep)
       {
          nextButtonLabel = "Submit";
          nextButtonIcon = "check";
+         nextButtonQqqId = "submit";
       }
    }
    else if (onLastStep)
    {
       nextButtonLabel = "Submit";
       nextButtonIcon = "check";
+      nextButtonQqqId = "submit";
    }
 
    const form = (
@@ -2213,7 +2220,12 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                      {
                         !isWidget && processMetaData?.stepFlow == "LINEAR" && (
                            <Box mx={2} mt={-3} sx={{"& .MuiStepper-horizontal": {minHeight: "5rem"}}}>
-                              <Stepper activeStep={activeStepIndex} alternativeLabel>
+                              <Stepper activeStep={activeStepIndex} alternativeLabel sx={(theme: Theme) =>
+                              {
+                                 return {
+                                    background: linearGradient(theme.palette.gradients[preferredColorNameInfoOrPrimary()].main, theme.palette.gradients[preferredColorNameInfoOrPrimary()].state)
+                                 }
+                              }}>
                                  {steps.map((step) => (
                                     <Step key={step.name}>
                                        <StepLabel>{step.label}</StepLabel>
@@ -2256,6 +2268,7 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                                           onClickHandler={() => handleCancelClicked(true)}
                                           label={isModal ? "Close" : "Return"}
                                           iconName={isModal ? "cancel" : "arrow_back"}
+                                          qqqId={isModal ? "close" : "return"}
                                           disabled={isSubmitting} />
                                     }
                                     {
@@ -2264,17 +2277,17 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
                                              <Grid container justifyContent="flex-end" spacing={3}>
                                                 {
                                                    !isWidget && (
-                                                      <QCancelButton onClickHandler={() => handleCancelClicked(false)} disabled={isSubmitting} />
+                                                      <QCancelButton onClickHandler={() => handleCancelClicked(false)} disabled={isSubmitting} qqqId="cancel" />
                                                    )
                                                 }
 
                                                 {backStepName ? (
-                                                   <QAlternateButton label="Back" onClick={handleBack} disabled={isSubmitting} iconName="arrow_back" />
+                                                   <QAlternateButton label="Back" onClick={handleBack} disabled={isSubmitting} iconName="arrow_back" qqqId="back" />
                                                 ) : (
                                                    <Box />
                                                 )}
 
-                                                <QSubmitButton label={nextButtonLabel} iconName={nextButtonIcon} disabled={isSubmitting} />
+                                                <QSubmitButton label={nextButtonLabel} iconName={nextButtonIcon} disabled={isSubmitting} qqqId={nextButtonQqqId} />
                                              </Grid>
                                           </Box>
                                        )

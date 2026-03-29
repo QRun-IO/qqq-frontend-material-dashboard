@@ -20,48 +20,48 @@
  */
 
 import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
-import Client from "qqq/utils/qqq/Client";
+import AnalyticsProviderInterface from "qqq/utils/analytics/AnalyticsProviderInterface";
+import AnalyticsUtils from "qqq/utils/analytics/AnalyticsUtils";
+import {AnalyticsModel, PageView, UserEvent} from "qqq/utils/analytics/AnalyticsTypes";
 import ReactGA from "react-ga4";
 
 
-export interface PageView
+export default class GoogleAnalyticsProvider implements AnalyticsProviderInterface
 {
-   location: Location;
-   title: string;
-}
-
-export interface UserEvent
-{
-   action: string;
-   category: string;
-   label?: string;
-}
-
-export type AnalyticsModel = PageView | UserEvent;
-
-const qController = Client.getInstance();
-
-/*******************************************************************************
- ** Utilities for working with Google Analytics (through react-ga4)^
- *******************************************************************************/
-export default class GoogleAnalyticsUtils
-{
-   private metaData: QInstance = null;
    private active: boolean = false;
 
 
    /*******************************************************************************
     **
     *******************************************************************************/
-   constructor()
+   public initialize = (metaData: QInstance, sessionValues: {[key: string]: any} | null): void =>
    {
+      if(metaData.environmentValues?.get("GOOGLE_ANALYTICS_ENABLED") == "true" && metaData.environmentValues?.get("GOOGLE_ANALYTICS_TRACKING_ID"))
+      {
+         this.active = true;
+         ReactGA.initialize(metaData.environmentValues.get("GOOGLE_ANALYTICS_TRACKING_ID"),
+            {
+               gaOptions: {},
+               gtagOptions: {}
+            });
+
+         const analyticsIdentityValues = AnalyticsUtils.getAnalyticsIdentityValues(sessionValues);
+         if(Object.keys(analyticsIdentityValues).length > 0)
+         {
+            ReactGA.gtag("set", "user_properties", analyticsIdentityValues);
+         }
+      }
+      else
+      {
+         this.active = false;
+      }
    }
 
 
    /*******************************************************************************
     **
     *******************************************************************************/
-   private send = (model: AnalyticsModel) =>
+   public record = (model: AnalyticsModel): void =>
    {
       if(!this.active)
       {
@@ -76,7 +76,7 @@ export default class GoogleAnalyticsUtils
       else if(model.hasOwnProperty("action") || model.hasOwnProperty("category") || model.hasOwnProperty("label"))
       {
          const userEvent = model as UserEvent;
-         ReactGA.event({action: userEvent.action, category: userEvent.category, label: userEvent.label})
+         ReactGA.event({action: userEvent.action, category: userEvent.category, label: userEvent.label});
       }
       else
       {
@@ -88,56 +88,8 @@ export default class GoogleAnalyticsUtils
    /*******************************************************************************
     **
     *******************************************************************************/
-   private setup = async (): Promise<void> =>
+   public reset = (): void =>
    {
-      this.metaData = await qController.loadMetaData();
-
-      let sessionValues: {[key: string]: any} = null;
-      try
-      {
-         sessionValues = JSON.parse(localStorage.getItem("sessionValues"));
-      }
-      catch(e)
-      {
-         console.log("Error reading session values from localStorage: " + e);
-      }
-
-      if (this.metaData.environmentValues?.get("GOOGLE_ANALYTICS_ENABLED") == "true" && this.metaData.environmentValues?.get("GOOGLE_ANALYTICS_TRACKING_ID"))
-      {
-         this.active = true;
-
-         if(sessionValues && sessionValues["googleAnalyticsValues"])
-         {
-            ReactGA.gtag("set", "user_properties", sessionValues["googleAnalyticsValues"]);
-         }
-
-         ReactGA.initialize(this.metaData.environmentValues.get("GOOGLE_ANALYTICS_TRACKING_ID"),
-            {
-               gaOptions: {},
-               gtagOptions: {}
-            });
-      }
-      else
-      {
-         this.active = false;
-      }
+      // no-op for GA in current implementation
    }
-
-
-   /*******************************************************************************
-    **
-    *******************************************************************************/
-   public recordAnalytics = (model: AnalyticsModel) =>
-   {
-      if(this.metaData == null)
-      {
-         (async () =>
-         {
-            await this.setup();
-         })()
-      }
-
-      this.send(model);
-   }
-
 }

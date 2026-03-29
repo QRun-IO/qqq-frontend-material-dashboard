@@ -25,6 +25,8 @@ import {QController} from "@qrunio/qqq-frontend-core/lib/controllers/QController
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QFieldType} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldType";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
+import {QPossibleValue} from "@qrunio/qqq-frontend-core/lib/model/QPossibleValue";
+import {FieldFunction} from "@qrunio/qqq-frontend-core/lib/model/query/FieldFunction";
 import {FilterVariableExpression} from "@qrunio/qqq-frontend-core/lib/model/query/FilterVariableExpression";
 import {NowExpression} from "@qrunio/qqq-frontend-core/lib/model/query/NowExpression";
 import {NowWithOffsetExpression} from "@qrunio/qqq-frontend-core/lib/model/query/NowWithOffsetExpression";
@@ -33,9 +35,11 @@ import {QFilterCriteria} from "@qrunio/qqq-frontend-core/lib/model/query/QFilter
 import {QFilterOrderBy} from "@qrunio/qqq-frontend-core/lib/model/query/QFilterOrderBy";
 import {QQueryFilter} from "@qrunio/qqq-frontend-core/lib/model/query/QQueryFilter";
 import {ThisOrLastPeriodExpression} from "@qrunio/qqq-frontend-core/lib/model/query/ThisOrLastPeriodExpression";
+import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
 import {validateCriteria} from "qqq/components/query/FilterCriteriaRow";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
+import {GetDisplayValuesFunction} from "qqq/utils/usePossibleValueLabels";
 
 /*******************************************************************************
  ** Utility class for working with QQQ Filters
@@ -99,9 +103,14 @@ class FilterUtils
 
 
    /*******************************************************************************
-    **
+    *
+    * The `getDisplayValues` parameter is an optional function from the
+    * usePossibleValueLabels hook - which is encouraged to be given, to avoid
+    * unnecessary backend calls (as it internally caches possible value lookups).
+    * If it is not given, the functionality remains the same - but the same backend
+    * call can be made multiple times.
     *******************************************************************************/
-   public static async cleanupValuesInFilerFromQueryString(qController: QController, tableMetaData: QTableMetaData, queryFilter: QQueryFilter)
+   public static async cleanupValuesInFilerFromQueryString(qController: QController, tableMetaData: QTableMetaData, queryFilter: QQueryFilter, getDisplayValues?: GetDisplayValuesFunction)
    {
       for (let i = 0; i < queryFilter?.criteria?.length; i++)
       {
@@ -139,7 +148,33 @@ class FilterUtils
                }
                else
                {
-                  values = await qController.possibleValues(fieldTable.name, null, field.name, "", values, undefined, undefined, "filter");
+                  if(getDisplayValues)
+                  {
+                     ///////////////////////////////////////////////////////////////////////////////////
+                     // if we have a getDisplayValues function-from the hook, use it to look up the   //
+                     // labels note - we must convert q QFieldMetaData (field) to a                   //
+                     // DynamicFormFieldDefinition (dynamicField) and add possible value props to it. //
+                     ///////////////////////////////////////////////////////////////////////////////////
+                     const dynamicField = DynamicFormUtils.getDynamicField(field);
+                     DynamicFormUtils.addPossibleValuePropsToSingleField(dynamicField, field, fieldTable.name, null, null);
+
+                     const displayValuesMap = await getDisplayValues(dynamicField, values);
+
+                     //////////////////////////////////////////////////////////////////////////////////////
+                     // this function returns an array of display values (labels) - but the code below   //
+                     // expects an array of possible values (objects with id & label) - so convert them. //
+                     //////////////////////////////////////////////////////////////////////////////////////
+                     const possibleValuesArray: QPossibleValue[] = [];
+                     for (let value of values)
+                     {
+                        possibleValuesArray.push(new QPossibleValue({id: value, label: displayValuesMap[value] ?? value}));
+                     }
+                     values = possibleValuesArray;
+                  }
+                  else
+                  {
+                     values = await qController.possibleValues(fieldTable.name, null, field.name, "", values, undefined, undefined, "filter");
+                  }
                }
             }
 
@@ -154,6 +189,8 @@ class FilterUtils
 
          if (values && values.length)
          {
+            const fieldFunctionName = criteria?.fieldFunction?.functionTypeIdentifierName;
+
             for (let i = 0; i < values.length; i++)
             {
                //////////////////////////////////////////////////////////////////////////
@@ -166,11 +203,21 @@ class FilterUtils
                }
                else
                {
-                  ///////////////////////////////////////////
-                  // make date-times work for the frontend //
-                  ///////////////////////////////////////////
-                  if (field.type == QFieldType.DATE_TIME)
+                  if (fieldFunctionName == "WeekdayOfDate" || fieldFunctionName == "WeekdayOfDateTime")
                   {
+                     ////////////////////////////////////////////////////////////////////////////////////////////
+                     // for weekday-of functions, make PVS's out of the values (in case they're just the ints) //
+                     ////////////////////////////////////////////////////////////////////////////////////////////
+                     if(values[i] != null && values[i] != undefined && !values[i].label)
+                     {
+                        values[i] = this.getWeekdayPossibleValue(values[i]);
+                     }
+                  }
+                  else if (field.type == QFieldType.DATE_TIME)
+                  {
+                     ///////////////////////////////////////////
+                     // make date-times work for the frontend //
+                     ///////////////////////////////////////////
                      values[i] = ValueUtils.formatDateTimeValueForForm(values[i]);
                   }
                }
@@ -187,6 +234,53 @@ class FilterUtils
       {
          await FilterUtils.cleanupValuesInFilerFromQueryString(qController, tableMetaData, queryFilter.subFilters[j]);
       }
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public static getWeekdayPossibleValue(dayNo: number): QPossibleValue | null
+   {
+      return this.getWeekdayPossibleValues().filter(pv => pv.id == dayNo)[0] ?? null;
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   public static getWeekdayPossibleValues(): QPossibleValue[]
+   {
+      const allDays: QPossibleValue[] = [
+         new QPossibleValue({id: 1, label: "Monday"}),
+         new QPossibleValue({id: 2, label: "Tuesday"}),
+         new QPossibleValue({id: 3, label: "Wednesday"}),
+         new QPossibleValue({id: 4, label: "Thursday"}),
+         new QPossibleValue({id: 5, label: "Friday"}),
+         new QPossibleValue({id: 6, label: "Saturday"}),
+         new QPossibleValue({id: 7, label: "Sunday"}),
+      ];
+
+      ////////////////////////////////////////////////////////////////////////////
+      // determine the locale's first day of week to order the list accordingly //
+      ////////////////////////////////////////////////////////////////////////////
+      let firstDay = 7; // default to Sunday
+      try
+      {
+         const locale = new Intl.Locale(navigator.language) as any;
+         const weekInfo = typeof locale.getWeekInfo === "function" ? locale.getWeekInfo() : locale.weekInfo;
+         if (weekInfo?.firstDay)
+         {
+            firstDay = weekInfo.firstDay;
+         }
+      }
+      catch (e)
+      {
+         // fall back to Sunday-first
+      }
+
+      const startIndex = firstDay - 1;
+      return [...allDays.slice(startIndex), ...allDays.slice(0, startIndex)];
    }
 
 
@@ -212,7 +306,7 @@ class FilterUtils
                const joinTable = tableMetaData.exposedJoins[i].joinTable;
                if (joinTable.name == parts[0])
                {
-                  return ([joinTable.fields.get(parts[1]), joinTable]);
+                  return ([this.getFieldOrVirtualField(joinTable, parts[1]), joinTable]);
                }
             }
          }
@@ -222,8 +316,32 @@ class FilterUtils
       }
       else
       {
-         return ([tableMetaData.fields.get(fieldName), tableMetaData]);
+         return ([this.getFieldOrVirtualField(tableMetaData, fieldName), tableMetaData]);
       }
+   }
+
+
+   /***************************************************************************
+    *
+    ***************************************************************************/
+   private static getFieldOrVirtualField(tableMetaData: QTableMetaData, fieldName: string): QFieldMetaData
+   {
+      if(!fieldName)
+      {
+         return null;
+      }
+
+      if(tableMetaData.fields.has(fieldName))
+      {
+         return tableMetaData.fields.get(fieldName);
+      }
+
+      if(tableMetaData.virtualFields?.has(fieldName))
+      {
+         return tableMetaData.virtualFields.get(fieldName);
+      }
+
+      return (null);
    }
 
 
@@ -417,6 +535,10 @@ class FilterUtils
             {
                labels.push(value == true ? "yes" : "no");
             }
+            else if (value && value.label)
+            {
+               labels.push(value.label);
+            }
             else if (fieldMetaData?.type == QFieldType.DATE_TIME)
             {
                labels.push(ValueUtils.formatDateTime(value));
@@ -424,10 +546,6 @@ class FilterUtils
             else if (fieldMetaData?.type == QFieldType.DATE)
             {
                labels.push(ValueUtils.formatDate(value));
-            }
-            else if (value && value.label)
-            {
-               labels.push(value.label);
             }
             else
             {
@@ -522,8 +640,16 @@ class FilterUtils
             case QCriteriaOperator.NOT_EQUALS_OR_IS_NULL:
                return ("does not equal");
             case QCriteriaOperator.IN:
+               if (isDate || isDateTime)
+               {
+                  return ("day is any of");
+               }
                return ("is any of");
             case QCriteriaOperator.NOT_IN:
+               if (isDate || isDateTime)
+               {
+                  return ("day is none of");
+               }
                return ("is none of");
             case QCriteriaOperator.STARTS_WITH:
                return ("starts with");
@@ -686,7 +812,18 @@ class FilterUtils
                // else push a clone of the criteria - since it may get manipulated below (convertFilterPossibleValuesToIds) //
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
                const [field] = FilterUtils.getField(tableMetaData, criteria.fieldName);
-               filterForBackend.criteria.push(new QFilterCriteria(criteria.fieldName, criteria.operator, FilterUtils.cleanseCriteriaValueForQQQ(criteria.values, field)));
+               const newCriteria = new QFilterCriteria(criteria.fieldName, criteria.operator, FilterUtils.cleanseCriteriaValueForQQQ(criteria.values, field));
+
+               if(criteria.fieldFunction)
+               {
+                  ///////////////////////////////////////////////////////////////////////////////////////
+                  // if there's a fieldFunction, clone it if it's an object (w/ a clone method), else  //
+                  // Object.assign to make a copy of it - point being, so we don't modify the original //
+                  ///////////////////////////////////////////////////////////////////////////////////////
+                  newCriteria.fieldFunction = criteria.fieldFunction.clone ? criteria.fieldFunction?.clone() : new FieldFunction(criteria.fieldFunction.fieldName, criteria.fieldFunction.functionTypeIdentifierName, criteria.fieldFunction.arguments);
+               }
+
+               filterForBackend.criteria.push(newCriteria);
             }
          }
       }
