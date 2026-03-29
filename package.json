@@ -1,6 +1,6 @@
 {
   "name": "qqq-frontend-material-dashboard",
-  "version": "0.40.0-RC.1",
+  "version": "0.40.0",
   "homepage": ".",
   "description": "QQQ Default Dashboard",
   "dependencies": {
