@@ -58,8 +58,8 @@
   </developers>
 
   <properties>
-    <revision>0.40.0</revision>
-    <qqq.version>0.40.0</qqq.version>
+    <revision>0.41.0-SNAPSHOT</revision>
+    <qqq.version>0.41.0-SNAPSHOT</qqq.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>21</maven.compiler.source>
