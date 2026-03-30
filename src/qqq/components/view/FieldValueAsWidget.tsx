@@ -50,7 +50,7 @@ export function FieldValueAsWidget({field, record}: Props): JSX.Element
 
    const skeletonWrapperRef = useRef();
 
-   const widgetData = record.values.get(field.name);
+   const widgetData = record?.values?.get(field.name);
 
    useEffect(() =>
    {
