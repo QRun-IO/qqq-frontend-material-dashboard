@@ -686,6 +686,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
          setSuccessMessage(null);
          setWarningMessage(null);
          setErrorMessage(null);
+         closeActionsMenu();
 
          // capture the clicked field's screen position before mode switch
          if (fieldName)
