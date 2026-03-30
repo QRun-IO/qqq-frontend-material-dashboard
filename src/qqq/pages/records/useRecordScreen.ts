@@ -204,6 +204,8 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
    const [sectionVisibility, setSectionVisibility] = useState<{ [key: string]: boolean }>({});
 
    const [formFields, setFormFields] = useState<{ [key: string]: DynamicFormFieldDefinition }>({});
+   const formFieldsRef = useRef<{ [key: string]: DynamicFormFieldDefinition }>({});
+   formFieldsRef.current = formFields;
    const [formFieldsBySection, setFormFieldsBySection] = useState<Map<string, DynamicFormFieldDefinition[]>>(new Map());
    const [initialValues, setInitialValues] = useState<{ [key: string]: any }>({});
    const [formValidations, setFormValidations] = useState<{ [key: string]: Yup.BaseSchema }>({});
@@ -673,7 +675,7 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
     ***************************************************************************/
    function rebuildFormFieldsBySection(sections: QTableSection[], allFormFields?: { [key: string]: DynamicFormFieldDefinition }): void
    {
-      const fields = allFormFields ?? formFields;
+      const fields = allFormFields ?? formFieldsRef.current;
       const newFormFieldsBySection = new Map<string, DynamicFormFieldDefinition[]>();
 
       for (let section of sections)
