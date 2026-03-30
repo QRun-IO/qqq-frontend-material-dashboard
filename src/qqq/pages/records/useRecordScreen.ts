@@ -614,6 +614,7 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
          const nonT1 = sections.filter(s => s.tier !== "T1" && !s.isHidden);
          setT1Section(t1);
          setNonT1Sections(nonT1);
+         rebuildFormFieldsBySection(sections);
 
          // when entering edit mode, run the on-load form adjuster if one is configured
          if (newMode === "edit")
