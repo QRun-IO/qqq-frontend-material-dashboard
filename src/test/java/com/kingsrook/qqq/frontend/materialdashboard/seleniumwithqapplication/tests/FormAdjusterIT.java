@@ -264,6 +264,23 @@ public class FormAdjusterIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelectorContaining("h5", "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
       qfmdSeleniumLib.waitForAlert("You are not allowed to edit this record");
       qSeleniumLib.waitForSelectorContaining("button[disabled]", "save");
+
+      ////////////////////////////////////////////////////////////////////////////////////////
+      // cancel from disabled edit mode — alert should disappear and view fields should show //
+      ////////////////////////////////////////////////////////////////////////////////////////
+      qSeleniumLib.waitForSelectorContaining("button", "Cancel").click();
+      qSeleniumLib.waitForSelectorContaining("h5", "Viewing Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
+      qfmdSeleniumLib.waitForAlertToNotExist("You are not allowed to edit this record");
+      qfmdSeleniumLib.waitForViewScreenFieldValue("Name", MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_NAME);
+
+      ////////////////////////////////////////////////////////////////////////////////////////
+      // from view screen, enter edit mode via instant-edit — form adjuster should still    //
+      // disable the form (on-load adjuster must run when entering edit via pushState too)   //
+      ////////////////////////////////////////////////////////////////////////////////////////
+      qSeleniumLib.waitForSelectorContaining("button", "Edit").click();
+      qSeleniumLib.waitForSelectorContaining("h5", "Edit Table With Form Adjuster: " + MAY_NOT_EDIT_WITH_DEFAULT_MESSAGE_ID);
+      qfmdSeleniumLib.waitForAlert("You are not allowed to edit this record");
+      qSeleniumLib.waitForSelectorContaining("button[disabled]", "save");
    }
 
 

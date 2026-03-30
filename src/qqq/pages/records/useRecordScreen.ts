@@ -588,6 +588,23 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
    function switchMode(newMode: RecordScreenMode): void
    {
       setMode(newMode);
+
+      // when leaving edit mode, clear form-disabled state (set by form adjuster)
+      // and restore field editability by re-cloning from the cached (unmutated) metadata
+      // (disableAllFields mutates field.isEditable on the clone)
+      if (newMode === "view")
+      {
+         setNotAllowedError(null);
+
+         if (tableName)
+         {
+            qController.loadTableMetaData(tableName).then(cached =>
+            {
+               setTableMetaData(cached.clone());
+            });
+         }
+      }
+
       if (tableMetaData && metaData)
       {
          const sections = buildSections(tableMetaData, metaData, newMode);
@@ -597,6 +614,16 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
          const nonT1 = sections.filter(s => s.tier !== "T1" && !s.isHidden);
          setT1Section(t1);
          setNonT1Sections(nonT1);
+
+         // when entering edit mode, run the on-load form adjuster if one is configured
+         if (newMode === "edit")
+         {
+            const materialDashboardTableMetaData = tableMetaData.supplementalTableMetaData?.get("materialDashboard");
+            if (materialDashboardTableMetaData?.onLoadFormAdjuster)
+            {
+               runOnLoadFormAdjuster(tableMetaData, initialValues, new Map(), newMode);
+            }
+         }
       }
    }
 
@@ -830,7 +857,7 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
    /***************************************************************************
     ** run the on-load form adjuster
     ***************************************************************************/
-   async function runOnLoadFormAdjuster(table: QTableMetaData, values: { [key: string]: any }, defaultDisplayValues: Map<string, string>): Promise<void>
+   async function runOnLoadFormAdjuster(table: QTableMetaData, values: { [key: string]: any }, defaultDisplayValues: Map<string, string>, effectiveMode?: RecordScreenMode): Promise<void>
    {
       const postBody = new FormData();
       postBody.append("event", "onLoad");
@@ -872,7 +899,8 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
 
       applyUpdatedSectionsFromFormAdjuster(table, response);
 
-      if (response?.isFormDisabled && (mode === "edit" || mode === "create"))
+      const modeToCheck = effectiveMode ?? mode;
+      if (response?.isFormDisabled && (modeToCheck === "edit" || modeToCheck === "create"))
       {
          let message = response.formDisabledMessage ?? "You are not allowed to edit this record.";
          setNotAllowedError(message);
