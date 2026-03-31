@@ -381,24 +381,11 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
 
 
    /***************************************************************************
-    ** process URL path for modal processes and path-based createChild
+    ** process URL path for modal processes
     ***************************************************************************/
    useEffect(() =>
    {
       if (mode !== "view") return;
-
-      ////////////////////////////////////////////////////////////////////////////////////////////
-      // path-based createChild: e.g., person/42/createChild/address                            //
-      ////////////////////////////////////////////////////////////////////////////////////////////
-      if (pathParts.length >= 4 && pathParts[pathParts.length - 4] === table.name && pathParts[pathParts.length - 2] === CREATE_CHILD_KEY)
-      {
-         (async () =>
-         {
-            const childTable = await qController.loadTableMetaData(pathParts[pathParts.length - 1]);
-            setShowEditChildForm({table: childTable, id: null, defaultValues: null, disabledFields: null});
-         })();
-         return;
-      }
 
       ////////////////////////////////////////////////////////////////////////////////////////////
       // modal process: e.g., person/42/someProcess                                             //

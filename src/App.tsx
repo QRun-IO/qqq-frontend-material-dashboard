@@ -320,16 +320,6 @@ export default function App({authenticationMetaData}: Props)
                   component: <TableDeveloperView table={table} />,
                });
 
-               ///////////////////////////////////////////////////////////////////////////////////////////////////////
-               // this is the path to open a modal-form when viewing a record, to create a different (child) record //
-               // it can also be done with a hash like: #/createChild=:childTableName                               //
-               ///////////////////////////////////////////////////////////////////////////////////////////////////////
-               routeList.push({
-                  key: `${app.name}.createChild`,
-                  route: `${path}/:id/createChild/:childTableName`,
-                  component: <RecordScreen table={table} mode="view" />,
-               });
-
                routeList.push({
                   name: `${app.label} View`,
                   key: `${app.name}.view`,
