@@ -904,7 +904,13 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "dynamicForm" && (
                   widgetData && widgetData[i] &&
-                  <DynamicFormWidget isEditable={false} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} record={record} recordValues={convertQRecordValuesFromMapToObject(record)} />
+                  <DynamicFormWidget isEditable={screen === "recordEdit"} mode={screen === "recordEdit" ? "edit" : "view"} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} record={record} recordValues={Object.keys(values).length > 0 ? values : convertQRecordValuesFromMapToObject(record)} onSaveCallback={(values: { [name: string]: any }) =>
+                  {
+                     if (actionCallback)
+                     {
+                        actionCallback(values);
+                     }
+                  }} />
                )
             }
             {

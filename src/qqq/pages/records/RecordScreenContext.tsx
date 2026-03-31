@@ -43,6 +43,9 @@ export interface RecordScreenContextValue
    // widget sub-validations
    addSubValidations: (name: string, validations: Record<string, any>) => void;
 
+   // enter edit mode callback (for pencil icons in view mode)
+   onEditIconClick?: (fieldName?: string) => void;
+
    // child record management (edit mode)
    childListWidgetData: { [name: string]: ChildRecordListData };
    openAddChildRecord: (widgetName: string, widgetData: ChildRecordListData) => void;

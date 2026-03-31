@@ -43,7 +43,8 @@ interface RecordScreenBodyProps
    renderT1Card?: () => JSX.Element;
    renderBottomBar?: (isSubmitting: boolean) => JSX.Element;
    showSidebar?: boolean;
-   widgetReloadCounter?: number;
+   widgetReloadCounters?: Record<string, number>;
+   widgetReloadAdditionalParams?: Record<string, { [key: string]: any }>;
    enterEditMode?: (fieldName?: string) => void;
 }
 
@@ -52,7 +53,7 @@ interface RecordScreenBodyProps
  ** Shared Formik-wrapped body used by both full-page RecordScreen and
  ** RecordScreenModal.  Handles context, value tracking, sections, alerts.
  ***************************************************************************/
-export default function RecordScreenBody({screen, formId, onSubmit, formikSubmitRef, renderT1Card, renderBottomBar, showSidebar = true, widgetReloadCounter = 0, enterEditMode}: RecordScreenBodyProps): JSX.Element
+export default function RecordScreenBody({screen, formId, onSubmit, formikSubmitRef, renderT1Card, renderBottomBar, showSidebar = true, widgetReloadCounters = {}, widgetReloadAdditionalParams = {}, enterEditMode}: RecordScreenBodyProps): JSX.Element
 {
    const {
       mode, record, tableMetaData, metaData,
@@ -100,7 +101,8 @@ export default function RecordScreenBody({screen, formId, onSubmit, formikSubmit
       openAddChildRecord,
       openEditChildRecord,
       deleteChildRecord,
-   }), [mode, tableMetaData, metaData, record, stableSetFieldValue, reloadWidget, fieldRules, isFormDisabled, addSubValidations, childListWidgetData]);
+      onEditIconClick: enterEditMode,
+   }), [mode, tableMetaData, metaData, record, stableSetFieldValue, reloadWidget, fieldRules, isFormDisabled, addSubValidations, childListWidgetData, enterEditMode]);
 
 
    //////////////////////////////////////////////
@@ -108,7 +110,7 @@ export default function RecordScreenBody({screen, formId, onSubmit, formikSubmit
    //////////////////////////////////////////////
    const FormikValueTracker = (): JSX.Element =>
    {
-      const {values, dirty, setFieldValue} = useFormikContext<any>();
+      const {values, setFieldValue} = useFormikContext<any>();
 
       setFieldValueRef.current = setFieldValue;
 
@@ -119,23 +121,20 @@ export default function RecordScreenBody({screen, formId, onSubmit, formikSubmit
          {
             const valueChangesToMake: { [fieldName: string]: any } = {};
 
-            if (dirty)
+            // detect field value changes by comparing against the ref (which tracks
+            // actual runtime values). The dirty check is not used because Formik
+            // considers the form "not dirty" when values match initialValues — but
+            // field rules need to fire when a value changes from e.g. 'b' back to 'a'
+            // (the initial value), since the intermediate state 'b' may have triggered
+            // side effects (like widget reloads) that need to be reversed.
+            const hasRefValues = Object.keys(formValuesRef.current).length > 0;
+            for (let fieldName in values)
             {
-               for (let fieldName in values)
+               if (hasRefValues && formValuesRef.current[fieldName] !== values[fieldName])
                {
-                  if (formValuesRef.current[fieldName] !== values[fieldName])
-                  {
-                     handleFieldChange(fieldName, formValuesRef.current[fieldName], values[fieldName], valueChangesToMake);
-                  }
-                  formValuesRef.current[fieldName] = values[fieldName];
+                  handleFieldChange(fieldName, formValuesRef.current[fieldName], values[fieldName], valueChangesToMake);
                }
-            }
-            else
-            {
-               for (let fieldName in values)
-               {
-                  formValuesRef.current[fieldName] = values[fieldName];
-               }
+               formValuesRef.current[fieldName] = values[fieldName];
             }
 
             for (let fieldName in valueChangesToMake)
@@ -211,7 +210,8 @@ export default function RecordScreenBody({screen, formId, onSubmit, formikSubmit
                            onToggleCollapse={() => toggleCollapsibleSectionOpenState(section.name)}
                            tableVariant={tableVariant}
                            onEditIconClick={enterEditMode}
-                           widgetReloadCounter={widgetReloadCounter}
+                           widgetReloadCounters={widgetReloadCounters}
+                           widgetReloadAdditionalParams={widgetReloadAdditionalParams}
                         />
                      </Box>
                   </Grid>

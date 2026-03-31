@@ -125,6 +125,8 @@ export interface UseRecordScreenResult
    handleFieldChange: (fieldName: string, oldValue: any, newValue: any, valueChangesToMake: { [fieldName: string]: any }) => void;
    handleFieldBlur: (fieldName: string, value: any) => void;
    reloadWidget: (widgetName: string, additionalParams?: { [key: string]: any }) => void;
+   widgetReloadCounters: Record<string, number>;
+   widgetReloadAdditionalParams: Record<string, { [key: string]: any }>;
 
    // processes & actions
    allTableProcesses: QProcessMetaData[];
@@ -227,6 +229,8 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
    const [allTableProcesses, setAllTableProcesses] = useState<QProcessMetaData[]>([]);
 
    const [collapsibleSectionOpenStates, setCollapsibleSectionOpenStates] = useState<Record<string, boolean>>({});
+   const [widgetReloadCounters, setWidgetReloadCounters] = useState<Record<string, number>>({});
+   const [widgetReloadAdditionalParams, setWidgetReloadAdditionalParams] = useState<Record<string, { [key: string]: any }>>({});
 
    // refs for form adjuster access to Formik helpers
    const setFieldValueRef = useRef<(name: string, value: any, shouldValidate?: boolean) => void>(() =>
@@ -1204,37 +1208,19 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
 
 
    /***************************************************************************
-    ** reload a widget via qController.widget()
+    ** trigger a widget reload by incrementing the counter (which changes the
+    ** key on DashboardWidgets, forcing a remount and fresh data fetch).
+    ** Additional params are stored so the widget can include them in its fetch.
     ***************************************************************************/
    function reloadWidget(widgetName: string, additionalParams?: { [key: string]: any }): void
    {
-      (async () =>
+      if (additionalParams && widgetName)
       {
-         try
-         {
-            const widgetFormData = new FormData();
-            if (tableMetaData)
-            {
-               widgetFormData.append("tableName", tableMetaData.name);
-            }
-            if (recordId)
-            {
-               widgetFormData.append("id", recordId);
-            }
-            if (additionalParams)
-            {
-               for (let key in additionalParams)
-               {
-                  widgetFormData.append(key, additionalParams[key]);
-               }
-            }
-            await qController.widget(widgetName, widgetFormData);
-         }
-         catch (e)
-         {
-            console.error(`Error reloading widget ${widgetName}:`, e);
-         }
-      })();
+         setWidgetReloadAdditionalParams(prev => ({...prev, [widgetName]: additionalParams}));
+      }
+      // increment per-widget counter (or "__all__" to reload all widgets)
+      const key = widgetName ?? "__all__";
+      setWidgetReloadCounters(prev => ({...prev, [key]: (prev[key] ?? 0) + 1}));
    }
 
 
@@ -1460,6 +1446,8 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
       handleFieldChange,
       handleFieldBlur,
       reloadWidget,
+      widgetReloadCounters,
+      widgetReloadAdditionalParams,
       allTableProcesses,
       tableVariant,
       collapsibleSectionOpenStates,

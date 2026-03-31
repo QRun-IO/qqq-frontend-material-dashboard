@@ -51,7 +51,8 @@ interface RecordScreenSectionProps
    onToggleCollapse?: () => void;
    onEditIconClick?: (fieldName?: string) => void;
    tableVariant?: QTableVariant;
-   widgetReloadCounter?: number;
+   widgetReloadCounters?: Record<string, number>;
+   widgetReloadAdditionalParams?: Record<string, { [key: string]: any }>;
 }
 
 
@@ -61,7 +62,7 @@ interface RecordScreenSectionProps
  ** which is needed for widgets like FilterAndColumnsSetup that depend on
  ** form field values (e.g., tableName).
  ***************************************************************************/
-function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaDataName, widgetMetaDataList, record, primaryKeyField, widgetReloadCounter, setFieldValue, addSubValidations}: {
+function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaDataName, widgetMetaDataList, record, primaryKeyField, widgetReloadCounter, childUrlParams, setFieldValue, addSubValidations}: {
    sectionName: string;
    mode: string;
    recordId: any;
@@ -70,6 +71,7 @@ function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaData
    record: QRecord;
    primaryKeyField: string;
    widgetReloadCounter: number;
+   childUrlParams?: string;
    setFieldValue: (name: string, value: any) => void;
    addSubValidations?: (name: string, validations: Record<string, any>) => void;
 }): JSX.Element
@@ -86,6 +88,7 @@ function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaData
          omitWrappingGridContainer={true}
          screen="recordEdit"
          values={formikValues ?? {}}
+         childUrlParams={childUrlParams}
          addSubValidations={addSubValidations}
          actionCallback={(data: any) =>
          {
@@ -107,7 +110,7 @@ function FormikAwareDashboardWidgets({sectionName, mode, recordId, tableMetaData
  ** Renders a single section (card) on the RecordScreen.
  ** Handles both field-based and widget-based sections.
  ***************************************************************************/
-function RecordScreenSection({section, mode, record, formFieldsBySection, isOpen = true, isT1 = false, onToggleCollapse, onEditIconClick, tableVariant, widgetReloadCounter = 0}: RecordScreenSectionProps): JSX.Element
+function RecordScreenSection({section, mode, record, formFieldsBySection, isOpen = true, isT1 = false, onToggleCollapse, onEditIconClick, tableVariant, widgetReloadCounters = {}, widgetReloadAdditionalParams = {}}: RecordScreenSectionProps): JSX.Element
 {
    const {tableMetaData, metaData, childListWidgetData, openAddChildRecord, openEditChildRecord, deleteChildRecord, setFieldValue, isFormDisabled, addSubValidations} = useContext(RecordScreenContext);
 
@@ -132,6 +135,15 @@ function RecordScreenSection({section, mode, record, formFieldsBySection, isOpen
       {
          widgetMetaData.collapsible = section.collapsible;
       }
+
+      // per-widget reload counter (specific + global "__all__" counter)
+      const widgetReloadCounter = (widgetReloadCounters[section.widgetName] ?? 0) + (widgetReloadCounters["__all__"] ?? 0);
+
+      // build childUrlParams from any reload-triggered additional params for this widget
+      const reloadParams = widgetReloadAdditionalParams[section.widgetName];
+      const childUrlParams = reloadParams
+         ? Object.entries(reloadParams).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&")
+         : undefined;
 
       // In edit mode, managed-association childRecordList widgets render directly
       // as RecordGridWidget with in-memory CRUD callbacks (like EntityForm does).
@@ -189,6 +201,7 @@ function RecordScreenSection({section, mode, record, formFieldsBySection, isOpen
                   record={record}
                   primaryKeyField={tableMetaData.primaryKeyField}
                   widgetReloadCounter={widgetReloadCounter}
+                  childUrlParams={childUrlParams}
                   setFieldValue={setFieldValue}
                   addSubValidations={addSubValidations}
                />
@@ -200,6 +213,7 @@ function RecordScreenSection({section, mode, record, formFieldsBySection, isOpen
                   record={record}
                   entityPrimaryKey={record?.values?.get(tableMetaData.primaryKeyField)}
                   omitWrappingGridContainer={true}
+                  childUrlParams={childUrlParams}
                   screen="recordView"
                />
             )}
@@ -329,7 +343,8 @@ export default memo(RecordScreenSection, (prev, next) =>
       && prev.isOpen === next.isOpen
       && prev.isT1 === next.isT1
       && prev.tableVariant === next.tableVariant
-      && prev.widgetReloadCounter === next.widgetReloadCounter
+      && prev.widgetReloadCounters === next.widgetReloadCounters
+      && prev.widgetReloadAdditionalParams === next.widgetReloadAdditionalParams
       // Note: childListWidgetData changes are detected via context, not props
    );
 });

@@ -96,7 +96,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
       allTableProcesses, tableVariant,
       setSuccessMessage, setWarningMessage, setErrorMessage,
       showEditChildForm: hookShowEditChildForm, setShowEditChildForm: hookSetShowEditChildForm,
-      submitEditChildForm,
+      submitEditChildForm, widgetReloadCounters, widgetReloadAdditionalParams, reloadWidget,
    } = screen;
 
    // If the user navigates via a React Router <Link> while in pushState-edit-mode,
@@ -137,7 +137,6 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const [showAudit, setShowAudit] = useState(false);
    const [showShareModal, setShowShareModal] = useState(false);
    const [actionMenu, setActionMenu] = useState(null);
-   const [widgetReloadCounter, setWidgetReloadCounter] = useState(0);
 
    useLayoutEffect(() =>
    {
@@ -622,7 +621,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
       // trigger widget reload when a view-mode child record was created or updated (server-persisted)
       if ((reason === "recordCreated" || reason === "recordUpdated") && mode === "view")
       {
-         setWidgetReloadCounter(c => c + 1);
+         reloadWidget(null);
       }
    };
 
@@ -954,7 +953,8 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
                            renderT1Card={renderT1Section}
                            renderBottomBar={renderBottomBar}
                            showSidebar={showRecordSidebar}
-                           widgetReloadCounter={widgetReloadCounter}
+                           widgetReloadCounters={widgetReloadCounters}
+                           widgetReloadAdditionalParams={widgetReloadAdditionalParams}
                            enterEditMode={enterEditMode}
                         />
 
