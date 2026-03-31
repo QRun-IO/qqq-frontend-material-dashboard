@@ -1241,6 +1241,32 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
    /***************************************************************************
     ** save the record (update or create)
     ***************************************************************************/
+   function bundleAssociationsIntoPayload(valuesToPost: any): void
+   {
+      const associationsToPost: any = {};
+      let haveAssociationsToPost = false;
+      for (let widgetName of Object.keys(childListWidgetData))
+      {
+         const manageAssociationName = metaData?.widgets?.get(widgetName)?.defaultValues?.get("manageAssociationName");
+         if (!manageAssociationName) continue;
+
+         if (childListWidgetData[widgetName]?.queryOutput?.records)
+         {
+            associationsToPost[manageAssociationName] = [];
+            haveAssociationsToPost = true;
+            for (let rec of childListWidgetData[widgetName].queryOutput.records)
+            {
+               associationsToPost[manageAssociationName].push(rec.values);
+            }
+         }
+      }
+      if (haveAssociationsToPost)
+      {
+         valuesToPost["associations"] = JSON.stringify(associationsToPost);
+      }
+   }
+
+
    async function saveRecord(values: any): Promise<void>
    {
       /////////////////////////////////////////////////////////////////////////
@@ -1293,28 +1319,7 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
             recordAnalytics({category: "tableEvents", action: "saveEdit", label: tableMetaData?.label});
          }
 
-         // bundle managed-association child records into the update payload
-         const associationsToPost: any = {};
-         let haveAssociationsToPost = false;
-         for (let widgetName of Object.keys(childListWidgetData))
-         {
-            const manageAssociationName = metaData?.widgets?.get(widgetName)?.defaultValues?.get("manageAssociationName");
-            if (!manageAssociationName) continue;
-
-            if (childListWidgetData[widgetName]?.queryOutput?.records)
-            {
-               associationsToPost[manageAssociationName] = [];
-               haveAssociationsToPost = true;
-               for (let rec of childListWidgetData[widgetName].queryOutput.records)
-               {
-                  associationsToPost[manageAssociationName].push(rec.values);
-               }
-            }
-         }
-         if (haveAssociationsToPost)
-         {
-            valuesToPost["associations"] = JSON.stringify(associationsToPost);
-         }
+         bundleAssociationsIntoPayload(valuesToPost);
 
          const updatedRecord = await qController.update(tableName, recordId, valuesToPost);
 
@@ -1390,6 +1395,8 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
          {
             recordAnalytics({category: "tableEvents", action: isCopy ? "saveCopy" : "saveNew", label: tableMetaData?.label});
          }
+
+         bundleAssociationsIntoPayload(valuesToPost);
 
          const createdRecord = await qController.create(tableName, valuesToPost);
 

@@ -1572,6 +1572,62 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
 
 
    /*******************************************************************************
+    * Test creating a scheduledJob with a child parameter record — verifies that
+    * managed-association child records are included in the create payload.
+    *******************************************************************************/
+   @Test
+   @Tag("customizeQInstanceForScheduledJobTest")
+   void testScheduledJobCreateWithParameter() throws QException
+   {
+      qSeleniumLib.gotoAndWaitForBreadcrumbHeaderToContain("/peopleApp/greetingsApp/scheduledJob/create", "Scheduled Job");
+      qSeleniumLib.waitForSelectorContaining("h5", "Creating New Scheduled Job");
+
+      /////////////////////////////
+      // fill in identity fields //
+      /////////////////////////////
+      qfmdSeleniumLib.inputTextField("label", "Job With Params");
+      qfmdSeleniumLib.inputTextField("description", "Has a parameter");
+      qfmdSeleniumLib.inputTextField("repeatSeconds", "60");
+
+      ////////////////////////////////
+      // add a child parameter row  //
+      ////////////////////////////////
+      qSeleniumLib.waitForSelectorContaining("button", "add new").click();
+      qSeleniumLib.waitForSelectorContaining(".modalEditForm h5", "Creating New Scheduled Job Parameter");
+      qfmdSeleniumLib.inputTextField("key", "myKey");
+      qfmdSeleniumLib.inputTextField("value", "myValue");
+      qSeleniumLib.waitForSelectorContaining(".modalEditForm button", "OK").click();
+      qSeleniumLib.waitForMillis(MEDIUM_WAIT);
+
+      ///////////////////////////////////////////////
+      // verify the parameter appears in the grid //
+      ///////////////////////////////////////////////
+      qSeleniumLib.waitForSelectorContaining(".MuiDataGrid-root", "myKey");
+      qSeleniumLib.waitForSelectorContaining(".MuiDataGrid-root", "myValue");
+
+      //////////////
+      // hit Save //
+      //////////////
+      qSeleniumLib.waitForSelectorContaining("button", "Save").click();
+      qSeleniumLib.waitForMillis(MEDIUM_WAIT);
+
+      ///////////////////////////////////////////
+      // verify we landed on the view screen   //
+      ///////////////////////////////////////////
+      qSeleniumLib.waitForSelectorContaining("h5", "Viewing Scheduled Job: Job With Params");
+
+      ///////////////////////////////////////////////////////////////////////
+      // verify the parameter was persisted by querying the backend table //
+      ///////////////////////////////////////////////////////////////////////
+      QContext.init(testApplicationServer.getQInstance(), new QSystemUserSession());
+      QueryOutput paramOutput = new QueryAction().execute(new QueryInput("scheduledJobParameter"));
+      assertThat(paramOutput.getRecords())
+         .anyMatch(r -> "myKey".equals(r.getValueString("key")) && "myValue".equals(r.getValueString("value")));
+   }
+
+
+
+   /*******************************************************************************
     * Test editing a scheduledJob record — verifies the cron widget values
     * round-trip through edit and save correctly.
     *******************************************************************************/
@@ -1592,15 +1648,15 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelectorContaining(".recordScreen", "US/Central");
       qSeleniumLib.waitForSelectorContaining(".recordScreen", "Monday and Friday");
 
-      //////////////////////////
-      // enter edit mode      //
-      //////////////////////////
+      /////////////////////
+      // enter edit mode //
+      /////////////////////
       qSeleniumLib.waitForSelectorContaining("button", "Edit").click();
       qSeleniumLib.waitForSelectorContaining("h5", "Edit Scheduled Job");
 
-      /////////////////////////////////////////////
-      // modify the label and repeat seconds     //
-      /////////////////////////////////////////////
+      /////////////////////////////////////////
+      // modify the label and repeat seconds //
+      /////////////////////////////////////////
       WebElement labelInput = qSeleniumLib.waitForSelector("input[name='label']");
       labelInput.sendKeys(Keys.chord(MODIFIER_KEY, "a"));
       labelInput.sendKeys("Updated Job");
@@ -1622,10 +1678,10 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelectorContaining("[data-field-name='label']", "Updated Job");
       qSeleniumLib.waitForSelectorContaining("[data-field-name='repeatSeconds']", "120");
 
-      /////////////////////////////////////////////////////////////
-      // verify cron expression survived the edit round-trip     //
-      // including the human-readable description refreshing     //
-      /////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////
+      // verify cron expression survived the edit round-trip //
+      // including the human-readable description refreshing //
+      /////////////////////////////////////////////////////////
       qSeleniumLib.waitForSelectorContaining(".recordScreen", "0 30 8 ? * MON-FRI");
       qSeleniumLib.waitForSelectorContaining(".recordScreen", "US/Central");
       qSeleniumLib.waitForSelectorContaining(".recordScreen", "Monday and Friday");
