@@ -137,6 +137,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
    const [showAudit, setShowAudit] = useState(false);
    const [showShareModal, setShowShareModal] = useState(false);
    const [actionMenu, setActionMenu] = useState(null);
+   const enterEditModeRef = useRef<(fieldName?: string) => void>(null);
 
    useLayoutEffect(() =>
    {
@@ -267,7 +268,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
                else if (!e.metaKey && !e.ctrlKey && e.key === "e" && table.capabilities.has(Capability.TABLE_UPDATE) && table.editPermission)
                {
                   e.preventDefault();
-                  enterEditMode();
+                  enterEditModeRef.current?.();
                }
                else if (!e.metaKey && !e.ctrlKey && e.key === "c" && table.capabilities.has(Capability.TABLE_INSERT) && table.insertPermission)
                {
@@ -718,6 +719,7 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
       }
    }, [table, setMode, location.pathname]);
 
+   enterEditModeRef.current = enterEditMode;
 
    /////////////////
    // RENDER      //
