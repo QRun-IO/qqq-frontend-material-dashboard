@@ -143,19 +143,18 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
       if (scrollCorrectionRef.current)
       {
          const {fieldName: corrFieldName, yBefore} = scrollCorrectionRef.current;
-         const fieldElAfter = document.querySelector(`[data-field-name='${corrFieldName}']`);
+         const fieldElAfter = document.querySelector(`[data-field-name='${corrFieldName}']`) ?? document.getElementById(corrFieldName);
          if (fieldElAfter)
          {
             const yAfter = fieldElAfter.getBoundingClientRect().top;
             const drift = yAfter - yBefore;
             if (Math.abs(drift) > 1)
             {
-               // temporarily override smooth scrolling so the correction is instant
+               // ensure smooth scrolling is off for instant correction, then restore
                const htmlEl = document.documentElement;
-               const prevBehavior = htmlEl.style.scrollBehavior;
                htmlEl.style.scrollBehavior = "auto";
                window.scrollBy(0, drift);
-               htmlEl.style.scrollBehavior = prevBehavior;
+               htmlEl.style.scrollBehavior = "smooth";
             }
          }
          scrollCorrectionRef.current = null;
@@ -199,16 +198,24 @@ export default function RecordScreen({table, mode: propMode, isCopy, launchProce
       else if (id)
       {
          // capture scroll position before switching back to view mode
-         const fieldSections = Array.from(document.querySelectorAll("[data-field-name]"));
-         for (const el of fieldSections)
+         // look for both field elements and section wrappers as scroll anchors
+         const scrollAnchors = Array.from(document.querySelectorAll("[data-field-name], .form-section-wrapper"));
+         for (const el of scrollAnchors)
          {
             const rect = el.getBoundingClientRect();
             if (rect.top >= 0 && rect.top < window.innerHeight)
             {
-               scrollCorrectionRef.current = {fieldName: el.getAttribute("data-field-name"), yBefore: rect.top};
+               const fieldName = el.getAttribute("data-field-name") ?? el.getAttribute("id");
+               if (fieldName)
+               {
+                  scrollCorrectionRef.current = {fieldName, yBefore: rect.top};
+               }
                break;
             }
          }
+
+         // disable smooth scrolling before mode switch to prevent animated drift
+         document.documentElement.style.scrollBehavior = "auto";
 
          setMode("view");
          if (propMode === "view")

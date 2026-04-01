@@ -1335,8 +1335,16 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
             {
                newInitialValues[key] = ValueUtils.formatDateTimeValueForForm(newInitialValues[key]);
             }
+
+            // update PV field display values so re-entering edit shows the correct label
+            const formField = formFieldsRef.current[key];
+            if (formField?.possibleValueProps && freshRecord.displayValues?.get(key))
+            {
+               formField.possibleValueProps.initialDisplayValue = freshRecord.displayValues.get(key);
+            }
          });
          setInitialValues(newInitialValues);
+         setFormFields({...formFieldsRef.current});
 
          // show messages directly
          setSuccessMessage(`${tableMetaData.label} successfully updated`);
@@ -1345,17 +1353,20 @@ export function useRecordScreen(tableName: string, recordId?: string, initialMod
             setWarningMessage(updatedRecord.warnings[0]);
          }
 
-         // capture scroll position of the first visible field section before switching modes
+         // capture scroll position of the first visible field or section wrapper before switching modes
          if (options?.scrollCorrectionRef)
          {
-            const fieldSections = Array.from(document.querySelectorAll("[data-field-name]"));
-            for (const el of fieldSections)
+            const scrollAnchors = Array.from(document.querySelectorAll("[data-field-name], .form-section-wrapper"));
+            for (const el of scrollAnchors)
             {
                const rect = el.getBoundingClientRect();
                if (rect.top >= 0 && rect.top < window.innerHeight)
                {
-                  const fieldName = el.getAttribute("data-field-name");
-                  options.scrollCorrectionRef.current = {fieldName, yBefore: rect.top};
+                  const fieldName = el.getAttribute("data-field-name") ?? el.getAttribute("id");
+                  if (fieldName)
+                  {
+                     options.scrollCorrectionRef.current = {fieldName, yBefore: rect.top};
+                  }
                   break;
                }
             }

@@ -961,6 +961,15 @@ public class RecordScreenIT extends QBaseSeleniumWithQApplicationTest
       //////////////////////////////////////////////////
       qSeleniumLib.waitForSelectorContaining(".MuiAlert-message", "successfully updated");
       qSeleniumLib.waitForSelectorContaining("[data-field-name='favoriteSpeciesId']", "Cat");
+
+      /////////////////////////////////////////////////////////////////////////////////
+      // re-enter edit mode — the PV field must show "Cat" (not revert to old "Dog") //
+      /////////////////////////////////////////////////////////////////////////////////
+      enterEditModeViaPencilIcon();
+      WebElement selectInputAfterSave = qSeleniumLib.waitForSelector("[data-field-name='favoriteSpeciesId'] input");
+      assertThat(selectInputAfterSave.getAttribute("value"))
+         .as("After save + re-enter edit, possible value field should show 'Cat', not the old value")
+         .isEqualTo("Cat");
    }
 
 
