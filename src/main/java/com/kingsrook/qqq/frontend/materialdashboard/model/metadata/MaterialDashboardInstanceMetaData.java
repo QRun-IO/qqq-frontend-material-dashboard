@@ -160,6 +160,7 @@ public class MaterialDashboardInstanceMetaData implements QSupplementalInstanceM
 
 
 
+
    /*******************************************************************************
     ** Getter for recordViewActionsPlacement
     *******************************************************************************/

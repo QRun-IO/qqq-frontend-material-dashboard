@@ -733,7 +733,8 @@ The .widgetIsCollapsed is a 2-level deep descendant of .dashboardWidgetContainer
 (and we don't want to find deeper levels, due to parent widgets maybe having an
 inner child collapsed, which is why the '> * >' is used in the :has()).
 Limit this to the record-view screen, until it's found to be wanted elsewhere. */
-.recordView .dashboardWidgetContainer:has(> * > .widgetIsCollapsed)
+.recordView .dashboardWidgetContainer:has(> * > .widgetIsCollapsed),
+.recordScreen .dashboardWidgetContainer:has(> * > .widgetIsCollapsed)
 {
    height: auto;
 }
@@ -894,8 +895,24 @@ Limit this to the record-view screen, until it's found to be wanted elsewhere. *
 
 .modalBottomButtonBar
 {
-   padding-bottom: 0 !important;
-   padding-right: 0 !important;
+   padding-bottom: 1.5rem !important;
+   padding-right: 2rem !important;
+   padding-left: 2rem !important;
+   margin-left: -2rem !important;
+   margin-right: -2rem !important;
+   margin-bottom: 0 !important;
+   margin-top: 0 !important;
+   background: #ffffff;
+   transition: box-shadow 200ms ease;
+   border-radius: 0 0 0.75rem 0.75rem;
+   padding-top: 1.25rem !important;
+   padding-bottom: 1.5rem !important;
+   bottom: -8px;
+}
+
+.modalBottomButtonBar.sticking
+{
+   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .stickyBottomButtonBar>.MuiGrid-container
@@ -1135,5 +1152,25 @@ Limit this to the record-view screen, until it's found to be wanted elsewhere. *
    width: 100% !important;
    height: 100% !important;
    border: none;
+}
+
+/* Container query: section cards become size containers so fields
+   can adapt to narrow sections (e.g., gridColumns=6) */
+.recordScreenFieldSection
+{
+   container-type: inline-size;
+}
+
+/* When section is narrow, labels shrink to min-content to avoid
+   a gap from wrapping, and long words break to stay within bounds */
+@container (max-width: 400px)
+{
+   .recordScreenFieldSection .fieldLabel
+   {
+      flex-basis: min-content;
+      overflow-wrap: break-word;
+      min-width: 130px;
+      max-width: 40%;
+   }
 }
 

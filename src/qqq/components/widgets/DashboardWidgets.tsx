@@ -24,12 +24,11 @@ import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {Alert, Skeleton} from "@mui/material";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import Modal from "@mui/material/Modal";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import parse from "html-react-parser";
 import QContext from "QContext";
-import EntityForm from "qqq/components/forms/EntityForm";
+import RecordScreenModal from "qqq/pages/records/RecordScreenModal";
 import MDTypography from "qqq/components/legacy/MDTypography";
 import TabPanel from "qqq/components/misc/TabPanel";
 import BarChart from "qqq/components/widgets/charts/barchart/BarChart";
@@ -84,6 +83,7 @@ interface Props
    initialWidgetDataList: any[];
    values?: { [key: string]: any };
    screen: WidgetScreenType;
+   addSubValidations?: (name: string, validations: Record<string, any>) => void;
 }
 
 DashboardWidgets.defaultProps = {
@@ -102,7 +102,7 @@ DashboardWidgets.defaultProps = {
    screen: "dashboard",
 };
 
-function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, omitPaddingOnWidget, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values, screen}: Props): JSX.Element
+function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, record, omitWrappingGridContainer, omitPaddingOnWidget, areChildren, childUrlParams, parentWidgetMetaData, wrapWidgetsInTabPanels, actionCallback, initialWidgetDataList, values, screen, addSubValidations}: Props): JSX.Element
 {
    const [widgetData, setWidgetData] = useState(initialWidgetDataList == null ? [] as any[] : initialWidgetDataList);
    const [errorsLoading, setErrorsLoading] = useState([] as any[]);
@@ -150,7 +150,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
    // sure that we keep the dep the same as before for all use-cases (screens) other than "recordView"               //
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    const widgetMetaDataListJSONString = useMemo(() => JSON.stringify(widgetMetaDataList), [widgetMetaDataList]);
-   const loadWidgetsUseEffectDeps = screen == "recordView" ? [widgetMetaDataListJSONString] : [widgetMetaDataList];
+   const loadWidgetsUseEffectDeps = (screen == "recordView" || screen == "recordEdit") ? [widgetMetaDataListJSONString] : [widgetMetaDataList];
 
    useEffect(() =>
    {
@@ -861,7 +861,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "filterAndColumnsSetup" && (
                   widgetData && widgetData[i] &&
-                  <FilterAndColumnsSetupWidget isEditable={false} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={convertQRecordValuesFromMapToObject(record)} onSaveCallback={(values: { [name: string]: any }) =>
+                  <FilterAndColumnsSetupWidget isEditable={screen === "recordEdit"} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={Object.keys(values).length > 0 ? values : convertQRecordValuesFromMapToObject(record)} onSaveCallback={(values: { [name: string]: any }) =>
                   {
                      if (actionCallback)
                      {
@@ -873,22 +873,26 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "pivotTableSetup" && (
                   widgetData && widgetData[i] && widgetData[i].queryParams &&
-                  <PivotTableSetupWidget isEditable={false} widgetMetaData={widgetMetaData} recordValues={convertQRecordValuesFromMapToObject(record)} onSaveCallback={() =>
+                  <PivotTableSetupWidget isEditable={screen === "recordEdit"} widgetMetaData={widgetMetaData} recordValues={Object.keys(values).length > 0 ? values : convertQRecordValuesFromMapToObject(record)} onSaveCallback={(values: { [name: string]: any }) =>
                   {
+                     if (actionCallback)
+                     {
+                        actionCallback(values);
+                     }
                   }} />
                )
             }
             {
                widgetMetaData.type === "rowBuilder" && (
                   (widgetData && widgetData[i]) ?
-                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={rowBuilderOnSaveCallback} /> :
+                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={rowBuilderOnSaveCallback} addSubValidations={addSubValidations} /> :
                      <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
                )
             }
             {
                widgetMetaData.type === "cronUI" && (
                   (widgetData && widgetData[i]) ?
-                     <CronUIWidget screen={screen} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={convertQRecordValuesFromMapToObject(record)} recordDisplayValueMap={record.displayValues} onSaveCallback={(values: { [name: string]: any }) =>
+                     <CronUIWidget screen={screen} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} recordValues={Object.keys(values).length > 0 ? values : convertQRecordValuesFromMapToObject(record)} recordDisplayValueMap={record?.displayValues} addSubValidations={addSubValidations} onSaveCallback={(values: { [name: string]: any }) =>
                      {
                         if (actionCallback)
                         {
@@ -900,7 +904,13 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "dynamicForm" && (
                   widgetData && widgetData[i] &&
-                  <DynamicFormWidget isEditable={false} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} record={record} recordValues={convertQRecordValuesFromMapToObject(record)} />
+                  <DynamicFormWidget isEditable={screen === "recordEdit"} mode={screen === "recordEdit" ? "edit" : "view"} widgetMetaData={widgetMetaData} widgetData={widgetData[i]} record={record} recordValues={Object.keys(values).length > 0 ? values : convertQRecordValuesFromMapToObject(record)} onSaveCallback={(values: { [name: string]: any }) =>
+                  {
+                     if (actionCallback)
+                     {
+                        actionCallback(values);
+                     }
+                  }} />
                )
             }
             {
@@ -1004,19 +1014,17 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             }
             {
                showEditChildForm &&
-               <Modal open={showEditChildForm as boolean} onClose={(event, reason) => closeEditChildForm(event, reason)}>
-                  <div className="modalEditForm">
-                     <EntityForm
-                        isModal={true}
-                        closeModalHandler={closeEditChildForm}
-                        table={showEditChildForm.table}
-                        defaultValues={showEditChildForm.defaultValues}
-                        disabledFields={showEditChildForm.disabledFields}
-                        onSubmitCallback={submitEditChildForm}
-                        overrideHeading={`${showEditChildForm.rowIndex != null ? "Editing" : "Creating New"} ${showEditChildForm.table.label}`}
-                     />
-                  </div>
-               </Modal>
+               <RecordScreenModal
+                  open={true}
+                  onClose={closeEditChildForm}
+                  tableName={showEditChildForm.table?.name}
+                  defaultValues={showEditChildForm.defaultValues}
+                  disabledFields={showEditChildForm.disabledFields}
+                  onSubmitCallback={submitEditChildForm}
+                  overrideHeading={`${showEditChildForm.rowIndex != null ? "Editing" : "Creating New"} ${showEditChildForm.table?.label}`}
+                  saveButtonLabel="OK"
+                  saveButtonIcon="check"
+               />
             }
          </>
       ) : null

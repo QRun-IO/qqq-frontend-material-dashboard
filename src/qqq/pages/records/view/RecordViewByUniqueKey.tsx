@@ -29,28 +29,27 @@ import {QueryJoin} from "@qrunio/qqq-frontend-core/lib/model/query/QueryJoin";
 import {Alert, Box} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import BaseLayout from "qqq/layouts/BaseLayout";
-import RecordView, {getVisibleJoinTables} from "qqq/pages/records/view/RecordView";
 import Client from "qqq/utils/qqq/Client";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import React, {useEffect, useState} from "react";
-import {useSearchParams} from "react-router-dom";
+import {useLocation, useNavigate, useSearchParams} from "react-router-dom";
 
 interface RecordViewByUniqueKeyProps
 {
    table: QTableMetaData;
 }
 
-RecordViewByUniqueKey.defaultProps = {};
-
 const qController = Client.getInstance();
 
 /***************************************************************************
- ** Wrapper around RecordView, that reads a unique key from the query string,
- ** looks for a record matching that key, and shows that record.
+ ** Wrapper that reads a unique key from the query string, looks for a
+ ** matching record, and redirects to the standard view URL.
  ***************************************************************************/
 export default function RecordViewByUniqueKey({table}: RecordViewByUniqueKeyProps): JSX.Element
 {
    const tableName = table.name;
+   const navigate = useNavigate();
+   const location = useLocation();
 
    const [asyncLoadInited, setAsyncLoadInited] = useState(false);
    const [tableMetaData, setTableMetaData] = useState(null as QTableMetaData);
@@ -82,7 +81,7 @@ export default function RecordViewByUniqueKey({table}: RecordViewByUniqueKeyProp
          }
 
          let queryJoins: QueryJoin[] = null;
-         const visibleJoinTables = getVisibleJoinTables(tableMetaData);
+         const visibleJoinTables = TableUtils.getVisibleJoinTables(tableMetaData);
          if (visibleJoinTables.size > 0)
          {
             queryJoins = TableUtils.getQueryJoins(tableMetaData, visibleJoinTables);
@@ -136,13 +135,28 @@ export default function RecordViewByUniqueKey({table}: RecordViewByUniqueKeyProp
       }
    }, [queryParams]);
 
+   // redirect to the standard view URL once we have the record ID
+   useEffect(() =>
+   {
+      if (doneLoading && record)
+      {
+         const recordId = record.values.get(tableMetaData?.primaryKeyField);
+         if (recordId)
+         {
+            const basePath = location.pathname.replace(/\/key$/, "");
+            navigate(`${basePath}/${recordId}`, {replace: true});
+         }
+      }
+   }, [doneLoading, record]);
+
    if (!doneLoading)
    {
       return (<div>Loading...</div>);
    }
    else if (record)
    {
-      return (<RecordView table={table} record={record} />);
+      // will redirect via the useEffect above
+      return (<div>Loading...</div>);
    }
    else if (errorMessage)
    {

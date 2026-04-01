@@ -61,11 +61,33 @@ function NavBar({absolute, light, isMini}: Props): JSX.Element
    const [openMenu, setOpenMenu] = useState<any>(false);
    const [history, setHistory] = useState<any>([] as HistoryEntry[]);
    const [autocompleteValue, setAutocompleteValue] = useState<any>(null);
-   const fullPath = useLocation().pathname;
-   const route = useLocation().pathname.split("/").slice(1);
+   const locationPath = useLocation().pathname;
+   const [fullPath, setFullPath] = useState(locationPath);
    const navigate = useNavigate();
 
    const {pageHeader, pageHeaderRightContent, setDotMenuOpen} = useContext(QContext);
+
+   // Sync fullPath with React Router location changes
+   useEffect(() =>
+   {
+      setFullPath(locationPath);
+   }, [locationPath]);
+
+   // Listen for manual pushState/replaceState URL changes (e.g., entering/leaving edit mode)
+   // and popstate (e.g., history.back() from cancel in edit mode)
+   useEffect(() =>
+   {
+      const handleUrlChanged = () => setFullPath(window.location.pathname);
+      window.addEventListener("urlchanged", handleUrlChanged);
+      window.addEventListener("popstate", handleUrlChanged);
+      return () =>
+      {
+         window.removeEventListener("urlchanged", handleUrlChanged);
+         window.removeEventListener("popstate", handleUrlChanged);
+      };
+   }, []);
+
+   const route = fullPath.split("/").slice(1);
 
    useEffect(() =>
    {

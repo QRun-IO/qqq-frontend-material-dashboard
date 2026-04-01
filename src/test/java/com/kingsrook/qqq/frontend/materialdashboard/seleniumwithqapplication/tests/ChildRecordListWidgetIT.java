@@ -37,9 +37,11 @@ import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.met
 import com.kingsrook.qqq.frontend.materialdashboard.seleniumwithqapplication.metadata.PetTableProducer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /*******************************************************************************
@@ -144,7 +146,6 @@ public class ChildRecordListWidgetIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelectorContainingToNotExist(".MuiDataGrid-rowCount", "of");
 
       qSeleniumLib.waitForSelector("[aria-label=\"Export\"] button").click();
-      qSeleniumLib.waitForever();
 
       ////////////////////////////
       // validate view all link //
@@ -256,15 +257,17 @@ public class ChildRecordListWidgetIT extends QBaseSeleniumWithQApplicationTest
       qSeleniumLib.waitForSelectorContaining("button", "add new").click();
       qSeleniumLib.waitForSelectorContaining("h5", "Creating New Pet");
 
-      ////////////////////////////////////////////////////
-      // make sure parent foreign key input is disabled //
-      ////////////////////////////////////////////////////
-      assertFalse(qSeleniumLib.waitForSelector("input#ownerPersonId").isEnabled());
+      //////////////////////////////////////////////////////////////////////////
+      // make sure parent foreign key field is present but not an input     //
+      // (RecordScreen renders non-editable fields as plain text, not inputs) //
+      //////////////////////////////////////////////////////////////////////////
+      WebElement ownerField = qSeleniumLib.waitForSelector("[data-field-name='ownerPersonId']");
+      assertTrue(ownerField.findElements(By.tagName("input")).isEmpty());
 
       qfmdSeleniumLib.inputTextField("name", "Stompy");
       qfmdSeleniumLib.inputDynamicSelectOption("speciesId", "Elephant");
 
-      qSeleniumLib.waitForSelectorContaining(".entityForm button", "Save").click();
+      qSeleniumLib.waitForSelectorContaining(".modalEditForm button", "Save").click();
 
       qSeleniumLib.waitForSelectorContaining(WIDGET_CELL, "Stompy");
       qSeleniumLib.waitForSelectorContaining(WIDGET_CELL, "Elephant");

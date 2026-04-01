@@ -45,7 +45,7 @@ import {WidgetScreenType} from "qqq/components/widgets/DashboardWidgets";
 import Widget from "qqq/components/widgets/Widget";
 import {WidgetUtils} from "qqq/components/widgets/WidgetUtils";
 import {FieldPossibleValueProps} from "qqq/models/fields/FieldPossibleValueProps";
-import {renderSectionOfFields} from "qqq/pages/records/view/RecordView";
+import {renderSectionOfFields} from "qqq/utils/qqq/ViewUtils";
 import Client from "qqq/utils/qqq/Client";
 import usePossibleValueLabels from "qqq/utils/usePossibleValueLabels";
 import {useContext, useEffect, useRef, useState} from "react";
@@ -661,7 +661,7 @@ export default function CronUIWidget({widgetMetaData, widgetData, screen, record
 
       setTimeout(() =>
       {
-         const leftOffset = -9;
+         const leftOffset = -11;
          let left = leftOffset + (document.getElementById("tapeMeasure")?.clientWidth) - input.scrollLeft;
          if (left < leftOffset)
          {
@@ -827,7 +827,7 @@ export default function CronUIWidget({widgetMetaData, widgetData, screen, record
                                     additionalCallbacks={{onTextSelect: advancedTextSelect, onBlur: advancedTextBlur}} />
                                  {
                                     (doAdvancedCaratPositionTooltip && advancedCaretPosition) && <Box sx={{
-                                       transition: "left .1s ease", left: `${caretTipLeft}px`, position: "absolute", top: "89px", width: "66px", lineHeight: "1.2", py: "0.25rem", textAlign: "center", fontSize: "1rem", background: "lightyellow", display: "inline-block", padding: "0.125rem", border: "1px solid rosybrown", borderRadius: "0.5rem",
+                                       transition: "left .1s ease", left: `${caretTipLeft}px`, position: "absolute", top: "89px", width: "70px", lineHeight: "1.2", py: "0.25rem", textAlign: "center", fontSize: "1rem", background: "lightyellow", display: "inline-block", padding: "0.125rem", border: "1px solid rosybrown", borderRadius: "0.5rem",
                                        "&::after": {content: "\"\"", position: "absolute", left: "50%", top: "-10px", transform: "translateX(-50%)", width: "0%", height: "0%", borderLeft: "7px solid transparent", borderRight: "7px solid transparent", borderBottom: "10px solid lightyellow"},
                                        "&::before": {content: "\"\"", position: "absolute", left: "50%", top: "-12px", transform: "translateX(-50%)", width: "0%", height: "0%", borderLeft: "8px solid transparent", borderRight: "8px solid transparent", borderBottom: "12px solid rosybrown"},
                                     }}>{advancedCaretPosition}</Box>
@@ -861,6 +861,12 @@ export default function CronUIWidget({widgetMetaData, widgetData, screen, record
                      {cronDescription ? <Box>{cronDescription}</Box> : <Box color={colors.error.main}>{cronDescriptionError}</Box>}
                      {loadingDescription ? <LinearProgress color="info" /> : <Box height="0.375rem"></Box>}
                   </Box>
+                  {
+                     cronExpressionField?.isRequired &&
+                     <Typography component="div" className="fieldErrorMessage" variant="caption" color="error" fontWeight="regular">
+                        <ErrorMessage name={cronExpressionFieldName} render={msg => <span data-field-error={cronExpressionFieldName}>{msg}</span>} />
+                     </Typography>
+                  }
                </>
             }
 
@@ -897,7 +903,7 @@ interface SubFormProps
    displayText: string,
    selectedValues?: string[],
    setSelectedValues?: (value: (string[])) => void,
-   preOpen?: () => void
+   preOpen?: () => void,
 }
 
 
@@ -910,6 +916,8 @@ function SubForm({which, option, setOption, displayText, selectedValues, setSele
 {
    const [popupAnchor, setPopupAnchor] = useState(null);
    const inputRef = useRef();
+   const containerRef = useRef<HTMLDivElement>(null);
+   const isCompact = containerRef.current?.closest(".compactForm") != null;
 
    const singularLabel = which == "day" ? "Day" : which == "hour" ? "Hour" : "Minute";
    const pluralLabel = which == "day" ? "Days" : which == "hour" ? "Hours" : "Minutes";
@@ -1047,6 +1055,8 @@ function SubForm({which, option, setOption, displayText, selectedValues, setSele
          "& .MuiOutlinedInput-root": {borderRadius: "0.75rem"},
          "& .MuiOutlinedInput-input": {cursor: "pointer", fontSize: "1rem", padding: "0.5rem"},
          "& .MuiIcon-root": {fontSize: "1.5rem !important", fontFamily: "'Material Icons'", color: "rgba(0, 0, 0, 0.54)"},
+         ".compactForm & .MuiOutlinedInput-root": {borderRadius: "3px", height: "26px", minHeight: "26px"},
+         ".compactForm & .MuiOutlinedInput-input": {fontSize: "0.875rem", padding: "3px 6px"},
       };
 
    //@ts-ignore inputRef.current
@@ -1058,7 +1068,7 @@ function SubForm({which, option, setOption, displayText, selectedValues, setSele
    };
 
    return (
-      <Box>
+      <Box ref={containerRef}>
          <TextField id={which} inputRef={inputRef} variant="outlined" value={displayText} fullWidth sx={textFieldSx} InputProps={{readOnly: true, endAdornment: (<Icon>{popupAnchor ? "arrow_drop_up" : "arrow_drop_down"}</Icon>)}} onClick={doOpen} style={{marginBottom: "12px"}}></TextField>
          <Popover
             anchorEl={popupAnchor}
@@ -1066,7 +1076,7 @@ function SubForm({which, option, setOption, displayText, selectedValues, setSele
             transformOrigin={{vertical: "top", horizontal: "left"}}
             open={Boolean(popupAnchor)}
             onClose={() => doClose()}
-            PaperProps={{style: {width: menuWidth, minWidth: 240, backgroundColor: "white", border: "1px solid lightgray", borderRadius: "0.75rem"}}}
+            PaperProps={{className: isCompact ? "compactForm" : "", style: {width: menuWidth, minWidth: 240, backgroundColor: "white", border: "1px solid lightgray", borderRadius: isCompact ? "3px" : "0.75rem"}}}
          >
             <Box sx={boxSx}>
                <RadioGroup value={option} onChange={handleSelectRadioOpton} sx={{px: 2}}>

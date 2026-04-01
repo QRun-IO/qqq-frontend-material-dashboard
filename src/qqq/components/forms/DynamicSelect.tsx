@@ -92,7 +92,26 @@ export const getAutocompleteOutlinedStyle = (isDisabled: boolean) =>
       },
       "& .Mui-disabled .MuiOutlinedInput-notchedOutline": {
          borderColor: inputBorderColor
-      }
+      },
+      ".compactForm &": {
+         margin: 0,
+      },
+      ".compactForm & .MuiInputBase-root": {
+         padding: "0 6px",
+      },
+      ".compactForm & .MuiOutlinedInput-root": {
+         borderRadius: "3px",
+         minHeight: "26px",
+      },
+      ".compactForm & .MuiOutlinedInput-root .MuiAutocomplete-input": {
+         fontSize: "0.875rem",
+      },
+      ".compactForm & .MuiAutocomplete-tag": {
+         padding: "0 0.25rem",
+      },
+      ".compactForm & .MuiFormControl-root": {
+         margin: 0,
+      },
    });
 };
 

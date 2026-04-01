@@ -363,7 +363,29 @@ function QDynamicFormField({
    else
    {
       return (
-         <Box mb={1.5}>
+         <Box sx={{
+            mb: 1.5,
+            ".compactForm &": {mb: 0},
+            ".compactForm & .MuiInputBase-root": {
+               height: "26px",
+               borderRadius: "3px",
+            },
+            ".compactForm & .MuiInputBase-input": {
+               padding: "3px 6px",
+               fontSize: "0.875rem",
+               height: "18px",
+               boxSizing: "content-box",
+            },
+            ".compactForm & .MuiOutlinedInput-notchedOutline": {
+               borderRadius: "3px",
+            },
+            ".compactForm & .MuiInputLabel-root": {
+               display: "none",
+            },
+            ".compactForm & .fieldErrorMessage": {
+               display: "none",
+            },
+         }}>
             {field}
          </Box>
       );

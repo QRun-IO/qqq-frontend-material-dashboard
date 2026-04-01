@@ -24,13 +24,14 @@ import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFiel
 import {QWidgetMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QWidgetMetaData";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
 import {FormikContextType, useFormikContext} from "formik";
-import QDynamicForm from "qqq/components/forms/DynamicForm";
-import DynamicFormUtils from "qqq/components/forms/DynamicFormUtils";
+import DynamicFormUtils, {DynamicFormFieldDefinition} from "qqq/components/forms/DynamicFormUtils";
 import Widget from "qqq/components/widgets/Widget";
-import {renderSectionOfFields} from "qqq/pages/records/view/RecordView";
+import RecordScreenField from "qqq/pages/records/RecordScreenField";
+import RecordScreenContext, {RecordScreenMode} from "qqq/pages/records/RecordScreenContext";
 import Client from "qqq/utils/qqq/Client";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 
 
 /*******************************************************************************
@@ -44,6 +45,7 @@ interface DynamicFormWidgetProps
    record: QRecord;
    recordValues: { [name: string]: any };
    onSaveCallback?: (values: { [name: string]: any }) => void;
+   mode?: RecordScreenMode;
 }
 
 
@@ -59,8 +61,9 @@ DynamicFormWidget.defaultProps = {
  ** Component to display a dynamic form - e.g., on a record edit or view screen,
  ** or even within a process.
  *******************************************************************************/
-export default function DynamicFormWidget({isEditable, widgetMetaData, widgetData, record, recordValues, onSaveCallback}: DynamicFormWidgetProps): JSX.Element
+export default function DynamicFormWidget({isEditable, widgetMetaData, widgetData, record, recordValues, onSaveCallback, mode}: DynamicFormWidgetProps): JSX.Element
 {
+   const {onEditIconClick} = useContext(RecordScreenContext);
    const [fields, setFields] = useState([] as QFieldMetaData[]);
 
    const [effectiveIsEditable, setEffectiveIsEditable] = useState(isEditable);
@@ -169,85 +172,112 @@ export default function DynamicFormWidget({isEditable, widgetMetaData, widgetDat
 
 
    /*******************************************************************************
-    **
+    ** Build a record with values for the dynamic form fields — used by
+    ** RecordScreenField to display values in both view and edit modes.
     *******************************************************************************/
-   function renderEditForm()
+   function buildFakeRecord(): QRecord
    {
-      const formikProps = useFormikContext();
-      if(!fields || !fields.length)
+      const fakeRecord = new QRecord(widgetData?.recordOfFieldValues ?? {});
+      const mergedDynamicFormValuesIntoFieldName = widgetData?.mergedDynamicFormValuesIntoFieldName;
+
+      if (mergedDynamicFormValuesIntoFieldName && recordValues[mergedDynamicFormValuesIntoFieldName])
       {
-         return (
-            <Box>
-               <Box fontSize="1rem">{widgetData && widgetData.noFieldsMessage}</Box>
-            </Box>
-         );
-      }
-
-      const formData: any = {};
-      formData.values = formikProps.values;
-      formData.touched = formikProps.touched;
-      formData.errors = formikProps.errors;
-      formData.formFields = {};
-
-      // todo - merge the formValidations object with formik's - maybe in the useEffect where we build it
-      // setValidations(Yup.object().shape(formValidations));
-      // formikProps.validationSchema.
-
-      for (let key of Object.keys(dynamicFormFields))
-      {
-         const dynamicFormField = dynamicFormFields[key];
-         formData.formFields[dynamicFormField.name] = dynamicFormField;
-
-         const initialValue = getInitialValue(dynamicFormField.name);
-         if(initialValue != null)
+         let mergedValues = recordValues[mergedDynamicFormValuesIntoFieldName];
+         if (typeof mergedValues === "string")
          {
-            console.log(`@dk trying to set an initial value [${dynamicFormField.name}] to [${initialValue}]`);
-            // @ts-ignore some any
-            formikProps.initialValues[dynamicFormField.name] = initialValue;
+            try
+            {
+               mergedValues = JSON.parse(mergedValues);
+            }
+            catch (e)
+            {
+               // ignore parse errors
+            }
+         }
+         if (mergedValues && typeof mergedValues === "object")
+         {
+            for (let i = 0; i < fields?.length; i++)
+            {
+               const fieldName = fields[i].name;
+               if (mergedValues[fieldName] !== undefined)
+               {
+                  fakeRecord.values.set(fieldName, mergedValues[fieldName]);
+               }
+            }
          }
       }
 
-      if(formData.values)
-      {
-         checkForFormValueChanges(formikProps);
-      }
-
-      return (
-         <Box>
-            <QDynamicForm formData={formData} record={record} />
-         </Box>
-      );
+      return fakeRecord;
    }
 
 
    /*******************************************************************************
-    **
+    ** Wrapper that tracks Formik value changes and merges them into the parent
+    ** field via onSaveCallback (for edit mode only).
     *******************************************************************************/
-   function renderViewForm()
+   function FormValueTracker(): JSX.Element
    {
-      const fieldNames: string[] = [];
-      const fieldMap: {[name: string]: QFieldMetaData} = {};
-      const fakeRecord = new QRecord(widgetData.recordOfFieldValues ?? {});
+      const formikProps = useFormikContext();
 
-      const mergedDynamicFormValuesIntoFieldName = widgetData.mergedDynamicFormValuesIntoFieldName;
-
-      for (let i = 0; i < fields?.length; i++)
+      // set initial values for dynamic fields in Formik
+      if (dynamicFormFields)
       {
-         const fieldName = fields[i].name;
-         fieldNames.push(fieldName);
-         fieldMap[fieldName] = fields[i];
-
-         if(mergedDynamicFormValuesIntoFieldName && recordValues[mergedDynamicFormValuesIntoFieldName])
+         for (let key of Object.keys(dynamicFormFields))
          {
-            fakeRecord.values.set(fieldName, recordValues[mergedDynamicFormValuesIntoFieldName][fieldName]);
+            const initialValue = getInitialValue(dynamicFormFields[key].name);
+            if (initialValue != null && (formikProps.values as any)[dynamicFormFields[key].name] === undefined)
+            {
+               // @ts-ignore
+               formikProps.initialValues[dynamicFormFields[key].name] = initialValue;
+            }
          }
       }
 
-      const section = renderSectionOfFields(`dynamicFormWidget:${widgetMetaData.name}`, fieldNames, null, false, fakeRecord, fieldMap);
+      if (formikProps.values)
+      {
+         checkForFormValueChanges(formikProps);
+      }
 
-      return (<Box>
-         {section}
-      </Box>);
+      return null;
+   }
+
+
+   /*******************************************************************************
+    ** Render the fields using RecordScreenField for consistent layout.
+    *******************************************************************************/
+   function renderFields(): JSX.Element
+   {
+      const effectiveMode: RecordScreenMode = mode ?? (effectiveIsEditable ? "edit" : "view");
+      const fakeRecord = buildFakeRecord();
+
+      if (!fields || !fields.length)
+      {
+         return (
+            <Box fontSize="1rem">{widgetData && widgetData.noFieldsMessage}</Box>
+         );
+      }
+
+      return (
+         <Grid container display="flex" spacing={0}>
+            {effectiveIsEditable && <FormValueTracker />}
+            {fields.map((field) =>
+            {
+               const formFieldDef: DynamicFormFieldDefinition = dynamicFormFields?.[field.name];
+               return (
+                  <Grid item key={field.name} xs={12} pt={0}>
+                     <RecordScreenField
+                        field={field}
+                        fieldName={field.name}
+                        mode={effectiveMode}
+                        record={fakeRecord}
+                        formFieldDef={formFieldDef}
+                        onEditIconClick={onEditIconClick}
+                     />
+                  </Grid>
+               );
+            })}
+         </Grid>
+      );
    }
 
 
@@ -255,11 +285,7 @@ export default function DynamicFormWidget({isEditable, widgetMetaData, widgetDat
    // render //
    ////////////
    return (<Widget widgetMetaData={widgetMetaData}>
-      {
-         <React.Fragment>
-            {effectiveIsEditable ? renderEditForm() : renderViewForm()}
-         </React.Fragment>
-      }
+      {renderFields()}
    </Widget>);
 }
 

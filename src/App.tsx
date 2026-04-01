@@ -47,12 +47,10 @@ import AppHome from "qqq/pages/apps/Home";
 import NoApps from "qqq/pages/apps/NoApps";
 import ProcessRun from "qqq/pages/processes/ProcessRun";
 import ReportRun from "qqq/pages/processes/ReportRun";
-import EntityCreate from "qqq/pages/records/create/RecordCreate";
+import RecordScreen from "qqq/pages/records/RecordScreen";
 import TableDeveloperView from "qqq/pages/records/developer/TableDeveloperView";
-import EntityEdit from "qqq/pages/records/edit/RecordEdit";
 import RecordQuery from "qqq/pages/records/query/RecordQuery";
 import RecordDeveloperView from "qqq/pages/records/view/RecordDeveloperView";
-import RecordView from "qqq/pages/records/view/RecordView";
 import RecordViewByUniqueKey from "qqq/pages/records/view/RecordViewByUniqueKey";
 import {createDynamicTheme} from "qqq/utils/createDynamicTheme";
 import AnalyticsUtils, {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
@@ -258,7 +256,6 @@ export default function App({authenticationMetaData}: Props)
          }
 
          let foundFirstApp = false;
-
          function addAppToAppRoutesList(metaData: QInstance, app: QAppTreeNode, routeList: any[], parentPath: string, depth: number)
          {
             const path = `${parentPath}/${app.name}`;
@@ -294,6 +291,7 @@ export default function App({authenticationMetaData}: Props)
             else if (app.type === QAppNodeType.TABLE)
             {
                const table = metaData.tables.get(app.name);
+
                routeList.push({
                   name: `${app.label}`,
                   key: app.name,
@@ -312,7 +310,7 @@ export default function App({authenticationMetaData}: Props)
                   name: `${app.label} Create`,
                   key: `${app.name}.create`,
                   route: `${path}/create`,
-                  component: <EntityCreate table={table} />,
+                  component: <RecordScreen table={table} mode="create" />,
                });
 
                routeList.push({
@@ -322,21 +320,11 @@ export default function App({authenticationMetaData}: Props)
                   component: <TableDeveloperView table={table} />,
                });
 
-               ///////////////////////////////////////////////////////////////////////////////////////////////////////
-               // this is the path to open a modal-form when viewing a record, to create a different (child) record //
-               // it can also be done with a hash like: #/createChild=:childTableName                               //
-               ///////////////////////////////////////////////////////////////////////////////////////////////////////
-               routeList.push({
-                  key: `${app.name}.createChild`,
-                  route: `${path}/:id/createChild/:childTableName`,
-                  component: <RecordView table={table} />,
-               });
-
                routeList.push({
                   name: `${app.label} View`,
                   key: `${app.name}.view`,
                   route: `${path}/:id`,
-                  component: <RecordView table={table} />,
+                  component: <RecordScreen table={table} mode="view" />,
                });
 
                routeList.push({
@@ -350,14 +338,14 @@ export default function App({authenticationMetaData}: Props)
                   name: `${app.label}`,
                   key: `${app.name}.edit`,
                   route: `${path}/:id/edit`,
-                  component: <EntityEdit table={table} isCopy={false} />,
+                  component: <RecordScreen table={table} mode="edit" />,
                });
 
                routeList.push({
                   name: `${app.label}`,
                   key: `${app.name}.copy`,
                   route: `${path}/:id/copy`,
-                  component: <EntityEdit table={table} isCopy={true} />,
+                  component: <RecordScreen table={table} mode="create" isCopy={true} />,
                });
 
                routeList.push({
@@ -385,7 +373,7 @@ export default function App({authenticationMetaData}: Props)
                      name: process.label,
                      key: `${app.name}/${process.name}`,
                      route: `${path}/:id/${process.name}`,
-                     component: <RecordView table={table} key={`${table.name}-${process.name}`} launchProcess={process} />,
+                     component: <RecordScreen table={table} key={`${table.name}-${process.name}`} mode="view" launchProcess={process} />,
                   });
                });
 
@@ -411,7 +399,7 @@ export default function App({authenticationMetaData}: Props)
                               name: process.label,
                               key: `${app.name}/${process.name}`,
                               route: `${path}/:id/${process.name}`,
-                              component: <RecordView table={table} launchProcess={process} />,
+                              component: <RecordScreen table={table} mode="view" launchProcess={process} />,
                            });
                         }
                      }
@@ -437,7 +425,7 @@ export default function App({authenticationMetaData}: Props)
                         name: process.label,
                         key: `${app.name}/${process.name}`,
                         route: `${path}/:id/${process.name}`,
-                        component: <RecordView table={table} launchProcess={process} />,
+                        component: <RecordScreen table={table} mode="view" launchProcess={process} />,
                      });
                   }
                }

@@ -418,6 +418,7 @@ public class MaterialDashboardTableMetaData extends QSupplementalTableMetaData
 
 
 
+
    /***************************************************************************
     *
     ***************************************************************************/
