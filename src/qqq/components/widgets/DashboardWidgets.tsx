@@ -881,7 +881,7 @@ function DashboardWidgets({widgetMetaDataList, tableName, entityPrimaryKey, reco
             {
                widgetMetaData.type === "rowBuilder" && (
                   (widgetData && widgetData[i]) ?
-                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} onSaveCallback={rowBuilderOnSaveCallback} /> :
+                     <RowBuilderWidget widgetMetaData={widgetMetaData} widgetData={widgetData[i]} screen={screen} parentFormValues={values} onSaveCallback={rowBuilderOnSaveCallback} /> :
                      <NotLoaded widgetMetaData={widgetMetaData} widgetIndex={i} />
                )
             }
