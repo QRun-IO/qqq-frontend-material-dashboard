@@ -192,6 +192,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
 
    const [showSuccessfullyDeletedAlert, setShowSuccessfullyDeletedAlert] = useState(false);
    const [errorAlert, setErrorAlert] = useState(null as string);
+   const [countError, setCountError] = useState(null as string);
    const [warningAlert, setWarningAlert] = useState(null as string);
    const [warningAlertList, setWarningAlertList] = useState([] as string[]);
    const [successAlert, setSuccessAlert] = useState(null as string);
@@ -382,6 +383,9 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    /////////////////////////////////
    const [metaData, setMetaData] = useState(null as QInstance);
    const [tableMetaData, setTableMetaData] = useState(null as QTableMetaData);
+   const readableQueryJoins = TableUtils.getReadableExposedJoins(tableMetaData, metaData);
+   const omittedQueryJoinTables = [...(omitExposedJoins ?? []), ...(tableMetaData?.exposedJoins ?? [])
+      .filter(join => !readableQueryJoins.includes(join)).map(join => join.joinTable.name)];
    const [tableLabel, setTableLabel] = useState("");
    const [tableProcesses, setTableProcesses] = useState([] as QProcessMetaData[]);
    const [allTableProcesses, setAllTableProcesses] = useState([] as QProcessMetaData[]);
@@ -456,7 +460,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    // state used to avoid showing results from an "old" query, that finishes loading after a newer one //
    //////////////////////////////////////////////////////////////////////////////////////////////////////
    const [latestQueryId, setLatestQueryId] = useState(0);
-   const [countResults, setCountResults] = useState({} as any);
+   const [countResults, setCountResults] = useState({} as Record<number, {count?: number, distinctCount?: number, error?: string}>);
    const [receivedCountTimestamp, setReceivedCountTimestamp] = useState(new Date());
    const [queryResults, setQueryResults] = useState({} as any);
    const [latestQueryResults, setLatestQueryResults] = useState(null as QRecord[]);
@@ -1043,6 +1047,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
       // that a backend query cannot be made because of missing values for that expression           //
       /////////////////////////////////////////////////////////////////////////////////////////////////
       setWarningAlert(null);
+      setCountError(null);
       for (var i = 0; i < queryFilter?.criteria?.length; i++)
       {
          for (var j = 0; j < queryFilter?.criteria[i]?.values?.length; j++)
@@ -1083,7 +1088,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
 
             tablesToAdd?.forEach(t => visibleJoinTables.add(t));
 
-            queryJoins = TableUtils.getQueryJoins(tableMetaData, visibleJoinTables);
+            queryJoins = TableUtils.getQueryJoins(tableMetaData, visibleJoinTables, metaData);
          }
 
          //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1107,9 +1112,13 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
             qControllerV1.count(tableName, apiVersion, filterForBackend, queryJoins, includeDistinct, tableVariant).then(([count, distinctCount]) =>
             {
                console.log(`Received count results for query ${thisQueryId}: ${count} ${distinctCount}`);
-               countResults[thisQueryId] = [];
-               countResults[thisQueryId].push(count);
-               countResults[thisQueryId].push(distinctCount);
+               countResults[thisQueryId] = {count, distinctCount};
+               setCountResults(countResults);
+               setReceivedCountTimestamp(new Date());
+            }).catch(error =>
+            {
+               const message = error?.message ?? error?.response?.data?.error ?? "Unexpected error counting records";
+               countResults[thisQueryId] = {error: `Cannot count records: ${message}`};
                setCountResults(countResults);
                setReceivedCountTimestamp(new Date());
             });
@@ -1153,8 +1162,6 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                queryErrors[thisQueryId] = errorMessage;
                setQueryErrors(queryErrors);
                setReceivedQueryErrorTimestamp(new Date());
-
-               throw error;
             });
       })();
    };
@@ -1177,7 +1184,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
    ///////////////////////////
    useEffect(() =>
    {
-      if (countResults[latestQueryId] == null || countResults[latestQueryId].length == 0)
+      if (countResults[latestQueryId] == null)
       {
          ///////////////////////////////////////////////
          // see same idea in displaying query results //
@@ -1187,8 +1194,9 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
       }
       try
       {
-         setTotalRecords(countResults[latestQueryId][0]);
-         setDistinctRecords(countResults[latestQueryId][1]);
+         setTotalRecords(countResults[latestQueryId].count ?? null);
+         setDistinctRecords(countResults[latestQueryId].distinctCount ?? null);
+         setCountError(countResults[latestQueryId].error ?? null);
          delete countResults[latestQueryId];
       }
       catch (e)
@@ -3118,7 +3126,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
             idPrefix="columns"
             tableMetaData={tableMetaData}
             showTableHeaderEvenIfNoExposedJoins={true}
-            omitExposedJoins={omitExposedJoins}
+            omitExposedJoins={omittedQueryJoinTables}
             placeholder="Search Fields"
             buttonProps={{variant: buttonVariant, sx: columnMenuButtonStyles, ["data-button-state"]: buttonState, color: buttonColorName}}
             buttonChildren={<><Icon sx={{mr: "0.5rem"}}>view_week_outline</Icon> Columns ({view.queryColumns.getVisibleColumnCount()}) <Icon sx={{ml: "0.5rem"}}>keyboard_arrow_down</Icon></>}
@@ -3223,6 +3231,13 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                   ) : null
                }
                {
+                  countError ? (
+                     <Collapse in={Boolean(countError)}>
+                        <Alert severity="error" sx={{mt: 1.5, mb: 0.5}} onClose={() => setCountError(null)}>{countError}</Alert>
+                     </Collapse>
+                  ) : null
+               }
+               {
                   (tableLabel && showSuccessfullyDeletedAlert) ? (
                      <Collapse in={Boolean(showSuccessfullyDeletedAlert)}>
                         <Alert color="success" sx={{mt: 1.5, mb: 0.5}} onClose={() => setShowSuccessfullyDeletedAlert(false)}>{`${tableLabel} successfully deleted`}</Alert>
@@ -3278,7 +3293,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                      setMode={doSetMode}
                      savedViewsComponent={savedViewsComponent}
                      columnMenuComponent={buildColumnMenu()}
-                     omitExposedJoins={omitExposedJoins}
+                     omitExposedJoins={omittedQueryJoinTables}
                      useSavedViewsResult={useSavedViewsResult}
                      viewOnChangeCallback={handleSavedViewChange}
                      currentSavedView={currentSavedView}
@@ -3309,7 +3324,7 @@ const RecordQueryInner = forwardRef(({table, apiVersion, usage, isModal, isPrevi
                                  queryFilter: queryFilter,
                                  updateFilter: doSetQueryFilter,
                                  allowVariables: allowVariables,
-                                 omitExposedJoins: omitExposedJoins,
+                                 omitExposedJoins: omittedQueryJoinTables,
                               }
                         }}
                         localeText={{

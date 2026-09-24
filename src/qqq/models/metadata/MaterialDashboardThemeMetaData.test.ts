@@ -62,7 +62,7 @@ describe("MaterialDashboardThemeMetaData", () =>
          expect(theme.infoColor).toBe("#0000FF");
          expect(theme.fontFamily).toBe("Roboto");
          expect(theme.headerFontFamily).toBe("Open Sans");
-         expect(theme.borderRadius).toBe("8px");
+         expect(theme.borderRadiusGlobal).toBe("8px");
          expect(theme.density).toBe("compact");
          expect(theme.logoPath).toBe("/assets/logo.svg");
          expect(theme.iconPath).toBe("/assets/icon.svg");
@@ -87,7 +87,7 @@ describe("MaterialDashboardThemeMetaData", () =>
          expect(theme.infoColor).toBeUndefined();
          expect(theme.fontFamily).toBeUndefined();
          expect(theme.headerFontFamily).toBeUndefined();
-         expect(theme.borderRadius).toBeUndefined();
+         expect(theme.borderRadiusGlobal).toBeUndefined();
          expect(theme.density).toBeUndefined();
          expect(theme.logoPath).toBeUndefined();
          expect(theme.iconPath).toBeUndefined();

@@ -635,7 +635,7 @@ function RecordView({table, record: overrideRecord, launchProcess}: Props): JSX.
          const visibleJoinTables = getVisibleJoinTables(tableMetaData);
          if (visibleJoinTables.size > 0)
          {
-            queryJoins = TableUtils.getQueryJoins(tableMetaData, visibleJoinTables);
+            queryJoins = TableUtils.getQueryJoins(tableMetaData, visibleJoinTables, metaData);
          }
 
          /////////////////////

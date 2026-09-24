@@ -124,7 +124,7 @@ public class QSeleniumJavalin
    {
       javalin = Javalin.create(config ->
       {
-         config.router.apiBuilder(
+         config.routes.apiBuilder(
             () ->
             {
                for(Map.Entry<String, String> routeToFile : CollectionUtils.nonNullMap(routesToFiles).entrySet())
@@ -143,14 +143,13 @@ public class QSeleniumJavalin
             }
          );
 
-      }).start(8001);
+         config.routes.before(new CapturingHandler(this));
 
-      javalin.before(new CapturingHandler(this));
-
-      javalin.error(404, context -> {
-         LOG.warn("Returning 404 for [" + context.method() + " " + context.path() + "]");
-         pathsThat404ed.add(context.path());
-      });
+         config.routes.error(404, context -> {
+            LOG.warn("Returning 404 for [" + context.method() + " " + context.path() + "]");
+            pathsThat404ed.add(context.path());
+         });
+      }).start(Integer.getInteger("qqq.test.backendPort", 8001));
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // to accept "large" access tokens in Authorization: Bearer <token> headers (e.g., with 100s of permissions), //

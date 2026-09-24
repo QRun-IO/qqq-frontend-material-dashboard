@@ -31,7 +31,7 @@ interface Props extends Omit<OutlinedTextFieldProps | StandardTextFieldProps, "v
 }
 
 const MDInput: FC<Props | any> = forwardRef(({error, success, disabled, ...rest}, ref) => (
-   <MDInputRoot {...rest} ref={ref} ownerState={{error, success, disabled}} />
+   <MDInputRoot {...rest} ref={ref} disabled={disabled} ownerState={{error, success, disabled}} />
 ));
 
 // Declaring default props for MDInput

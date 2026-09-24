@@ -30,6 +30,7 @@ import Tooltip from "@mui/material/Tooltip/Tooltip";
 import {GridColDef, GridRowsProp, MuiEvent} from "@mui/x-data-grid-pro";
 import {GridColumnHeaderParams} from "@mui/x-data-grid/models/params/gridColumnHeaderParams";
 import HelpContent, {hasHelpContent} from "qqq/components/misc/HelpContent";
+import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import React from "react";
 import {Link, NavigateFunction} from "react-router-dom";
@@ -150,9 +151,8 @@ export default class DataGridUtils
       {
          if (tableMetaData.exposedJoins)
          {
-            for (let i = 0; i < tableMetaData.exposedJoins.length; i++)
+            for (const join of TableUtils.getReadableExposedJoins(tableMetaData, metaData))
             {
-               const join = tableMetaData.exposedJoins[i];
                let joinTableName = join.joinTable.name;
                if (metaData.tables.has(joinTableName) && metaData.tables.get(joinTableName).readPermission && (includeExposedJoinTables === undefined || includeExposedJoinTables.indexOf(joinTableName) > -1))
                {
