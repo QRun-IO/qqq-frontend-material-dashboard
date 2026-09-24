@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {QExposedJoin} from "@qrunio/qqq-frontend-core/lib/model/metaData/QExposedJoin";
+import {QInstance} from "@qrunio/qqq-frontend-core/lib/model/metaData/QInstance";
 import {QFieldMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QFieldMetaData";
 import {QTableMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableMetaData";
 import {QTableSection} from "@qrunio/qqq-frontend-core/lib/model/metaData/QTableSection";
@@ -216,12 +218,33 @@ class TableUtils
    /*******************************************************************************
     **
     *******************************************************************************/
-   public static getQueryJoins(tableMetaData: QTableMetaData, visibleJoinTables: Set<string>): QueryJoin[]
+   public static getReadableExposedJoins(tableMetaData: QTableMetaData, metaData: QInstance): QExposedJoin[]
+   {
+      return (tableMetaData?.exposedJoins ?? []).filter(join =>
+      {
+         if (!metaData?.tables || !join.joinTable?.readPermission)
+         {
+            return false;
+         }
+         const tableNames = new Set([join.joinTable.name]);
+         for (const edge of join.joinPath ?? [])
+         {
+            tableNames.add(edge.leftTable);
+            tableNames.add(edge.rightTable);
+         }
+         return Array.from(tableNames).every(name => name == tableMetaData.name || metaData.tables.get(name)?.readPermission);
+      });
+   }
+
+
+   /*******************************************************************************
+    ** Keep full metadata for write controls; only automatic reads use this subset.
+    *******************************************************************************/
+   public static getQueryJoins(tableMetaData: QTableMetaData, visibleJoinTables: Set<string>, metaData: QInstance): QueryJoin[]
    {
       const queryJoins = [];
-      for (let i = 0; i < tableMetaData.exposedJoins.length; i++)
+      for (const join of this.getReadableExposedJoins(tableMetaData, metaData))
       {
-         const join = tableMetaData.exposedJoins[i];
          if (visibleJoinTables.has(join.joinTable.name))
          {
             let joinName = null;

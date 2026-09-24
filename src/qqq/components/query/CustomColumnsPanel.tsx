@@ -33,6 +33,7 @@ import TextField from "@mui/material/TextField";
 import {GridColDef, GridSlotsComponentsProps, useGridApiContext, useGridSelector} from "@mui/x-data-grid-pro";
 import {GridColumnsPanelProps} from "@mui/x-data-grid/components/panel/GridColumnsPanel";
 import {gridColumnDefinitionsSelector, gridColumnVisibilityModelSelector} from "@mui/x-data-grid/hooks/features/columns/gridColumnsSelector";
+import TableUtils from "qqq/utils/qqq/TableUtils";
 import React, {createRef, forwardRef, useEffect, useReducer, useRef, useState} from "react";
 
 declare module "@mui/x-data-grid"
@@ -84,9 +85,8 @@ export const CustomColumnsPanel = forwardRef<any, GridColumnsPanelProps>(
 
       if (props.tableMetaData.exposedJoins)
       {
-         for (let i = 0; i < props.tableMetaData.exposedJoins.length; i++)
+         for (const exposedJoin of TableUtils.getReadableExposedJoins(props.tableMetaData, props.metaData))
          {
-            const exposedJoin = props.tableMetaData.exposedJoins[i];
             if (props.metaData.tables.has(exposedJoin.joinTable.name))
             {
                tables.push(exposedJoin.joinTable);

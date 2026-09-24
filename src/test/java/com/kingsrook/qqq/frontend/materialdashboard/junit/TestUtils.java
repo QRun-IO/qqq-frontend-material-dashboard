@@ -50,7 +50,7 @@ public class TestUtils
       QInstance qInstance = new QInstance();
       qInstance.addBackend(defineBackend());
       qInstance.addTable(defineTablePerson());
-      qInstance.setAuthentication(defineAuthentication());
+      qInstance.withInstanceDefaultAuthentication(defineAuthentication());
       return (qInstance);
    }
 

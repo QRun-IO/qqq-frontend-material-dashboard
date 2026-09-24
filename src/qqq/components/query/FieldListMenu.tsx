@@ -80,7 +80,6 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
    const [searchText, setSearchText] = useState("");
    const [focusedIndex, setFocusedIndex] = useState(null as number);
 
-   const [fieldsByTable, setFieldsByTable] = useState([] as TableWithFields[]);
    const [collapsedTables, setCollapsedTables] = useState({} as { [tableName: string]: boolean });
 
    const [lastMouseOverXY, setLastMouseOverXY] = useState({x: 0, y: 0});
@@ -123,39 +122,13 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
       }
    }
 
-   /////////////////////
-   // init some stuff //
-   /////////////////////
-   if (fieldsByTable.length == 0)
-   {
-      collapsedTables[tableMetaData.name] = false;
-
-      if (availableExposedJoins?.length > 0)
-      {
-         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         // if we have exposed joins, put the table meta data with its fields, and then all of the join tables & fields too //
-         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         fieldsByTable.push({table: tableMetaData, fields: getTableFieldsAsAlphabeticalArray(tableMetaData)});
-
-         for (let i = 0; i < availableExposedJoins?.length; i++)
-         {
-            const joinTable = availableExposedJoins[i].joinTable;
-            fieldsByTable.push({table: joinTable, fields: getTableFieldsAsAlphabeticalArray(joinTable)});
-
-            collapsedTables[joinTable.name] = false;
-         }
-      }
-      else
-      {
-         ///////////////////////////////////////////////////////////
-         // no exposed joins - just the table (w/o its meta-data) //
-         ///////////////////////////////////////////////////////////
-         fieldsByTable.push({fields: getTableFieldsAsAlphabeticalArray(tableMetaData)});
-      }
-
-      setFieldsByTable(fieldsByTable);
-      setCollapsedTables(collapsedTables);
-   }
+   ////////////////////////////////////////////////////////////////////////////////////////
+   // Derive fields from current options; cached groups retain joins after access changes. //
+   // Keep only user-controlled collapsed state, which is independent of available fields. //
+   ////////////////////////////////////////////////////////////////////////////////////////
+   const fieldsByTable: TableWithFields[] = availableExposedJoins.length > 0
+      ? [tableMetaData, ...availableExposedJoins.map(join => join.joinTable)].map(table => ({table, fields: getTableFieldsAsAlphabeticalArray(table)}))
+      : [{fields: getTableFieldsAsAlphabeticalArray(tableMetaData)}];
 
 
    /*******************************************************************************
@@ -263,7 +236,7 @@ export default function FieldListMenu({idPrefix, heading, placeholder, tableMeta
             event.stopPropagation();
             closeMenu();
 
-            const {field, table} = getShownFieldAndTableByIndex(focusedIndex);
+            const {field, table} = getShownFieldAndTableByIndex(focusedIndex) ?? {};
             if (field)
             {
                handleSelectedField(field, table ?? tableMetaData);

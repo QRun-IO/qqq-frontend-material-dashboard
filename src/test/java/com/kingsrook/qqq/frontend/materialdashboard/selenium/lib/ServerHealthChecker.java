@@ -35,7 +35,7 @@ import javax.net.ssl.SSLSession;
  */
 public class ServerHealthChecker
 {
-   private static final String DEFAULT_BASE_URL = "https://localhost:3001";
+   private static final String DEFAULT_BASE_URL = System.getProperty("qqq.test.baseUrl", "https://localhost:3001");
    private static final int DEFAULT_TIMEOUT_SECONDS = 60; // Increased for CI
    private static final int DEFAULT_RETRY_INTERVAL_MS = 2000; // Increased for CI
 
