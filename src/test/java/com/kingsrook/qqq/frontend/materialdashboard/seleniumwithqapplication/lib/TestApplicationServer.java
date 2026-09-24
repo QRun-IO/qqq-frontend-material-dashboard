@@ -55,7 +55,7 @@ public class TestApplicationServer
    public void start() throws QException
    {
       javalinServer = new QApplicationJavalinServer(testApplication)
-         .withPort(8001)
+         .withPort(Integer.getInteger("qqq.test.backendPort", 8001))
          .withServeFrontendMaterialDashboard(false)
          .withServeLegacyUnversionedMiddlewareAPI(true);
 

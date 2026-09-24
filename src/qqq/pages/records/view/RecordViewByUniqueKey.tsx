@@ -66,6 +66,7 @@ export default function RecordViewByUniqueKey({table}: RecordViewByUniqueKeyProp
 
       (async () =>
       {
+         const metaData = await qController.loadMetaData();
          const tableMetaData = await qController.loadTableMetaData(tableName);
          setTableMetaData(tableMetaData);
 
@@ -85,7 +86,7 @@ export default function RecordViewByUniqueKey({table}: RecordViewByUniqueKeyProp
          const visibleJoinTables = getVisibleJoinTables(tableMetaData);
          if (visibleJoinTables.size > 0)
          {
-            queryJoins = TableUtils.getQueryJoins(tableMetaData, visibleJoinTables);
+            queryJoins = TableUtils.getQueryJoins(tableMetaData, visibleJoinTables, metaData);
          }
 
          const filter = new QQueryFilter(criteria, null, null, "AND", 0, 2);

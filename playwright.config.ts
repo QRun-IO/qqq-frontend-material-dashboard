@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const fixturePort = process.env.FIXTURE_PORT || '8001';
+const dashboardPort = process.env.DASHBOARD_PORT || '3001';
+
 export default defineConfig({
   testDir: './e2e/tests',
   fullyParallel: false,
@@ -20,10 +23,11 @@ export default defineConfig({
     },
   },
   use: {
-    baseURL: 'https://localhost:3001',
+    baseURL: `https://localhost:${dashboardPort}`,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     ignoreHTTPSErrors: true,
+    channel: process.env.PLAYWRIGHT_CHANNEL,
     // Consistent viewport for visual regression
     viewport: { width: 1280, height: 720 },
   },
@@ -42,13 +46,13 @@ export default defineConfig({
   webServer: [
     {
       command: `THEME_FIXTURE=${process.env.THEME_FIXTURE || 'withFullCustomTheme'} node e2e/fixture-server.js`,
-      url: 'http://localhost:8001/metaData',
+      url: `http://localhost:${fixturePort}/metaData`,
       reuseExistingServer: true,
       timeout: 60000, // 1 minute - Docker startup can be slow
     },
     {
-      command: 'HTTPS=true PORT=3001 REACT_APP_PROXY_LOCALHOST_PORT=8001 npm start',
-      url: 'https://localhost:3001',
+      command: `HTTPS=true PORT=${dashboardPort} REACT_APP_PROXY_LOCALHOST_PORT=${fixturePort} npm start`,
+      url: `https://localhost:${dashboardPort}`,
       reuseExistingServer: true,
       timeout: 300000, // 5 minutes - React compilation in Docker takes time
       ignoreHTTPSErrors: true,

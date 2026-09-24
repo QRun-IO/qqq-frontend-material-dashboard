@@ -1,6 +1,6 @@
 {
   "name": "qqq-frontend-material-dashboard",
-  "version": "0.40.0",
+  "version": "0.41.0-SNAPSHOT",
   "homepage": ".",
   "description": "QQQ Default Dashboard",
   "dependencies": {
@@ -62,7 +62,7 @@
   },
   "scripts": {
     "build": "react-scripts build",
-    "build-and-publish": "react-scripts build && rm -rvf src/main/resources/material-dashboard; mkdir -p src/main/resources/material-dashboard; cp -rv build/* src/main/resources/material-dashboard",
+    "build-and-publish": "react-scripts build && rm -rvf src/main/resources/material-dashboard && mkdir -p src/main/resources/material-dashboard && cp -rv build/* src/main/resources/material-dashboard",
     "clean": "rm -rf node_modules package-lock.json lib",
     "eject": "react-scripts eject",
     "clean-and-install": "rm -rf node_modules/ && rm -rf package-lock.json && rm -rf lib/ && npm install --legacy-peer-deps && npm dedupe --force",
@@ -127,5 +127,10 @@
   "files": [
     "lib",
     "package.json"
-  ]
+  ],
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@qrunio/qqq-frontend-core|@mui|@babel/runtime)/)"
+    ]
+  }
 }

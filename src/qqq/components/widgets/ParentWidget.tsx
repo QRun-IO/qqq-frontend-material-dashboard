@@ -90,7 +90,11 @@ function ParentWidget({urlParams, widgetMetaData, widgetIndex, data, reloadWidge
          let widgetMetaDataList = [] as QWidgetMetaData[];
          data?.childWidgetNameList.forEach((widgetName: string) =>
          {
-            widgetMetaDataList.push(qInstance.widgets.get(widgetName));
+            const childWidget = qInstance.widgets.get(widgetName);
+            if (childWidget)
+            {
+               widgetMetaDataList.push(childWidget);
+            }
          });
          setWidgets(widgetMetaDataList);
       }

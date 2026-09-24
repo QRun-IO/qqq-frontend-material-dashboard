@@ -142,7 +142,7 @@ function StackedBarChart({data, chartSubheaderData}: Props): JSX.Element
    {
       if (data)
       {
-         data?.datasets.forEach((dataset: any, index: number) =>
+         data?.datasets?.forEach((dataset: any, index: number) =>
          {
             if (!dataset.backgroundColor)
             {
@@ -165,7 +165,7 @@ function StackedBarChart({data, chartSubheaderData}: Props): JSX.Element
       <Box>
          {chartSubheaderData && (<ChartSubheaderWithData chartSubheaderData={chartSubheaderData} />)}
          <Box width="100%" height="300px">
-            <Bar data={data} options={makeOptions(data)} getElementsAtEvent={handleClick} />
+            <Bar data={{...data, labels: data.labels ?? [], datasets: data.datasets ?? []}} options={makeOptions(data)} getElementsAtEvent={handleClick} />
          </Box>
       </Box>
    ) : <Skeleton sx={{marginLeft: "20px", marginRight: "20px", height: "200px"}} />;

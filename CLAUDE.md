@@ -320,3 +320,16 @@ npm run e2e:all
 Release candidates publish automatically on `release/*` branches via CircleCI `publish_release_candidate` workflow.
 
 Snapshots publish on `develop` via `publish_snapshot` workflow.
+
+## Knowledge base
+
+Durable cross-repo knowledge for QQQ lives in the second-brain vault
+(`$SECOND_BRAIN_VAULT`, i.e. `R:/Git.Local/KofTwentyTwo/second-brain`):
+
+- Hub: `knowledge/qqq/qqq-hub.md`
+- This repo's dossier: `knowledge/qqq/repos/qqq-frontend-material-dashboard.md`
+  (includes the full server-API consumption inventory, legacy vs `/qqq/v1`)
+
+Dossier reviewed at commit `628e36f64e9a` on branch `develop` (2026-07-04).
+Note: the cross-repo version table earlier in this file is stale (0.36-era);
+trust `pom.xml` / `package.json` for current pins.

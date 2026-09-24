@@ -2,10 +2,12 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+> **QQQ 4.0 dashboard:** Material Dashboard `0.41.0` is the standard dashboard for QQQ 4.0. [qqq-frontend-next](https://github.com/QRun-IO/qqq-frontend-next) is a compatible preview. Widget parity remains incomplete and is deferred in [#550](https://github.com/QRun-IO/qqq/issues/550).
+
 React admin dashboard for QQQ applications.
 
 **For:** Teams using QQQ who want a ready-to-use admin UI without writing frontend code  
-**Status:** Stable
+**Status:** Stable; standard dashboard for QQQ 4.0.
 
 ## Why This Exists
 
@@ -82,7 +84,7 @@ mvn clean package -Pci
 ## Project Status
 
 **Maturity:** Stable, production use  
-**Breaking changes:** Follows QQQ versioning  
+**Versioning:** Independently versioned; Material `0.41.0` accompanies QQQ `4.0.0`.
 
 ## Contributing
 
