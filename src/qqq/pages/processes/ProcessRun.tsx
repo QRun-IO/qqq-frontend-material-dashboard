@@ -75,6 +75,7 @@ import ProcessWidgetBlockUtils from "qqq/pages/processes/ProcessWidgetBlockUtils
 import {TABLE_VARIANT_LOCAL_STORAGE_KEY_ROOT} from "qqq/pages/records/query/RecordQuery";
 import {AnalyticsModel} from "qqq/utils/analytics/AnalyticsUtils";
 import Client from "qqq/utils/qqq/Client";
+import ProcessUtils from "qqq/utils/qqq/ProcessUtils";
 import TableUtils from "qqq/utils/qqq/TableUtils";
 import ValueUtils from "qqq/utils/qqq/ValueUtils";
 import React, {useContext, useEffect, useRef, useState} from "react";
@@ -1898,21 +1899,20 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
 
          if (urlSearchParams.get("defaultProcessValues"))
          {
-            if (!defaultProcessValues)
+            try
             {
-               defaultProcessValues = {};
+               defaultProcessValues = ProcessUtils.mergeDefaultValues(defaultProcessValues, urlSearchParams.get("defaultProcessValues"));
             }
-
-            const values = JSON.parse(urlSearchParams.get("defaultProcessValues"));
-            for (let key in values)
+            catch (e)
             {
-               defaultProcessValues[key] = values[key];
+               setProcessError("Invalid process default values.");
+               return;
             }
          }
 
          if (defaultProcessValues)
          {
-            for (let key in defaultProcessValues)
+            for (const key of Object.keys(defaultProcessValues))
             {
                formData.append(key, defaultProcessValues[key]);
             }
