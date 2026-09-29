@@ -31,13 +31,13 @@
     "dayjs": "1.11.10",
     "downshift": "3.2.10",
     "faker": "5.5.3",
-    "form-data": "4.0.4",
+    "form-data": "4.0.6",
     "formik": "2.2.9",
     "html-react-parser": "1.4.8",
     "html-to-text": "^9.0.5",
     "http-proxy-middleware": "2.0.9",
     "jwt-decode": "3.1.2",
-    "lodash": "4.17.21",
+    "lodash": "4.18.1",
     "oidc-client-ts": "2.4.1",
     "rapidoc": "9.3.4",
     "react": "18.0.0",
@@ -120,7 +120,12 @@
     "typescript": "4.9.4"
   },
   "overrides": {
-    "@svgr/webpack": "$@svgr/webpack"
+    "@svgr/webpack": "$@svgr/webpack",
+    "axios@<1.0.0": "0.33.0",
+    "form-data@^4.0.0": "$form-data",
+    "resolve-url-loader": "5.0.0",
+    "serialize-javascript": "7.0.3",
+    "underscore": "1.13.8"
   },
   "main": "qqq-frontend-material-dashboard.js",
   "module": "lib/qqq-frontend-material-dashboard.js",
@@ -132,5 +137,8 @@
     "transformIgnorePatterns": [
       "node_modules/(?!(@qrunio/qqq-frontend-core|@mui|@babel/runtime)/)"
     ]
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

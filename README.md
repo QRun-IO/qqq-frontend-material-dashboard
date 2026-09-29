@@ -32,7 +32,7 @@ If you need a custom UI, use [qqq-frontend-core](https://github.com/QRun-IO/qqq-
 
 ## Quick Start
 
-**Prerequisites:** Node.js 18+, running QQQ backend
+**Prerequisites:** Node.js 20+, running QQQ backend
 
 ```bash
 git clone https://github.com/QRun-IO/qqq-frontend-material-dashboard
