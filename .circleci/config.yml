@@ -7,7 +7,7 @@ parameters:
     default: false
 
 orbs:
-  qqq-orb: kingsrook/qqq-orb@0.6
+  qqq-orb: kingsrook/qqq-orb@0.6.6
 
 commands:
   configure-package-install:

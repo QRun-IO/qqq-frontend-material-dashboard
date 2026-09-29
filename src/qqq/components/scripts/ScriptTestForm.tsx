@@ -26,6 +26,7 @@ import {QJobComplete} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobCo
 import {QJobError} from "@qrunio/qqq-frontend-core/lib/model/processes/QJobError";
 import {QRecord} from "@qrunio/qqq-frontend-core/lib/model/QRecord";
 import {Typography} from "@mui/material";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -240,6 +241,9 @@ function ScriptTestForm({scriptId, scriptType, tableName, fieldName, recordId, f
                   <Box width="100%">
                      <Typography variant="h6" p={2} pb={1}>Test Input</Typography>
                      <Box px={2} pb={2}>
+                        <Alert severity="warning" sx={{mb: 2}}>
+                           Test runs against live data. Explicit writes and external side effects can persist, even if the script later fails. The draft revision and test logs are not saved. Use a test environment and disposable records.
+                        </Alert>
                         {
                            testInputFields && testInputValues && testInputFields.map((field: QFieldMetaData) =>
                            {
