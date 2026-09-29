@@ -29,6 +29,16 @@ import {QReportMetaData} from "@qrunio/qqq-frontend-core/lib/model/metaData/QRep
  *******************************************************************************/
 class ProcessUtils
 {
+   public static mergeDefaultValues(defaults: Record<string, unknown>, queryValues: string): Record<string, unknown>
+   {
+      const values: unknown = JSON.parse(queryValues);
+      if (values === null || typeof values !== "object" || Array.isArray(values))
+      {
+         throw new Error("Process default values must be an object");
+      }
+      return {...defaults, ...values};
+   }
+
    public static getProcessesForTable(metaData: QInstance, tableName: string, includeHidden = false): QProcessMetaData[]
    {
       const matchingProcesses: QProcessMetaData[] = [];
