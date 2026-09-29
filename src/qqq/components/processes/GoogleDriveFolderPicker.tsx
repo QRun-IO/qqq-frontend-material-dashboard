@@ -28,6 +28,7 @@ import {useGoogleLogin} from "@react-oauth/google";
 import {useFormikContext} from "formik";
 import React, {useEffect, useState} from "react";
 import useDrivePicker from "react-google-drive-picker";
+import {hasScope} from "qqq/authorization/ScopeUtils";
 import MDTypography from "qqq/components/legacy/MDTypography";
 
 interface Props
@@ -76,9 +77,7 @@ export function GoogleDriveFolderPicker({showDefaultFoldersView, showSharedDrive
       scope: driveScope,
       onSuccess: tokenResponse =>
       {
-         console.log("Token response");
-         console.log(tokenResponse);
-         if(tokenResponse.scope.indexOf(driveScope) == -1)
+         if(!hasScope(tokenResponse.scope, driveScope))
          {
             setErrorMessage("You must allow access to Google Drive after you sign in.  Please try again.")
             return;

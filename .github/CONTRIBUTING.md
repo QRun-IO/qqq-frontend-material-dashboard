@@ -43,7 +43,7 @@ This repository does NOT contain:
 
 ### Prerequisites
 
-- **Node.js**: LTS version (18.x or higher)
+- **Node.js**: LTS version (20.x or higher)
 - **npm**: 8.x or higher
 - **Git**: For version control
 - **QQQ Server**: Running instance for testing
