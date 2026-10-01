@@ -55,3 +55,10 @@
 ## QQQ #923 license alignment — 2026-09-30
 
 Owner-approved first-party Apache-2.0 declarations now align across source headers, Maven/npm metadata and current contributor/theme documentation. Attribution, third-party notices, dependency pins and executable source are preserved. The license delta passed independent review. QQQ #937 adds bounded waits before existing saved-view background assertions; production behavior is unchanged. Browser verification requires the HTTPS frontend on port 3001 (proxy 8001), CIRCLECI=true and QQQ_SELENIUM_HEADLESS=true. Publish a new candidate only after validation, review and release gates pass. Earlier work recorded above is unchanged.
+
+## QQQ #939/#940 dependency security — 2026-09-30
+
+- [x] Verify public Jackson 2.21.7/Axios 0.34.0 artifacts and middleware 7.4.6 backport; update BOM, overrides and their lock entries/transitive development dependencies.
+- [x] Preserve vulnerable Jackson/Axios baselines; pass security regressions, 22 Maven units, 54 JS tests, Material serialization and production build.
+- [x] Reproduce subpath disclosure on 5.3.4; verify the 7.4.6 override blocks all 27 full-server probes while preserving assets/hooks/HMR/rebuilds and actual root/subpath npm start. Rerun JS/build/audits: 0 High/0 Critical; preserve existing overlay defect evidence and remaining Moderate/Low tracking.
+- [ ] Coordinator: independently review/integrate this patch, reconcile GitHub alerts under #940/#892, coordinate frontend-core's own Axios pin under #902, and rerun RC2 browser/hosted/release gates before publication.
