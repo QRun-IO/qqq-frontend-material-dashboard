@@ -154,7 +154,7 @@ When reporting frontend-specific issues, include:
 
 ## 📄 License
 
-By contributing to this project, you agree that your contributions will be licensed under the same license as the project (GNU Affero General Public License v3.0).
+By contributing to this project, you agree that your contributions will be licensed under the same license as the project (Apache License, Version 2.0).
 
 ## 🙏 Thank You
 

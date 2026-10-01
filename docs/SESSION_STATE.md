@@ -47,3 +47,24 @@ Fixed 5 regressions reported by Darin (compared to develop branch):
 ## GitHub Issue
 
 https://github.com/QRun-IO/qqq-frontend-material-dashboard/issues/128
+
+## QQQ #923 license alignment — 2026-09-30
+
+Owner-approved first-party Apache-2.0 declarations now align across source headers, Maven/npm metadata and current contributor/theme documentation. Attribution, third-party notices, dependency pins and executable source are preserved. The license delta passed independent review. QQQ #937 adds bounded waits before existing saved-view background assertions; production behavior is unchanged. Browser verification requires the HTTPS frontend on port 3001 (proxy 8001), CIRCLECI=true and QQQ_SELENIUM_HEADLESS=true. Publish a new candidate only after validation, review and release gates pass. Earlier work recorded above is unchanged.
+
+## QQQ #939/#940 dependency security — 2026-09-30
+
+Isolated patch from `f80d76bffa1a9ba24a304a056eb5d9df606d4ab7`: Jackson BOM 2.21.7, root Axios <1 override 0.34.0 and webpack-dev-middleware override 7.4.6. The published middleware backport preserves the APIs/options used by CRA 5.0.1 and dev-server 4.15.2; its Node >=18.12/webpack 5 requirements fit this project's Node >=20 and webpack 5.105.4. Local verification passed 22 Maven units, 54 JS tests, security regressions, Material serialization and the production build (source-map warnings retained). Full dev-server tests rejected all 27 traversal probes while preserving assets, proxy/service-worker/history hooks, HMR and rebuilds; actual root/subpath `npm start` checks also passed. Evidence: `qqq-license-923/evidence/alignment/material-security-940/` in the coordinating workspace. No UI source or runtime modernization is included.
+
+Fresh full and production-only npm audits both report 0 High/0 Critical; remaining totals are 15 Moderate/12 Low and 5 Moderate respectively. The old subpath disclosure baseline is retained; the middleware fix rejects traversal even though CRA still strips PUBLIC_URL's slash. The existing CRA source-overlay `_stats` mismatch reproduced identically before/after and is not fixed here. Public frontend-core 0.40.19-SNAPSHOT still pins Axios 0.33.0 outside this root override; #902 is separately coordinated. Independent review, full browser/hosted gates, GitHub alert reconciliation, RC2 integration and publication remain with the coordinator.
+
+
+## Public frontend-core integration — 2026-09-30
+
+Pin the verified public frontend-core 0.40.20-SNAPSHOT from core PR48/snapshot job388. Its exact registry integrity, Apache LICENSE/NOTICE and library files match the reviewed package; an isolated public consumer passes four HTTP and three security checks with zero audit findings. Only the root dependency and core lock node changed in this integration. Independent pin review passed.
+
+The combined Jackson/Axios/middleware/core candidate passes 54 JavaScript tests, production build and full Maven clean verify: 121 tests, zero failures/errors/skips/retries. Full audit reports zero High/Critical, 14 Moderate/12 Low; production reports zero High/Critical and five Moderate. Existing source-map/overlay and tool warnings remain recorded. Evidence is in the coordinating workspace under qqq-license-923/evidence/alignment/material-integrated-940/. Hosted checks, alert reconciliation, RC2 integration and existing publication gates remain; this is not RC/GA acceptance.
+
+## QQQ #942 / #923 packaged notices — 2026-09-30
+
+Bounded correction from signed PR162 merge `a37ead3b8c6b5a4819d29d853176374055dc1e8b`: Maven shared archive resources now copy the unchanged root LICENSE/NOTICE into all four published JARs. Resources 3.4.0 matches the prior integrated build. Actual release-profile packaging passed with reused verified public UI and runtime tests skipped; the executable archive guard fails on the existing public JARs and passes on all new local archives. Dependencies, Java/UI behavior and third-party notices are unchanged. Evidence: `qqq-license-923/evidence/alignment/material-notices-942/` in the coordination workspace. Independent review, signed integration, hosted required checks and verification of a newly published timestamped artifact remain; no public correction is claimed.
