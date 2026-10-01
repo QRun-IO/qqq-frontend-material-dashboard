@@ -16,7 +16,7 @@
     "@mui/x-data-grid-pro": "5.17.23",
     "@mui/x-date-pickers": "7.1.1",
     "@mui/x-license-pro": "5.12.3",
-    "@qrunio/qqq-frontend-core": "0.40.19-SNAPSHOT",
+    "@qrunio/qqq-frontend-core": "0.40.20-SNAPSHOT",
     "@react-jvectormap/core": "1.0.1",
     "@react-jvectormap/unitedstates": "1.0.1",
     "@react-oauth/google": "0.2.8",
@@ -122,11 +122,12 @@
   },
   "overrides": {
     "@svgr/webpack": "$@svgr/webpack",
-    "axios@<1.0.0": "0.33.0",
+    "axios@<1.0.0": "0.34.0",
     "form-data@^4.0.0": "$form-data",
     "resolve-url-loader": "5.0.0",
     "serialize-javascript": "7.0.3",
-    "underscore": "1.13.8"
+    "underscore": "1.13.8",
+    "webpack-dev-middleware": "7.4.6"
   },
   "main": "qqq-frontend-material-dashboard.js",
   "module": "lib/qqq-frontend-material-dashboard.js",
