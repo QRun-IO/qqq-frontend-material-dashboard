@@ -51,3 +51,7 @@
 
 - CI Playwright tests may timeout (WIP fix on separate branch)
 - `seleniumwithqapplication` tests require full QQQ backend (hang locally)
+
+## QQQ #923 license alignment — 2026-09-30
+
+Owner-approved first-party Apache-2.0 declarations now align across source headers, Maven/npm metadata and current contributor/theme documentation. Attribution, third-party notices, dependency pins and executable source are preserved. The license delta passed independent review. QQQ #937 adds bounded waits before existing saved-view background assertions; production behavior is unchanged. Browser verification requires the HTTPS frontend on port 3001 (proxy 8001), CIRCLECI=true and QQQ_SELENIUM_HEADLESS=true. Publish a new candidate only after validation, review and release gates pass. Earlier work recorded above is unchanged.
