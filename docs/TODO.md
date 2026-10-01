@@ -69,3 +69,9 @@ Owner-approved first-party Apache-2.0 declarations now align across source heade
 - [x] Verify public frontend-core 0.40.20-SNAPSHOT, pin its exact registry version/integrity and independently review the dependency delta.
 - [x] Pass the integrated 54 JavaScript tests, production build and 121 Maven/Selenium tests without failures, skips or retries; preserve remaining Moderate/Low audit findings.
 - [ ] Pass hosted PR checks, reconcile alerts and integrate the accepted changes into the RC2 draft while retaining #892 and the other release gates.
+
+## QQQ #942 / #923 packaged notices
+
+- [x] Include exact root LICENSE/NOTICE in main, sources, tests and Javadoc JARs using native Maven resource packaging; preserve existing archive contents.
+- [x] Prove the archive guard fails on the public baseline and altered notice bytes, and passes on all four actual local archives; document explicit post-package invocation.
+- [ ] Coordinator: independent review, signed integration and hosted checks; verify all four newly published JARs before claiming public correction, then coordinate the RC input with existing release gates.
