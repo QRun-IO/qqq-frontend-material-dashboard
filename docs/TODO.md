@@ -62,3 +62,10 @@ Owner-approved first-party Apache-2.0 declarations now align across source heade
 - [x] Preserve vulnerable Jackson/Axios baselines; pass security regressions, 22 Maven units, 54 JS tests, Material serialization and production build.
 - [x] Reproduce subpath disclosure on 5.3.4; verify the 7.4.6 override blocks all 27 full-server probes while preserving assets/hooks/HMR/rebuilds and actual root/subpath npm start. Rerun JS/build/audits: 0 High/0 Critical; preserve existing overlay defect evidence and remaining Moderate/Low tracking.
 - [ ] Coordinator: independently review/integrate this patch, reconcile GitHub alerts under #940/#892, coordinate frontend-core's own Axios pin under #902, and rerun RC2 browser/hosted/release gates before publication.
+
+
+## Public frontend-core integration — 2026-09-30
+
+- [x] Verify public frontend-core 0.40.20-SNAPSHOT, pin its exact registry version/integrity and independently review the dependency delta.
+- [x] Pass the integrated 54 JavaScript tests, production build and 121 Maven/Selenium tests without failures, skips or retries; preserve remaining Moderate/Low audit findings.
+- [ ] Pass hosted PR checks, reconcile alerts and integrate the accepted changes into the RC2 draft while retaining #892 and the other release gates.
