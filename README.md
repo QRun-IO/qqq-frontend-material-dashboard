@@ -81,6 +81,26 @@ npm run build
 mvn clean package -Pci
 ```
 
+### Verify published JAR notices
+
+After staging the built UI in `src/main/resources/material-dashboard/` (as the
+publishing orb does), package with the `release` profile to produce main, sources,
+tests and Javadoc JARs. Before publication, run the archive guard with the actual
+version's archive prefix:
+
+```bash
+mvn -Prelease -DskipTests -Dgpg.skip=true clean package
+./scripts/check-packaged-notices.py target/qqq-frontend-material-dashboard-0.41.0-SNAPSHOT
+```
+
+This command verifies packaging only: it skips runtime tests and does not sign
+or publish. Existing runtime and hosted release gates are still required.
+The guard requires Python 3 and checks that every JAR contains exactly one
+`META-INF/LICENSE` and `META-INF/NOTICE`, byte-identical to the root files. It exits
+nonzero for missing archives, missing/duplicate entries or altered text. This is
+an explicit post-package check; the unchanged Circle orb does not invoke it
+automatically. It supplements the existing runtime and hosted release gates.
+
 ## Project Status
 
 **Maturity:** Stable, production use  
