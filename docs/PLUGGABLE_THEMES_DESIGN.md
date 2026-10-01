@@ -598,7 +598,7 @@ Create a new repository `qqq-theme-default` with the following structure:
       "type": "git",
       "url": "https://github.com/QRun-IO/qqq-theme-default.git"
    },
-   "license": "AGPL-3.0"
+   "license": "Apache-2.0"
 }
 ```
 
