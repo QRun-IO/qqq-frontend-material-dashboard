@@ -367,7 +367,8 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
       }
 
       let isChildRecordWidget = widgetMetaData.type == "childRecordList";
-      if (!isChildRecordWidget && renderedWidgets[activeStep.name][widgetName])
+      let isValueDependentWidget = widgetMetaData.type == "rowBuilder";
+      if (!isChildRecordWidget && !isValueDependentWidget && renderedWidgets[activeStep.name][widgetName])
       {
          return renderedWidgets[activeStep.name][widgetName];
       }
@@ -404,7 +405,10 @@ function ProcessRun({process, table, defaultProcessValues, isModal, isWidget, is
       const renderedWidget = (<Box m={-2}>
          <DashboardWidgets widgetMetaDataList={[widgetMetaData]} omitWrappingGridContainer={true} childUrlParams={queryStringParts.join("&")} initialWidgetDataList={initialWidgetDataList} values={processValues} actionCallback={actionCallback} />
       </Box>);
-      renderedWidgets[activeStep.name][widgetName] = renderedWidget;
+      if (!isValueDependentWidget)
+      {
+         renderedWidgets[activeStep.name][widgetName] = renderedWidget;
+      }
       return renderedWidget;
    }
 
