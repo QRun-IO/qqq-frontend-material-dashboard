@@ -54,7 +54,7 @@
     "react-google-drive-picker": "^1.2.0",
     "react-markdown": "9.0.1",
     "react-oidc-context": "2.3.1",
-    "react-router-dom": "6.30.3",
+    "react-router-dom": "6.30.6",
     "react-router-hash-link": "2.4.3",
     "react-table": "7.7.0",
     "sass": "1.63.4",
@@ -125,9 +125,13 @@
     "axios@<1.0.0": "0.34.0",
     "form-data@^4.0.0": "$form-data",
     "resolve-url-loader": "5.0.0",
-    "serialize-javascript": "7.0.3",
+    "serialize-javascript": "7.0.5",
     "underscore": "1.13.8",
-    "webpack-dev-middleware": "7.4.6"
+    "webpack-dev-middleware": "7.4.6",
+    "qs": "^6.15.4",
+    "sockjs": {
+      "uuid": "^11.1.1"
+    }
   },
   "main": "qqq-frontend-material-dashboard.js",
   "module": "lib/qqq-frontend-material-dashboard.js",
