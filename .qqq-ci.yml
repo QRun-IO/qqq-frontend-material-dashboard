@@ -1,3 +1,3 @@
 profile: frontend-material
-orb_version: 0.7.18
+orb_version: '0.8'
 default_branch: develop
