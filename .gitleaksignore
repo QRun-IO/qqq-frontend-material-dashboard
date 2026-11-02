@@ -1,0 +1,4 @@
+
+
+# Reviewed findings committed before the Gitea migration; exact historical fingerprints only.
+267580b44babf4935c152da8fa2320d6059105f3:src/qqq/components/processes/GoogleDriveFolderPicker.tsx:gcp-api-key:43
