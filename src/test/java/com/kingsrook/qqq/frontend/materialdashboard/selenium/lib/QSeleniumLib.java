@@ -193,9 +193,9 @@ public class QSeleniumLib
     *******************************************************************************/
    public void waitForever()
    {
-      if(System.getenv("CIRCLECI") != null)
+      if(System.getenv("CIRCLECI") != null || "true".equals(System.getenv("CI")))
       {
-         LOG.warn("A waitForever was found in CIRCLECI - so, we don't want to do that, so, returning immediately.");
+         LOG.warn("A waitForever was found in CI - so, we don't want to do that, so, returning immediately.");
          return;
       }
 

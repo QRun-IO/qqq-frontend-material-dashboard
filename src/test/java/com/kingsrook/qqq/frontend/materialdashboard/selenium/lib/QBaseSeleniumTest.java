@@ -66,7 +66,7 @@ public class QBaseSeleniumTest
       chromeOptions.addArguments("--remote-allow-origins=*");
 
       String headless = System.getenv("QQQ_SELENIUM_HEADLESS");
-      if("true".equals(headless))
+      if("true".equals(headless) || "true".equals(System.getenv("CI")))
       {
          chromeOptions.addArguments("--headless=new");
       }

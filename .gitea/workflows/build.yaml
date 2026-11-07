@@ -9,4 +9,4 @@ jobs:
       # Selenium ITs need the Chrome-capable image; the React build is packaged into the jar.
       browsers: true
       node-version: '22.20.0'
-      prebuild: npm ci --legacy-peer-deps && npm test -- --watchAll=false && npm run build-and-publish
+      prebuild: bash scripts/ci-prebuild.sh
