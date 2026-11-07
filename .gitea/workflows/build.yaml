@@ -1,0 +1,12 @@
+name: build
+on:
+  push:
+jobs:
+  maven:
+    uses: self:KofTwentyTwo/ci-workflows/.gitea/workflows/maven.yaml@v1
+    secrets: inherit
+    with:
+      # Selenium ITs need the Chrome-capable image; the React build is packaged into the jar.
+      browsers: true
+      node-version: '22.20.0'
+      prebuild: npm ci --legacy-peer-deps && npm test -- --watchAll=false && npm run build-and-publish
